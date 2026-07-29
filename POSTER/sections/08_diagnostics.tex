@@ -1,0 +1,266 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 08_diagnostics.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{7. Topological Diagnostics}
+
+\BodyFont
+
+Computing a coherence score answers only one question:
+
+\[
+\boxed{
+\text{Is the memory coherent?}
+}
+\]
+
+When disagreement is detected, a second problem immediately arises:
+
+\[
+\boxed{
+\text{Where does the inconsistency originate?}
+}
+\]
+
+MOS addresses this through topological diagnostics.
+
+Rather than treating inconsistency as a single scalar quantity, the
+framework identifies the simplices responsible for incompatible local
+assignments and analyzes their surrounding topological structure.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DIAGNOSTIC PIPELINE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{6mm}
+
+\begin{center}
+
+\begin{tikzpicture}[
+node distance=17mm,
+every node/.style={
+font=\Large,
+align=center
+}
+]
+
+\node[concept] (discord)
+{
+Compute\\
+Discord
+};
+
+\node[concept,right=of discord]
+(check)
+{
+Discord\\
+Large?
+};
+
+\node[concept,right=of check]
+(localize)
+{
+Locate\\
+Responsible\\
+Simplex
+};
+
+\node[concept,right=of localize]
+(topology)
+{
+Topology\\
+Analysis
+};
+
+\node[concept,right=of topology]
+(repair)
+{
+Structural\\
+Update
+};
+
+\draw[arrow]
+(discord)--(check);
+
+\draw[arrow]
+(check)--(localize);
+
+\draw[arrow]
+(localize)--(topology);
+
+\draw[arrow]
+(topology)--(repair);
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LOCALIZATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Discord Localization}
+
+\BodyFont
+
+The coherence functional identifies the presence of inconsistency.
+
+Local diagnostic procedures determine the simplices whose restriction maps
+contribute most strongly to the disagreement energy.
+
+These regions become natural candidates for
+
+\begin{itemize}
+
+\item refinement,
+
+\item correction,
+
+\item semantic revision,
+
+\item structural expansion.
+
+\end{itemize}
+
+Rather than rebuilding the entire knowledge structure, MOS attempts to
+localize disagreement before modifying the underlying complex.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TOPOLOGICAL INVARIANTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Topological Invariants}
+
+\BodyFont
+
+Once problematic regions have been identified, global topological
+properties provide additional structural information.
+
+Representative invariants include
+
+\[
+\boxed{
+b_0
+}
+\]
+
+(number of connected components)
+
+\vspace{2mm}
+
+and
+
+\[
+\boxed{
+H^{1}(C,\mathcal F)
+}
+\]
+
+which detects non-trivial compatibility obstructions within the sheaf.
+
+These quantities distinguish isolated local disagreement from genuine
+global structural inconsistency.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VISUAL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[scale=1]
+
+\coordinate (A) at (0,0);
+\coordinate (B) at (3,0);
+\coordinate (C) at (1.5,2.6);
+\coordinate (D) at (5,1.4);
+
+\draw[simplex]
+(A)--(B)--(C)--cycle;
+
+\draw[simplex]
+(B)--(D);
+
+\draw[simplex]
+(C)--(D);
+
+\foreach \P in {A,B,C,D}
+{
+\fill[MOSOrange]
+(\P)
+circle(3pt);
+}
+
+\draw[
+very thick,
+MOSRed,
+decorate,
+decoration={zigzag}
+]
+(B)--(D);
+
+\node[align=center] at (6.5,1.4)
+{
+Localized\\
+Conflict
+};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTERPRETATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Interpretation}
+
+\BodyFont
+
+Diagnostics transform coherence from a passive measurement into an active
+verification procedure.
+
+\[
+\boxed{
+\text{Measure}
+\rightarrow
+\text{Locate}
+\rightarrow
+\text{Analyze}
+\rightarrow
+\text{Repair}
+}
+\]
+
+The objective is not only to detect inconsistency but also to determine
+its geometric origin within the underlying simplicial structure.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REMARK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+The diagnostic procedures presented here are intended as mathematical
+tools for structural verification.
+
+Their implementation within a complete cognitive architecture remains
+future work.
+
+The present framework establishes the mathematical quantities and
+topological invariants upon which such procedures can be constructed.
+
+\end{remarkbox}

@@ -1,0 +1,316 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 06_coherence.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{5. Sheaf Coherence and Global Consistency}
+
+\BodyFont
+
+Once local information has been attached to the simplicial complex through
+a cellular sheaf, the next question is whether these local assignments are
+globally compatible.
+
+MOS measures this compatibility through the sheaf Laplacian, which
+quantifies disagreement between neighboring local sections.
+
+Rather than asking whether individual concepts are correct, the objective
+is to determine whether the entire assignment is internally consistent.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SHEAF LAPLACIAN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\boxed{
+L=\delta^{T}\delta
+}
+\]
+
+\vspace{3mm}
+
+\BodyFont
+
+Here
+
+\[
+\delta
+\]
+
+denotes the sheaf coboundary operator.
+
+The associated Laplacian measures incompatibility introduced by the local
+restriction maps.
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ENERGY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{5mm}
+
+\begin{mosbox}{Coherence Functional}
+
+\BodyFont
+
+Given an assignment
+
+\[
+x\in C^{0}(C,\mathcal F),
+\]
+
+its disagreement energy is defined by
+
+\[
+\boxed{
+\omega(x)
+=
+x^{T}Lx
+=
+\|\delta x\|^{2}.
+}
+\]
+
+This functional has a natural interpretation:
+
+\begin{center}
+
+\begin{tabular}{p{5cm}p{10cm}}
+
+$\omega(x)=0$
+
+&
+
+Perfect global compatibility.
+
+\\[4mm]
+
+Small $\omega(x)$
+
+&
+
+Minor local disagreement.
+
+\\[4mm]
+
+Large $\omega(x)$
+
+&
+
+Substantial inconsistency between neighboring assignments.
+
+\end{tabular}
+
+\end{center}
+
+The quantity therefore serves as a global measure of structural coherence.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% GEOMETRIC INTERPRETATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[
+  scale=1.2,
+  healthy/.style={circle, fill=MOSGold, draw=white, line width=1pt, minimum size=10pt, inner sep=0pt},
+  discord/.style={circle, fill=MOSRed, draw=white, line width=1pt, minimum size=10pt, inner sep=0pt},
+  hedge/.style={draw=MOSGold, line width=2pt},
+  dedge/.style={draw=MOSRed, line width=2pt},
+  broken/.style={draw=MOSRed, line width=2pt, decorate, decoration={zigzag, segment length=4mm, amplitude=1.5mm}}
+]
+
+% Healthy side
+\node[white, font=\Large\bfseries] at (-4, 3) {healthy};
+
+\node[healthy] (h1) at (-5.5, 1.5) {};
+\node[healthy] (h2) at (-4, 1.5) {};
+\node[healthy] (h3) at (-2.5, 1.5) {};
+\node[healthy] (h4) at (-5.5, 0) {};
+\node[healthy] (h5) at (-4, 0) {};
+
+\draw[hedge] (h1) -- (h2) -- (h3);
+\draw[hedge] (h1) -- (h4);
+\draw[hedge] (h2) -- (h5);
+\draw[hedge] (h4) -- (h5);
+
+% Rho
+\node[white, font=\Huge\bfseries] at (0, 1.5) {$\rho$};
+
+% Discord side
+\node[white, font=\Large\bfseries] at (4, 3) {discord};
+
+\node[discord] (d1) at (2.5, 1.5) {};
+\node[discord] (d2) at (4, 1.5) {};
+\node[discord] (d3) at (5.5, 1.5) {};
+\node[discord] (d4) at (2.5, 0) {};
+
+\draw[dedge] (d1) -- (d2);
+\draw[broken] (d2) -- (d3) node[midway, fill=MOSBlack, font=\Huge, text=white, inner sep=1pt] {$\times$};
+\draw[dedge] (d1) -- (d4);
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% KERNEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Global Sections}
+
+\BodyFont
+
+A fundamental result used throughout MOS is
+
+\[
+\boxed{
+H^{0}(C,\mathcal F)
+=
+\ker(L).
+}
+\]
+
+Consequently,
+
+global sections are precisely those assignments whose disagreement energy
+vanishes.
+
+Equivalently,
+
+\[
+\omega(x)=0
+\Longleftrightarrow
+x\in H^{0}(C,\mathcal F).
+\]
+
+This provides a direct computational characterization of coherent memory
+states.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% NORMALIZED DISCORD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Normalized Discord}
+
+\BodyFont
+
+For comparisons across different systems and scales, MOS introduces the
+dimensionless normalized discord
+
+\[
+\boxed{
+\rho
+=
+\frac{\omega(x)}
+{B\|x\|^{2}},
+\qquad
+0\le\rho\le1,
+}
+\]
+
+where
+
+\[
+B
+\]
+
+is an appropriate normalization constant.
+
+The normalized quantity removes dependence on the overall scale of the
+assignment, allowing coherence values to be compared across distinct
+memory structures.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SCALE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}
+
+\draw[
+MOSGray,
+line width=3pt
+]
+(0,0)
+--
+(12,0);
+
+\foreach \x/\lab in
+{
+0/{0},
+3/{0.25},
+6/{0.5},
+9/{0.75},
+12/{1}
+}
+{
+\draw[
+MOSGray,
+line width=2pt
+]
+(\x,-.15)
+--
+(\x,.15);
+
+\node[below]
+at
+(\x,-.15)
+{$\lab$};
+}
+
+\fill[MOSGold]
+(0,0)
+circle(5pt);
+
+\fill[MOSGold]
+(12,0)
+circle(5pt);
+
+\node[above]
+at
+(0,.3)
+{\small Perfect Coherence};
+
+\node[above]
+at
+(12,.3)
+{\small Maximum Discord};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REMARK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+The coherence functional is one of the central diagnostic tools of MOS.
+
+It transforms the abstract notion of compatibility into a computable scalar
+quantity while preserving its geometric interpretation through the sheaf
+Laplacian.
+
+Subsequent sections build upon this measure to develop semantic geometry,
+diagnostics and adaptive structural dynamics.
+
+\end{remarkbox}

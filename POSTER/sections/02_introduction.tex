@@ -1,0 +1,176 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 02_introduction.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{1. Motivation: Why Represent Memory Geometrically?}
+
+\BodyFont
+
+Modern learning systems typically represent memory as collections of
+vectors or key--value databases. Such representations are highly effective
+for retrieval but contain little explicit mathematical structure governing
+how individual concepts relate, how local consistency propagates, or how
+global coherence can be verified.
+
+MOS investigates a different mathematical viewpoint.
+
+Rather than treating memory as an unordered collection of embeddings,
+memory is modeled as a structured geometric object
+
+\[
+M=(C,\mathcal F,s),
+\]
+
+where relationships between concepts become intrinsic features of the
+space itself.
+
+\vspace{4mm}
+
+The objective is not to replace existing reasoning systems.
+Instead, MOS proposes an external mathematical organization layer capable
+of
+
+\begin{itemize}
+
+\item organizing knowledge hierarchically,
+
+\item measuring consistency,
+
+\item identifying contradictions,
+
+\item supporting principled memory growth,
+
+\item providing mathematically interpretable diagnostics.
+
+\end{itemize}
+
+\vspace{4mm}
+
+This perspective shifts the emphasis
+
+\[
+\boxed{
+\text{Memory}
+\longrightarrow
+\text{Structured Mathematical Object}
+}
+\]
+
+rather than
+
+\[
+\boxed{
+\text{Memory}
+\longrightarrow
+\text{Collection of Independent Vectors}.
+}
+\]
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% GEOMETRIC VIEW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{5mm}
+
+\begin{center}
+
+\begin{tikzpicture}[scale=1.15]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VECTOR DATABASE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node at (-7,5)
+{\Large\bfseries Conventional Memory};
+
+\foreach \i in {0,...,13}
+{
+\fill[MOSOrange]
+(-8+rand*2,3+rand*2)
+circle(2.5pt);
+}
+
+\draw[very thick,MOSRed]
+(-9,2)
+rectangle
+(-5,6);
+
+\node at (-7,1.2)
+{\Large Independent Embeddings};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ARROW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[arrow]
+(-4,4)
+--
+(0,4);
+
+\node at (-2,4.6)
+{\Large Structure};
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MOS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node at (6,5)
+{\Large\bfseries MOS Representation};
+
+\coordinate (A) at (4,2.5);
+
+\coordinate (B) at (8,2.5);
+
+\coordinate (C) at (6,5.5);
+
+\coordinate (D) at (6,3.8);
+
+\draw[simplex]
+(A)--(B)--(C)--cycle;
+
+\draw[simplex]
+(A)--(D);
+
+\draw[simplex]
+(B)--(D);
+
+\draw[simplex]
+(C)--(D);
+
+\foreach \p in {A,B,C,D}
+{
+
+\fill[MOSOrange]
+(\p)
+circle(3.5pt);
+
+}
+
+\node at (6,1.2)
+{\Large Higher-Order Relations};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REMARK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+\textbf{Interpretation}
+
+The role of the simplicial complex is not merely to connect concepts by
+edges, but to encode higher-order interactions involving multiple concepts
+simultaneously. The cellular sheaf then equips each cell with local data,
+while global sections describe mutually compatible knowledge across the
+entire structure.
+
+\end{remarkbox}

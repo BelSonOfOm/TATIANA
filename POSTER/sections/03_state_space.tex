@@ -1,0 +1,257 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 03_state_space.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{2. The Cognitive State Space}
+
+\BodyFont
+
+The Mathematical Operating System is modeled by the triple
+
+\[
+\boxed{
+M=(C,\mathcal{F},s)
+}
+\]
+
+where
+
+\begin{center}
+
+\begin{tabular}{p{2.5cm}p{13.5cm}}
+
+$\mathbf{C}$ &
+A finite stratified simplicial complex encoding higher-order conceptual
+relationships.
+
+\\[3mm]
+
+$\mathbf{\mathcal F}$ &
+A cellular sheaf assigning local mathematical information to every simplex
+together with compatible restriction maps.
+
+\\[3mm]
+
+$\mathbf{s}$ &
+A distinguished global section representing a coherent cognitive state.
+
+\end{tabular}
+
+\end{center}
+
+Rather than storing isolated pieces of information,
+MOS represents cognition as a structured mathematical object in which
+local information, topology and global compatibility coexist within a
+single framework.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VISUAL DECOMPOSITION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{5mm}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0, every node/.style={font=\small}]
+% Vertices of a regular tetrahedron projection
+\coordinate (v1) at (-3,0);
+\coordinate (v2) at (0,2);
+\coordinate (v3) at (3,0);
+\coordinate (v4) at (0,-2);
+% Simplices (filled triangles) highlighting 2-simplices
+\draw[simplex, thick] (v1)--(v2)--(v3)--cycle; % base triangle
+\draw[simplex, thick] (v1)--(v4)--(v3); % opposite triangle
+\draw[simplex, thick] (v2)--(v4); % edge connecting top and bottom
+% Vertices
+\foreach \p in {v1,v2,v3,v4}{
+  \fill[MOSRed] (\p) circle (4pt);
+}
+% Labels for components
+\node at (-3,1.2) {\Large Base Complex};
+\node at (0,3) {\Large Cellular Sheaf};
+\node at (3,1.2) {\Large Global Section};
+% Arrows indicating flow
+\draw[arrow] (-1,1.5) -- (1,1.5);
+\draw[arrow] (1,-1.5) -- (3,-1.5);
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.05]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% COMPLEX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node at (-9,6)
+{\Large\bfseries Base Complex};
+
+\coordinate (A) at (-10,2);
+
+\coordinate (B) at (-6,2);
+
+\coordinate (C) at (-8,5);
+
+\coordinate (D) at (-8,3.5);
+
+\draw[simplex] (A)--(B)--(C)--cycle;
+
+\draw[simplex] (A)--(D);
+
+\draw[simplex] (B)--(D);
+
+\draw[simplex] (C)--(D);
+
+\foreach \p in {A,B,C,D}
+{
+
+\fill[MOSOrange]
+(\p)
+circle(4pt);
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ARROW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[arrow]
+(-4,3.5)
+--
+(-1,3.5);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SHEAF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node at (2,6)
+{\Large\bfseries Cellular Sheaf};
+
+\node[concept] (v1) at (0,5)
+{$F(v_1)$};
+
+\node[concept] (v2) at (4,5)
+{$F(v_2)$};
+
+\node[concept] (e1) at (2,2.5)
+{$F(e)$};
+
+\draw[arrow]
+(v1)
+--
+(e1);
+
+\draw[arrow]
+(v2)
+--
+(e1);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ARROW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[arrow]
+(5.5,3.5)
+--
+(8.5,3.5);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% GLOBAL SECTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node at (12,6)
+{\Large\bfseries Global Section};
+
+\node[concept] (g1) at (10,5)
+{$x_1$};
+
+\node[concept] (g2) at (14,5)
+{$x_2$};
+
+\node[concept] (g3) at (12,2.5)
+{$x_e$};
+
+\draw[arrow]
+(g1)
+--
+(g3);
+
+\draw[arrow]
+(g2)
+--
+(g3);
+
+\node at (12,.8)
+{\Large Compatible Assignments};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTERPRETATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\BodyFont
+
+The three components of the state space play distinct mathematical roles.
+
+\begin{itemize}
+
+\item The simplicial complex specifies the combinatorial structure of
+memory.
+
+\item The cellular sheaf assigns local mathematical data to every cell.
+
+\item A global section corresponds to a configuration whose local
+assignments remain mutually compatible under every restriction map.
+
+\end{itemize}
+
+Consequently,
+
+\[
+\boxed{
+\text{Geometry}
+\longrightarrow
+\text{Organization}
+}
+\]
+
+\[
+\boxed{
+\text{Sheaf}
+\longrightarrow
+\text{Local Information}
+}
+\]
+
+\[
+\boxed{
+\text{Global Section}
+\longrightarrow
+\text{Coherent Memory}
+}
+\]
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SMALL REMARK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+This decomposition is the mathematical foundation upon which the remaining
+components of MOS are built. Subsequent sections introduce coherence
+measures, semantic geometry, diagnostics and dynamics using this common
+state-space representation.
+
+\end{remarkbox}

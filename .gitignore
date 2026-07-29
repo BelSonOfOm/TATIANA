@@ -1,0 +1,29 @@
+# Build artifacts
+MOS/build/
+MOS/build_nmake/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/*.obj
+**/*.o
+**/*.exe
+**/*.dll
+**/*.lib
+**/*.pdb
+**/*.ilk
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+
+# Editor/OS
+.vs/
+.vscode/
+*.suo
+*.user
+Thumbs.db
+.DS_Store
+
+# Claude Code local settings
+.claude/settings.local.json

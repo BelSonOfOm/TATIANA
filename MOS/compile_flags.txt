@@ -1,0 +1,10 @@
+-xc++
+-std=c++17
+-IC:\Users\cdarg\Desktop\TATIANA\MOS\include
+-IC:\Users\cdarg\Desktop\TATIANA\MOS\vendor\sqlite
+-IC:\Users\cdarg\Desktop\TATIANA\MOS\vendor\nlohmann
+-IC:\Users\cdarg\Desktop\TATIANA\MOS\build
+-IC:\Users\cdarg\Desktop\TATIANA\MOS\build\_deps\eigen-src
+-IC:\Users\cdarg\Desktop\TATIANA\MOS\build\_deps\flatbuffers-src\include
+-DWIN32
+-D_WINDOWS

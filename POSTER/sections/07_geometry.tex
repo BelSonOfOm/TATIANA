@@ -1,0 +1,253 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 07_geometry.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{6. Semantic Geometry}
+
+\BodyFont
+
+The combinatorial structure of the simplicial complex and the local
+constraints imposed by the cellular sheaf describe how information is
+organized.
+
+Semantic geometry introduces a complementary question:
+
+\[
+\boxed{
+\text{How should concepts themselves be represented?}
+}
+\]
+
+Within MOS, every concept is modeled probabilistically as an uncertainty
+distribution rather than a single point in space.
+
+This representation preserves both the estimated semantic location and the
+associated confidence of that estimate.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% GAUSSIAN REPRESENTATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\boxed{
+X_i
+\sim
+\mathcal N(\mu_i,\Sigma_i)
+}
+\]
+
+\BodyFont
+
+Each concept is represented by
+
+\[
+(\mu_i,\Sigma_i),
+\]
+
+where
+
+\begin{itemize}
+
+\item $\mu_i$ denotes the semantic embedding,
+
+\item $\Sigma_i$ represents uncertainty,
+
+\item higher confidence corresponds to smaller covariance.
+
+\end{itemize}
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SEMANTIC DIAGRAM
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{5mm}
+
+\begin{center}
+
+\begin{tikzpicture}[scale=1]
+
+% Left Cloud
+\node[cloud, cloud puffs=13, cloud puff arc=120, aspect=1.5, draw=MOSRed, line width=2pt, minimum width=3.5cm, minimum height=2.5cm, fill=MOSBlack] (c1) at (-4,0) {};
+\fill[MOSRed] (-4,0) circle(3pt);
+\node[white, below=1.5cm] at (-4,0) {$(\mu_1,\Sigma_1)$};
+
+% Right Cloud
+\node[cloud, cloud puffs=12, cloud puff arc=120, aspect=1.4, draw=MOSRed, line width=2pt, minimum width=3cm, minimum height=2cm, fill=MOSBlack] (c2) at (4,0) {};
+\fill[MOSRed] (4,0) circle(3pt);
+\node[white, below=1.5cm] at (4,0) {$(\mu_2,\Sigma_2)$};
+
+% Wasserstein Distance
+\draw[<->, MOSGold, line width=2.5pt] (c1.east) -- (c2.west) node[midway, above=3mm, MOSGold] {\Large $W_2$};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DISTANCE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Semantic Distance}
+
+\BodyFont
+
+The similarity between two concepts is measured geometrically rather than
+combinatorially.
+
+MOS adopts the Wasserstein metric to compare probabilistic semantic
+representations.
+
+\[
+\boxed{
+W_2
+\left(
+X_1,
+X_2
+\right)
+}
+\]
+
+The resulting distance reflects differences in both semantic position and
+uncertainty.
+
+Unlike Euclidean distance alone, this comparison incorporates the full
+probabilistic structure of the concepts.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FUSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Precision-Weighted Fusion}
+
+\BodyFont
+
+When multiple compatible concepts are combined, MOS performs a
+precision-weighted fusion.
+
+Concepts with greater certainty contribute proportionally more to the
+resulting estimate.
+
+The fused representation is obtained through precision averaging.
+
+\[
+\boxed{
+\mu
+=
+\left(
+\sum_i
+\Sigma_i^{-1}
+\right)^{-1}
+\left(
+\sum_i
+\Sigma_i^{-1}\mu_i
+\right)
+}
+\]
+
+The associated covariance decreases as mutually consistent evidence is
+combined.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VISUAL FUSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[scale=1]
+
+% Cloud 1 (Faint)
+\node[cloud, cloud puffs=11, cloud puff arc=120, aspect=1.5, draw=MOSRed, line width=1pt, minimum width=3cm, minimum height=2cm, opacity=0.5] at (-4,0) {};
+
+% Cloud 2 (Faint)
+\node[cloud, cloud puffs=10, cloud puff arc=120, aspect=1.3, draw=MOSRed, line width=1pt, minimum width=2.5cm, minimum height=1.8cm, opacity=0.5] at (0,0) {};
+
+\draw[arrow, opacity=0.5] (-2.2,0) -- (-1.2,0);
+\draw[arrow, opacity=0.5] (1.2,0) -- (2.2,0);
+
+% Fused Cloud (Strong, Gold)
+\node[cloud, cloud puffs=14, cloud puff arc=120, aspect=1.6, draw=MOSGold, line width=3pt, minimum width=2cm, minimum height=1.5cm, fill=MOSBlack] (c3) at (4,0) {};
+\fill[MOSGold] (4,0) circle(4pt);
+\node[MOSGold, below=1.2cm] at (4,0) {\bfseries Fused Concept};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTERPRETATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Interpretation}
+
+\BodyFont
+
+Semantic geometry complements the topological organization of MOS.
+
+\begin{center}
+
+\begin{tabular}{ccl}
+
+Topology
+&
+$\Longrightarrow$
+&
+Which concepts are related?
+
+\\[3mm]
+
+Geometry
+&
+$\Longrightarrow$
+&
+How similar are they?
+
+\\[3mm]
+
+Probability
+&
+$\Longrightarrow$
+&
+How certain is that relationship?
+
+\end{tabular}
+
+\end{center}
+
+Together, these components provide a mathematical description of both the
+structure and the uncertainty of conceptual memory.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REMARK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+Semantic geometry does not replace the simplicial complex or the cellular
+sheaf.
+
+Instead, it enriches the existing topological framework by introducing a
+continuous geometric layer capable of measuring similarity, uncertainty and
+information fusion.
+
+The topological and geometric components therefore play complementary
+roles within the overall MOS architecture.
+
+\end{remarkbox}

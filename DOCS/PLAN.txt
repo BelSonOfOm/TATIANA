@@ -1,0 +1,64 @@
+I am building an agent that takes my questions and queries and answers them based on a deep research it does, where all the sources (papers books and stuff ) are downloaded and maintained on a local harddisk, and gives me the best solution to the problem I'm solving. so for example if I give it a problem say "solve this eigenvalue problem of a hamiltonian acting on a differential form of CP^3" I want to have a complex brain solving part which I used to rely on Gemini 3.0 Api key thing and it searches the web for articles, books, methods and what not and gives me a detailed accurate and reliable solution based on research and books it used, then it goes to the hard disk and arranges the storage based on wether its a paper book article or web page, and also on subject (Algebraic Geometry/ Quantum information...) furthermore I want it to also be able to access live the code that I write and be able to write complex C++ code that usually is Numerical simulations of mathematical methods I'm making, also debugging and self maintaining codes my problem is that I am poor and have no money, so I want a powerful agent that has as a brain a reasoning model stronger or equal to gemini 3.5 pro and can do all of that. I want a free way to be able to manage this without hitting a daily limit
+
+I'm currently planning of doing it in the following way
+
+
+                 ME
+
+                  │
+
+          Planner Agent
+                  │
+
+      ┌───────────┴───────────┐
+      │                       │
+
+ Local knowledge         Internet search
+
+      │                       │
+
+ FAISS               arXiv
+ SQLite              Semantic Scholar
+ PDFs                Crossref
+ Books               Wikipedia
+ Notes               GitHub
+		     anna's archive
+		     Sci-hub
+
+      │                       │
+
+      └───────────┬───────────┘
+
+           Context Builder
+
+                  │
+
+      Sends only ~30 pages
+      instead of 3000 pages
+
+                  │
+
+      Remote reasoning model
+
+                  │
+
+        Generates report
+
+                  │
+
+      Local storage updates
+
+I think I can build something much closer to a mathematical operating system.
+
+It would have specialized agents:
+
+Research Agent — finds papers and books.
+Mathematics Agent — constructs proofs, derives formulas, checks assumptions.
+Code Agent — writes and debugs C++ and Python.
+Simulation Agent — compiles and runs your numerical solvers.
+Knowledge Agent — organizes and indexes everything automatically.
+Memory Agent — remembers every theorem, project, paper, and codebase you've ever worked with.
+
+The "brain" would become just one interchangeable component. If a better reasoning model appears next year, you swap it in without redesigning the whole system.
+
+will it be able to solve the example problem? will it be able to correct scrutinously long papers I wrote and suggest improvements? I want pristine absolute frontier reasoning while using minimal to no API tokens at all.

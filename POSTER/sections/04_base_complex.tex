@@ -1,0 +1,187 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 04_base_complex.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{3. The Base Complex}
+
+\BodyFont
+
+The foundational object of MOS is a finite simplicial complex
+
+\[
+C=(V,\Sigma),
+\]
+
+where
+
+\[
+V=\{\text{vertices}\}
+\]
+
+represents elementary concepts, while
+
+\[
+\Sigma
+\]
+
+is a family of simplices describing admissible higher-order conceptual
+relationships.
+
+Unlike an ordinary graph, simplicial complexes naturally encode
+interactions involving three or more concepts simultaneously.
+This richer combinatorial structure provides the geometric substrate upon
+which the remainder of the MOS framework is constructed.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SIMPLEX HIERARCHY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{4mm}
+
+\begin{center}
+
+\begin{tikzpicture}[
+  scale=2,
+  node/.style={circle, fill=MOSRed, draw=MOSGold, line width=1pt, minimum size=10pt, inner sep=0pt},
+  edge/.style={draw=MOSRed, line width=2pt},
+  face/.style={fill=MOSRed, opacity=0.3}
+]
+
+% Nodes
+\node[node] (n1) at (0, 1.5) {};
+\node[node] (n2) at (-1, 0.5) {};
+\node[node] (n3) at (1, 0.5) {};
+\node[node] (n4) at (-1.5, -0.5) {};
+\node[node] (n5) at (0, -0.5) {};
+\node[node] (n6) at (1.5, -0.5) {};
+\node[node] (n7) at (0, -1.5) {};
+
+% 2-Simplices (Faces)
+\fill[face] (n2.center) -- (n4.center) -- (n5.center) -- cycle;
+\fill[face] (n2.center) -- (n3.center) -- (n5.center) -- cycle;
+\fill[face] (n3.center) -- (n5.center) -- (n6.center) -- cycle;
+\fill[face] (n4.center) -- (n5.center) -- (n7.center) -- cycle;
+\fill[face] (n5.center) -- (n6.center) -- (n7.center) -- cycle;
+
+% 1-Simplices (Edges)
+\draw[edge] (n1) -- (n2);
+\draw[edge] (n1) -- (n3);
+\draw[edge] (n2) -- (n3);
+\draw[edge] (n2) -- (n4);
+\draw[edge] (n2) -- (n5);
+\draw[edge] (n3) -- (n5);
+\draw[edge] (n3) -- (n6);
+\draw[edge] (n4) -- (n5);
+\draw[edge] (n5) -- (n6);
+\draw[edge] (n4) -- (n7);
+\draw[edge] (n5) -- (n7);
+\draw[edge] (n6) -- (n7);
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% WHY NOT GRAPHS?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Graphs vs. Simplicial Complexes}
+
+\BodyFont
+
+\begin{center}
+
+\begin{tabular}{p{6.5cm}|p{8.5cm}}
+
+\textbf{Graphs}
+
+&
+\textbf{Simplicial Complexes}
+
+\\
+\hline
+
+Pairwise interactions only
+
+&
+
+Interactions among arbitrary numbers of concepts
+
+\\[3mm]
+
+Edges represent relationships
+
+&
+
+Faces represent higher-order semantic structures
+
+\\[3mm]
+
+Limited topological information
+
+&
+
+Supports homology, cohomology and sheaf-theoretic constructions
+
+\\[3mm]
+
+Suitable for networks
+
+&
+
+Suitable for structured cognitive geometry
+
+\end{tabular}
+
+\end{center}
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTUITION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+A triangle is **not** interpreted as three independent edges.
+
+Instead, it represents a single higher-order relationship that exists only
+when all three participating concepts are considered simultaneously.
+
+This distinction is fundamental: MOS models cognition through
+higher-dimensional combinatorial structures rather than solely through
+pairwise associations.
+
+\end{remarkbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TRANSITION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\boxed{
+\text{Geometry}
+\Longrightarrow
+\text{Conceptual Organization}
+}
+\]
+
+\vspace{2mm}
+
+\BodyFont
+
+Once the combinatorial structure has been established, local mathematical
+information can be attached to each simplex using a cellular sheaf. This
+construction provides the second component of the MOS state space.
+
+\end{eqbox}

@@ -1,0 +1,52 @@
+===== BLUEPRINT.pdf PAGE 1/2 =====
+2. The Manifold Memory Architecture
+Here is the blueprint for rewriting your memory system (replacing the naive skills.py).
+Brain System Mathematical
+Role in AI
+Analogue Component Function
+Temporarily stores the
+Episodic
+Hippocampus 𝐸 = {𝑥 ,𝑥 ,...} full 2,000-word
+1 2
+Buffer
+derivation.
+Strips context, extracts
+The Quotient map
+Consolidation the topological invariant
+Compressor 𝜋:𝐸 → 𝑆
+(the axiom).
+Stores the compressed
+Semantic Riemannian
+Neocortex axioms using Information
+Manifold Manifold ℳ
+Geometry.
+Injects only the relevant,
+Prefrontal Attention / Tangent space
+dense axiom into the
+Cortex Retrieval projection
+Master Agent.
+Step A: The Episodic Buffer (Ingestion)
+When the Master Agent solves (or fails) a problem, the entire raw trace (prompt, code,
+output) is dumped into a temporary buffer. Nothing is indexed for long-term retrieval yet.
+Step B: The Crystal Compressor (Topological Distillation)
+Triggered asynchronously (analogous to sleep/rest states), the Compressor LLM processes
+the buffer. It is prompted to act as a topological filter:
+1. Identify the logical skeleton (the invariant).
+2. Discard the specific variables, numbers, and domain context (the deformation).
+3. Output a strictly formalized, 2-to-3 sentence generalized axiom or algorithmic trick.
+Step C: Semantic Manifold Storage (One-Form Optimization)
+===== BLUEPRINT.pdf PAGE 2/2 =====
+When storing the extracted axiom, we don't just append it. We check if it is a slight variation
+of an existing axiom. We define an energy functional representing the redundancy in the
+database. Using your differential calculus approach, we calculate the exterior derivative (a
+one-form) of this energy space. If the gradient points toward an existing node, the axioms
+are merged, continually tightening the AI's understanding rather than just adding to a list.
+Step D: Context-Injection (Retrieval)
+When a new problem arrives (e.g., your 10-word Lie Group prompt), the system queries the
+Semantic Manifold. Because the manifold only contains compressed, topological
+invariants, the retrieval returns something like:
+"Axiom: When calculating invariants on a curved space, use the Laplace-Beltrami operator
+to generalize the divergence of the gradient."
+This 20-word densely packed axiom is injected into the Master Agent's context. The LLM's
+attention mechanism remains entirely focused on your 10-word prompt, perfectly
+augmented by the 20-word hint, completely avoiding context-collapse.

@@ -1,0 +1,1377 @@
+\documentclass[11pt]{article}
+
+% ---------- packages (all standard on Overleaf) ----------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+% ---------- theorem environments ----------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{construction}[definition]{Construction}
+\newtheorem{example}[definition]{Example}
+\theoremstyle{plain}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+
+% ---------- layered-exposition boxes ----------
+\definecolor{intuitioncol}{RGB}{38,92,158}
+\definecolor{honestycol}{RGB}{168,52,40}
+\newmdenv[topline=false,bottomline=false,rightline=false,linewidth=2pt,
+  linecolor=intuitioncol,innerleftmargin=10pt,innertopmargin=3pt,
+  innerbottommargin=3pt,skipabove=7pt,skipbelow=7pt]{intu}
+\newmdenv[topline=false,bottomline=false,rightline=false,linewidth=2pt,
+  linecolor=honestycol,innerleftmargin=10pt,innertopmargin=3pt,
+  innerbottommargin=3pt,skipabove=7pt,skipbelow=7pt]{hon}
+\newcommand{\Intu}{\noindent\textbf{\color{intuitioncol}Intuition.}\ }
+\newcommand{\Hon}{\noindent\textbf{\color{honestycol}Claims and non-claims.}\ }
+
+% ---------- notation macros ----------
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\CC}{C}                 % base complex
+\newcommand{\Kc}{K}                 % coarse complex
+\newcommand{\Fs}{F}                 % sheaf
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rd}{\mathbb{R}^{d}}
+\newcommand{\st}{\mathfrak{s}}      % operator algebra symbol placeholder
+\newcommand{\Dop}{\mathfrak{D}}     % operator algebra
+\newcommand{\rest}[1]{F_{#1}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\inner}[2]{\left\langle #1,#2\right\rangle}
+\newcommand{\triang}{\trianglelefteq}
+\newcommand{\Hzero}{H^{0}}
+\newcommand{\Hone}{H^{1}}
+
+\title{\textbf{The Mathematics of MOS / TATIANA}\\[2pt]
+\large A Cellular--Sheaf Cognitive Architecture over a\\
+Stratified Simplicial Complex\\[6pt]
+\normalsize\emph{An implementation-free mathematical description}}
+\author{Charbel Dargham}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We give a complete, implementation-free mathematical description of the cognitive
+architecture called \textsc{tatiana} (its state object is the \emph{Modular Operating
+System}, \textsc{mos}). The organising object is a \emph{cognitive state space}
+$\M=(\CC,\Fs,s)$: a two-level (stratified) simplicial complex $\CC$, a cellular sheaf
+$\Fs$ assigning geometric data to each piece of $\CC$, and a global section $s$
+representing the system's current coherent state. The architecture wraps a fixed
+large language model (LLM) used as a black-box reasoning oracle; its mathematical
+content is not the reasoning itself but the \emph{organisation, measurement, and
+evolution} of whole reasoning acts. We define every object from first principles,
+derive the two quantities the system actually computes at every step---the sheaf
+Laplacian discord $\omega$ and its normalised, provably bounded form
+$\rho\in[0,1]$---and record every ``minute computation'' the engine performs: the
+precision-weighted Gaussian coarse-graining $\pi_v$, the Bures--Wasserstein concept
+distance, the Woodbury concept-fusion, the Anderson--Morley normaliser, the
+cohomological diagnostics $\Hzero,\Hone,b_0$, and the growth operators
+$\{\text{bind},\text{collapse},\text{split},\text{merge}\}$ together with the
+operator-algebra growth axis $\Dop(t)\!\to\!\Dop(t+1)$. Throughout, boxed
+\emph{claims-and-non-claims} remarks state precisely what each construction does and
+does not establish; self-honesty is the single invariant the whole design exists to
+protect.
+\end{abstract}
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction: the object and the thesis}
+% =====================================================================
+
+\subsection{What is being described}
+
+\begin{intu}\Intu
+Picture a research assistant that is not one mind but a small society of specialist
+organs---one that remembers, one that searches, one that checks, one that reasons.
+\textsc{mos} is the mathematics of \emph{that society}: who is bound to whom, whether
+their beliefs agree, by how much they disagree and exactly where, and how the society
+rewires itself as it works. The individual reasoning is done by an external LLM; the
+mathematics here governs the \emph{society}, not the neurons.
+\end{intu}
+
+\begin{definition}[Cognitive state space]\label{def:M}
+A \emph{cognitive state space} is a triple $\M=(\CC,\Fs,s)$ where
+\begin{enumerate}[label=(\roman*),nosep]
+  \item $\CC$ is a stratified (two-level) finite simplicial complex (Section~\ref{sec:complex});
+  \item $\Fs$ is a cellular sheaf of finite-dimensional real inner-product spaces on $\CC$ (Section~\ref{sec:sheaf});
+  \item $s$ is a distinguished $0$-cochain of $\Fs$, the \emph{current state}, whose
+        coherence is measured by the sheaf Laplacian (Section~\ref{sec:coherence}).
+\end{enumerate}
+The space evolves in discrete time through structural operators drawn from an
+operator algebra $\Dop$ that is \emph{itself} allowed to grow (Section~\ref{sec:growth}).
+\end{definition}
+
+\subsection{The thesis, stated plainly}
+
+The architecture makes one honest bet and refuses one seductive overclaim.
+
+\begin{hon}\Hon
+\textbf{The bet (defensible):} a persistent, self-checking, self-restructuring
+\emph{organiser} wrapped around a fixed LLM can, over time, produce better-grounded
+and internally-consistent research artifacts than the raw LLM, through
+\emph{measured cross-organ error-correction} and \emph{accumulation}. The advantage
+is \emph{architectural}, expressed as operations on the single object $\M$.
+\textbf{The refusal:} no simplex proves a theorem and no Laplacian integrates a
+differential form. The per-inference reasoning quality is bounded by the LLM. The
+mathematics here does not raise that ceiling; it organises, measures, and
+error-corrects \emph{around} it. Section~\ref{sec:limits} makes this boundary precise
+and states where it can, and cannot, be pushed.
+\end{hon}
+
+\subsection{How to read this document}
+
+Each central object is presented in three layers, so the same text serves a
+high-school visitor and a topologist:
+\emph{(a)} a boxed \textbf{Intuition} in plain language;
+\emph{(b)} a formal \textbf{Definition/Construction};
+\emph{(c)} the exact \textbf{computation} the engine performs, with derivations.
+Sections~\ref{sec:complex}--\ref{sec:coherence} are the conceptual spine.
+Sections~\ref{sec:piv}--\ref{sec:semantic} and \ref{sec:growth}--\ref{sec:verify}
+record the minute computations. Section~\ref{sec:limits} is the honest boundary.
+Appendix~\ref{app:cp3} is the driving application (a thermally-weighted Hodge--de~Rham
+spectrum on $\mathbb{CP}^3$).
+
+% =====================================================================
+\section{The base complex \texorpdfstring{$\CC$}{C}}\label{sec:complex}
+% =====================================================================
+
+\subsection{Simplicial complexes and \texorpdfstring{$n$}{n}-ary binding}
+
+\begin{intu}\Intu
+A graph records \emph{pairwise} facts (``$A$ relates to $B$''). But a theorem that
+depends on three hypotheses is \emph{one} three-way fact, not three separate pairs.
+A simplicial complex is the smallest honest language for facts of any arity: a filled
+triangle is a genuine three-way binding, not three edges.
+\end{intu}
+
+\begin{definition}[Abstract simplicial complex]
+Let $V$ be a finite vertex set. An \emph{abstract simplicial complex} $\CC$ on $V$ is
+a family of nonempty subsets of $V$ (the \emph{simplices}) that is
+\emph{downward closed}: if $\sigma\in\CC$ and $\emptyset\neq\tau\subseteq\sigma$ then
+$\tau\in\CC$. A simplex of cardinality $k+1$ is a \emph{$k$-simplex}; its
+$(k-1)$-subsets are its \emph{faces}. Thus $0$-simplices are vertices, $1$-simplices
+edges, $2$-simplices filled triangles, and so on.
+\end{definition}
+
+\begin{remark}[Simplices are $n$-ary relations]\label{rem:nary}
+A $k$-simplex $\{v_0,\dots,v_k\}$ models a single $(k{+}1)$-ary binding among its
+vertices. In the engine this is exactly the stored object
+\texttt{insert\_n\_ary\_relation}: a fact with $k{+}1$ constituents is one simplex,
+and downward closure is the requirement that every sub-collection of a jointly-bound
+fact is itself recorded. This earns the later use of $b_1$ (Section~\ref{sec:cohom}):
+a $1$-cycle is a real structural hole only because a filled $2$-simplex genuinely
+means ``these three are jointly bound,'' not merely pairwise.
+\end{remark}
+
+\subsection{The two-level stratification}
+
+\begin{intu}\Intu
+The society has two scales. Zoom out and the vertices are whole \emph{organs}
+(Search, Memory, Reasoning, Verify, $\dots$). Zoom into one organ and it is itself a
+little complex whose vertices are \emph{concepts}. The same geometry runs at both
+scales; the two are glued by a coarse-graining map (Section~\ref{sec:piv}).
+\end{intu}
+
+\begin{construction}[The stratified complex]\label{con:strat}
+$\CC$ carries two strata.
+\begin{itemize}[nosep]
+  \item The \emph{coarse complex} $\Kc$ has as vertices the cognitive organs
+        \[
+        \mathcal{V}(\Kc)=\{\textsc{Planner},\ \textsc{Search},\
+        \textsc{Canonicalizer},\ \textsc{Curator},\ \textsc{WorkingMemory},\
+        \textsc{Reasoning},\ \textsc{Verify}\}.
+        \]
+        A simplex $\sigma\in\Kc$ is a \emph{bound coalition} of organs acting as one
+        unit; it carries a time-dependent \emph{coupling weight}
+        $w(\sigma,t)\in[0,1]$.
+  \item For each organ $v$, a \emph{fine complex} $\CC_v$ has concepts as vertices and
+        $n$-ary conceptual bindings as simplices; this is the organ's internal
+        knowledge.
+\end{itemize}
+The stratification resolves an early ambiguity (``are the vertices concepts or
+subsystems?'') by answering \emph{both}, at two levels.
+\end{construction}
+
+\begin{remark}[Two structures on the same vertices]
+A logical prerequisite chain is \emph{directed} ($A$ is needed for $B$); a simplicial
+complex is undirected. The engine therefore keeps two relations on the same vertices:
+a directed poset for logical dependency and the (undirected) simplices for $n$-ary
+co-binding. They are never conflated.
+\end{remark}
+
+% =====================================================================
+\section{The sheaf \texorpdfstring{$\Fs$}{F}}\label{sec:sheaf}
+% =====================================================================
+
+\begin{intu}\Intu
+On top of the shape we lay \emph{data}. Each organ holds a vector describing what it
+currently believes; each binding holds a space in which two organs' beliefs are meant
+to be compared. A sheaf is exactly this: local data on every piece, plus rules for
+comparing across pieces. A ``coherent thought'' is a choice of data that agrees
+everywhere it is compared.
+\end{intu}
+
+\begin{definition}[Cellular sheaf, after Curry and Hansen--Ghrist]\label{def:sheaf}
+A \emph{cellular sheaf} $\Fs$ of real inner-product spaces on $\CC$ assigns
+\begin{enumerate}[label=(\roman*),nosep]
+  \item to each cell $\sigma$ a finite-dimensional inner-product space
+        $\Fs(\sigma)$, the \emph{stalk};
+  \item to each incident face pair $\sigma\triang\tau$ (i.e. $\sigma$ a face of
+        $\tau$) a linear \emph{restriction map}
+        $\rest{\sigma\triang\tau}:\Fs(\sigma)\to\Fs(\tau)$,
+\end{enumerate}
+compatibly on chains of incidences. In this project all vertex and edge stalks are
+$\Rd$ with $d=384$ (the embedding dimension, Section~\ref{sec:semantic}); the
+restriction maps of the coarse sheaf are indexed $\rest{v\triang e}$ for a vertex $v$
+on edge $e$.
+\end{definition}
+
+\begin{definition}[Cochains and sections]
+A \emph{$0$-cochain} is a choice $x=(x_v)_{v}$ with $x_v\in\Fs(v)$; write
+$C^0(\CC;\Fs)=\bigoplus_v \Fs(v)$. Likewise $C^1(\CC;\Fs)=\bigoplus_e \Fs(e)$. A
+\emph{global section} is a $0$-cochain whose organ beliefs agree under every
+restriction (Definition~\ref{def:coboundary}). The current state $s$ of
+Definition~\ref{def:M} is a $0$-cochain; it is a genuine ``thought'' precisely when it
+is a global section.
+\end{definition}
+
+\begin{remark}[The stalk data is a real embedding, never a placeholder]\label{rem:embed}
+Stalk vectors are sentence-embeddings from a fixed local encoder (dimension
+$d=384$). Two design invariants are enforced as \emph{type-level} facts, because their
+violation silently corrupts every downstream distance: \emph{(i)} dimensions never
+truncate or pad---a mismatch raises; \emph{(ii)} an idle organ has \emph{no} stalk
+value (a formal $\bot$), never the zero vector, because $0\in\Rd$ is a real point that
+would drag every distance toward the origin and fabricate a measurement. These are the
+sheaf-theoretic content of ``do not fake data.''
+\end{remark}
+
+% =====================================================================
+\section{Coherence: the sheaf Laplacian and the score \texorpdfstring{$\rho$}{rho}}\label{sec:coherence}
+% =====================================================================
+
+This section derives the two numbers the engine computes on \emph{every} tick.
+
+\subsection{Coboundary and Laplacian}
+
+\begin{definition}[Coboundary]\label{def:coboundary}
+Fix an arbitrary orientation of each edge $e=\{u,v\}$. The \emph{coboundary}
+$\delta:C^0(\CC;\Fs)\to C^1(\CC;\Fs)$ acts edgewise by
+\begin{equation}\label{eq:coboundary}
+(\delta x)_e \;=\; \rest{u\triang e}(x_u)\;-\;\rest{v\triang e}(x_v)\ \in\ \Fs(e).
+\end{equation}
+A $0$-cochain $x$ is a \emph{global section} iff $\delta x=0$, i.e. every bound pair
+agrees after mapping into the shared comparison space $\Fs(e)$.
+\end{definition}
+
+\begin{definition}[Sheaf Laplacian and discord]\label{def:laplacian}
+The (degree-$0$) \emph{sheaf Laplacian} is
+\begin{equation}\label{eq:laplacian}
+L \;=\; \delta^{\top}\delta \;:\; C^0\to C^0 ,
+\end{equation}
+a symmetric positive-semidefinite operator. The \emph{discord} of a state $x$ is the
+Dirichlet energy
+\begin{equation}\label{eq:omega}
+\omega(x)\;=\;x^{\top}Lx\;=\;\norm{\delta x}^2
+\;=\;\sum_{e=\{u,v\}}\ \norm{\rest{u\triang e}(x_u)-\rest{v\triang e}(x_v)}^{2}\ \ge 0 .
+\end{equation}
+\end{definition}
+
+\begin{proposition}[A coherent thought is a kernel element]\label{prop:H0}
+$\omega(x)=0 \iff \delta x = 0 \iff x\in\ker L$. Moreover the space of global
+sections is exactly the zeroth sheaf cohomology,
+\begin{equation}
+\Hzero(\CC;\Fs)\;=\;\ker\delta\;=\;\ker L .
+\end{equation}
+\end{proposition}
+\begin{proof}
+$\omega(x)=\norm{\delta x}^2=0\iff \delta x=0$ since $\norm{\cdot}$ is a norm. As
+$L=\delta^\top\delta$, $Lx=0\Rightarrow x^\top Lx=\norm{\delta x}^2=0\Rightarrow\delta
+x=0$; conversely $\delta x=0\Rightarrow Lx=0$. Finally $\Hzero=\ker\delta^{0}$ because
+there are no $(-1)$-cochains to quotient by.
+\end{proof}
+
+\begin{intu}\Intu
+$\omega$ is a single number: the total squared disagreement across all bindings. It is
+zero exactly when the society holds one coherent thought. And ``a coherent thought'' is
+now a precise mathematical object---a vector in the kernel of a matrix---not a mood.
+\end{intu}
+
+\subsection{The identity-restriction baseline}
+
+\begin{proposition}[Graph-Laplacian form]\label{prop:identity}
+If every $\rest{v\triang e}=\mathrm{Id}_{\Rd}$, then
+$\omega(x)=\sum_{e=\{u,v\}}\norm{x_u-x_v}^2$ and
+$L=L_\Kc\otimes I_d$, where $L_\Kc$ is the ordinary combinatorial graph Laplacian of
+the coarse $1$-skeleton. Consequently the spectrum of $L$ is that of $L_\Kc$ with each
+eigenvalue repeated $d$ times.
+\end{proposition}
+
+\begin{hon}\Hon
+The current engine uses identity restriction maps (``do bound organs agree in
+embedding space?''). This is honest and cheap but it is the \emph{crudest} sheaf: with
+a connected $1$-skeleton, $\ker L$ is the diagonal $\{x:x_u=x_v\ \forall u,v\}$, so the
+only coherent states are \emph{consensus}, and reconciliation is plain averaging. The
+``quality of a connection'' lives in \emph{non-trivial} restriction maps; promoting
+them (learned $\rest{v\triang e}$, e.g. by closed-form Procrustes/CCA alignment) is the
+identified route from a diagnostic sheaf to a computational one. This is stated as a
+direction, not as an implemented result (Section~\ref{sec:limits}).
+\end{hon}
+
+\subsection{The normalised score \texorpdfstring{$\rho\in[0,1]$}{rho in [0,1]} and its bound}
+
+\begin{intu}\Intu
+$\omega$ has no natural scale---bigger complexes have bigger $\omega$. We want a
+dimensionless thermometer in $[0,1]$: $0=$ perfect agreement, $1=$ maximal possible
+disagreement. Crucially we get it \emph{without} an eigendecomposition, using a
+classical bound on the largest Laplacian eigenvalue.
+\end{intu}
+
+\begin{definition}[Coherence score]\label{def:rho}
+Let $X\in\R^{|V|\times d}$ stack the active stalks as rows, with Frobenius norm
+$\norm{X}_F$. With the \emph{Anderson--Morley normaliser}
+\begin{equation}\label{eq:AM}
+B \;=\; \max_{e=\{u,v\}\in E}\big(\deg u+\deg v\big),
+\end{equation}
+the \emph{coherence score} (in the identity-restriction regime) is
+\begin{equation}\label{eq:rho}
+\boxed{\ \rho \;=\; \dfrac{\omega}{B\,\norm{X}_F^{2}}\ }\qquad\in[0,1].
+\end{equation}
+When $E=\emptyset$ or $\norm{X}_F=0$, $\rho$ is \emph{undefined} ($\bot$, ``unknown''),
+never $0$ and never $1$.
+\end{definition}
+
+\begin{proposition}[$\rho\in[0,1]$]\label{prop:rhobound}
+With identity restrictions, $0\le\rho\le 1$.
+\end{proposition}
+\begin{proof}
+Lower bound: $\omega\ge0$ and $B\norm{X}_F^2>0$. Upper bound: by the Anderson--Morley
+inequality \cite{AndersonMorley}, the largest eigenvalue of $L_\Kc$ satisfies
+$\lambda_{\max}(L_\Kc)\le \max_{\{u,v\}\in E}(\deg u+\deg v)=B$. By
+Proposition~\ref{prop:identity}, $\lambda_{\max}(L)=\lambda_{\max}(L_\Kc)\le B$, hence
+$\omega=x^\top Lx\le\lambda_{\max}(L)\norm{x}^2\le B\norm{X}_F^2$, where
+$\norm{x}=\norm{X}_F$ under the row-stacking identification. Dividing gives
+$\rho\le1$.
+\end{proof}
+
+\subsection{The splitting \texorpdfstring{$\rho=\alpha\tilde\rho$}{rho = alpha rho-tilde} and the calibration window}\label{subsec:split}
+
+\begin{intu}\Intu
+$\rho$ silently answers two questions at once. Its numerator $\omega$ is \emph{blind}
+to consensus---consensus is exactly $\ker L$---while its denominator
+$\norm{X}_F^2$ counts consensus in full. So $\rho$ is ``disagreement divided by
+(disagreement $+$ consensus),'' tangled with a second quantity saying which
+\emph{shape} the disagreement takes. Untangling them costs one subtraction.
+\end{intu}
+
+\begin{proposition}[Exact factorisation]\label{prop:split}
+Assume identity restrictions. Let $x=x_0\oplus x_\perp$ be the orthogonal
+decomposition with $x_0$ the projection onto $\ker L$, and suppose $x_\perp\neq0$.
+Then $\omega(x)=x_\perp^\top Lx_\perp$, $\norm{X}_F^2=\norm{x_0}^2+\norm{x_\perp}^2$, and
+\begin{equation}\label{eq:split}
+\boxed{\ \rho\;=\;\underbrace{\frac{\norm{x_\perp}^2}{\norm{X}_F^2}}_{\textstyle\alpha}
+\cdot\underbrace{\frac{\omega}{B\norm{x_\perp}^2}}_{\textstyle\tilde\rho}\ }
+\end{equation}
+where $\alpha$ (the \emph{dissent fraction}) says \emph{how much} of the state is not
+consensus, and $\tilde\rho$ (the \emph{mode index}) says \emph{which mode} the
+disagreement occupies.
+\end{proposition}
+\begin{proof}
+$Lx_0=0$ and $L$ symmetric give $x^\top Lx=x_\perp^\top Lx_\perp$, the cross terms
+vanishing. The norm identity is Pythagoras. The factorisation is then multiplication
+and division by $\norm{x_\perp}^2$.
+\end{proof}
+
+\begin{remark}[The kernel is per-component, not the global mean]\label{rem:percomp}
+For a connected $1$-skeleton $\ker L$ is the diagonal and $x_0=\mathbf1\otimes\bar x$.
+For $b_0>1$ it is \emph{not}: $\ker(L_\Kc\otimes I_d)$ consists of the assignments
+constant on \emph{each component}, so $x_0$ subtracts the \textbf{per-component}
+mean. Using the global mean when $b_0>1$ would score between-component separation as
+dissent when it in fact lies \emph{in} the kernel. This is a correctness condition,
+and it is enforced in both implementations.
+\end{remark}
+
+\begin{proposition}[The achievable window]\label{prop:window}
+$\tilde\rho=R_L(x_\perp)/B$ is a Rayleigh quotient of $L$ on $(\ker L)^\perp$, so by
+Courant--Fischer
+\begin{equation}\label{eq:window}
+\tilde\rho\ \in\ \Big[\ \lambda_{\min}^{+}(L_{\Kc,\pi})/B,\ \ \lambda_{\max}(L_{\Kc,\pi})/B\ \Big],
+\end{equation}
+$\lambda_{\min}^{+}$ denoting the smallest \emph{nonzero} eigenvalue (the Fiedler value
+when $\Kc$ is connected). Both endpoints are \textbf{graph invariants}, computable
+from the coarse $1$-skeleton before any data is seen, and needing recomputation only
+when \texttt{bind}/\texttt{collapse} changes the topology.
+\end{proposition}
+
+\begin{hon}\Hon
+Three things, in order of importance.
+\emph{(i)} \eqref{eq:split} resolves the non-monotonicity recorded in
+Remark~\ref{rem:controller}: adding a well-aligned organ inflates $\norm{X}_F^2$ and
+barely moves $\norm{x_\perp}^2$, so $\alpha$ dilutes while $\tilde\rho$ is untouched.
+The controller should gate on $\tilde\rho$ and report $\alpha$ alongside.
+\emph{(ii)} \eqref{eq:window} is \textbf{normalisation, not derivation}. Setting
+$\varepsilon$ as a quantile $q$ of the window still requires choosing $q$; what changes
+is that $\varepsilon$ is now expressed in units the graph supplies and adapts
+automatically to rewiring. It is not a magic number eliminated, it is a magic number
+made topology-relative, and it should not be sold as more than that.
+\emph{(iii)} The split is exact \emph{only} for identity restrictions. With
+non-identity maps $\ker L$ is not the per-component constants and no $n\times n$ matrix
+carries $L$'s spectrum; both implementations then report $\alpha,\tilde\rho$ and the
+window as undefined rather than approximate them. $\rho$ itself is unaffected.
+\emph{(iv)} When $x_\perp=0$ exactly, $\alpha=0$ and $\tilde\rho=\bot$: perfect
+consensus has no mode. Returning $0$ would assert ``the most global mode possible,''
+a measurement that was not made.
+\end{hon}
+
+\begin{remark}[Measured, 2026-07-28]\label{rem:e1measured}
+The claim that the dead dynamic range of $\rho$ is caused by encoder anisotropy
+acting through $\alpha$ was tested and \textbf{does not survive}. The deployed encoder
+returns unit-normalised vectors, for which $\alpha=(n-1)(1-\bar c)/n$ exactly, $\bar c$
+the mean pairwise cosine. At the observed $\bar c\approx0.449$ with $n=7$ this gives
+$\alpha\approx0.46$---not small. The compression of $\rho$ is produced jointly by
+$\alpha$ and by $\tilde\rho$ sitting mid-window, with $B$ over-bounding
+$\lambda_{\max}$ contributing further. Measured on a $7$-organ path complex,
+$\tilde\rho\approx0.47$ inside a window $[0.146,0.854]$: \textbf{the mode index has
+healthy dynamic range that $\rho$ was multiplying away.} See
+\texttt{python/coherence.py} test 15.
+\end{remark}
+
+\begin{remark}[Per-edge diagnostics and fragmentation]\label{rem:diag}
+Because \eqref{eq:omega} is a \emph{sum over edges}, $\omega$ decomposes into
+per-edge terms $\omega_e=\norm{(\delta x)_e}^2$. The \emph{worst edge}
+$\arg\max_e\omega_e$ names the guilty coalition, so remediation can be \emph{aimed}
+rather than global---provided $\omega>\text{tol}$ (below tolerance the argmax is
+meaningless and is returned as $\bot$). Separately, the number of connected components
+$b_0$ of the active $1$-skeleton is computed by union-find; $b_0>1$ flags that any
+coherence claim is only \emph{local} to a component. Both are $O(|E|)$.
+\end{remark}
+
+\begin{remark}[Spectral decomposition, when wanted]
+Because $L$ is genuinely symmetric PSD, the spectral theorem applies exactly (not by
+analogy): eigenpairs $(\lambda_i,\phi_i)$ of $L$ are honest \emph{modes of
+disagreement}---small $\lambda$ are droppable noise, large $\lambda$ structural
+conflict. This is the rigorous replacement for the earlier, unjustified ``cognitive
+FFT.'' It is used only for diagnostics; the fast path \eqref{eq:rho} needs no
+eigensolver.
+\end{remark}
+
+% =====================================================================
+\section{The coarse-graining \texorpdfstring{$\pi_v$}{pi_v}: precision-weighted fusion}\label{sec:piv}
+% =====================================================================
+
+\begin{intu}\Intu
+An organ's single coarse belief-vector must summarise the many concepts living inside
+it. Not all concepts are equally certain, so we do not average them equally: a
+near-certain concept should dominate. The right notion of ``weight'' is
+\emph{precision} (inverse variance), and the fusion is exactly how independent noisy
+measurements of one quantity are optimally combined.
+\end{intu}
+
+\begin{definition}[Concept as a Gaussian]\label{def:concept-gauss}
+A concept is modelled as a Gaussian $\mathcal N(\mu_i,\Sigma_i)$ on $\Rd$ with a
+low-rank-plus-isotropic covariance
+\begin{equation}\label{eq:cov}
+\Sigma_i \;=\; U_iU_i^{\top} + D_i\,I_d,\qquad U_i\in\R^{d\times k_i},\ D_i>0 .
+\end{equation}
+$\mu_i$ is the embedding; $U_iU_i^\top$ is anisotropic ``learned spread''; $D_i$ is an
+isotropic noise floor (the epistemic humility of the concept).
+\end{definition}
+
+\begin{construction}[The coarse-graining map $\pi_v$]\label{con:piv}
+For organ $v$ with active concepts $\{\mathcal N(\mu_i,\Sigma_i)\}_{i=1}^{n}$, the
+coarse stalk $\pi_v\in\Fs(v)=\Rd$ is the maximum-likelihood fusion of the concepts
+regarded as independent estimates of one latent ``what this organ believes'':
+\begin{equation}\label{eq:piv}
+\boxed{\ \pi_v \;=\;\Big(\textstyle\sum_{i=1}^{n}\Sigma_i^{-1}\Big)^{-1}
+\Big(\textstyle\sum_{i=1}^{n}\Sigma_i^{-1}\mu_i\Big)\ }.
+\end{equation}
+Each concept pulls $\pi_v$ toward itself in proportion to its precision
+$\Sigma_i^{-1}$. This is the $n$-way, order-independent, non-destructive
+generalisation of the pairwise fusion of Section~\ref{sec:semantic}. If $v$ has no
+active concept, $\pi_v=\bot$ (idle organs are excluded from $\rho$,
+Remark~\ref{rem:embed}).
+\end{construction}
+
+\begin{proposition}[Why \eqref{eq:piv} is the fusion]
+If $\theta$ is a latent vector and each concept is an independent observation
+$\mu_i=\theta+\varepsilon_i$, $\varepsilon_i\sim\mathcal N(0,\Sigma_i)$, then the
+log-likelihood is
+$-\tfrac12\sum_i(\mu_i-\theta)^\top\Sigma_i^{-1}(\mu_i-\theta)+\mathrm{const}$; setting
+its $\theta$-gradient to zero gives
+$\big(\sum_i\Sigma_i^{-1}\big)\theta=\sum_i\Sigma_i^{-1}\mu_i$, i.e. \eqref{eq:piv}.
+Order-independence is manifest (both sums are commutative). Non-destructiveness means
+no concept is discarded: all contribute to both the precision sum and the mean.
+\end{proposition}
+
+\paragraph{The two computational paths (both exact).}
+\begin{itemize}[nosep]
+  \item \textbf{Isotropic fast path.} When all $U_i$ are empty (the present reality of
+  a freshly grown concept), $\Sigma_i^{-1}=D_i^{-1}I$ and \eqref{eq:piv} collapses to
+  the scalar precision-weighted average
+  \begin{equation}\label{eq:isopath}
+  \pi_v=\frac{\sum_i D_i^{-1}\mu_i}{\sum_i D_i^{-1}},
+  \end{equation}
+  in $O(nd)$ with no matrix inversion.
+  \item \textbf{General path.} With $U_i\neq\varnothing$, invert each
+  $\Sigma_i$ by the Sherman--Morrison--Woodbury identity
+  \begin{equation}\label{eq:woodbury}
+  \Sigma_i^{-1}=D_i^{-1}I-D_i^{-1}U_i\big(I_{k_i}+D_i^{-1}U_i^\top U_i\big)^{-1}U_i^\top D_i^{-1},
+  \end{equation}
+  accumulate into a dense information matrix, and solve once: $O(nd k+d^3)$. A floor
+  $D_i\ge 10^{-6}$ prevents a near-certain axiom from producing $1/D_i\approx10^{16}$
+  and a numerical blow-up; it pins $\pi_v$ strongly but finitely.
+\end{itemize}
+
+\begin{remark}[Verified exactness]
+The general path was checked numerically against a dense
+$\big(\sum_i\Sigma_i^{-1}\big)^{-1}$ solve and agreed to $2.2\times10^{-16}$
+(machine precision); equal-precision inputs reduce to the plain mean and a $9{:}1$
+precision ratio pulls $\pi_v$ to the certain concept, as required. This is the
+two-level glue: after execution, each organ's coarse stalk is \emph{overwritten} by
+its own $\pi_v$, so coarse $\rho$ and fine geometry become one measurement at two
+resolutions.
+\end{remark}
+
+% =====================================================================
+\section{Semantic geometry: distance, fusion, entropy}\label{sec:semantic}
+% =====================================================================
+
+The concepts of Definition~\ref{def:concept-gauss} form a geometry of Gaussians. Three
+computations act on it.
+
+\subsection{Bures--Wasserstein distance between concepts}
+
+\begin{intu}\Intu
+How far apart are two \emph{uncertain} concepts? Not just their centres---their
+spreads matter too. The $2$-Wasserstein (``optimal transport'') distance between
+Gaussians answers this and is a true metric.
+\end{intu}
+
+\begin{definition}[$2$-Wasserstein between Gaussians]
+\begin{equation}\label{eq:bures}
+W_2^2\big(\mathcal N(\mu_1,\Sigma_1),\mathcal N(\mu_2,\Sigma_2)\big)
+=\norm{\mu_1-\mu_2}^2+\Tr\Sigma_1+\Tr\Sigma_2
+-2\,\Tr\!\Big[\big(\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2}\big)^{1/2}\Big].
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Isotropic reduction to $O(k^3)$]\label{prop:buresiso}
+If $\Sigma_1=D_1 I$ is isotropic and $\Sigma_2=U_2U_2^\top+D_2 I$ with
+$U_2\in\R^{d\times k}$, then, writing $\{\sigma_j^2\}_{j=1}^k$ for the eigenvalues of
+the $k\times k$ matrix $U_2^\top U_2$,
+\begin{equation}\label{eq:buresreduced}
+W_2^2=\norm{\mu_1-\mu_2}^2+\big(\Tr\Sigma_1+\Tr\Sigma_2\big)
+-2\sqrt{D_1}\Big[\textstyle\sum_{j=1}^k\sqrt{\sigma_j^2+D_2}+(d-k)\sqrt{D_2}\Big].
+\end{equation}
+\end{proposition}
+\begin{proof}
+$\Sigma_1^{1/2}=\sqrt{D_1}\,I$, so
+$\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2}=D_1\Sigma_2$ and
+$\big(D_1\Sigma_2\big)^{1/2}=\sqrt{D_1}\,\Sigma_2^{1/2}$, giving the cross term
+$2\sqrt{D_1}\,\Tr\Sigma_2^{1/2}$. The eigenvalues of $\Sigma_2=U_2U_2^\top+D_2I$ are
+$\sigma_j^2+D_2$ (on $\im U_2$, $j=1,\dots,k$) and $D_2$ (with multiplicity $d-k$ on
+$\ker U_2^\top$); the nonzero eigenvalues of $U_2U_2^\top$ equal those of $U_2^\top
+U_2$. Summing $\sqrt{\lambda}$ gives \eqref{eq:buresreduced}. Only a $k\times k$
+eigendecomposition is needed.
+\end{proof}
+
+\begin{remark}
+This is exact for isotropic $\Sigma_1$, not a diagonal approximation. It is the
+distance the engine uses to decide whether two stored concepts are near enough to
+merge, and it feeds the acquisition/consolidation decisions of
+Section~\ref{sec:growth}.
+\end{remark}
+
+\begin{construction}[The two terms are reported separately]\label{con:w2split}
+$W_2^2$ is the sum of two quantities that are not commensurable, and the engine now
+returns them apart rather than added:
+\begin{equation}\label{eq:w2split}
+W_2^2\;=\;\underbrace{\norm{\mu_1-\mu_2}^2}_{\text{semantic: \emph{what} they say}}
+\;+\;\underbrace{\Tr\Sigma_1+\Tr\Sigma_2-2\Tr\big[(\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2})^{1/2}\big]}_{\text{epistemic: \emph{how sure} they are}} .
+\end{equation}
+\end{construction}
+
+\begin{proposition}[Degeneration and the scaling hazard]\label{prop:w2hazard}
+Let both concepts be isotropic, $\Sigma_i=D_iI$, with $U_i$ empty. Then
+\begin{equation}\label{eq:w2iso}
+W_2^2=\norm{\mu_1-\mu_2}^2+d\big(\sqrt{D_1}-\sqrt{D_2}\big)^2 .
+\end{equation}
+In particular $D_1=D_2\Rightarrow W_2^2=\norm{\mu_1-\mu_2}^2$ exactly.
+\end{proposition}
+\begin{proof}
+Set $k=0$ in Proposition~\ref{prop:buresiso}: $\Tr\Sigma_1+\Tr\Sigma_2=d(D_1+D_2)$ and
+the cross term is $2\sqrt{D_1}\cdot d\sqrt{D_2}$, so the covariance part is
+$d(D_1+D_2-2\sqrt{D_1D_2})=d(\sqrt{D_1}-\sqrt{D_2})^2$.
+\end{proof}
+
+\begin{hon}\Hon
+Proposition~\ref{prop:w2hazard} says two uncomfortable things.
+\emph{(i) Today the machinery is inert.} Every grown concept carries the named prior
+$D=1.0$ with empty $U$ (Remark~\ref{rem:uncal}), so $D_1=D_2$ and $W_2^2$ is
+\textbf{exactly squared Euclidean distance}. The optimal-transport apparatus is
+currently a Euclidean distance with a Wasserstein-shaped proof attached. Not wrong;
+just not doing anything.
+\emph{(ii) It becomes actively harmful the moment calibration is fixed.} The semantic
+term is $d$-\emph{intensive}---bounded by $4$ for unit-normalised embeddings whatever
+$d$ is---while the epistemic term is $d$-\emph{extensive}, growing linearly in $d$ for
+a fixed disagreement about certainty. At $d=384$, the uncalibrated prior $D_1=1.0$
+against a confident concept $c=0.95$ ($D_2=-\ln0.95$) gives an epistemic term of
+$\approx230$ against a semantic term of $2$ for orthogonal embeddings: a ratio of
+about $115$ to $1$, driven entirely by a self-reported confidence that
+Remark~\ref{rem:uncal} identifies as unavailable and untrustworthy. Merge/split and
+the consolidation logic of Section~\ref{sec:growth} would be governed by hallucinated
+confidences.
+This is a latent defect that switches on precisely when the system is
+\emph{improved}. Summing a $d$-intensive and a $d$-extensive quantity and thresholding
+the sum is a dimensional error, not a modelling preference; the two must be
+thresholded separately. Implemented as \texttt{core::wasserstein\_2\_terms}
+(2026-07-28), which also removes a byte-identical duplicate of this formula that had
+been maintained in two files.
+\end{hon}
+
+\subsection{Pairwise fusion and its entropy}
+
+\begin{definition}[Precision-weighted fusion]
+The fusion of two concepts is the information-form product
+\begin{equation}\label{eq:merge}
+\Lambda_i=\Sigma_i^{-1},\qquad
+\Sigma_\star=(\Lambda_1+\Lambda_2)^{-1},\qquad
+\mu_\star=\Sigma_\star(\Lambda_1\mu_1+\Lambda_2\mu_2),
+\end{equation}
+i.e. \eqref{eq:piv} for $n=2$. Full covariances are fused via Woodbury
+\eqref{eq:woodbury}, not element-wise.
+\end{definition}
+
+\begin{proposition}[Fused entropy by the matrix determinant lemma]
+The differential entropy $h=\tfrac12\ln\!\big((2\pi e)^d\det\Sigma_\star\big)$ is
+computed from a $k\times k$ determinant: for $\Sigma=UU^\top+DI$,
+\begin{equation}\label{eq:mdl}
+\det\Sigma=\det(DI+UU^\top)=D^{d}\,\det\!\big(I_k+D^{-1}U^\top U\big).
+\end{equation}
+\end{proposition}
+\begin{proof}
+Matrix determinant lemma: $\det(A+UV^\top)=\det A\,\det(I+V^\top A^{-1}U)$ with
+$A=DI$, $V=U$. Then $\det(DI)=D^d$ and $V^\top A^{-1}U=D^{-1}U^\top U$.
+\end{proof}
+
+\begin{remark}[Uncalibrated confidence]\label{rem:uncal}
+The noise floor $D$ of a \emph{grown} concept is set from the generating LLM's
+self-reported confidence $c$ via $D=-\ln c$ (so $c\to1\Rightarrow D\to0$). Against the
+deployed model, token log-probabilities are unavailable (the provider returns a hard
+error when they are requested), so $c$ is genuinely unknown; the engine then uses a
+named, warned prior $D=\texttt{UNCALIBRATED\_VARIANCE\_PRIOR}=1.0$ rather than
+fabricating a value. This is why the coherence score $\rho$---not self-reported
+confidence---is the primary signal.
+\end{remark}
+
+% =====================================================================
+\section{The global section and the fine dynamics}\label{sec:fine}
+% =====================================================================
+
+\begin{intu}\Intu
+Inside an organ, reasoning is a \emph{flow}: new material perturbs the internal state,
+and a gradient descent pulls it back toward internal coherence, subject to hard
+constraints (axioms that must hold) and soft constraints (inferred, bendable).
+\end{intu}
+
+\begin{construction}[Fine state and deductive flow]\label{con:flow}
+The fine state of an organ is a configuration $x\in(\Rd)^{m}$ over its $m$ active
+concepts, with a scalar \emph{conflict functional} $\Phi(x)\ge0$ measuring internal
+inconsistency (the fine-level analogue of $\omega$). Reasoning integrates the gradient
+flow
+\begin{equation}\label{eq:flow}
+\dot x=-\nabla\Phi(x)
+\end{equation}
+by a fixed-step fourth-order Runge--Kutta (RK4) scheme. The reported
+\emph{$\delta$-strain} of a step is the achieved change $\Delta\Phi$. Two constraint
+types shape $\Phi$: \emph{rigid} constraints (user-stated axioms) act as hard
+orthogonal projections onto an affine subspace via a projector $P$; \emph{fluid}
+constraints (inferred facts) act as soft quadratic penalties.
+\end{construction}
+
+\begin{remark}[Observed sign behaviour]
+On a real run, injecting a new concept raised $\Phi$ by a structural jump
+($\delta\text{-strain}=+0.202$) and the subsequent RK4 flow pulled it back down
+($\delta\text{-strain}=-0.081$): a structural expansion followed by a deductive
+relaxation, exactly the intended dynamics.
+\end{remark}
+
+\begin{hon}\Hon
+The precise closed form of $\Phi$ is an implementation-level choice (a penalised
+quadratic on the fine complex) and is deliberately not over-specified here; what is
+mathematically committed is \eqref{eq:flow}---a gradient flow on a nonnegative
+conflict functional---and the rigid/fluid split as hard-projection vs soft-penalty.
+Earlier drafts posited an infinite-dimensional Banach state and a Fréchet derivative
+of the whole pipeline; both were \emph{removed} as unjustified---the pipeline runs
+through discrete token sampling and database lookups and is nowhere differentiable
+(see Section~\ref{sec:uncert}).
+\end{hon}
+
+% =====================================================================
+\section{Cohomology and the diagnostic hierarchy}\label{sec:cohom}
+% =====================================================================
+
+\subsection{\texorpdfstring{$\Hzero$, $\Hone$}{H0, H1} and the \texorpdfstring{$b_1$}{b1} distinction}\label{subsec:cohom}
+
+\begin{definition}[Sheaf cohomology, low degrees]
+With coboundary $\delta:C^0\to C^1$ (and higher coboundaries on the full complex),
+\[
+\Hzero(\CC;\Fs)=\ker\delta^0\quad(\text{global sections}),\qquad
+\Hone(\CC;\Fs)=\ker\delta^1/\im\delta^0\quad(\text{gluing failure}).
+\]
+\end{definition}
+
+\begin{intu}\Intu
+Two very different pathologies must never be confused. A \emph{structural hole}
+($b_1\neq0$, a Betti number of the bare shape) means a \emph{binding is missing}---no
+theorem yet ties some loop together. A \emph{gluing failure} ($\Hone\neq0$ of the
+sheaf) means the data are \emph{contradictory}---the organs cannot be reconciled. The
+first calls for \emph{growth}; the second calls for \emph{repair}. Treating a
+contradiction as a hole would make you add structure when you should resolve a
+conflict.
+\end{intu}
+
+\begin{remark}[$b_1$ is earned here]
+$b_1$ is a defensible diagnostic \emph{only} because simplices were defined to mean
+genuine $n$-ary binding (Remark~\ref{rem:nary}); a filled $2$-simplex really asserts a
+joint relation, so an unfilled $1$-cycle really is a missing joint relation. This is
+what most ``topological data analysis on knowledge graphs'' fails to justify.
+\end{remark}
+
+\subsection{The uncertainty stack}\label{sec:uncert}
+
+\begin{intu}\Intu
+Coherence is not correctness. Four instruments, ordered by cost, answer four different
+questions; they are not interchangeable.
+\end{intu}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}p{3.1cm}p{5.4cm}p{2.6cm}p{2.7cm}@{}}
+\hline
+\textbf{Instrument} & \textbf{Question} & \textbf{Cost} & \textbf{When}\\
+\hline
+$\rho$ (coherence) & Are my parts agreeing? & $\approx$ free & every tick\\
+$\hat\rho$ vs $\rho$ & Did I \emph{know} whether I'd agree? & free ($k$-NN) & once history exists\\
+$b_0,\ b_1$ & What is structurally missing/broken? & medium & on conflict, active subcomplex\\
+perturbation $J$ & Am I stable to paraphrase? & $k\times$ LLM calls & high-stakes only\\
+\textsc{VerifyOp} & Am I actually \emph{right}? & medium & promotion gate\\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{remark}[Perturbation is variance, not a derivative]
+Stability is measured as \emph{paraphrase-perturbation variance}: run $k$ semantically
+equivalent paraphrases and measure the spread of outcomes. This replaces an earlier
+``Fréchet derivative $\norm{\partial F/\partial x}$'' that does not exist, because $F$
+factors through discrete LLM sampling, a DAG generator, and database lookups---nothing
+differentiable. The cost is $k\times$ API calls and must be rationed.
+\end{remark}
+
+\begin{remark}[Expected precision, and the feedback edge]
+$\hat\rho$ is a similarity-weighted $k$-NN prediction of $\rho$ from a log of past
+$(\text{query embedding},\rho)$ pairs. The signed gap $\hat\rho-\rho$ separates
+\emph{competence}, \emph{known ignorance} (``confidently I do not know this''), and
+\emph{hallucination risk} (predicted agreement, observed disagreement). A
+\textsc{VerifyOp} failure updates this store, so self-knowledge improves with use.
+\end{remark}
+
+% =====================================================================
+\section{Dynamics: growth operators and the algebra \texorpdfstring{$\Dop$}{D}}\label{sec:growth}
+% =====================================================================
+
+\begin{intu}\Intu
+Learning \emph{is} change of shape. The complex binds organs that work together,
+prunes idle ones, and---when a procedure repeatedly succeeds---promotes it to a new
+first-class operator. Four axes of growth, one of which grows the very set of moves the
+system can make.
+\end{intu}
+
+\begin{definition}[Structural operators]
+The base moves on $\CC$ are the typed operators
+$\{\text{bind},\ \text{collapse},\ \text{split},\ \text{merge}\}$, each logged to an
+immutable mutation history. (The earlier terminology ``Pachner move'' was discarded: a
+knowledge complex is not a manifold, so the Pachner invariance guarantees do not
+transfer.)
+\end{definition}
+
+\begin{construction}[The four growth axes]\label{con:axes}
+Evolution proceeds along
+\[
+\underbrace{\delta \CC_{\text{fine}}}_{\text{concepts (semantic memory)}}\!,\quad
+\underbrace{\delta \CC_{\text{coarse}}}_{\text{coalitions (functional connectivity)}}\!,\quad
+\underbrace{\delta \Fs}_{\text{stalk/restriction data}}\!,\quad
+\underbrace{\delta \Dop}_{\text{new operators (procedural skill)}} .
+\]
+The fourth axis is the essential one: the operator algebra is time-dependent,
+$\Dop(t)\to\Dop(t+1)$.
+\end{construction}
+
+\begin{definition}[Hebbian coupling and decay]\label{def:hebb-decay}
+For a coalition $\sigma$ with weight $w(\sigma,t)\in[0,1]$: co-activation increments
+$w$ (``fire together $\Rightarrow$ wire together''); idle steps apply
+$w(\sigma,t{+}1)=(1-\gamma)\,w(\sigma,t)$ for a decay rate $\gamma$, and a coalition
+falling below a bind threshold \emph{collapses} (garbage collection). A pair past the
+bind threshold is a $1$-simplex (edge) of $\Kc$.
+\end{definition}
+
+\begin{construction}[Consolidation via persistence, and microneurons]\label{con:micro}
+Over the weight filtration, \emph{persistent homology} reads which coalitions and
+concept-cycles \emph{survive}; survivors are promoted into permanent structure. In
+particular a \emph{microneuron} is a promoted operadic sub-tree: when a composite DAG
+repeatedly resolves conflict \emph{and} passes verification, it is named and
+thereafter emitted by the planner as a single atomic generator of $\Dop$---this is
+$\delta\Dop$ made concrete. The promotion gate is \textsc{VerifyOp}
+(Section~\ref{sec:verify}): a composite becomes a generator only if it survives the
+external oracle.
+\end{construction}
+
+% =====================================================================
+\section{The operad and parallel scheduling}\label{sec:operad}
+% =====================================================================
+
+\begin{intu}\Intu
+A reasoning act is a small program: a directed acyclic graph (DAG) of operators, some
+depending on others. Independent operators can run at once; the scheduler slices the
+DAG into layers of mutually independent work sized to the real machine.
+\end{intu}
+
+\begin{definition}[Operadic foliation]\label{def:foliation-note}
+A reasoning act is a DAG $T=(N,\prec)$ of operator nodes. The scheduler foliates $T$
+into the antichain layers of the partial order $\prec$: layer $0$ is the set of
+minimal nodes (in-degree $0$), and layer $\ell+1$ is the set of nodes all of whose
+predecessors lie in layers $\le\ell$. Each layer is a \emph{maximal commuting slice}
+executed in parallel; correctness follows because nodes in one antichain share no
+$\prec$-dependency. Node ``support'' sets index which fine-complex vertices an operator
+reads/writes, so slices with disjoint support are safe to co-execute.
+\end{definition}
+
+\begin{remark}[``Operad'' is not earned; the intended structure is a trace monoid]\label{rem:tracemonoid}
+What Definition~\ref{def:foliation-note} describes is antichain layering of a DAG. An
+operad requires multi-input composition together with equivariance, associativity and
+unit axioms, none of which are stated or used here. The structure the design is
+reaching for is a \emph{trace monoid} $\mathbb M(\Sigma,I)$ (Mazurkiewicz): the free
+monoid on the operator alphabet modulo $ab=ba$ for pairs in an \emph{independence
+relation} $I$, whose canonical Foata normal form is exactly the antichain layering the
+scheduler computes. That identification would be a sharpening rather than a downgrade,
+since it supplies normal forms, a Hilbert series and a canonical form for
+deduplication. The terminology should be corrected regardless.
+\end{remark}
+
+\begin{hon}\Hon
+\textbf{The trace-monoid identification does not currently hold, and the reason is
+three separate defects.} Measured 2026-07-29 against the deployed operator set
+(\texttt{python/independence.py}, reading the declared supports out of
+\texttt{primitives.cpp}):
+\begin{enumerate}[label=(\roman*),nosep]
+\item \emph{The relation is not symmetric.} In the scheduler, admitting \emph{any}
+  empty-support node---including a read-only one---marks the whole slice as a global
+  mutation and blocks every later node. So $8$ of the $15$ operator pairs can share a
+  slice in one order and not the other. An independence relation is symmetric by
+  definition; a non-symmetric relation defines no trace monoid, hence no Foata normal
+  form and no Hilbert series. This is very likely an unintended scheduling behaviour
+  and is worth fixing on its own merits.
+\item \emph{The support sets are placeholders.} Every \texttt{get\_support()} returns a
+  hardcoded literal ($\varnothing$, $\{0\}$ or $\{1\}$), three of the six operators
+  returning the same $\{0\}$, with a comment standing in for an analysis of what the
+  operator actually touches. Any invariant computed from them describes six constants,
+  not the system.
+\item \emph{The convention for $\varnothing$ is inverted.} In the engine an empty
+  support means \textsc{global} (touches everything, must run isolated); read as a
+  set, $\varnothing$ is disjoint from everything and would mean \emph{independent of
+  everything}. The two readings give capacities differing by a factor of $1.8$
+  ($\kappa=3.00$ versus $\kappa=5.45$ against $\kappa=6$ for the free monoid), so the
+  quantity is not well defined until the convention is fixed.
+\end{enumerate}
+Under the reading the engine actually implements the algebra is \emph{nearly free}
+($9\%$ below the free monoid), because three of six operators share one support. The
+order of repair is: fix the symmetry defect; derive real read/write sets---including
+the shared state the current model ignores entirely (the store, the obstruction counter
+$\Omega$, the mutation log, and the coarse stalks that $\pi_v$ overwrites after every
+execution); only then recompute $I$. Operators that all mutate $\Omega$ do not commute
+whatever their vertex supports say. Until that is done, no capacity, Koszulity or
+resolution claim about $\Dop$ should appear in this document.
+\end{hon}
+
+% =====================================================================
+\section{The lift--project adjunction \texorpdfstring{$\mathcal L\dashv\mathcal M$}{L -| M}}\label{sec:adjunction}
+% =====================================================================
+
+\begin{intu}\Intu
+Two worlds: free-form natural language, and structured reasoning DAGs. One map
+\emph{lifts} language into a validated DAG; a partner map \emph{projects} a DAG back
+into language. Meaning that carries no reasoning content collapses under the lift---it
+lands in the kernel.
+\end{intu}
+
+\begin{construction}[The boundary morphisms]
+Let $\pi$ (``lift'', $\mathcal L$) send a natural-language request to a validated
+reasoning DAG, and $G$ (``project'', $\mathcal M$) send a DAG to a natural-language
+rendering. Empirically, semantically void input maps into $\ker\pi$: a joke embedded
+in a mathematical prompt produced \emph{zero} DAG nodes, exactly as a kernel element
+should. The lift is guarded by a validator that rejects malformed DAGs at the boundary
+(duplicate ids, dangling children, cycles by DFS colouring, absence of a terminal
+output node, disconnection), so the downstream engine only ever receives well-formed
+programs.
+\end{construction}
+
+\begin{hon}\Hon
+$\mathcal L\dashv\mathcal M$ is the intended categorical \emph{framing}
+(lift left-adjoint to project) and it organises the design usefully; the unit/counit
+triangle identities are \emph{not} formally verified here, so ``adjunction'' should be
+read as a structuring principle plus concrete morphisms $(\pi,G)$ with the observed
+$\ker\pi$ behaviour---not as a proved theorem. Stating this is part of the honesty
+invariant.
+\end{hon}
+
+% =====================================================================
+\section{Verification: the external oracle}\label{sec:verify}
+% =====================================================================
+
+\begin{intu}\Intu
+Coherence governs whether to keep exploring or stop and reconcile; only an external
+checker touches \emph{truth}. And ``I could not check'' must never be mistaken for
+``it is false.''
+\end{intu}
+
+\begin{definition}[Three-valued verification]
+\textsc{VerifyOp} calls a sandboxed symbolic oracle returning one of three verdicts,
+which act on an obstruction counter $\Omega$:
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lll@{}}
+\hline
+exit & verdict & effect on state\\
+\hline
+$0$ & \textsc{Verified} & obstruction cleared; state may crystallise\\
+$1$ & \textsc{Refuted} & $\Omega\mathrel{+}=1000$; forced into \textsc{Resolve}\\
+$2$ & \textsc{Unverifiable} & $\Omega$ \emph{untouched}\\
+\hline
+\end{tabular}
+\end{center}
+\end{definition}
+
+\begin{remark}[Absence of proof is not proof of absence]
+An earlier version treated every nonzero exit as failure, conflating \textsc{Refuted}
+and \textsc{Unverifiable}; that would spike conflict over the oracle's own blind spots
+and lock the system into \textsc{Resolve} over perfectly good mathematics. A checker
+crash also returns \textsc{Unverifiable}. This three-valued logic is the promotion
+gate of Construction~\ref{con:micro}.
+\end{remark}
+
+% =====================================================================
+\section{The controller}\label{sec:controller}
+% =====================================================================
+
+\begin{definition}[Coherence-gated mode]
+With threshold $\varepsilon$, the controller selects
+\begin{equation}
+\text{mode}(x)=
+\begin{cases}
+\textsc{Resolve}, & \rho>\varepsilon\ \text{(reconcile the guilty edge before expanding)},\\
+\textsc{Explore}, & \rho\le\varepsilon,\\
+\textsc{Unknown}, & \rho=\bot\ \text{(no measurement)}.
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{remark}[Three modes, and empirical $\varepsilon$]\label{rem:controller}
+The \textsc{Unknown} branch is essential: when $\rho$ is undefined the controller
+\emph{refuses} to default to \textsc{Explore}, because ``no measurement'' is not
+``all is well.'' The threshold is calibrated, not guessed: on real $384$-dimensional
+embeddings, agreement gave $\rho\approx0.00$, related-but-distinct $\approx0.06$, and
+off-topic $\approx0.14$, so $\varepsilon\approx0.10$ is a principled starting gate.
+Two cautions from live runs: $\rho$ is \emph{not} monotonic in the number of active
+organs (adding a well-aligned organ raises the normaliser faster than the discord, so
+$\rho$ dilutes), and comparisons across differently-sized complexes must be made with
+care.
+\end{remark}
+
+\begin{remark}[Superseded: gate on $\tilde\rho$, not $\rho$]\label{rem:gate-tilde}
+Both cautions above are consequences of a single fact, isolated in
+Proposition~\ref{prop:split}: $\rho=\alpha\tilde\rho$, and \emph{only $\alpha$ has the
+pathologies}. Organ-count dilution moves $\alpha$ and leaves $\tilde\rho$ invariant;
+cross-complex comparison is unsafe for $\rho$ because $B$ and $\norm{X}_F^2$ both
+change, but $\tilde\rho$ is comparable across complexes once expressed as its position
+inside the window \eqref{eq:window}. The controller should therefore gate on
+$\tilde\rho$---or on its window position---and report $\alpha$ alongside as the
+answer to a genuinely different question. The typed reading is what the single number
+could not give: large $\alpha$ with small $\tilde\rho$ is a two-camp split wanting
+\texttt{split}/\texttt{bind}; small $\alpha$ with large $\tilde\rho$ is one outlier
+organ wanting edge repair.
+\end{remark}
+
+% =====================================================================
+\section{What is and is not claimed}\label{sec:limits}
+% =====================================================================
+
+\begin{intu}\Intu
+The topology's deepest gift is not that it makes the system smart, but that it makes
+the claim of augmentation \emph{falsifiable}: memory, consistency, and growth become
+operations on \emph{one} object, with cheap provable guarantees and a live measure of
+whether augmentation is actually happening.
+\end{intu}
+
+\paragraph{Diagnostic vs.\ constitutive use.}
+A structure can \emph{measure} a process happening elsewhere (diagnostic) or \emph{be
+part of} the computation (constitutive). Today the sheaf is used diagnostically: the
+LLM reasons, $\rho$ grades coherence. Four identified moves promote it toward
+constitutive use, none requiring a smarter LLM:
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item \emph{sheaf diffusion as inference}: running $\dot x=-Lx$ to equilibrium
+        converges to the orthogonal projection onto $\ker L=\Hzero$---it
+        \emph{constructs} the least-discord global section, a reconciled state no
+        single organ held (with identity restrictions this is consensus/averaging; its
+        power grows with non-trivial maps);
+  \item \emph{non-trivial (learned) restriction maps}, the formal home of ``quality of
+        a connection'' (cf.\ Prop.~\ref{prop:identity} box);
+  \item \emph{higher-cell Laplacians}, propagating joint constraints pairwise
+        message-passing cannot represent;
+  \item \emph{persistence as structural learning} (Construction~\ref{con:micro}).
+\end{enumerate}
+
+\paragraph{The creativity boundary (Boden).}
+With frozen LLM weights the system realises \emph{combinatorial} and \emph{exploratory}
+creativity---novel recombination, and search within a fixed representational
+space---at full strength. \emph{Transformational} creativity (enlarging the space
+itself) is largely out of reach, with one genuine sliver: each promoted operator
+($\delta\Dop$) enlarges the system's \emph{effective} action space. So universal
+adaptivity is a claim about \emph{organisation}, bounded by the model's expressible
+\emph{content}.
+
+\begin{hon}\Hon
+\textbf{Bottom line.} The simplices do not hand you augmented intelligence. They hand
+you a rigorous, measurable, self-checking substrate on which
+augmentation-via-structure \emph{might} emerge---through measured cross-organ
+error-correction and accumulation---and on which you can \emph{tell whether it is
+emerging rather than deceiving yourself}. Whether the bet wins (whole $>$ sum) is
+unknown, and no elegance of topology guarantees it. The instrumentation is what makes
+it a real research bet rather than a beautiful story.
+\end{hon}
+
+% =====================================================================
+\section{Outlook: predictive-coding sheaf diffusion (proposed, unimplemented)}\label{sec:outlook}
+% =====================================================================
+
+\begin{hon}\Hon
+\textbf{Status, corrected 2026-07-29.} An earlier version of this section declared
+that ``nothing here has been implemented or numerically verified.'' That is no longer
+true and has not been true since 2026-07-24; leaving it standing would have made the
+paper misdescribe its own engine, which is the failure this document exists to
+prevent. Current status, mechanism by mechanism:
+\begin{itemize}[nosep]
+\item \emph{(1) Predictive coding --- MEASURE:} \textbf{in the C++ engine.} The
+  precision-weighted $\omega$ of Proposition~\ref{prop:pc} and the weighted
+  Anderson--Morley normaliser of Proposition~\ref{prop:wam} are implemented in
+  \texttt{coarse\_complex.cpp}, with parity against \texttt{coherence.py} under test.
+  Defaults are off: with no restriction maps set and $\pi\equiv1$ the reported value
+  is byte-identical to the pre-existing measure.
+\item \emph{(1) Predictive coding --- LEARNER:} Python reference only
+  (\texttt{predictive\_coding.py}); not engine-wired.
+\item \emph{(2) Criticality, (3) homeostasis, (4) selectionism:} Python reference only
+  (\texttt{plasticity.py}, \texttt{selection.py}); not engine-wired. The controller
+  still only \emph{logs} the worst edge; the attachment loop is not built.
+\end{itemize}
+So the honest description is \textbf{measure implemented, control loop not}. The
+constructions below that remain genuinely unbuilt are marked individually.
+\end{hon}
+
+\begin{intu}\Intu
+Section~\ref{sec:limits} named the move: stop only \emph{scoring} agreement between
+organs: let the structure \emph{compute} with it. Four principles from computational
+neuroscience turn out to be the same four moves needed to do that, each attacking one
+of the architecture's current hand-set magic numbers.
+\end{intu}
+
+\subsection{Predictive coding is precision-weighted sheaf diffusion}
+
+\begin{proposition}[The identity]\label{prop:pc}
+Let each edge carry a scalar precision $\pi_e>0$ (the confidence attached to that
+organ pair's agreement). Define the \emph{predictive-coding free energy}
+\begin{equation}\label{eq:pcfreeenergy}
+\mathcal F(x)\;=\;\sum_{e=\{u,v\}}\pi_e\,\norm{\varepsilon_e}^2,
+\qquad \varepsilon_e=(\delta x)_e=\rest{u\triang e}(x_u)-\rest{v\triang e}(x_v).
+\end{equation}
+Then $\mathcal F$ is exactly the discord $\omega$ of Definition~\ref{def:laplacian}
+with edge weights $\pi_e$: $\mathcal F(x)=x^\top L_\pi x$ for the precision-weighted
+Laplacian $L_\pi=\delta^\top \Pi\, \delta$, $\Pi=\diag(\pi_e)$. \emph{Inference}
+(settling on a reconciled belief) is the gradient flow $\dot x=-\nabla\mathcal
+F(x)=-L_\pi x$, i.e. sheaf diffusion (item (1) of Section~\ref{sec:limits}) with a
+precision-weighted Laplacian in place of the unweighted one.
+\end{proposition}
+
+\begin{proposition}[Weighted Anderson--Morley]\label{prop:wam}
+Let $\pi_e\ge0$, $\Pi=\diag(\pi_e)$, $L_\pi=\delta^\top\Pi\delta$, and let the
+\emph{weighted degree} be $d_\pi(v)=\sum_{e\ni v}\pi_e$. Assume every restriction map
+is a contraction, $\norm{\rest{v\triang e}}\le1$ (orthogonality suffices, and identity
+is the special case). Then
+\begin{equation}\label{eq:wam}
+\lambda_{\max}(L_\pi)\ \le\ B_\pi\ :=\ \max_{e=\{u,v\}\in E}\big(d_\pi(u)+d_\pi(v)\big),
+\end{equation}
+so $\rho=\omega/(B_\pi\norm{X}_F^2)\in[0,1]$ as before.
+\end{proposition}
+\begin{proof}
+Write $y_v=\norm{x_v}$. By the triangle inequality and the contraction hypothesis,
+$\norm{\rest{u\triang e}(x_u)-\rest{v\triang e}(x_v)}\le\norm{x_u}+\norm{x_v}$, so
+\[
+x^\top L_\pi x=\sum_e\pi_e\norm{(\delta x)_e}^2\le\sum_e\pi_e(y_u+y_v)^2=y^\top Q_\pi y,
+\qquad Q_\pi:=B\Pi B^\top,
+\]
+$B$ the \emph{unsigned} incidence matrix, so $Q_\pi=D_\pi+A_\pi$ is the weighted
+signless Laplacian. Since $\norm{y}=\norm{X}_F$ it suffices to bound
+$\lambda_{\max}(Q_\pi)$. The nonzero spectrum of $B\Pi B^\top$ equals that of
+$M:=\Pi^{1/2}B^\top B\,\Pi^{1/2}$, which is nonnegative symmetric with $M_{ee}=2\pi_e$
+and $M_{ee'}=\sqrt{\pi_e\pi_{e'}}$ when $e\neq e'$ share a vertex. Apply the
+Collatz--Wielandt bound $\lambda_{\max}(M)\le\max_e s_e^{-1}\sum_{e'}M_{ee'}s_{e'}$
+with the strictly positive test vector $s_e=\sqrt{\pi_e}$ (deleting zero-weight edges
+first):
+\[
+\frac1{\sqrt{\pi_e}}\Big(2\pi_e\sqrt{\pi_e}+\sum_{e'\sim e}\sqrt{\pi_e\pi_{e'}}\sqrt{\pi_{e'}}\Big)
+=2\pi_e+\sum_{e'\sim e}\pi_{e'}=d_\pi(u)+d_\pi(v),
+\]
+using $\sum_{e'\sim e}\pi_{e'}=(d_\pi(u)-\pi_e)+(d_\pi(v)-\pi_e)$. Maximising over $e$
+gives \eqref{eq:wam}.
+\end{proof}
+
+\begin{hon}\Hon
+Two points of discipline about Proposition~\ref{prop:wam}.
+\emph{(i) The contraction hypothesis is load-bearing and was previously implicit.}
+Without $\norm{\rest{v\triang e}}\le1$ the first inequality in the proof fails and the
+bound is simply false; a caller supplying non-orthogonal learned maps can drive
+$\rho>1$. Both implementations detect this and warn on \texttt{stderr} rather than
+silently clamping and hiding it. Any restatement of this proposition that drops the
+hypothesis is wrong, and stating $L_\pi=\delta^\top\Pi\delta$ in full sheaf generality
+while proving it only for identity restrictions is the specific error being corrected
+here.
+\emph{(ii) No novelty is claimed.} Weighted bounds of this shape are standard spectral
+graph theory via the signless Laplacian; the proof is given in full only because the
+exact constant is needed and because $\pi\equiv1$ must provably recover the classical
+$\max(\deg u+\deg v)$ for the parity tests to mean anything.
+\end{hon}
+
+\begin{remark}[The Hebbian weights now reach the Laplacian]\label{rem:hebbwired}
+Definition~\ref{def:hebb-decay} gives every coalition a weight $w(\sigma,t)\in[0,1]$,
+but the unweighted \eqref{eq:omega} could not see it: the functional-connectivity
+growth axis was invisible to the only quantity computed every tick. Setting
+$\pi_e:=w(\sigma_e,t)$ closes that gap at zero cost---$B_\pi$ is $O(|E|)$ exactly as
+$B$ was, and no eigensolver is introduced. This is implemented and off by default.
+\end{remark}
+
+\begin{remark}[This is the fine-level flow, one level up]
+Construction~\ref{con:flow}'s RK4 descent $\dot x=-\nabla\Phi(x)$ already realises
+predictive-coding inference \emph{inside} an organ's fine complex. Proposition
+\ref{prop:pc} proposes the same dynamics at the \emph{coarse} level, on $L_\pi$,
+closing the diagnostic/constitutive gap identified in Section~\ref{sec:limits}.
+\end{remark}
+
+\subsection{Learning the restriction maps at zero training cost}
+
+\begin{hon}\Hon
+Section~\ref{sec:limits} flagged non-trivial restriction maps as the formal home of
+``connection quality,'' with the open question: learned from what, at zero budget,
+with no backpropagation infrastructure? Predictive coding answers this with a purely
+local rule.
+\end{hon}
+
+\begin{construction}[Oja-stabilised Hebbian update]\label{con:hebb}
+Treat each restriction map $R_{v,e}:=\rest{v\triang e}$ as a learnable matrix. The
+predictive-coding gradient is local to the edge:
+\begin{equation}\label{eq:hebb}
+\frac{\partial \mathcal F}{\partial R_{u,e}} = 2\pi_e\,\varepsilon_e\,x_u^{\top},
+\qquad
+\Delta R_{u,e} \;=\; -\eta\,\pi_e\,\varepsilon_e\,x_u^{\top}
+\end{equation}
+for a step size $\eta>0$ — a rank-one Hebbian update using only quantities already
+local to organ $u$ and edge $e$. Raw Hebbian growth is unbounded, so an Oja
+normalisation term $-\eta\,\norm{\varepsilon_e}^2 R_{u,e}$ is added to keep
+$R_{u,e}$ bounded, exactly as in Oja's rule for Hebbian PCA. No backpropagation
+graph, no global loss: each edge updates from its own residual.
+\end{construction}
+
+\subsection{Criticality: a self-tuned threshold instead of a guessed one}
+
+\begin{intu}\Intu
+The coherence threshold $\varepsilon\approx0.10$ (Section~\ref{sec:controller}) was
+fit empirically to a handful of observations. Criticality theory offers a
+principled replacement: tune the system to sit where a single perturbation triggers,
+on average, exactly one further event.
+\end{intu}
+
+\begin{construction}[Branching-ratio setpoint]
+Define the branching ratio $\sigma$ as the mean number of new binds triggered per
+co-activation event. Following Beggs--Plenz neuronal-avalanche theory and the
+Kinouchi--Copelli dynamic-range result, $\sigma\to1$ (criticality) maximises the
+system's dynamic range and marks the transition between over-damped (nothing
+restructures) and runaway (everything restructures) regimes. \textbf{Proposed:}
+replace the fixed $\varepsilon$ with a controller that adjusts it to hold
+$\sigma\approx1$, measured where sample size is large enough to mean anything (the
+fine level; the six-organ coarse level uses an empirical-quantile $\varepsilon$
+meanwhile).
+\end{construction}
+
+\subsection{Homeostatic growth trigger}
+
+\begin{construction}[Deviation-from-setpoint trigger]
+Following Butz--van Ooyen structural plasticity, let $a(t)$ be a leaky-integrated
+activity/coherence signal with target $a^\ast$; growth (attachment,
+Section~\ref{con:micro}) is triggered by \emph{integrated} deviation,
+\begin{equation}
+\dot z = \nu\big(a^\ast-a(t)\big),
+\end{equation}
+gating attachment only once $z$ crosses a bound. This is thrash-resistant by
+construction: a single transient coherence spike does not trigger growth, only a
+sustained deviation does — replacing the fixed decay constant of
+Section~\ref{sec:growth} with an integrator.
+\end{construction}
+
+\subsection{Selectionism: variation, verification, promotion}
+
+\begin{construction}[Attachment as selection]
+When diffusion (Proposition~\ref{prop:pc}) fails to reduce $\mathcal F$ below
+tolerance, generate $k$ candidate attachments at the located obstruction (the
+worst edge of Remark~\ref{rem:diag}, or its cohomological generalisation, the
+harmonic representative of a persisting $[\zeta]\in\Hone$); each candidate is an
+Edelman-style \emph{variant}. \textsc{VerifyOp} (Section~\ref{sec:verify}) is the
+\emph{sole} selection criterion: a variant is promoted to $\Dop$
+(Construction~\ref{con:micro}) only if it survives verification. Coherence
+improvement $\Delta\rho$ alone must never promote a variant — a fluent but false
+reconciliation is exactly the failure mode this excludes.
+\end{construction}
+
+\begin{hon}\Hon
+\textbf{What this layer does and does not buy, stated plainly.}
+\begin{itemize}[nosep]
+\item It does \emph{not} raise the LLM's per-call reasoning quality; the $k$
+  attachment samples are \emph{aimed and rationed} by the located obstruction, not a
+  smarter model.
+\item Diffusion reconciles existing information; it never manufactures a true fact.
+  \textsc{VerifyOp} remains the sole arbiter of truth, unconditionally.
+\item All four mechanisms are \emph{slope} mechanisms: on day one, with
+  $\pi_e\equiv1$, fixed $\varepsilon$, a reactive (non-integrated) trigger, and
+  $k=1$, the system degrades exactly to the architecture described in
+  Sections~\ref{sec:complex}--\ref{sec:controller}. The bet, as always, is on
+  accumulation, not on an improved first day.
+\item Criticality is used here as an \emph{engineering} target (maximise dynamic
+  range), not asserted as a governing law of cognition; it is meaningful only at
+  sample sizes where a branching ratio is statistically defined.
+\end{itemize}
+The one-sentence summary: promote the coherence measure from a \emph{scorer} to a
+\emph{search controller} — detect struggle as a persisting obstruction, read the
+obstruction as the address of the needed structure, spend the scarce LLM sample
+exactly there, verify, and promote survivors, with the same rule applying
+self-similarly at every level of the stratified complex.
+\end{hon}
+
+% =====================================================================
+\appendix
+\section{The driving application: a thermal Hodge spectrum on \texorpdfstring{$\mathbb{CP}^3$}{CP3}}\label{app:cp3}
+% =====================================================================
+
+\begin{intu}\Intu
+The architecture is aimed at a concrete open problem, so the mathematics has a target,
+not just a form.
+\end{intu}
+
+The target is the spectrum and time-evolution of a \emph{thermally-weighted}
+Hodge--de~Rham Laplacian $\Delta_\beta$ on $1$-forms over complex projective space
+$\mathbb{CP}^3$ with the Fubini--Study metric, where the weight $e^{-\beta E}$ is
+supplied by a two-qubit Hamiltonian $K$. Two halves:
+\begin{itemize}[nosep]
+  \item \emph{Retrievable core.} The \emph{unweighted} Hodge spectrum on
+  $\mathbb{CP}^n$ is classical (Ikeda--Taniguchi via $SU(n{+}1)$ representation theory
+  \cite{IkedaTaniguchi}); the weighted operator $\Delta_\beta$ is a Witten /
+  Bakry--Émery drift-Laplacian, a known deformation.
+  \item \emph{Novel frontier.} The thermally-weighted, symmetry-broken spectrum is a
+  genuine new step and carries real confident-error risk.
+\end{itemize}
+The role of \textsc{tatiana} on this problem is not to out-reason a frontier model in
+one shot but to \emph{run the loop}: retrieve the classical core, grow concept-nodes,
+register a coherence spike at the frontier, verify what it can, and produce a grounded,
+honestly-hedged attempt---measuring its own augmentation as it goes. This is precisely
+the setting where the diagnostic hierarchy of Section~\ref{sec:uncert} earns its keep:
+a lone LLM answer to the frontier half is confidently unfalsifiable; here the
+disagreement is measured and localised.
+
+% =====================================================================
+\section{Notation}\label{app:notation}
+% =====================================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}ll@{}}
+\hline
+symbol & meaning\\
+\hline
+$\M=(\CC,\Fs,s)$ & cognitive state space: complex, sheaf, current state\\
+$\Kc,\ \CC_v$ & coarse (organ) complex; fine (concept) complex of organ $v$\\
+$w(\sigma,t)\in[0,1]$ & coupling weight of coalition $\sigma$ at time $t$\\
+$\Fs(\sigma)$ & stalk on cell $\sigma$ (here $\Rd$, $d=384$)\\
+$\rest{v\triang e}$ & restriction map, vertex $v$ into edge $e$\\
+$\delta,\ L=\delta^\top\delta$ & coboundary; sheaf Laplacian (symmetric PSD)\\
+$\omega=x^\top Lx$ & discord (Dirichlet energy)\\
+$B,\ \rho=\omega/(B\norm{X}_F^2)$ & Anderson--Morley normaliser; coherence score $\in[0,1]$\\
+$\Hzero=\ker L$ & global sections (``coherent thoughts'')\\
+$\Hone,\ b_1,\ b_0$ & gluing failure; structural hole; components\\
+$\pi_v$ & precision-weighted coarse-graining of organ $v$\\
+$\Sigma_i=U_iU_i^\top+D_iI$ & concept covariance (low-rank $+$ isotropic)\\
+$W_2$ & Bures--Wasserstein distance between Gaussians\\
+$\Phi,\ \dot x=-\nabla\Phi$ & fine conflict functional; deductive gradient flow\\
+$\Dop,\ \delta\Dop$ & operator algebra; its growth (microneurons)\\
+$\Omega$ & verification obstruction counter\\
+$\varepsilon$ & controller coherence threshold ($\approx 0.10$)\\
+$\bot$ & ``unknown / undefined'' (never silently $0$)\\
+\hline
+\end{tabular}
+\end{center}
+
+% =====================================================================
+\section{Cost and calibration summary}\label{app:cost}
+% =====================================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lll@{}}
+\hline
+quantity & cost & note\\
+\hline
+$\omega,\ \rho$ & $O(|E|\,d)$ & no eigensolver (Anderson--Morley)\\
+worst edge, $b_0$ & $O(|E|)$ & per-edge sum; union-find\\
+$\pi_v$ isotropic & $O(nd)$ & exact scalar precision average\\
+$\pi_v$ general & $O(ndk+d^3)$ & Woodbury; verified to $2.2\times10^{-16}$\\
+$W_2$ (isotropic $\Sigma_1$) & $O(dk^2+k^3)$ & $k\times k$ eigendecomposition only\\
+paraphrase variance $J$ & $k\times$ LLM calls & rationed to high-stakes\\
+$d$ & $384$ & fixed embedding dimension\\
+$\varepsilon$ & $\approx 0.10$ & calibrated on real embeddings\\
+\hline
+\end{tabular}
+\end{center}
+
+% =====================================================================
+\begin{thebibliography}{9}
+\bibitem{Curry} J.~Curry, \emph{Sheaves, Cosheaves and Applications}, Ph.D. thesis, University of Pennsylvania, 2014.
+\bibitem{HansenGhrist} J.~Hansen and R.~Ghrist, ``Toward a spectral theory of cellular sheaves,'' \emph{Journal of Applied and Computational Topology} \textbf{3} (2019), 315--358.
+\bibitem{HansenGhristOpinion} J.~Hansen and R.~Ghrist, ``Opinion dynamics on discourse sheaves,'' \emph{SIAM J. Applied Mathematics} \textbf{81} (2021), 2033--2060.
+\bibitem{AndersonMorley} W.~N.~Anderson and T.~D.~Morley, ``Eigenvalues of the Laplacian of a graph,'' \emph{Linear and Multilinear Algebra} \textbf{18} (1985), 141--145.
+\bibitem{Bodnar} C.~Bodnar, F.~Di~Giovanni, B.~Chamberlain, P.~Li\`o, M.~Bronstein, ``Neural sheaf diffusion: a topological perspective on heterophily and oversmoothing in GNNs,'' \emph{NeurIPS}, 2022.
+\bibitem{BodnarCW} C.~Bodnar et al., ``Weisfeiler and Lehman go cellular: CW networks,'' \emph{NeurIPS}, 2021.
+\bibitem{Lim} L.-H.~Lim, ``Hodge Laplacians on graphs,'' \emph{SIAM Review} \textbf{62} (2020), 685--715.
+\bibitem{AbramskyBrandenburger} S.~Abramsky and A.~Brandenburger, ``The sheaf-theoretic structure of non-locality and contextuality,'' \emph{New Journal of Physics} \textbf{13} (2011), 113036.
+\bibitem{Bhatia} R.~Bhatia, T.~Jain, Y.~Lim, ``On the Bures--Wasserstein distance between positive definite matrices,'' \emph{Expositiones Mathematicae} \textbf{37} (2019), 165--191.
+\bibitem{Boden} M.~Boden, \emph{The Creative Mind: Myths and Mechanisms}, 2nd ed., Routledge, 2004.
+\bibitem{IkedaTaniguchi} A.~Ikeda and Y.~Taniguchi, ``Spectra and eigenforms of the Laplacian on $S^n$ and $P^n(\mathbb{C})$,'' \emph{Osaka J. Mathematics} \textbf{15} (1978), 515--546.
+\end{thebibliography}
+
+\end{document}

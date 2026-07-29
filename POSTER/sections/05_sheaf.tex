@@ -1,0 +1,163 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 05_sheaf.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{4. Cellular Sheaves: Attaching Local Information}
+
+\BodyFont
+
+The simplicial complex specifies only the \emph{combinatorial structure}
+of memory. To represent mathematical information associated with each
+concept and relationship, MOS equips the complex with a
+\textbf{cellular sheaf}.
+
+A cellular sheaf assigns a vector space to every simplex together with
+compatible restriction maps describing how information propagates between
+adjacent simplices.
+
+Formally,
+
+\[
+\boxed{
+\mathcal{F} :
+C
+\longrightarrow
+\mathbf{Vect}
+}
+\]
+
+where every simplex $\sigma\in C$ receives a stalk
+
+\[
+\mathcal F(\sigma)
+\]
+
+and every face inclusion
+
+\[
+\sigma\subseteq\tau
+\]
+
+induces a linear restriction map
+
+\[
+\rho_{\tau\rightarrow\sigma}:
+\mathcal F(\tau)
+\longrightarrow
+\mathcal F(\sigma).
+\]
+
+The sheaf therefore provides the local algebraic structure that transforms
+the simplicial complex into an information-bearing mathematical object.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SHEAF DIAGRAM
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{5mm}
+
+\begin{center}
+\begin{tikzpicture}[
+  scale=1.2,
+  node/.style={circle, fill=MOSRed, draw=MOSGold, line width=1pt, minimum size=10pt, inner sep=0pt},
+  edge/.style={draw=MOSRed, line width=2pt},
+  stalk/.style={draw=MOSGold, line width=1.5pt, fill=black, minimum width=2.5cm, minimum height=1cm, text=white, font=\Large\bfseries, rounded corners}
+]
+
+% Base space (1-simplex)
+\node[node] (v1) at (-3, 0) {};
+\node[node] (v2) at (3, 0) {};
+\draw[edge] (v1) -- (v2) node[midway, below=3mm, white, font=\Large] {Edge $e$};
+
+\node[white, font=\Large, below=3mm of v1] {Vertex $u$};
+\node[white, font=\Large, below=3mm of v2] {Vertex $v$};
+
+% Stalks (Vector Spaces)
+\node[stalk] (Fv1) at (-3, 3) {$\mathcal{F}(u)$};
+\node[stalk] (Fv2) at (3, 3) {$\mathcal{F}(v)$};
+\node[stalk] (Fe)  at (0, 5) {$\mathcal{F}(e)$};
+
+% Restriction Maps
+\draw[-{Latex[length=4mm]}, MOSGold, line width=2pt] (Fe) -- (Fv1) node[midway, above left=1mm] {$\rho_{e \to u}$};
+\draw[-{Latex[length=4mm]}, MOSGold, line width=2pt] (Fe) -- (Fv2) node[midway, above right=1mm] {$\rho_{e \to v}$};
+
+% Projection lines showing fiber over base
+\draw[dashed, MOSRed, line width=1pt] (Fv1) -- (v1);
+\draw[dashed, MOSRed, line width=1pt] (Fv2) -- (v2);
+\draw[dashed, MOSRed, line width=1pt] (Fe) -- (0,0);
+
+\end{tikzpicture}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LOCAL COMPATIBILITY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Local Compatibility}
+
+\BodyFont
+
+The restriction maps encode how information attached to higher-dimensional
+relationships must agree with information attached to their faces.
+
+Consequently,
+
+\[
+\boxed{
+\text{Every local assignment is constrained by its neighbors.}
+}
+\]
+
+Compatibility is therefore not imposed globally; it is enforced through
+the local structure of the sheaf itself.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% GLOBAL SECTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\boxed{
+s\in H^{0}(C,\mathcal F)
+}
+\]
+
+\BodyFont
+
+A \textbf{global section} is a compatible assignment of data to every
+simplex satisfying all restriction maps simultaneously.
+
+Within MOS, a global section represents a mathematically coherent memory
+state whose local pieces agree everywhere on the simplicial complex.
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% WHY SHEAVES?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+The cellular sheaf is the mathematical mechanism that links local and
+global information.
+
+Rather than storing concepts independently, MOS models memory as a network
+of compatible local assignments whose consistency can later be analyzed
+using sheaf Laplacians, cohomology and topological diagnostics.
+
+This transition—from combinatorial geometry to algebraic structure—is the
+key step that enables the coherence measures developed in the following
+sections.
+
+\end{remarkbox}

@@ -1,0 +1,284 @@
+#include "mos/core/kernel.hpp"
+#include "operad_generated.h"
+#include "mos/operators/primitives.hpp"
+#include <iostream>
+
+namespace mos {
+namespace core {
+
+class OperatorFactory {
+public:
+    static std::shared_ptr<mos::core::CognitiveOperator> create(
+        const mos::fbs::Operator* op_data, 
+        std::shared_ptr<translation::KnowledgeBase> kb, 
+        std::shared_ptr<translation::LanguageKernel> llm,
+        const KernelConfig& config) 
+    {
+        if (!op_data) return nullptr;
+        std::string payload = op_data->payload() ? op_data->payload()->str() : "";
+
+        // Payload geometry, embedded LOCALLY in Python and carried across the
+        // boundary. Operators use this instead of fetching embeddings remotely.
+        std::vector<double> geometry;
+        if (op_data->geometry()) {
+            geometry.assign(op_data->geometry()->begin(), op_data->geometry()->end());
+        }
+
+        switch (op_data->type()) {
+            case mos::fbs::OpType_CONTEXT: {
+                std::vector<mos::operators::ContextOp::Constraint> c_list;
+                if (op_data->constraints()) {
+                    for (const auto* fbs_c : *op_data->constraints()) {
+                        mos::operators::ContextOp::Constraint c;
+                        c.is_rigid = (fbs_c->type() == mos::fbs::ConstraintType_RIGID);
+                        if (fbs_c->geometry()) {
+                            c.geometry.assign(fbs_c->geometry()->begin(), fbs_c->geometry()->end());
+                        }
+                        c_list.push_back(c);
+                    }
+                }
+                return std::make_shared<mos::operators::ContextOp>(payload, c_list);
+            }
+            case mos::fbs::OpType_SEARCH:
+                return std::make_shared<mos::operators::SearchOp>(payload, kb, llm, geometry);
+            case mos::fbs::OpType_COMPUTE:
+                return std::make_shared<mos::operators::ComputeOp>(
+                    payload, llm, config.compute_dt, config.compute_lambda, geometry
+                );
+            case mos::fbs::OpType_VERIFY:
+                return std::make_shared<mos::operators::VerifyOp>(payload);
+            case mos::fbs::OpType_REASON:
+                return std::make_shared<mos::operators::ReasonOp>(payload, llm, geometry);
+            case mos::fbs::OpType_RESPOND:
+                return std::make_shared<mos::operators::RespondOp>(payload);
+            default:
+                return nullptr;
+        }
+    }
+};
+
+OSKernel::OSKernel(CognitiveState& initial_state, const KernelConfig& config) 
+    : state_(initial_state), config_(config) {
+    unsigned int threads = config_.num_threads;
+    if (threads == 0) {
+        threads = std::thread::hardware_concurrency();
+        if (threads == 0) threads = config_.fallback_threads; 
+    }
+    thread_pool_ = std::make_shared<ThreadPool>(threads);
+}
+
+void OSKernel::set_reflection_engine(std::shared_ptr<ReflectionEngine> reflection_engine) {
+    reflection_engine_ = std::move(reflection_engine);
+}
+
+void OSKernel::set_knowledge_base(std::shared_ptr<translation::KnowledgeBase> kb) {
+    kb_ = std::move(kb);
+}
+
+void OSKernel::set_llm(std::shared_ptr<translation::LanguageKernel> llm) {
+    llm_ = std::move(llm);
+}
+
+void OSKernel::set_halt_condition(std::function<bool(const CognitiveState&)> condition) {
+    halt_condition_ = std::move(condition);
+}
+
+CognitiveState& OSKernel::get_state() noexcept {
+    return state_;
+}
+
+bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
+    if (!buffer || size == 0) return false;
+
+    // 1. Validate the buffer using FlatBuffers verifier
+    flatbuffers::Verifier verifier(buffer, size);
+    if (!mos::fbs::VerifyOperadDAGBuffer(verifier)) {
+        std::cerr << "[OSKernel] FATAL: Invalid Operad DAG binary payload. Boundary rejected.\n";
+        return false;
+    }
+
+    // 2. Access the DAG
+    auto dag = mos::fbs::GetOperadDAG(buffer);
+    if (!dag || !dag->nodes() || dag->nodes()->size() == 0) {
+        std::cerr << "[OSKernel] Warning: Empty Operad DAG received. No operations to execute.\n";
+        return true; 
+    }
+
+    // 3. Reconstruct the C++ Operad and Operators
+    mos::core::Operad cpp_operad;
+    // Map of id -> OperadNode
+    std::map<int, std::shared_ptr<mos::core::OperadNode>> node_map;
+    // Map of node id -> the organ (OpType) it belongs to, for the coarse complex.
+    std::map<int, ModuleId> node_organ;
+
+    // First pass: create all nodes and their operators
+    for (const auto* node : *dag->nodes()) {
+        auto cpp_op = OperatorFactory::create(node->operator_(), kb_, llm_, config_);
+
+        // Even if op is null, we create the DAG node to maintain structure
+        auto cpp_node = std::make_shared<mos::core::OperadNode>(cpp_op);
+        node_map[node->id()] = cpp_node;
+        cpp_operad.add_node(cpp_node);
+
+        // --- populate the coarse complex K ---------------------------------
+        // Each OpType is a cognitive organ. Its stalk is the operator's payload
+        // geometry, embedded locally on the Python side so the engine never has
+        // to derive meaning from a string (the adjunction boundary holds).
+        const auto* op = node->operator_();
+        if (op) {
+            const ModuleId organ =
+                mos::fbs::EnumNameOpType(op->type()) ? mos::fbs::EnumNameOpType(op->type())
+                                                     : "UNKNOWN";
+            node_organ[node->id()] = organ;
+            coarse_.register_module(organ);
+
+            if (op->geometry() && op->geometry()->size() > 0) {
+                Eigen::VectorXd v(op->geometry()->size());
+                for (flatbuffers::uoffset_t i = 0; i < op->geometry()->size(); ++i) {
+                    v(static_cast<Eigen::Index>(i)) =
+                        static_cast<double>(op->geometry()->Get(i));
+                }
+                try {
+                    coarse_.set_stalk(organ, v);
+                } catch (const std::invalid_argument& e) {
+                    // Dimension disagreement is a real fault, not something to
+                    // paper over by reshaping the geometry.
+                    std::cerr << "[OSKernel] coarse stalk rejected: " << e.what() << "\n";
+                }
+            }
+            // No geometry => the organ stays IDLE (no position). It is then
+            // excluded from rho, which is correct: an organ with no position
+            // cannot meaningfully agree or disagree with anything.
+        }
+    }
+
+    // Second pass: establish dependencies
+    for (const auto* node : *dag->nodes()) {
+        auto parent = node_map[node->id()];
+        if (node->children_ids()) {
+            for (auto child_id : *node->children_ids()) {
+                auto child = node_map[child_id];
+                if (child) {
+                    cpp_operad.add_dependency(parent, child);
+
+                    // Adjacency in the DAG IS cooperation: these two organs are
+                    // working together on this reasoning act, so they co-activate
+                    // (Hebbian: fire together -> wire together). Repeated
+                    // cooperation is what eventually binds them into a coalition.
+                    auto pit = node_organ.find(node->id());
+                    auto cit = node_organ.find(child_id);
+                    if (pit != node_organ.end() && cit != node_organ.end()) {
+                        coarse_.co_activate(pit->second, cit->second, 1.0);
+                    }
+                }
+            }
+        }
+    }
+
+    // 4. Execute the Operad DAG on the cognitive state
+    cpp_operad.run(state_, *thread_pool_);
+
+    // 4b. TWO-LEVEL BRIDGE (Construction 2, pi_v).
+    // Now that operators have grown their concepts, replace each organ's COARSE
+    // position with pi_v: the precision-weighted fusion of that organ's OWN fine
+    // complex. Before this step the coarse stalk was a raw copy of the operator's
+    // payload embedding; after it, coarse discord (rho over K) and the fine-level
+    // concept geometry are the SAME measurement at two resolutions, which is the
+    // whole point of the stratified complex. Organs that grew no concepts keep
+    // their payload-derived position from the first pass.
+    for (const auto& organ : node_organ) {
+        if (auto pi_v = state_.compute_pi_v(organ.second)) {
+            try {
+                coarse_.set_stalk(organ.second, *pi_v);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << "[OSKernel] pi_v stalk rejected for '" << organ.second
+                          << "': " << e.what() << "\n";
+            }
+        }
+    }
+
+    // 5. Measure discord over the coarse complex K.
+    // This is the real control signal: it asks whether the organs that just
+    // cooperated on this reasoning act were working on semantically coherent
+    // material. rho is reported as UNKNOWN when it genuinely is (no bound pairs,
+    // or no organ carried geometry) rather than being defaulted to a number.
+    last_coherence_ = coarse_.report();
+    std::cerr << "[OSKernel] coherence: " << last_coherence_.summary() << "\n";
+
+    // 6. THE TWO-MODE CONTROLLER.
+    // rho now DRIVES behaviour rather than merely being logged. Note the three
+    // outcomes: when discord is undefined we do NOT default to EXPLORE, because
+    // "no measurement" is not "everything is fine" — that conflation is exactly
+    // the failure mode the |E|=0 guard exists to prevent.
+    if (!last_coherence_.rho.has_value()) {
+        mode_ = CognitiveMode::UNKNOWN;
+        std::cerr << "[OSKernel] mode=UNKNOWN (discord undefined: "
+                  << last_coherence_.status
+                  << "). Refusing to infer a mode from a missing measurement.\n";
+    } else if (*last_coherence_.rho > config_.rho_threshold) {
+        mode_ = CognitiveMode::RESOLVE;
+        std::cerr << "[OSKernel] mode=RESOLVE (rho=" << *last_coherence_.rho
+                  << " > eps=" << config_.rho_threshold
+                  << "): organs disagree; reconcile before expanding.\n";
+        if (auto guilty = last_coherence_.worst_edge()) {
+            std::cerr << "[OSKernel]   aim resolution at '" << guilty->first
+                      << "' <-> '" << guilty->second << "' (omega_e="
+                      << last_coherence_.per_edge.at(*guilty) << ")\n";
+        }
+    } else {
+        mode_ = CognitiveMode::EXPLORE;
+        std::cerr << "[OSKernel] mode=EXPLORE (rho=" << *last_coherence_.rho
+                  << " <= eps=" << config_.rho_threshold
+                  << "): internally coherent; free to build outward.\n";
+    }
+
+    if (last_coherence_.rho.has_value() && last_coherence_.is_fragmented()) {
+        std::cerr << "[OSKernel] WARNING: complex is fragmented (b0="
+                  << last_coherence_.b0
+                  << "); this coherence claim is only LOCAL, not global.\n";
+    }
+
+    return true;
+}
+
+const char* to_string(CognitiveMode m) noexcept {
+    switch (m) {
+        case CognitiveMode::EXPLORE: return "EXPLORE";
+        case CognitiveMode::RESOLVE: return "RESOLVE";
+        default:                     return "UNKNOWN";
+    }
+}
+
+bool OSKernel::tick() {
+    if (halt_condition_ && halt_condition_(state_)) {
+        return false;
+    }
+
+    // Update atomic attractor flag (IDE cache refresh trigger)
+    bool attractor = state_.is_attractor_reached();
+    state_.notify_attractor_state(attractor);
+
+    if (attractor) {
+        // Distill the stable state BEFORE exploring further
+        if (reflection_engine_) {
+            reflection_engine_->distill(state_);
+        }
+    } else {
+        // Active conflict resolution
+        double conflict = state_.calculate_conflict_score();
+        if (conflict > config_.conflict_threshold && kb_ && llm_) {
+            // Auto-generate a SEARCH DAG to pull missing axioms
+            auto search_op = std::make_shared<mos::operators::SearchOp>(
+                "RESOLVE: structural conflict " + std::to_string(conflict), kb_, llm_);
+            auto node = std::make_shared<OperadNode>(search_op);
+            Operad resolve_dag;
+            resolve_dag.add_node(node);
+            resolve_dag.run(state_, *thread_pool_);
+        }
+    }
+    
+    return true; // Successfully ran a maintenance cycle
+}
+
+} // namespace core
+} // namespace mos

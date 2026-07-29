@@ -1,0 +1,332 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 09_dynamics.tex
+%
+% SECTION 9
+% Dynamics: Growth Operators and the Algebra D
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{9. Dynamics: Growth Operators and the Operator Algebra}
+
+\BodyFont
+
+Unlike a static database, the Mathematical Operating System evolves by
+modifying its underlying mathematical structure.
+
+Learning is interpreted as a change in shape: concepts are reorganized,
+functional coalitions strengthen or decay, sheaf data adapts, and
+successful procedures become permanent mathematical operators.
+
+The evolution of MOS is therefore governed not only by changes in memory,
+but also by changes in the collection of admissible operations.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HERO EQUATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\Huge
+\boxed{
+\mathcal D(t)
+\longrightarrow
+\mathcal D(t+1)
+}
+\]
+
+\vspace{3mm}
+
+\BodyFont
+
+The operator algebra is itself dynamic.
+Learning expands not only knowledge but also the mathematical operations
+available for future reasoning.
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FOUR AXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{The Four Growth Axes}
+
+\BodyFont
+
+Evolution proceeds simultaneously along four independent directions.
+
+\[
+\boxed{
+\delta C_{\rm fine},
+\qquad
+\delta C_{\rm coarse},
+\qquad
+\delta\mathcal F,
+\qquad
+\delta\mathcal D
+}
+\]
+
+\vspace{4mm}
+
+\begin{center}
+
+\begin{tabular}{p{4cm}p{10.8cm}}
+
+$\delta C_{\rm fine}$
+
+&
+
+Growth of concepts (semantic memory).
+
+\\[3mm]
+
+$\delta C_{\rm coarse}$
+
+&
+
+Formation and restructuring of coalitions
+(functional connectivity).
+
+\\[3mm]
+
+$\delta\mathcal F$
+
+&
+
+Evolution of stalks and restriction maps within the cellular sheaf.
+
+\\[3mm]
+
+$\delta\mathcal D$
+
+&
+
+Growth of the operator algebra through the acquisition of new
+procedural skills.
+
+\end{tabular}
+
+\end{center}
+
+The fourth axis distinguishes MOS from a fixed mathematical model:
+the collection of admissible operators evolves over time.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRACTAL GROWTH TREE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[
+  organic/.style={draw=MOSRed, line width=2pt, out=90, in=-90},
+  neuron/.style={circle, fill=MOSRed, draw=MOSGold, line width=1.5pt, minimum size=10pt, inner sep=0pt},
+  textnode/.style={font=\Large, text=white}
+]
+
+% Nodes
+\node[textnode] (M) at (0,0) {$M(t)$};
+\node[textnode] (ops) at (0,1.5) {bind\quad split\quad merge};
+\node[textnode] (dag) at (0,3) {Composite DAG};
+\node[textnode] (micro) at (0,4.5) {Microneuron};
+\node[textnode] (verify) at (0,6) {\texttt{VerifyOp}};
+
+\node[neuron] (nL) at (-2, 7.5) {};
+\node[neuron] (nC) at (0, 7.5) {};
+\node[neuron] (nR) at (2, 7.5) {};
+
+\node[neuron] (top) at (0, 9) {};
+\node[textnode, text=MOSGold, font=\Huge\bfseries] (D) at (0, 10) {$\mathcal D(t+1)$};
+
+% Organic connections
+\draw[organic] (M) to (ops);
+\draw[organic] (ops) to (dag);
+\draw[organic] (dag) to (micro);
+\draw[organic] (micro) to (verify);
+
+\draw[organic] (verify) to (nL);
+\draw[organic] (verify) to (nC);
+\draw[organic] (verify) to (nR);
+
+\draw[organic] (nL) to (top);
+\draw[organic] (nC) to (top);
+\draw[organic] (nR) to (top);
+
+\draw[organic] (top) to (D);
+
+\end{tikzpicture}
+
+\end{center}
+
+\begin{center}
+
+\Large
+
+\textcolor{MOSGold}{
+Learning as Structural Growth
+}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% STRUCTURAL OPERATORS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Structural Operators}
+
+\BodyFont
+
+The elementary structural moves acting on the simplicial complex are
+
+\[
+\boxed{
+\{
+\mathrm{bind},
+\mathrm{collapse},
+\mathrm{split},
+\mathrm{merge}
+\}.
+}
+\]
+
+Every operation is recorded in an immutable mutation history.
+
+\vspace{2mm}
+
+\textbf{Remark.}
+
+The earlier terminology \emph{Pachner move} was intentionally discarded.
+A knowledge complex is not a manifold, therefore Pachner invariance does
+not apply.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HEBBIAN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Hebbian Coupling and Structural Decay}
+
+\BodyFont
+
+Each coalition
+
+\[
+\sigma
+\]
+
+is assigned a weight
+
+\[
+w(\sigma,t)\in[0,1].
+\]
+
+Repeated co-activation strengthens the coalition
+
+\[
+\boxed{
+\text{Fire Together}
+\Longrightarrow
+\text{Wire Together}.
+}
+\]
+
+Idle coalitions decay according to
+
+\[
+\boxed{
+w(\sigma,t+1)
+=
+(1-\gamma)\,
+w(\sigma,t).
+}
+\]
+
+Coalitions whose weights fall below the binding threshold collapse,
+providing an intrinsic form of structural garbage collection.
+
+Pairs whose weights exceed the threshold become
+1-simplices (edges) of the knowledge complex.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CONSOLIDATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Persistence and Microneurons}
+
+\BodyFont
+
+A weight filtration is analyzed using persistent homology.
+
+Coalitions and concept-cycles that persist across the filtration are
+promoted into permanent mathematical structure.
+
+A particularly important promoted object is the
+\textbf{microneuron}:
+
+\begin{itemize}
+
+\item an operadic sub-tree,
+
+\item represented internally as a composite computational DAG,
+
+\item repeatedly resolves conflict,
+
+\item repeatedly passes verification,
+
+\item promoted into a new atomic generator of
+$\mathcal D$.
+
+\end{itemize}
+
+The promotion gate is
+
+\[
+\boxed{
+\texttt{VerifyOp}
+}
+\]
+
+Only externally verified composite procedures become permanent generators
+of the operator algebra.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TAKEAWAY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+\textbf{Mathematical Interpretation}
+
+MOS evolves simultaneously on four interconnected levels:
+
+\[
+\boxed{
+\text{Concepts}
+\rightarrow
+\text{Coalitions}
+\rightarrow
+\text{Sheaf Data}
+\rightarrow
+\text{Operator Algebra}.
+}
+\]
+
+Unlike the preceding three growth mechanisms, the final axis changes the
+very collection of admissible mathematical operations, allowing the
+system to acquire new procedural primitives over time.
+
+\end{remarkbox}

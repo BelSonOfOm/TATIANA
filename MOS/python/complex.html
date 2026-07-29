@@ -1,0 +1,98 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>TATIANA — complex evolution</title>
+<style>
+ :root{color-scheme:light dark}
+ body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0;padding:16px;
+      background:#0f1115;color:#e6e6e6}
+ h1{font-size:15px;margin:0 0 12px;letter-spacing:.5px;color:#9fd0ff}
+ .wrap{display:flex;gap:20px;flex-wrap:wrap}
+ .panel{background:#171a21;border:1px solid #262b36;border-radius:8px;padding:12px}
+ .stat{font-size:13px;line-height:1.9}
+ .k{color:#7f8a9e}
+ .v{color:#e6e6e6;font-weight:600}
+ .warn{color:#ff8a80;font-weight:700}
+ .ok{color:#8ee68e;font-weight:700}
+ .unk{color:#ffd479;font-weight:700}
+ button{background:#232936;color:#e6e6e6;border:1px solid #333b4a;border-radius:6px;
+        padding:6px 12px;cursor:pointer;font-family:inherit}
+ button:hover{background:#2c3444}
+ table{border-collapse:collapse;font-size:12px;margin-top:8px}
+ td,th{border:1px solid #2a303c;padding:3px 8px;text-align:left}
+ th{color:#7f8a9e;font-weight:600}
+ #note{color:#9aa4b5;font-size:12px;margin-top:8px;max-width:520px}
+</style></head><body>
+<h1>TATIANA — coarse complex K, evolving</h1>
+<div class="wrap">
+  <div class="panel">
+    <svg id="svg" width="600" height="520"></svg>
+    <div style="margin-top:8px">
+      <button onclick="step(-1)">&#8592; prev</button>
+      <button onclick="step(1)">next &#8594;</button>
+      <span id="pos" style="margin-left:10px;color:#7f8a9e"></span>
+    </div>
+  </div>
+  <div class="panel stat" style="min-width:300px">
+    <div id="stats"></div>
+    <div id="edges"></div>
+    <div id="note"></div>
+  </div>
+</div>
+<script>
+const FRAMES = [{"label": "t0 \u2014 isolated (no coalitions)", "note": "Nobody is bound yet. rho is UNKNOWN, NOT confidence=1: agreement is meaningless when no modules are talking. b0=6.", "rho": null, "confidence": null, "omega": 0.0, "b0": 6, "status": "no_edges", "n_vertices": 6, "n_edges": 0, "fragmented": true, "vertices": [{"id": "Planner", "x": 300.0, "y": 60.0, "comp": 0}, {"id": "Search", "x": 473.2050807568877, "y": 160.0, "comp": 1}, {"id": "Reason", "x": 473.20508075688775, "y": 360.0, "comp": 2}, {"id": "Verify", "x": 300.0, "y": 460.0, "comp": 3}, {"id": "Memory", "x": 126.7949192431123, "y": 360.00000000000006, "comp": 4}, {"id": "Reflect", "x": 126.79491924311228, "y": 159.99999999999997, "comp": 5}], "edges": []}, {"label": "t1 \u2014 first bind (Search+Reason)", "note": "A coalition forms. Still fragmented overall (b0=5).", "rho": 0.0, "confidence": 1.0, "omega": 0.0, "b0": 5, "status": "ok", "n_vertices": 6, "n_edges": 1, "fragmented": true, "vertices": [{"id": "Planner", "x": 300.0, "y": 60.0, "comp": 0}, {"id": "Search", "x": 473.2050807568877, "y": 160.0, "comp": 1}, {"id": "Reason", "x": 473.20508075688775, "y": 360.0, "comp": 1}, {"id": "Verify", "x": 300.0, "y": 460.0, "comp": 2}, {"id": "Memory", "x": 126.7949192431123, "y": 360.00000000000006, "comp": 3}, {"id": "Reflect", "x": 126.79491924311228, "y": 159.99999999999997, "comp": 4}], "edges": [{"u": "Search", "v": "Reason", "x1": 473.2050807568877, "y1": 160.0, "x2": 473.20508075688775, "y2": 360.0, "w": 0.0, "rel": 0.0, "worst": false}]}, {"label": "t2 \u2014 triad binds, all agree", "note": "The derive-and-check triad. rho=0 \u2014 perfectly in tune.", "rho": 0.0, "confidence": 1.0, "omega": 0.0, "b0": 4, "status": "ok", "n_vertices": 6, "n_edges": 3, "fragmented": true, "vertices": [{"id": "Planner", "x": 300.0, "y": 60.0, "comp": 0}, {"id": "Search", "x": 473.2050807568877, "y": 160.0, "comp": 1}, {"id": "Reason", "x": 473.20508075688775, "y": 360.0, "comp": 1}, {"id": "Verify", "x": 300.0, "y": 460.0, "comp": 1}, {"id": "Memory", "x": 126.7949192431123, "y": 360.00000000000006, "comp": 2}, {"id": "Reflect", "x": 126.79491924311228, "y": 159.99999999999997, "comp": 3}], "edges": [{"u": "Search", "v": "Reason", "x1": 473.2050807568877, "y1": 160.0, "x2": 473.20508075688775, "y2": 360.0, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Reason", "v": "Verify", "x1": 473.20508075688775, "y1": 360.0, "x2": 300.0, "y2": 460.0, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Search", "v": "Verify", "x1": 473.2050807568877, "y1": 160.0, "x2": 300.0, "y2": 460.0, "w": 0.0, "rel": 0.0, "worst": false}]}, {"label": "t3 \u2014 Verify DISAGREES", "note": "Verify contradicts the others. rho spikes; the dashed red edges show exactly where RESOLVE should be aimed.", "rho": 0.33333333333333326, "confidence": 0.6666666666666667, "omega": 50.425547545021374, "b0": 4, "status": "ok", "n_vertices": 6, "n_edges": 3, "fragmented": true, "vertices": [{"id": "Planner", "x": 300.0, "y": 60.0, "comp": 0}, {"id": "Search", "x": 473.2050807568877, "y": 160.0, "comp": 1}, {"id": "Reason", "x": 473.20508075688775, "y": 360.0, "comp": 1}, {"id": "Verify", "x": 300.0, "y": 460.0, "comp": 1}, {"id": "Memory", "x": 126.7949192431123, "y": 360.00000000000006, "comp": 2}, {"id": "Reflect", "x": 126.79491924311228, "y": 159.99999999999997, "comp": 3}], "edges": [{"u": "Search", "v": "Reason", "x1": 473.2050807568877, "y1": 160.0, "x2": 473.20508075688775, "y2": 360.0, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Reason", "v": "Verify", "x1": 473.20508075688775, "y1": 360.0, "x2": 300.0, "y2": 460.0, "w": 25.212773772510687, "rel": 1.0, "worst": true}, {"u": "Search", "v": "Verify", "x1": 473.2050807568877, "y1": 160.0, "x2": 300.0, "y2": 460.0, "w": 25.212773772510687, "rel": 1.0, "worst": false}]}, {"label": "t4 \u2014 fully connected, resolved", "note": "Conflict resolved and the complex is now connected (b0=1).", "rho": 0.0, "confidence": 1.0, "omega": 0.0, "b0": 1, "status": "ok", "n_vertices": 6, "n_edges": 6, "fragmented": false, "vertices": [{"id": "Planner", "x": 300.0, "y": 60.0, "comp": 0}, {"id": "Search", "x": 473.2050807568877, "y": 160.0, "comp": 0}, {"id": "Reason", "x": 473.20508075688775, "y": 360.0, "comp": 0}, {"id": "Verify", "x": 300.0, "y": 460.0, "comp": 0}, {"id": "Memory", "x": 126.7949192431123, "y": 360.00000000000006, "comp": 0}, {"id": "Reflect", "x": 126.79491924311228, "y": 159.99999999999997, "comp": 0}], "edges": [{"u": "Planner", "v": "Search", "x1": 300.0, "y1": 60.0, "x2": 473.2050807568877, "y2": 160.0, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Search", "v": "Reason", "x1": 473.2050807568877, "y1": 160.0, "x2": 473.20508075688775, "y2": 360.0, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Reason", "v": "Verify", "x1": 473.20508075688775, "y1": 360.0, "x2": 300.0, "y2": 460.0, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Verify", "v": "Memory", "x1": 300.0, "y1": 460.0, "x2": 126.7949192431123, "y2": 360.00000000000006, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Memory", "v": "Reflect", "x1": 126.7949192431123, "y1": 360.00000000000006, "x2": 126.79491924311228, "y2": 159.99999999999997, "w": 0.0, "rel": 0.0, "worst": false}, {"u": "Reflect", "v": "Planner", "x1": 126.79491924311228, "y1": 159.99999999999997, "x2": 300.0, "y2": 60.0, "w": 0.0, "rel": 0.0, "worst": false}]}];
+let i = 0;
+const COMP_COLORS = ["#4a90d9","#d98c4a","#8e6fd9","#4ad9a5","#d94a7a","#b5d94a"];
+
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function draw(){
+  const f = FRAMES[i];
+  let svg = "";
+  for(const e of f.edges){
+    const t = e.rel;
+    const col = e.worst ? "#ff5252" : `rgb(${Math.round(90+165*t)},${Math.round(150-90*t)},${Math.round(190-120*t)})`;
+    const wdt = 1.5 + 6*t;
+    svg += `<line x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" stroke="${col}"
+            stroke-width="${wdt}" ${e.worst?'stroke-dasharray="7,5"':''} opacity="0.9"/>`;
+    const mx=(e.x1+e.x2)/2, my=(e.y1+e.y2)/2;
+    svg += `<text x="${mx}" y="${my-5}" fill="#8b95a8" font-size="10" text-anchor="middle">${e.w.toFixed(2)}</text>`;
+  }
+  for(const v of f.vertices){
+    const c = COMP_COLORS[v.comp % COMP_COLORS.length];
+    svg += `<circle cx="${v.x}" cy="${v.y}" r="26" fill="#1c2129" stroke="${c}" stroke-width="3"/>`;
+    svg += `<text x="${v.x}" y="${v.y+4}" fill="#dfe6f0" font-size="11" text-anchor="middle">${esc(v.id)}</text>`;
+  }
+  document.getElementById("svg").innerHTML = svg;
+
+  const rho = f.rho===null ? '<span class="unk">UNKNOWN</span>' : `<span class="v">${f.rho.toFixed(4)}</span>`;
+  const conf = f.confidence===null ? '<span class="unk">UNKNOWN</span>' : `<span class="v">${f.confidence.toFixed(4)}</span>`;
+  const frag = f.fragmented ? '<span class="warn">YES — coherence is only LOCAL</span>' : '<span class="ok">no</span>';
+  document.getElementById("stats").innerHTML =
+     `<div><span class="k">snapshot:</span> <span class="v">${esc(f.label)}</span></div>`
+   + `<div><span class="k">rho (discord):</span> ${rho}</div>`
+   + `<div><span class="k">confidence:</span> ${conf}</div>`
+   + `<div><span class="k">omega (raw):</span> <span class="v">${f.omega.toFixed(4)}</span></div>`
+   + `<div><span class="k">b0 (components):</span> <span class="v">${f.b0}</span></div>`
+   + `<div><span class="k">fragmented:</span> ${frag}</div>`
+   + `<div><span class="k">V / E:</span> <span class="v">${f.n_vertices} / ${f.n_edges}</span></div>`
+   + `<div><span class="k">status:</span> <span class="v">${esc(f.status)}</span></div>`;
+
+  let tbl = "";
+  if(f.edges.length){
+    tbl = '<table><tr><th>edge</th><th>omega_e</th><th></th></tr>';
+    const sorted = [...f.edges].sort((a,b)=>b.w-a.w);
+    for(const e of sorted){
+      tbl += `<tr><td>${esc(e.u)} — ${esc(e.v)}</td><td>${e.w.toFixed(4)}</td>`
+           + `<td>${e.worst?'<span class="warn">&#9664; RESOLVE here</span>':''}</td></tr>`;
+    }
+    tbl += '</table>';
+  } else {
+    tbl = '<div class="warn" style="margin-top:8px">no edges — nobody is talking, so agreement is meaningless</div>';
+  }
+  document.getElementById("edges").innerHTML = tbl;
+  document.getElementById("note").textContent = f.note || "";
+  document.getElementById("pos").textContent = `${i+1} / ${FRAMES.length}`;
+}
+function step(d){ i = Math.max(0, Math.min(FRAMES.length-1, i+d)); draw(); }
+document.addEventListener("keydown", e=>{ if(e.key==="ArrowLeft")step(-1); if(e.key==="ArrowRight")step(1); });
+draw();
+</script></body></html>

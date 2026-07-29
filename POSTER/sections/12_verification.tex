@@ -1,0 +1,252 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 12_verification.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{12. Verification: The External Oracle}
+
+\BodyFont
+
+Internal coherence and external truth are distinct concepts.
+
+The sheaf coherence measure determines whether the system should continue
+exploring or reconcile conflicting information, but it does not certify
+mathematical correctness.
+
+Truth is determined exclusively by an external symbolic verification
+oracle.
+
+\[
+\boxed{
+\text{Coherence}
+\neq
+\text{Truth}
+}
+\]
+
+Verification therefore acts as the final gate before new mathematical
+knowledge is permanently incorporated into the system.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HERO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\Huge
+\boxed{
+\mathrm{VerifyOp}
+}
+\]
+
+\vspace{3mm}
+
+\BodyFont
+
+Every candidate mathematical result is submitted to an external,
+sandboxed symbolic oracle before promotion into permanent memory.
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% THREE-VALUED TABLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Three-Valued Verification Logic}
+
+\BodyFont
+
+The verification oracle returns one of three possible outcomes.
+
+\vspace{3mm}
+
+\renewcommand{\arraystretch}{1.6}
+
+\begin{center}
+
+\begin{tabular}{|c|c|p{7.5cm}|}
+
+\hline
+
+\textbf{Exit Code}
+&
+\textbf{Verdict}
+&
+\textbf{Effect}
+
+\\
+
+\hline
+
+\color{green!70!black}\textbf{0}
+
+&
+Verified
+
+&
+Obstruction is cleared.
+The current state may crystallize into permanent structure.
+
+\\
+
+\hline
+
+\color{red!80!black}\textbf{1}
+
+&
+Refuted
+
+&
+The obstruction counter is increased
+
+\[
+\Omega
+\leftarrow
+\Omega+1000,
+\]
+
+forcing the controller into
+\textbf{Resolve} mode.
+
+\\
+
+\hline
+
+\color{orange!90!black}\textbf{2}
+
+&
+Unverifiable
+
+&
+No change is made to the obstruction counter.
+
+The computation remains unresolved.
+
+\\
+
+\hline
+
+\end{tabular}
+
+\end{center}
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VISUAL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[
+  scale=1.2,
+  light/.style={circle, minimum size=1.5cm, inner sep=0pt, draw=white, line width=2pt}
+]
+
+\node[font=\Huge\ttfamily\bfseries, text=white] (verify) at (0, 3) {VerifyOp};
+
+\draw[-{Latex[length=5mm]}, MOSRed, line width=3pt] (0, 2.4) -- (0, 1.2);
+
+\node[light, fill=green!70!black] (G) at (-2.5, 0) {};
+\node[light, fill=orange!90!black] (O) at (0, 0) {};
+\node[light, fill=red!80!black] (R) at (2.5, 0) {};
+
+\node[white, font=\Large\bfseries] at (-2.5, -1.2) {Verified};
+\node[white, font=\Large\bfseries] at (0, -1.2) {Unverifiable};
+\node[white, font=\Large\bfseries] at (2.5, -1.2) {Refuted};
+
+\end{tikzpicture}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IMPORTANT REMARK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Absence of Proof Is Not Proof of Absence}
+
+\BodyFont
+
+Earlier versions of MOS treated every nonzero exit code as a failure.
+
+This incorrectly identified
+
+\[
+\boxed{
+\text{Refuted}
+\equiv
+\text{Unverifiable},
+}
+\]
+
+causing unresolved computations and oracle failures to be interpreted as
+mathematical contradictions.
+
+The present framework explicitly separates these outcomes.
+
+An oracle crash likewise returns
+\textbf{Unverifiable}.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LINK TO DYNAMICS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Connection to Dynamic Growth}
+
+\BodyFont
+
+The external oracle provides the promotion gate introduced in
+Construction~9.4.
+
+Only composite procedures that successfully pass
+
+\[
+\boxed{
+\mathrm{VerifyOp}
+}
+\]
+
+may become permanent generators of the evolving operator algebra
+
+\[
+\mathcal D.
+\]
+
+Consequently, procedural growth is controlled by external verification
+rather than internal confidence alone.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TAKEAWAY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+\textbf{Central Principle}
+
+MOS separates three fundamentally different notions:
+
+\[
+\boxed{
+\text{Coherence}
+\neq
+\text{Verification}
+\neq
+\text{Truth}.
+}
+\]
+
+Coherence measures internal compatibility.
+
+Verification evaluates mathematical correctness.
+
+Truth is never inferred solely from structural consistency.
+
+\end{remarkbox}

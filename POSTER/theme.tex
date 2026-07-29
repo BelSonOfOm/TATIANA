@@ -1,0 +1,280 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% theme.tex
+%
+% Visual Identity for MOS Poster II
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PAGE BACKGROUND
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{eso-pic}
+
+\newcommand{\BackgroundLayer}{%
+\AddToShipoutPictureBG*{%
+\begin{tikzpicture}[remember picture,overlay]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BLACK BACKGROUND
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\fill[MOSBlack]
+  (current page.south west)
+  rectangle
+  (current page.north east);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% RED GLOW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\shade[
+  inner color=MOSDarkRed,
+  outer color=MOSBlack
+]
+  ($(current page.center)+(0,8)$)
+  circle
+  (42cm);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LOWER CYAN GLOW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\shade[
+  inner color=MOSCyan,
+  outer color=MOSBlack
+]
+  ($(current page.south)+(0,18)$)
+  circle
+  (32cm);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TOP GLOW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\shade[
+  inner color=black,
+  outer color=MOSDarkRed
+]
+  ($(current page.north)+(0,-15)$)
+  circle
+  (20cm);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRACTAL ROOTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foreach \x in {-38,-30,-22,-14,-6,2,10,18,26,34}
+{
+\draw[
+  MOSRed,
+  opacity=.10,
+  line width=1.2pt
+]
+  ($(current page.south)+(\x,0)$)
+  decorate[
+    decoration={
+      random steps,
+      segment length=8mm,
+      amplitude=1.8mm
+    }
+  ]
+  {-- ++(0,30)};
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DENDRITES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foreach \x in {-35,-28,-20,-12,-4,4,12,20,28,36}
+{
+\draw[
+  MOSGold,
+  opacity=.05,
+  line width=.8pt
+]
+  ($(current page.south)+(\x,24)$)
+  decorate[
+    decoration={
+      coil,
+      segment length=10mm,
+      amplitude=1mm
+    }
+  ]
+  {-- ++(0,40)};
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TOP SEPARATOR
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[
+  MOSGold,
+  line width=3pt,
+  opacity=.5
+]
+  ($(current page.north west)+(2,-9)$)
+  --
+  ($(current page.north east)+(-2,-9)$);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BOTTOM SEPARATOR
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[
+  MOSCyan,
+  line width=2pt,
+  opacity=.3
+]
+  ($(current page.south west)+(2,6)$)
+  --
+  ($(current page.south east)+(-2,6)$);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SIDE LINES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\draw[
+  MOSDarkRed,
+  line width=2pt,
+  opacity=.30
+]
+  ($(current page.north west)+(2,-2)$)
+  --
+  ($(current page.south west)+(2,2)$);
+
+\draw[
+  MOSDarkRed,
+  line width=2pt,
+  opacity=.30
+]
+  ($(current page.north east)+(-2,-2)$)
+  --
+  ($(current page.south east)+(-2,2)$);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SUBTLE GRID
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foreach \y in {8,16,...,110}
+{
+\draw[
+  MOSRed,
+  opacity=.02
+]
+  ($(current page.south west)+(0,\y)$)
+  --
+  ($(current page.south east)+(0,\y)$);
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VERTICAL GRID
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foreach \x in {6,14,...,78}
+{
+\draw[
+  MOSRed,
+  opacity=.02
+]
+  ($(current page.south west)+(\x,0)$)
+  --
+  ($(current page.north west)+(\x,0)$);
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BRAIN HALO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\shade[
+  inner color=MOSGold,
+  outer color=black,
+  opacity=.05
+]
+  ($(current page.north)+(0,-23)$)
+  circle(12cm);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{tikzpicture}
+}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BOX STYLING — NO blank lines inside option lists!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tcbset{%
+  enhanced,
+  boxrule=2pt,
+  left=6mm,
+  right=6mm,
+  top=5mm,
+  bottom=5mm,
+  coltext=MOSGray
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EQUATION STYLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\everydisplay{\color{MOSGold}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION SPACING
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength{\columnsep}{18mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PARAGRAPH STYLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\baselinestretch}{1.08}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TITLE SPACING
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\SectionDivider}{
+
+\vspace{5mm}
+
+\begin{center}
+
+\begin{tikzpicture}
+
+\shade[
+  left color=MOSBlack,
+  middle color=MOSCyan,
+  right color=MOSBlack
+]
+  (0,-0.05) rectangle (12,0.05);
+
+\end{tikzpicture}
+
+\end{center}
+
+\vspace{4mm}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SMALL HIGHLIGHT BOX — NO blank lines inside option lists!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtcolorbox{highlightbox}{%
+  enhanced,
+  colback=MOSGlass,
+  opacityback=0.6,
+  colframe=MOSCyan,
+  boxrule=1.5pt,
+  arc=3mm,
+  coltext=MOSGray,
+  drop fuzzy shadow=MOSCyan!30!black
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

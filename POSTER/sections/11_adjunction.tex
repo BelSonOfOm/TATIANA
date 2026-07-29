@@ -1,0 +1,182 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 11_adjunction.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{11. The Lift--Project Adjunction}
+
+\BodyFont
+
+MOS distinguishes two complementary representations of reasoning.
+
+Natural language serves as the interface through which problems are
+posed, while internally the system operates on validated reasoning DAGs.
+
+Two boundary morphisms connect these worlds:
+
+\[
+\boxed{
+\pi : \text{Language}
+\longrightarrow
+\text{Reasoning DAG}
+}
+\]
+
+and
+
+\[
+\boxed{
+G :
+\text{Reasoning DAG}
+\longrightarrow
+\text{Language}.
+}
+\]
+
+The lift converts a natural-language request into a validated reasoning
+program, while the projection renders a completed reasoning graph back
+into human-readable form.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HERO DIAGRAM
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[
+  scale=1.0,
+  dag node/.style={circle, fill=MOSRed, draw=MOSGold, line width=1.5pt, minimum size=6mm, inner sep=0pt},
+  dag edge/.style={draw=MOSRed, line width=2pt}
+]
+
+% Language World
+\node[white, font=\Huge\bfseries] at (0,4.5) {Language};
+\node[MOSGold, font=\Large\ttfamily] at (0,3.5) {"Prove..."};
+
+% The Boundary
+\fill[MOSRed] (-4, 2.4) rectangle (4, 2.6);
+
+% Morphisms
+\draw[-{Latex[length=4mm]}, MOSGold, line width=3pt] (-1, 2.4) -- (-1, 0.5) node[midway, left=2mm] {\Large $\pi$};
+\draw[{Latex[length=4mm]}-, MOSGold, line width=3pt] (1, 2.4) -- (1, 0.5) node[midway, right=2mm] {\Large $G$};
+
+% DAG World
+\node[white, font=\Huge\bfseries] at (0,-1) {Reasoning DAG};
+
+\node[dag node] (n1) at (-1.5,-2.5) {};
+\node[dag node] (n2) at (0,-2.5) {};
+\node[dag node] (n3) at (1.5,-2.5) {};
+\node[dag node] (n4) at (-1.5,-4) {};
+\node[dag node] (n5) at (0,-4) {};
+
+\draw[dag edge] (n1) -- (n2);
+\draw[dag edge] (n2) -- (n3);
+\draw[dag edge] (n1) -- (n4);
+\draw[dag edge] (n2) -- (n5);
+\draw[dag edge] (n4) -- (n5);
+
+% Kernel
+\node[MOSGold, font=\Large] at (0,-5.5) {$\ker(\pi)$};
+\node[white, font=\large] at (0,-6.2) {Semantically void input};
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VALIDATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Boundary Validation}
+
+\BodyFont
+
+The lift operator is guarded by a validator before a reasoning program
+enters the computational engine.
+
+Malformed reasoning DAGs are rejected if they contain
+
+\begin{itemize}
+
+\item duplicate node identifiers,
+
+\item dangling child references,
+
+\item directed cycles,
+
+\item disconnected components,
+
+\item no terminal output node.
+
+\end{itemize}
+
+Only validated reasoning programs are admitted to downstream execution.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% KERNEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Kernel Behaviour}
+
+\BodyFont
+
+Empirically,
+
+semantically irrelevant content is mapped into
+
+\[
+\boxed{
+\ker(\pi).
+}
+\]
+
+For example,
+
+non-reasoning text embedded inside a mathematical request generates no
+reasoning operators and therefore contributes nothing to the internal
+reasoning DAG.
+
+This observed behaviour motivates the interpretation of semantically
+void input as belonging to the kernel of the lift.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HONESTY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+\textbf{Claims and Non-Claims}
+
+The notation
+
+\[
+L\dashv M
+\]
+
+is presented as the intended categorical organisation of the framework.
+
+The corresponding unit and counit identities have \emph{not} been
+formally established in the present work.
+
+Accordingly, the adjunction should be interpreted as a guiding
+mathematical principle together with the concrete morphisms
+
+\[
+(\pi,G),
+\]
+
+rather than as a proved categorical theorem.
+
+\end{remarkbox}

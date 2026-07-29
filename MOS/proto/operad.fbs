@@ -1,0 +1,43 @@
+namespace mos.fbs;
+
+enum OpType : byte {
+  UNKNOWN = 0,
+  SEARCH = 1,
+  COMPUTE = 2,
+  REASON = 3,
+  RESPOND = 4,
+  CONTEXT = 5,
+  VERIFY = 6
+}
+
+enum ConstraintType : byte { RIGID = 0, FLUID = 1 }
+
+table ConstraintPayload {
+  type: ConstraintType;
+  geometry: [float];
+}
+
+table Operator {
+  type: OpType;
+  payload: string;
+  support: [int];
+  constraints: [ConstraintPayload];
+  // Payload embedding, computed LOCALLY in Python (free, no API quota) and
+  // carried across the adjunction boundary so the C++ engine never has to derive
+  // meaning from a string. This is what gives each operator-organ a position in
+  // the coarse complex K, and therefore what makes rho measurable during a real
+  // DAG execution. Appended last: FlatBuffers keeps this backward-compatible.
+  geometry: [float];
+}
+
+table OperadNode {
+  id: int;
+  operator: Operator;
+  children_ids: [int];
+}
+
+table OperadDAG {
+  nodes: [OperadNode];
+}
+
+root_type OperadDAG;

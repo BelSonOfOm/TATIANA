@@ -1,0 +1,316 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 13_controller_future.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{13. Coherence-Gated Controller}
+
+\BodyFont
+
+The controller determines the system's operating mode using the
+normalized coherence measure
+
+\[
+\rho.
+\]
+
+Rather than continuously expanding the knowledge complex, MOS first asks
+whether the current mathematical state is sufficiently coherent to
+justify further exploration.
+
+This decision is governed by the coherence threshold
+
+\[
+\varepsilon.
+\]
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HERO EQUATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\boxed{
+\operatorname{mode}(x)=
+\begin{cases}
+\textbf{Resolve},
+&
+\rho>\varepsilon,
+\\[3mm]
+\textbf{Explore},
+&
+\rho\le\varepsilon,
+\\[3mm]
+\textbf{Unknown},
+&
+\rho=\bot.
+\end{cases}
+}
+\]
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VISUAL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[scale=1]
+
+\node[concept, text=white] (A)
+{$\rho$};
+
+\node[concept, text=white, below=2cm of A]
+(B)
+{Controller};
+
+\node[concept, text=white, below left=3cm and 3cm of B]
+(C)
+{\textbf{Resolve}};
+
+\node[concept, text=white, below=3cm of B]
+(D)
+{\textbf{Unknown}};
+
+\node[concept, text=white, below right=3cm and 3cm of B]
+(E)
+{\textbf{Explore}};
+
+\draw[arrow](A)--(B);
+\draw[arrow](B)--(C);
+\draw[arrow](B)--(D);
+\draw[arrow](B)--(E);
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MODES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Controller Modes}
+
+\BodyFont
+
+\textbf{Resolve}
+
+High discord.
+Reconcile conflicting structures before further expansion.
+
+\vspace{2mm}
+
+\textbf{Explore}
+
+Coherence remains acceptable.
+Additional reasoning and structural growth may proceed.
+
+\vspace{2mm}
+
+\textbf{Unknown}
+
+No coherence measurement is available.
+
+Importantly,
+
+\[
+\boxed{
+\text{Unknown}
+\neq
+\text{Explore}.
+}
+\]
+
+Absence of measurement is not interpreted as evidence of consistency.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EMPIRICAL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Empirical Threshold}
+
+\BodyFont
+
+The manuscript reports representative coherence values obtained from
+384-dimensional embeddings:
+
+\[
+\begin{aligned}
+\text{Agreement}
+&\approx
+0.00,
+\\[2mm]
+\text{Related Concepts}
+&\approx
+0.06,
+\\[2mm]
+\text{Off-Topic}
+&\approx
+0.14.
+\end{aligned}
+\]
+
+These observations motivate
+
+\[
+\boxed{
+\varepsilon\approx0.10
+}
+\]
+
+as an initial operating threshold.
+
+Two cautions remain important.
+
+\begin{itemize}
+
+\item
+The normalized discord is not necessarily monotonic as the number of
+active organs increases.
+
+\item
+Comparisons across differently-sized complexes require additional care.
+
+\end{itemize}
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CLAIMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{{14. Claims, Non-Claims and Future Directions}}
+
+\BodyFont
+
+MOS should be interpreted as a mathematical framework for structured
+knowledge organization rather than a completed intelligent system.
+
+The present work establishes the mathematical architecture and introduces
+tools for measuring coherence, structural growth and verification.
+
+Several directions identified in the manuscript remain future work.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FOUR DIRECTIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Toward Constitutive Reasoning}
+
+\BodyFont
+
+The manuscript identifies four developments that would move the sheaf
+from a diagnostic role toward a constitutive computational role.
+
+\begin{enumerate}
+
+\item
+Sheaf diffusion as inference
+
+\[
+\dot{x}
+=
+-Lx
+\]
+
+converging toward the least-discord global section.
+
+\vspace{2mm}
+
+\item
+
+Non-trivial learned restriction maps.
+
+\vspace{2mm}
+
+\item
+
+Higher-cell Laplacians for higher-order constraint propagation.
+
+\vspace{2mm}
+
+\item
+
+Persistence-driven structural learning through the growth mechanism
+introduced in Section~9.
+
+\end{enumerate}
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CREATIVITY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Creativity Boundary}
+
+\BodyFont
+
+Following the discussion in the manuscript, MOS presently supports
+combinatorial and exploratory creativity through structured
+recombination within a fixed representational space.
+
+Transformational creativity remains limited.
+
+One genuine avenue for expansion is the growth operator
+
+\[
+\delta\mathcal D,
+\]
+
+through which verified procedures become new primitive operators,
+expanding the effective action space of the system.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FINAL BOX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tcolorbox}[
+  colback=MOSBlack,
+  colframe=MOSGold,
+  boxrule=4pt,
+  arc=4mm,
+  boxsep=8mm
+]
+
+\centering
+
+{\Huge\bfseries\color{MOSGold} What is claimed?}
+
+\vspace{8mm}
+\Large\color{white}
+\begin{tabular}{cl}
+\textcolor{green!70!black}{\Large $\checkmark$} & \Large measurable coherence \\[4mm]
+\textcolor{green!70!black}{\Large $\checkmark$} & \Large structured memory \\[4mm]
+\textcolor{green!70!black}{\Large $\checkmark$} & \Large verifiable growth \\[4mm]
+\textcolor{green!70!black}{\Large $\checkmark$} & \Large mathematical substrate
+\end{tabular}
+
+\vspace{12mm}
+
+{\Huge\bfseries\color{MOSRed} What is NOT claimed?}
+
+\vspace{8mm}
+\Large\color{white}
+\begin{tabular}{cl}
+\textcolor{MOSRed}{\Large $\times$} & \Large intelligence proven \\[4mm]
+\textcolor{MOSRed}{\Large $\times$} & \Large AGI \\[4mm]
+\textcolor{MOSRed}{\Large $\times$} & \Large universal reasoning
+\end{tabular}
+
+\end{tcolorbox}

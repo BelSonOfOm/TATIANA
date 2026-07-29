@@ -1,0 +1,151 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 10_operads.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{10. Operadic Computation and Parallel Scheduling}
+
+\BodyFont
+
+Within MOS, a reasoning act is represented as a directed acyclic graph
+(DAG) of operator nodes rather than a linear sequence of computations.
+
+Each node corresponds to an operator, while directed edges encode
+dependency relations. Independent computations therefore become explicit,
+allowing reasoning to be executed in parallel whenever dependencies
+permit.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HERO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\Huge
+\boxed{
+T=(N,\prec)
+}
+\]
+
+\vspace{2mm}
+
+\BodyFont
+
+A reasoning program is a partially ordered set of operator nodes whose
+execution order is determined by the dependency relation
+$\prec$.
+
+\end{eqbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% OPERAD TREE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+\begin{tikzpicture}[
+  scale=1.2,
+  op/.style={circle, draw=MOSGold, line width=2pt, fill=MOSRed, text=white, font=\Large\bfseries, minimum size=10mm},
+  leaf/.style={circle, draw=MOSRed, line width=1.5pt, text=white, font=\Large\bfseries, minimum size=8mm},
+  edge from parent/.style={draw=MOSRed, line width=2pt},
+  level 1/.style={sibling distance=2.5cm, level distance=2cm},
+  level 2/.style={sibling distance=1.5cm, level distance=2cm},
+  grow'=down
+]
+
+\node[op] (f) {$f$}
+  child { node[op] (g) {$g$}
+    child { node[leaf] (a) {$a$} }
+    child { node[leaf] (b) {$b$} }
+  }
+  child { node[op] (h) {$h$} }
+  child { node[op] (k) {$k$}
+    child { node[leaf] (c) {$c$} }
+  };
+
+\end{tikzpicture}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FOLIATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{highlightbox}
+
+\SectionTitle{Operadic Foliation}
+
+\BodyFont
+
+The scheduler partitions the reasoning DAG into successive
+\emph{antichain layers}.
+
+\[
+L_0,\;
+L_1,\;
+L_2,\;
+\ldots
+\]
+
+where
+
+\[
+L_0
+=
+\{\text{minimal nodes}\}
+\]
+
+and
+
+\[
+L_{\ell+1}
+=
+\{
+n:
+\text{all predecessors belong to }
+L_{\le\ell}
+\}.
+\]
+
+Each layer is executed in parallel because no two nodes within the same
+antichain possess a dependency relation.
+
+\end{highlightbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SUPPORT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Support Sets}
+
+\BodyFont
+
+Each operator records the subset of fine-complex vertices that it reads
+and writes.
+
+Operators with disjoint support sets may safely execute concurrently,
+providing a mathematically justified scheduling rule rather than a
+heuristic approximation.
+
+\end{mosbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TAKEAWAY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+\textbf{Interpretation}
+
+Reasoning is viewed as composition rather than sequential execution.
+
+The partial order determines correctness, while the foliation determines
+parallel execution.
+
+\end{remarkbox}

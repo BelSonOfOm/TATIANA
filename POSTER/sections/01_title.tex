@@ -1,0 +1,322 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 01_title.tex
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TITLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{\fontsize{62}{68}\selectfont
+\bfseries
+\color{MOSGold}
+THE MATHEMATICS OF THE
+MATHEMATICAL OPERATING SYSTEM
+}
+
+\vspace{6mm}
+
+{\fontsize{26}{30}\selectfont
+\color{MOSGold}
+A Cellular--Sheaf Architecture for Structured Machine Cognition
+}
+
+\vspace{8mm}
+
+{\Large
+
+\textbf{CHARBEL "THE WIZARD" DARGHAM}
+
+\vspace{2mm}
+
+Lebanese University -- Fanar
+
+\vspace{1mm}
+
+\texttt{cdargham@hotmail.com}
+
+}
+
+\vspace{8mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HERO EQUATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{eqbox}
+
+\[
+\Huge
+\boxed{
+M=(C,\mathcal{F},s)
+}
+\]
+
+\[
+\Large
+\begin{aligned}
+C
+&=
+\text{Stratified Simplicial Complex}
+\\[4mm]
+\mathcal{F}
+&=
+\text{Cellular Sheaf}
+\\[4mm]
+s
+&=
+\text{Distinguished Global Section}
+\end{aligned}
+\]
+
+\end{eqbox}
+
+\begin{center}
+\begin{tikzpicture}[
+  scale=1.2,
+  node/.style={circle, fill=MOSRed, draw=MOSGold, line width=0.5pt, minimum size=8pt, inner sep=0pt},
+  edge/.style={draw=MOSRed, line width=2pt, opacity=0.8},
+  face/.style={fill=MOSRed, opacity=0.3}
+]
+\coordinate (n1) at (-3,-1);
+\coordinate (n2) at (-4,1);
+\coordinate (n3) at (-2,3);
+\coordinate (n4) at (0,3.5);
+\coordinate (n5) at (2,3);
+\coordinate (n6) at (4,1);
+\coordinate (n7) at (3,-1);
+\coordinate (n8) at (1,-2);
+\coordinate (n9) at (-1,-2);
+\coordinate (n10) at (0,1);
+\coordinate (n11) at (-2,1);
+\coordinate (n12) at (2,1);
+\coordinate (n13) at (0,2.5);
+
+\fill[face] (n1)--(n2)--(n11)--cycle;
+\fill[face] (n2)--(n3)--(n11)--cycle;
+\fill[face] (n3)--(n4)--(n13)--cycle;
+\fill[face] (n4)--(n5)--(n13)--cycle;
+\fill[face] (n5)--(n6)--(n12)--cycle;
+\fill[face] (n6)--(n7)--(n12)--cycle;
+\fill[face] (n7)--(n8)--(n12)--cycle;
+\fill[face] (n8)--(n9)--(n10)--cycle;
+\fill[face] (n1)--(n9)--(n11)--cycle;
+\fill[face] (n11)--(n3)--(n13)--cycle;
+\fill[face] (n13)--(n5)--(n12)--cycle;
+\fill[face] (n10)--(n12)--(n13)--cycle;
+\fill[face] (n10)--(n11)--(n13)--cycle;
+\fill[face] (n9)--(n10)--(n11)--cycle;
+\fill[face] (n8)--(n10)--(n12)--cycle;
+
+\draw[edge] (n1)--(n2)--(n3)--(n4)--(n5)--(n6)--(n7)--(n8)--(n9)--cycle;
+\draw[edge] (n1)--(n11) (n2)--(n11) (n3)--(n11) (n9)--(n11);
+\draw[edge] (n3)--(n13) (n4)--(n13) (n5)--(n13);
+\draw[edge] (n5)--(n12) (n6)--(n12) (n7)--(n12) (n8)--(n12);
+\draw[edge] (n11)--(n13) (n13)--(n12) (n12)--(n10) (n10)--(n11);
+\draw[edge] (n9)--(n10) (n8)--(n10);
+
+\foreach \i in {1,...,13} {
+  \node[node] at (n\i) {};
+}
+\end{tikzpicture}
+\end{center}
+
+\vspace{6mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% RESEARCH VISION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mosbox}{Research Vision}
+
+\BodyFont
+
+The Mathematical Operating System (MOS) proposes that memory should not
+be represented as an unordered vector database but as a structured
+mathematical object
+
+\[
+M=(C,\mathcal{F},s).
+\]
+
+Concepts occupy cells of a simplicial complex,
+local information is attached through a cellular sheaf,
+and globally coherent cognition is identified with compatible global
+sections.
+
+This perspective replaces purely statistical memory with a geometric,
+topological and algebraic representation in which reasoning,
+verification, semantic organization and structural growth become
+intrinsic mathematical operations rather than external heuristics.
+
+\vspace{4mm}
+
+\textbf{Central Philosophy}
+
+\[
+\boxed{
+\text{Knowledge is Geometry.}
+}
+\]
+
+\[
+\boxed{
+\text{Reasoning is Dynamics.}
+}
+\]
+
+\[
+\boxed{
+\text{Consistency is Cohomology.}
+}
+\]
+
+\end{mosbox}
+
+\vspace{8mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ARCHITECTURE DIAGRAM
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[
+scale=1,
+every node/.style={
+font=\Large,
+align=center
+}
+]
+
+\node[concept] (C)
+{
+Complex
+};
+
+\node[concept,right=4cm of C]
+(S)
+{
+Cellular\\
+Sheaf
+};
+
+\node[concept,right=4cm of S]
+(G)
+{
+Global\\
+Section
+};
+
+\node[concept,right=4cm of G]
+(H)
+{
+Coherence
+};
+
+\node[concept,right=4cm of H]
+(D)
+{
+Dynamics
+};
+
+\draw[arrow] (C)--(S);
+
+\draw[arrow] (S)--(G);
+
+\draw[arrow] (G)--(H);
+
+\draw[arrow] (H)--(D);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\node[below=8mm of C]
+{
+Higher-order Relations
+};
+
+\node[below=8mm of S]
+{
+Local Information
+};
+
+\node[below=8mm of G]
+{
+Compatible Beliefs
+};
+
+\node[below=8mm of H]
+{
+Verification
+};
+
+\node[below=8mm of D]
+{
+Adaptive Memory
+};
+
+\end{tikzpicture}
+
+\vspace{10mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% KEY CONTRIBUTIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tcolorbox}[%
+  colback=MOSDarkRed,
+  colframe=MOSGold,
+  title=\Large\bfseries Key Contributions,
+  coltitle=MOSGold
+]
+
+\BodyFont
+
+\begin{itemize}
+
+\item Memory represented as a cellular sheaf over a simplicial complex.
+
+\item Global consistency measured through sheaf Laplacians and
+cohomological invariants.
+
+\item Precision-weighted semantic fusion using probabilistic geometry.
+
+\item Topological diagnostics for contradiction localization.
+
+\item Dynamic growth through structural refinement and coarse graining.
+
+\item A mathematical framework intended to augment, rather than replace,
+existing reasoning systems.
+
+\end{itemize}
+
+\end{tcolorbox}
+
+\vspace{8mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HONEST DISCLAIMER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remarkbox}
+
+\BodyFont
+
+\textbf{Current Status}
+
+MOS is an early-stage mathematical research program.
+
+The present work introduces the foundational mathematical architecture,
+formal definitions and design philosophy.
+Many theoretical components remain under active development and no claim
+is made that the system is complete.
+
+The purpose of presenting this work is to invite constructive criticism,
+suggestions and collaboration from the mathematical community.
+
+\end{remarkbox}
+
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

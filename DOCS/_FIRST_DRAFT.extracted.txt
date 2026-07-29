@@ -1,0 +1,378 @@
+===== PAGE 1/10 =====
+Problem (informal): On the pure two ‑qubit state space ℂℙ3 with the Fubini –Study metric, study
+the spectrum and time ‑evolution of a weighted Hodge –de Rham Laplacian (on appropriate
+forms) with a thermal weight derived from a two ‑qubit Hamiltonian. Interpret the low ‑lying
+modes and dynamics as describing how probability distributions over pure states thermalize and
+how distinguishability/entanglement structure behaves under these dynamics .
+SECTION 1 – THE GEOMETR IC SETUP OF THE PROBLEM .
+We start by defining our Manifold . Let ℳ = ℂℙ3, the set obtained by taking ℂ4−{0} modulo
+the equivalence relation:
+𝑧~𝑤 ⇔𝑧 = 𝜆𝑤,𝜆 ∈ℂ∗
+Which is the set of complex lines in ℂ4 through the origin , of course under the u sual projection
+topology that allows us to define the following char t
+The standard atlas. For each k = 0,1, 2, 3 define the open set
+𝑈 = {[𝑧 : 𝑧 :𝑧 :𝑧 ] ∈ ℂℙ3 ∶ 𝑧 ≠ 0}.
+𝑘 0 1 2 3 𝑘
+So on each 𝑈 , we’re sure that at least the 𝑧 ≠ 0, which allows us to define th e map.
+𝑘 𝑘
+𝜙 :ℳ → ℂ3 𝑧
+𝑘 𝑖
+{ 𝑤𝑖𝑡ℎ 𝑤 =
+𝑝 = [𝑧 ]→𝜙 (𝑝)= (𝑤 ) 𝑖 𝑧
+𝑖 𝑘 𝑖 𝑖∈{0,1,2,3}−{𝑘} 𝑘
+It is important to note that ℳ isn’t an ordinary manifold, it ’s a 𝐾𝑎̈ℎ𝑙𝑒𝑟 manifold:
+A Kähler manifold is a complex manifold whose metric is simultaneously Riemannian,
+Hermitian, and symplectic, all in a compatible way; the Kähler form is the 2 -form that encodes
+this metric plus the complex structure, and its being closed is what makes the manifold
+“Kähler.”
+A Riemannian metric 𝑔 on 𝑀 is Hermitian if it is compatible with 𝐽, meaning
+𝑔(𝐽𝑋,𝐽𝑌) = 𝑔(𝑋,𝑌)for all tangent vectors 𝑋,𝑌.
+The pair (𝑔 , 𝐽)gives an almost Hermitian manifold. From this data you define the associated
+2-form
+𝜔(𝑋,𝑌)= 𝑔(𝐽𝑋,𝑌),𝑋,𝑌 ∈ 𝑇𝑀.
+• 𝜔is automatically nondegenerate and of type (1 , 1)(in complex terms), so it is a
+candidate symplectic form.wikipedia+1
+The manifold is Kähler if, in addition, this 2 -form is closed:
+===== PAGE 2/10 =====
+𝑑𝜔 = 0.
+So a Kähler manifold is equivalently:
+• A complex manifold with a Hermitian metric whose associated 2 -form 𝜔is
+closed.people.brandeis+1
+• Or a symplectic manifold (𝑀 , 𝜔)equipped with an integrable complex structure 𝐽such
+that 𝜔(⋅,𝐽⋅)is a Riemannian m etric
+This triple (𝑔 , 𝐽 , 𝜔)is the Kähler structure, and CP ⁿ with the Fubini –Study metric is the
+standard metric, which we ’ll be tak ing for this problem.
+The round metric on 𝕊2𝑛+1 decends to a homogeneous and isotropic Riemannian metric on
+ℂℙ𝑛+1, called the Fubini -Study metric.
+On a complex manifold with local holomorphic coordinates 𝑧 ,…,𝑧 , the Kähler metric 𝑔 is
+1 𝑛
+encoded by a function 𝜌(𝑧,𝑧ˉ)such that
+𝑖
+𝜔 = ∂∂ˉ𝜌
+2
+is the Kähler 2 -form, and its components 𝑔 are
+𝑖𝑗ˉ
+∂2𝜌
+𝑔 = .
+𝑖𝑗ˉ ∂𝑧 ∂𝑧ˉ
+𝑖 𝑗
+This function 𝜌 is called a Kähler potential for 𝜔(and for the metric 𝑔).
+On the affine chart 𝑍 ≠ 0with 𝑤 = 𝑍 /𝑍 for 𝑖 = 1,2,3:
+0 𝑖 𝑖 0
+• The Kähler potential is
+𝜌(𝑤,𝑤ˉ)= log(1+∣ 𝑤 ∣2 +∣𝑤 ∣2 +∣ 𝑤 ∣2).
+1 2 3
+• The metric components are
+∂2𝜌
+𝑔 (𝑤)= .
+𝑖𝑗ˉ ∂𝑤 ∂𝑤ˉ
+𝑖 𝑗
+• The Kähler form is
+𝑖
+𝜔 = ∑𝑔 𝑑𝑤 ∧𝑑𝑤ˉ .
+2 𝑖𝑗ˉ 𝑖 𝑗
+𝑖,𝑗
+Chart 𝑈 : 𝑍 ≠ 0
+0 0
+===== PAGE 3/10 =====
+• Coordinates: 𝑤 = 𝑍 /𝑍 ,𝑤 = 𝑍 /𝑍 ,𝑤 = 𝑍 /𝑍 .
+1 1 0 2 2 0 3 3 0
+• Potential: 𝜌 = log(1+∣𝑤 ∣2 +∣ 𝑤 ∣2 +∣ 𝑤 ∣2).
+0 1 2 3
+• Metric: 𝑔
+(0)
+(𝑤) =
+𝛿𝑖𝑗
+−
+𝑤ˉ 𝑖𝑤𝑗
+,𝑖,𝑗 = 1,2,3.
+𝑖𝑗ˉ 1+∣𝑤1∣2+∣𝑤2∣2+∣𝑤3∣2 (1+∣𝑤1∣2+∣𝑤2∣2+∣𝑤3∣2)2
+Chart 𝑈 : 𝑍 ≠ 0
+1 1
+• Coordinates: 𝑢 =𝑍 /𝑍 ,𝑢 = 𝑍 /𝑍 ,𝑢 = 𝑍 /𝑍 .
+0 0 1 2 2 1 3 3 1
+• Potential: 𝜌 = log(1+∣∣ 𝑢 ∣2+∣∣ 𝑢 ∣2+∣∣ 𝑢 ∣2).
+1 0 2 3
+• Metric: 𝑔
+(1)
+(𝑢)=
+𝛿𝑝𝑞
+−
+𝑢ˉ 𝑝𝑢𝑞
+,𝑝,𝑞 ∈ {0,2,3}
+𝑝𝑞ˉ 1+∣𝑢0∣2+∣𝑢2∣2+∣𝑢3∣2 (1+∣𝑢0∣2+∣𝑢2∣2+∣𝑢3∣2)2
+And so on and so forth…
+now that we set up our Metric, we ’d want to work with its volume form.
+Recall The Kähler form is
+3
+𝑖
+𝜔 = ∑ 𝑔 (𝑤) 𝑑𝑤 ∧𝑑𝑤ˉ .
+FS 2 𝑖𝑗ˉ 𝑖 𝑗
+𝑖,𝑗=1
+On any oriented Riemannian manifold (𝑀 , 𝑔), the volume form is the unique top -degree form
+dvol such that for any oriented orthonormal basis (𝑒 ,…,𝑒 )of 𝑇 𝑀you have
+𝑔 1 𝑛 𝑝
+dvol (𝑒 ,…,𝑒 )= 1.
+𝑔 1 𝑛
+In local coordinates, this condition forces
+dvol = √det(𝑔 ) 𝑑𝑥1∧⋯∧𝑑𝑥𝑛.
+𝑔 𝑖𝑗
+So “volume form = √det𝑔times coordinate wedge” is not a choice; it’s the unique form that
+makes the integral of 1 equal the geometric volume.
+On a Kähler manifold of complex dimension 𝑛:
+• You have a Hermitian metric 𝑔 and its associated Kähler form
+𝑖𝑗ˉ
+𝑖
+𝜔 = ∑𝑔 𝑑𝑧 ∧𝑑𝑧ˉ .
+2 𝑖𝑗ˉ 𝑖 𝑗
+𝑖,𝑗
+• In an orthonormal unitary frame, 𝜔 looks lik e
+𝑛
+𝜔 = ∑𝑒𝑘∧𝑓𝑘
+𝑘=1
+where {𝑒𝑘, 𝑓𝑘}is an orthonormal real coframe (think ℜ𝑑𝑧 ,ℑ𝑑𝑧 ).wikipedia+1
+𝑘 𝑘
+===== PAGE 4/10 =====
+Then the wedge power satisfies
+𝜔∧𝑛 = 𝑛! 𝑒1∧𝑓1∧⋯∧𝑒𝑛∧𝑓𝑛,
+which is exactly 𝑛!times the Riemannian volume form.ncatlab+1
+So the definition becomes
+1
+dvol = 𝜔∧𝑛
+𝑔 𝑛!
+In these coordinates, that becomes
+1 𝑖 3
+dvol = ( ) det(𝑔 (𝑤)) 𝑑𝑤 ∧𝑑𝑤ˉ ∧𝑑𝑤 ∧𝑑𝑤ˉ ∧𝑑𝑤 ∧𝑑𝑤ˉ .
+FS 3! 2 𝑖𝑗ˉ 1 1 2 2 3 3
+Tangent vectors as infinitesimal state changes
+Take a normalized state ∣ 𝑧⟩ ∈ℂ4(Hilbert space), and its ray [𝑧]∈ℳ.
+By definition, [𝑧]is the equivalence class of all nonzero vectors proportional to ∣ 𝑧⟩, i.e. 𝜆 ∣ 𝑧⟩with
+𝜆 ∈ ℂ×; physically that’s “same state up to global phase and normalization.”
+To see what a tangent vector at [𝑧]means:
+• Think of the quotient map 𝜋:ℂ4∖{0}→ℳ, 𝜋(∣ 𝜓⟩)= [𝜓].wikipedia+1
+• A tangent vector 𝑋 ∈𝑇 CP 3 can be represented by a derivative of a curve of states
+[𝑧]
+𝑡 ↦∣ 𝜓(𝑡)⟩,∣ 𝜓(0)⟩=∣ 𝑧⟩,
+modulo changes along the fiber (i.e. multiplying by a phase). idv.sinica+1
+Concretely, one standard description is:
+{𝑣 ∈ℂ4:⟨𝑧 ∣ 𝑣⟩= 0}
+𝑇 ℳ ≅ .
+[𝑧]
+phase directions
+Intuitively:
+• A vector 𝑣 orthogonal to ∣ 𝑧⟩ describes an infinitesimal motion in Hilbert space that
+changes the ray nontrivially.
+• Adding a term proportional to 𝑧⟩(e.g. 𝑖𝛼 ∣ 𝑧⟩) only changes the global phase or
+normalization, i.e. it moves along the fiber of 𝜋and does not change the point [𝑧]in ℳ
+If a small Hamiltonian 𝐻 generates Schrödinger evolution,
+∣ 𝜓(𝑡)⟩ = 𝑒−𝑖𝑡𝐻 ∣ 𝑧⟩,
+===== PAGE 5/10 =====
+then at 𝑡 = 0 the derivative is
+𝑑
+∣ ∣ 𝜓(𝑡)⟩ = −𝑖𝐻 ∣ 𝑧⟩.
+𝑑𝑡 𝑡=0
+We decompose −𝑖𝐻 ∣ 𝑧⟩ into a part parallel to ∣ 𝑧⟩(global phase and normalization) and
+3
+a part orthogonal to ∣ 𝑧⟩. The orthogonal part is precisely the tangent vector in 𝑇 CP ,
+[𝑧]
+i.e. the actual direction of state change modulo global phase
+1-form 𝑨 as a quantum current / cost functional
+A 1 -form 𝐴 ∈ Ω1(CP 3 ) assigns to each point [𝑧] a linear functional
+3
+𝐴 :𝑇 CP → ℂ.
+[𝑧] [𝑧]
+3
+So for a tangent vector 𝑋 ∈ 𝑇 CP , the value 𝐴(𝑋) is:
+[𝑧]
+• A scalar depending linearly on the direction 𝑋.
+• Hence a directional cost , “current,” or “instantaneous rate” associated with
+moving in that direction on the state space.wikipedia+1
+Interpreted physically, we can choose 𝐴 so that:
+• 𝐴(𝑋)is the instantaneous work per unit time to follow the change encoded by 𝑋.
+• Or the instantaneous phase change per unit time (like a Berry connection acting
+on state-space paths).
+• Or an information -theoretic cost , e.g. rate of change of an expectation or
+entropy functional along 𝑋
+given a small change in state [𝑧]→ [𝑧+𝛿𝑧] represented by 𝑋, 𝐴(𝑋) quantifies how “expensive”
+this change is according to the chosen functional 𝐴. In FE terms, think of 𝐴as a linear form on
+the tangent space that you plug your vector field 𝑋 into.
+Section 2 – Weighted Hodge operator on 1 -forms
+Pick a Hermitian 𝐾 with two features:
+1. Non-degenerate spectrum (to avoid trivial symmetries).
+2. A block structure that you can interpret physically —e.g. a pair of coupled qubits, or a
+4-level atom with two near -degenerate subspaces.
+===== PAGE 6/10 =====
+For instance:
+𝜖 0 0 0
+0 −𝜖 𝑔 0
+𝐾 = ( )
+0 𝑔 0 0
+0 0 0 Δ
+with 𝜖,Δencoding energy splittings and 𝑔a coupling between levels 2 and 3.
+Then define:
+𝑓([𝑧]) = ⟨𝑧 ∣ 𝐾 ∣ 𝑧⟩, ∣ 𝑧⟩∈ ℂ4, ∥ 𝑧 ∥=1, [𝑧] ∈ℳ ,
+and the 1 -form
+𝐴 = 𝑑𝑓
+on CP³. As we already noted, 𝐴(𝑋) for 𝑋 ∈ 𝑇 ℳ is the instantaneous rate of change of the
+[𝑧]
+expectation of 𝐾 along that direction of state
+Now define the geometric Hamiltonian for your project as an operator on scalar functions or
+1-forms on CP³:
+• Scalar version:
+𝐻 = −Δ +𝛼 𝑓([𝑧]),
+scalar FS
+with 𝛼 a coupling parameter.
+• 1-form version (closer to your FEEM on 1 -forms):
+𝐻 = Δ +𝛼 𝑓([𝑧]) Id,
+forms Hodge
+Define the thermal weight at inverse temperature 𝛽 > 0:
+𝑑𝜇 = 𝑒−𝛽𝐸([𝑧]) 𝑑𝑣𝑜𝑙 .
+𝛽 𝐹𝑆
+We are defining this measure because you need a geometric, physically meaningful 𝐿2inner
+product on fields (functions or forms) that matches both the manifold’s metric and the physics
+we’re modeling (mass, potential, weights).
+- The volume form 𝑑vol turns the pointwise inner product coming from the
+𝑔
+Riemannian metric into an 𝐿2scalar product by integration.
+- A weight (like an OU -type factor or geodesic trap) modifies the measure so that
+the operator you care about (Hodge –de Rham, OU/Witten Laplacian,
+Hamiltonian with potential) becomes self -adjoint on the corresponding weighted
+𝐿2space.
+===== PAGE 7/10 =====
+At each 𝑝, 𝑔 gives an inner product on 𝑇 𝑀and hence on 𝑇∗𝑀
+𝑝 𝑝 𝑝
+𝑇∗𝑀 is the dual of 𝑇 𝑀: its elements are linear maps 𝑇 𝑀 → ℝ. Since 𝑔 is non -degenerate,
+𝑝 𝑝 𝑝 𝑝
+there is a canonical isomorphism (the flat/sharp map):
+♭: 𝑇 𝑀 → 𝑇∗𝑀, 𝑣 ↦ 𝑣♭∶ = 𝑔 (𝑣,⋅).
+𝑝 𝑝 𝑝
+And Its inverse is ♯ = ♭−1
+This lets you transfer the inner product from 𝑇𝑝𝑀to 𝑇𝑝 ∗𝑀: given two covectors 𝛼, 𝛽 ∈ 𝑇𝑝 ∗𝑀,
+define ⟨𝛼, 𝛽⟩𝑇𝑝 ∗𝑀:= 𝑔𝑝(𝛼 ♯ , 𝛽 ♯ ). In coordinates, if ( 𝑔 𝑖𝑗)is the inverse metric matrix , the n
+⟨𝑑𝑥𝑖 ,𝑑𝑥𝑗 ⟩ = 𝑔𝑖𝑗(𝑝)
+𝑇𝑝 ∗𝑀
+• In coordinates with 𝑔 and inverse 𝑔𝑖𝑗, if 𝛼 = 𝛼 𝑑𝑥𝑖, 𝛽 = 𝛽 𝑑𝑥𝑖, then
+𝑖𝑗 𝑖 𝑖
+⟨𝛼,𝛽⟩ =𝑔𝑖𝑗(𝑝) 𝛼 (𝑝) 𝛽 (𝑝).
+𝑝 𝑖 𝑗
+This gives you a scalar at each point, exactly like the dot product of vectors but using the
+metric to raise indices.
+𝑳𝟐inner product on 1 -forms
+To get the global “dot product” you use in your weak formulations and mass matrices, you
+integrate the pointwise inner product against the chosen measure (usually 𝑑vol ).
+𝑔
+• The 𝐿2inner product of 1 -forms is
+⟨𝛼,𝛽⟩
+𝐿2
+= ∫ ⟨𝛼,𝛽⟩
+𝑝
+𝑑vol
+𝑔
+(𝑝).
+𝑀
+In local coordinates this is
+⟨𝛼,𝛽⟩
+𝐿2
+= ∫ 𝑔𝑖𝑗(𝑥) 𝛼
+𝑖
+(𝑥) 𝛽
+𝑗
+(𝑥) √det𝑔(𝑥) 𝑑𝑥1⋯𝑑𝑥𝑛
+𝑀
+Then using our Fubini -Study metric o n ℳ Define the weighted 𝐿2inner product on 1 -forms:
+⟨𝐴,𝐵⟩
+𝐿2(𝜇𝛽)
+= ∫ ⟨𝐴,𝐵⟩
+𝐹𝑆
+𝑒−𝛽𝐸([𝑧]) dvol
+𝐹𝑆
+.
+ℳ
+On ℂℙ3with the Fubini –Study metric 𝑔 , the pointwise inner product ⟨𝐴,𝐵⟩ ([𝑧]) of smooth
+𝐹𝑆 𝐹𝑆
+1-forms 𝐴,𝐵is a smooth function on ℂℙ3.
+The energy function 𝐸([𝑧])is smooth and real -valued, and the weight 𝑒−𝛽𝐸([𝑧])is positive and
+smooth for all [𝑧]and 𝛽 ∈ℝ. The Fubini –Study volume form dvol is a smooth positive measure
+𝐹𝑆
+on the compact manifold ℂℙ3.
+===== PAGE 8/10 =====
+Putting these together, the integrand
+⟨𝐴,𝐵⟩ ([𝑧]) 𝑒−𝛽𝐸([𝑧])
+𝐹𝑆
+is a smooth function, and the integral
+⟨𝐴,𝐵⟩
+𝐿2(𝜇𝛽)
+= ∫ ⟨𝐴,𝐵⟩
+𝐹𝑆
+([𝑧]) 𝑒−𝛽𝐸([𝑧]) dvol
+𝐹𝑆
+([𝑧])
+ℂℙ3
+is finite for all smooth 1 -forms 𝐴,𝐵because ℂℙ3is compact and the weight 𝑒−𝛽𝐸is bounded above
+and below by positive constants.
+Bilinearity, symmetry, and positivity
+For smooth 1 -forms 𝐴,𝐵,𝐶and scalars 𝜆,𝜇, linearity of the integral and of ⟨⋅,⋅⟩ gives:
+𝐹𝑆
+• ⟨𝜆𝐴+𝜇𝐵,𝐶⟩ 𝐿2(𝜇𝛽) = 𝜆⟨𝐴,𝐶⟩ 𝐿2(𝜇𝛽) +𝜇⟨𝐵,𝐶⟩ 𝐿2(𝜇𝛽) .
+• ⟨𝐴,𝐵⟩ 𝐿2(𝜇𝛽) = ⟨𝐵,𝐴⟩ 𝐿2(𝜇𝛽) because ⟨𝐴,𝐵⟩ 𝐹𝑆 is symmetric pointwise.
+• ⟨𝐴,𝐴⟩ 𝐿2(𝜇𝛽) = ∫ ℂℙ3 ⟨𝐴,𝐴⟩ 𝐹𝑆 𝑒−𝛽𝐸 dvol 𝐹𝑆 ≥ 0, and it is zero if and only if 𝐴 = 0as a 1-form,
+since ⟨𝐴,𝐴⟩ ([𝑧]) > 0wherever 𝐴([𝑧]) ≠ 0and the weight and volume form are positive.
+𝐹𝑆
+Thus ⟨⋅,⋅⟩ 𝐿2(𝜇𝛽) is an inner product on the space of smooth 1 -forms Ω1(ℂℙ3).
+Hilbert space via completion
+The inner product defines a norm
+∥ 𝐴 ∥2 =∫ ⟨𝐴,𝐴⟩ 𝑒−𝛽𝐸 dvol ,
+𝐿2(𝜇𝛽)
+ℂℙ3
+𝐹𝑆 𝐹𝑆
+which is equivalent to the standard 𝐿2norm defined with respect to dvol alone, because the
+𝐹𝑆
+weight 𝑒−𝛽𝐸is bound above and away from zero on the compact manifold. Therefore, the metric
+topoopology induced by ∥⋅∥ 𝐿2(𝜇𝛽) is the same as the usual 𝐿2topology on 1 -forms, and the
+completion of Ω1(ℂℙ3)under this norm is a Hilbert space 𝐿2(ℂℙ3,Λ1𝑇∗ℂℙ3;𝜇 ).
+𝛽
+Recall the Hodge –de Rham Laplacian on 1 -forms for the unweighted metric:
+Δ 𝐴= 𝑑𝛿𝐴+𝛿𝑑𝐴,
+1
+where 𝛿is the codifferential defined via the Hodge star of 𝑔 .
+𝐹𝑆
+===== PAGE 9/10 =====
+Changing from dvol to d𝜇 = 𝑒−𝛽𝐸 dvol modifies the adjoint of 𝑑by adding a drift term
+𝐹𝑆 𝛽 𝐹𝑆
+proportional to ∇𝐸.
+Let 𝜇 = 𝑒−𝛽𝐸 dvol on ℂℙ3, for smooth forms 𝛼 and 𝜔, the adjoint 𝛿 of 𝑑 with respect to the
+𝛽 𝐹𝑆 𝛽
+weighted inner product ⟨⋅,⋅⟩ 𝐿2(𝜇𝛽) satisfies
+∫ ⟨𝑑𝜔,𝛼⟩ 𝑒−𝛽𝐸 dvol = ∫ ⟨𝜔,𝛿 𝛼⟩ 𝑒−𝛽𝐸 dvol .
+𝐹𝑆 𝐹𝑆 𝛽 𝐹𝑆 𝐹𝑆
+ℳ ℳ
+To relate 𝛿 to the usual codifferential 𝛿(adjoint with respect to dvol ), write
+𝛽 𝐹𝑆
+∫ ⟨𝑑𝜔,𝛼⟩ 𝑒−𝛽𝐸 dvol = ∫ ⟨𝑑𝜔,𝑒−𝛽𝐸𝛼⟩ dvol .
+𝐹𝑆 𝐹𝑆 𝐹𝑆 𝐹𝑆
+ℳ ℳ
+By definition of 𝛿(unweighted adjoint of 𝑑) we have
+∫⟨𝑑𝜔,𝑒−𝛽𝐸𝛼⟩ dvol = ∫⟨𝜔,𝛿(𝑒−𝛽𝐸𝛼)⟩ dvol .
+𝐹𝑆 𝐹𝑆 𝐹𝑆 𝐹𝑆
+Using the Leibniz rule and the fact that 𝛿is first order and metric -dependent, the unweighted
+codifferential applied to 𝑒−𝛽𝐸𝛼splits into
+𝛿(𝑒−𝛽𝐸𝛼) = 𝑒−𝛽𝐸𝛿𝛼+(drift term involving ∇𝐸).
+More precisely, in the standard Witten/OU setting one gets a contraction with the gradient of
+𝐸.
+Matching the integrals then gives the formal expression
+𝛿 𝛼 = 𝛿𝛼+𝛽 𝜄 𝛼,
+𝛽 ∇𝐸
+where ∇𝐸is the gradient of 𝐸with respect to 𝑔 and 𝜄 denotes interior product with ∇𝐸.
+𝐹𝑆 ∇𝐸
+This 𝛽 𝜄 is the drift operator associated with the weight 𝑒−𝛽𝐸: it is the first -order term that
+∇𝐸
+appears in the weighted Hodge Laplacian
+Δ = 𝑑 𝛿 +𝛿 𝑑 = Δ+𝛽 (𝑑𝜄 +𝜄 𝑑),
+𝛽 𝛽 𝛽 ∇𝐸 ∇𝐸
+so relative to the unweighted Laplacian 𝛥you have an extra drift generated by the vector field
+𝛻𝐸.
+Define a weighted Hodge operator on 1-forms:
+ℋ 𝐴:= Δ 𝐴+𝑉([𝑧]) 𝐴 = 𝛥 𝐴+𝛽ℒ 𝐴+𝑉([𝑧])𝐴
+𝛽 β 1 𝛻𝐸
+===== PAGE 10/10 =====
+SECTION 3: SOL VING THE EIGENVALU E PROBLEM :

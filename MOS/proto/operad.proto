@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package mos.proto;
+
+// Defines the primitive operators
+message Operator {
+  enum OpType {
+    UNKNOWN = 0;
+    SEARCH = 1;
+    COMPUTE = 2;
+    REASON = 3;
+    RESPOND = 4;
+    CONTEXT = 5; // Temporary Axiom Injection
+  }
+  
+  OpType type = 1;
+  
+  // Payload for the operator (depending on type)
+  // SearchOp -> query
+  // ComputeOp -> logic_code
+  // ReasonOp -> premise
+  // RespondOp -> response_context
+  // ContextOp -> serialized temporary axiom or context string
+  string payload = 2;
+  
+  // Topological support (vertices this operator touches)
+  repeated int32 support = 3;
+}
+
+message OperadNode {
+  int32 id = 1;
+  Operator operator = 2;
+  
+  // List of child node IDs this node points to
+  // Directed edges representing dependencies (child must complete before parent starts, or vice versa depending on execution model)
+  repeated int32 children_ids = 3;
+}
+
+message OperadDAG {
+  repeated OperadNode nodes = 1;
+}
