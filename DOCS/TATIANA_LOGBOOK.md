@@ -2844,8 +2844,16 @@ the gap would produce exactly the simulated-number-labelled-measured outcome §5
   Python (1e-10 across all rank combinations), the triangle inequality (worst violation 0 over
   1600 triples), and all three limits. The load-bearing gap was that `wasserstein_2_terms`
   **requires side 1 isotropic** and so cannot do rank-k vs rank-k — closed by
-  `bures_w2_sq_general`. **Two gaps remain and one is a modelling decision: concepts have NO
-  MASS** (w(σ,t) lives on organ edges, not concepts), and δ is uncalibrated. Until both land,
+  `bures_w2_sq_general`. ~~Two gaps remain and one is a modelling decision: concepts have NO
+  MASS.~~ **🚨 BOTH RETRACTED — Charbel caught it.** I had applied Cone–Bures to the **wrong
+  complex**: it is a distance on the **stalk manifold** (organs over K — the n=7 / 21-edge
+  benchmark settles it), not on concepts. So `w(σ,t)` is exactly where Construction 1 puts it,
+  already implemented as `weights_`, and `n_eff` was a fudge for a gap that does not exist. The
+  real gap is **one object that is already computed**: coarse stalks are stored as *points*, and
+  the organ covariance is formed as `Lambda` inside π_v fusion and **discarded one line before
+  the return**. δ is not blocked either — V2/E14's labels are for the sensitivity CURVE
+  (*"never a fitted value"*); the operational **δ = mean(d_BW)/π** is derived. Three small steps
+  remain, none of them a modelling decision. Until they land,
   `ConeBures` is compiled, tested and **called by nothing**. The corpus could not be built:
   fastembed installs, but `huggingface.co` is **denied by network policy**, so V6 stays blocked.
   **17/17 C++, 9/9 Python.** See §5ak.
