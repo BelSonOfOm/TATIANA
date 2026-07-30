@@ -2522,6 +2522,79 @@ C++ untouched this round, still 11/11.
 - V2/E14 still needs **Charbel's ~50 labelled pairs**. Unchanged, and now the *only* item on
   the whole list that is blocked on a person rather than on data or work.
 
+## 5aj. 🚨 THE TEST SUITE WAS VACUOUS IN RELEASE BUILDS (2026-07-30) — pre-Phase-2 prep
+
+Asked to get the ground ready for Phase 2. The ground was worse than the list said.
+
+### 🚨🚨 ~208 ASSERTIONS WERE COMPILED OUT. "The suite is green" meant nothing.
+Every C++ test states its expectations with `assert()`. CMake's **Release** configuration
+defines `NDEBUG`, which compiles `assert()` to **nothing**. Verified directly: a Release build
+of `assert(1==2)` runs straight through, and `build/CMakeFiles/*/flags.make` carries
+`-DNDEBUG -O3`.
+
+So a Release build ran **~208 assertions as no-ops across 17 files**, printed all of its
+progress lines, exited 0, and reported PASS **while verifying nothing at all.**
+
+> **Every "the suite is green" claim in this logbook that came from a Release build was
+> vacuous.** Not wrong — *empty*. Including, potentially, the ones certifying FIX-11 and FIX-13.
+
+**What survives:** this session's earlier runs were hand-compiled at `-O1` **without** `NDEBUG`,
+so those assertions *were* live and 11/11 stands. It is the **CMake path** that was hollow, and
+that is the path anyone else would use.
+
+**Fixed** with a `mos_add_test()` helper that undefines `NDEBUG` for test targets only
+(`-UNDEBUG` / `/UNDEBUG`); product code keeps the optimiser's `NDEBUG`. All 16 test targets
+converted. New tests must use it or they silently rejoin the stripped set.
+
+**Result with assertions actually live: 16/16 pass.** The suite was telling the truth — but it
+had no way to tell us if it weren't, which is the entire point of having it.
+
+### ✅ THE BUILD IS NO LONGER WINDOWS-ONLY
+`colibri_kernel.cpp` included `windows.h`/`winhttp.h` **unconditionally**, and `CMakeLists.txt`
+linked `winhttp` unconditionally. Because that file sits inside `mos_core`'s `SOURCES`, it took
+**every test target** with it: nothing built off Windows, at all.
+
+Guarded, not rewritten — WinHTTP is byte-identical on Windows. Off Windows the three transport
+members throw at the point of use, so the ~180 portable lines in that file (JSON parsing, the
+logprob→confidence derivation, the `AgentThought` contract) now compile and run everywhere.
+`primitives.cpp` was already correctly guarded; only this one file and the link line were not.
+
+**A codebase that builds on one machine is how §5ah's π_e conflation survived two written
+prohibitions and a test.** Phase 2 is eight items of C++ geometry; it needed this first.
+
+### ✅ FIX-16 CLOSED — and it fired on the very first cross-platform run
+The colibri test wrapped everything in `catch (ColibriException&)` and called that a PASS.
+Three faults, all firing at once:
+1. `generate_thought` **catches its own routing failure** and returns a default `AgentThought`,
+   so no `ColibriException` ever reached the handler — that branch was dead code.
+2. The empty thought then hit `FourierMapper::project`, which threw
+   **`Input dimension mismatch`** — a message about *geometry* for a failure about the
+   *network* — uncaught, aborting the process.
+3. `assert(!parsed.latent.empty())`, the one check that would have caught it cleanly, **was
+   compiled out by the NDEBUG bug above.**
+
+Rewritten to separate the two questions it was conflating: *is the LLM reachable* (environmental
+⇒ **SKIP**, loudly, exit 0) and *does the curation contract hold* (a real assertion, now checked
+on a **synthetic** thought so it runs everywhere). The second half never needed an LLM and is
+the part that was worth testing. It now also asserts §5ah's confidence→ν routing.
+
+### 🚫 WHAT I DID **NOT** DO, AND WHY IT NEEDS CHARBEL
+- **Confidence is structurally unavailable, not merely unwired.** `colibri_kernel.cpp:176`
+  deliberately **never requests logprobs** — Groq's llama-3.1-8b-instant returns a hard 400 —
+  so `confidence` is *always* `nullopt` against the deployed model. The §5ah routing is
+  therefore complete and **permanently idle** with this provider/model. ⇒ **ν ≡ π ≡ τ ≡ 1 through
+  all of Phase 2, and `F_MOS` stays the unit-weight formula.** Changing the source is a
+  modelling decision (Q9 objected to "a hallucinated logprob"), so it is not mine to pick.
+- **Cone–Bures is not in the engine and not on the Phase-2 list.** `grep` finds `ConeBures` in
+  four Python files and **zero** C++ ones; the engine merges on plain W₂. So δ — which Charbel
+  explicitly refused to lose, and §5z recovered — is **unscheduled work**, and `RegimeMonitor`
+  (§5ai) has nothing to monitor. Either the Phase-2 list is stale or δ is deferred; that is a
+  decision, not an oversight to quietly correct.
+
+### 📋 TEST REPORT (2026-07-30, final)
+**16/16 C++ with assertions LIVE · 9/9 Python.** First fully green, fully-checked build of this
+project outside Windows.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2639,6 +2712,19 @@ C++ untouched this round, still 11/11.
   `.tex`, clearing four stale artefacts — and the `.tex` held a **live falsehood** (`rem:uncal`
   still documented `D = −ln c` and `UNCALIBRATED_VARIANCE_PRIOR`, both deleted by FIX-13).
   **9/9 Python.** See §5ai.
+  **Then, same session — "do everything so we can start Phase 2".** The ground was worse than
+  the list said. **~208 assertions were compiled out of every Release build** (`NDEBUG` strips
+  `assert`), so the suite printed PASS while verifying *nothing* — every Release-derived "suite
+  is green" claim in this logbook was **vacuous**, not wrong. Fixed via `mos_add_test()`
+  (`-UNDEBUG` on test targets only); with assertions live the suite is **16/16**. Also made the
+  build **not Windows-only** — `colibri_kernel.cpp` and the `winhttp` link line were unguarded,
+  and since that file is inside `mos_core`'s SOURCES it took *every* test target with it.
+  Guarded, not rewritten. **FIX-16 closed**, and it fired on the first cross-platform run
+  exactly as predicted: a network outage was reported as `Input dimension mismatch`. Two things
+  deliberately NOT done, both needing Charbel: **confidence is structurally unavailable** (Groq
+  hard-400s on logprobs, so the §5ah routing is permanently idle and Π stays identity through
+  all of Phase 2), and **Cone–Bures/δ is in zero C++ files and is not on the Phase-2 list**.
+  See §5aj.
 - **2026-07-22** — Read all of DOCS + full MOS architecture. Established the two-level decision, killed "Pachner", drafted Construction 1, opened the fix registry, created this logbook. Charbel flagged: (a) wants brain-like *growth*; (b) wants this log; (c) fix everything but he's on a tight token budget — warn before expensive tasks.
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.

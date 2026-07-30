@@ -4,14 +4,37 @@
 #include <iostream>
 #include <map>
 
+// PORTABILITY (2026-07-30). The transport below is WinHTTP and was included
+// unconditionally, which made this the ONE file that could not compile off
+// Windows -- and because it is inside `mos_core`'s SOURCES, it took every test
+// target with it. The whole suite was therefore Windows-only.
+//
+// That is not a cosmetic problem. 5ah found the engine using the Hebbian
+// coupling as pi_e in a line that had been forbidden in writing twice, with a
+// test asserting the bug; a codebase that only builds on one machine is how
+// defects like that survive audits. Every "the suite is green" claim in the
+// logbook inherited this.
+//
+// The fix is a guard, not a rewrite: WinHTTP is untouched and byte-identical on
+// Windows. Elsewhere, the three transport members throw ColibriException at the
+// point of use, so the ~180 lines of PORTABLE logic in this file (JSON parsing,
+// the logprob->confidence derivation, the AgentThought contract) compile and can
+// be tested everywhere. Replacing WinHTTP with a portable client is a separate,
+// larger job and is NOT done here.
+#ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
 #include <winhttp.h>
 
 #pragma comment(lib, "winhttp.lib")
+#else
+#include <stdexcept>
+#endif
 
 namespace mos {
 namespace translation {
+
+#ifdef _WIN32
 
 class WinHttpHandle {
 public:
@@ -89,6 +112,36 @@ std::string ColibriKernel::http_post(const std::string &endpoint,
 
   return response;
 }
+
+#else  // !_WIN32 -- portable stubs for the transport only
+
+namespace {
+[[noreturn]] void no_transport(const char *what) {
+  throw ColibriException(
+      std::string("[ColibriKernel] ") + what +
+      " is unavailable: this build has no HTTP transport. The WinHTTP client is "
+      "compiled only on Windows. Everything else in this translation unit "
+      "(JSON parsing, the confidence derivation, the AgentThought contract) is "
+      "portable and built normally.");
+}
+}  // namespace
+
+ColibriKernel::ColibriKernel(const ColibriConfig &config) : config_(config) {
+  // Deliberately does NOT throw: constructing the kernel must stay possible so
+  // the portable logic can be exercised in tests. The failure belongs at the
+  // point where the network is actually needed.
+  session_ = nullptr;
+  connection_ = nullptr;
+}
+
+ColibriKernel::~ColibriKernel() = default;
+
+std::string ColibriKernel::http_post(const std::string &,
+                                     const std::string &) const {
+  no_transport("http_post");
+}
+
+#endif  // _WIN32
 
 std::string ColibriKernel::extract_json_value(const std::string &json,
                                               const std::string &key) const {

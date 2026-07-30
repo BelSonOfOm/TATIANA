@@ -83,66 +83,83 @@ set(SOURCES
 
 add_executable(mos src/main.cpp ${SOURCES})
 target_include_directories(mos PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(mos winhttp flatbuffers)
+# winhttp exists only on Windows; the transport in colibri_kernel.cpp is guarded
+# by #ifdef _WIN32 to match. Linking it unconditionally made every target
+# unlinkable off Windows even after the source compiled.
+if(WIN32)
+    target_link_libraries(mos winhttp flatbuffers)
+else()
+    target_link_libraries(mos flatbuffers)
+endif()
 add_dependencies(mos fbs_headers)
 
 # Create a static library for the core
 add_library(mos_core STATIC ${SOURCES})
 target_include_directories(mos_core PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(mos_core PUBLIC winhttp flatbuffers)
+if(WIN32)
+    target_link_libraries(mos_core PUBLIC winhttp flatbuffers)
+else()
+    target_link_libraries(mos_core PUBLIC flatbuffers)
+endif()
 add_dependencies(mos_core fbs_headers)
 
+
+# --- TEST TARGETS: assertions must SURVIVE the build type -------------------
+# Every test in tests/ states its expectations with assert(). CMake's Release
+# and MinSizeRel configurations define NDEBUG, which compiles assert() to
+# nothing -- so a Release build ran ~208 assertions as no-ops, printed its
+# progress lines, exited 0, and reported PASS while verifying NOTHING. Any
+# "the suite is green" claim made from a Release build was vacuous.
+#
+# mos_add_test undefines NDEBUG for test targets only (product code keeps the
+# optimiser's NDEBUG). Use it for every new test target -- do not hand-roll
+# add_executable/target_link_libraries, or the new test silently joins the
+# stripped set.
+function(mos_add_test target source)
+    add_executable(${target} ${source})
+    target_link_libraries(${target} PRIVATE mos_core)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /UNDEBUG)
+    else()
+        target_compile_options(${target} PRIVATE -UNDEBUG)
+    endif()
+endfunction()
+
 # Tests
-add_executable(mos_tests tests/test_topology.cpp)
-target_link_libraries(mos_tests PRIVATE mos_core)
+mos_add_test(mos_tests tests/test_topology.cpp)
 
-add_executable(mos_homology_tests tests/test_dormant_homology.cpp)
-target_link_libraries(mos_homology_tests PRIVATE mos_core)
+mos_add_test(mos_homology_tests tests/test_dormant_homology.cpp)
 
-add_executable(mos_algebra_tests tests/test_algebra.cpp)
-target_link_libraries(mos_algebra_tests PRIVATE mos_core)
+mos_add_test(mos_algebra_tests tests/test_algebra.cpp)
 
-add_executable(mos_kernel_tests tests/test_kernel.cpp)
-target_link_libraries(mos_kernel_tests PRIVATE mos_core)
+mos_add_test(mos_kernel_tests tests/test_kernel.cpp)
 
-add_executable(mos_fourier_tests tests/test_fourier.cpp)
-target_link_libraries(mos_fourier_tests PRIVATE mos_core)
+mos_add_test(mos_fourier_tests tests/test_fourier.cpp)
 
-add_executable(mos_probabilistic_tests tests/test_probabilistic.cpp)
-target_link_libraries(mos_probabilistic_tests PRIVATE mos_core)
+mos_add_test(mos_probabilistic_tests tests/test_probabilistic.cpp)
 
-add_executable(mos_curator_tests tests/test_curator.cpp)
-target_link_libraries(mos_curator_tests PRIVATE mos_core)
+mos_add_test(mos_curator_tests tests/test_curator.cpp)
 
-add_executable(mos_reflection_tests tests/test_reflection.cpp)
-target_link_libraries(mos_reflection_tests PRIVATE mos_core)
+mos_add_test(mos_reflection_tests tests/test_reflection.cpp)
 
-add_executable(mos_colibri_tests tests/test_colibri.cpp)
-target_link_libraries(mos_colibri_tests PRIVATE mos_core)
+mos_add_test(mos_colibri_tests tests/test_colibri.cpp)
 
-add_executable(mos_knowledge_base_tests tests/test_knowledge_base.cpp)
-target_link_libraries(mos_knowledge_base_tests PRIVATE mos_core)
+mos_add_test(mos_knowledge_base_tests tests/test_knowledge_base.cpp)
 
 # Parity tests: C++ CoarseComplex vs the authoritative python/coherence.py
-add_executable(mos_coarse_complex_tests tests/test_coarse_complex.cpp)
-target_link_libraries(mos_coarse_complex_tests PRIVATE mos_core)
+mos_add_test(mos_coarse_complex_tests tests/test_coarse_complex.cpp)
 
 # pi_v precision-weighted fusion (Construction 2, two-level bridge)
-add_executable(mos_pi_fusion_tests tests/test_pi_fusion.cpp)
-target_link_libraries(mos_pi_fusion_tests PRIVATE mos_core)
+mos_add_test(mos_pi_fusion_tests tests/test_pi_fusion.cpp)
 
 # 5p mechanisms (2)(3)(4): criticality, homeostasis, selectionism
-add_executable(mos_plasticity_tests tests/test_plasticity.cpp)
-target_link_libraries(mos_plasticity_tests PRIVATE mos_core)
+mos_add_test(mos_plasticity_tests tests/test_plasticity.cpp)
 
 # FIX-11 (operad co-schedulability) + FIX-13 (stalk noise-floor contract)
-add_executable(mos_stalk_floor_tests tests/test_stalk_floor.cpp)
-target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
+mos_add_test(mos_stalk_floor_tests tests/test_stalk_floor.cpp)
 
 # E7: the assembly record, written at composition time
-add_executable(mos_assembly_log_tests tests/test_assembly_log.cpp)
-target_link_libraries(mos_assembly_log_tests PRIVATE mos_core)
+mos_add_test(mos_assembly_log_tests tests/test_assembly_log.cpp)
 
 # confidence -> nu_v -> pi_e -> tau_f, and the w(sigma,t)/pi_e separation
-add_executable(mos_precision_routing_tests tests/test_precision_routing.cpp)
-target_link_libraries(mos_precision_routing_tests PRIVATE mos_core)
+mos_add_test(mos_precision_routing_tests tests/test_precision_routing.cpp)
