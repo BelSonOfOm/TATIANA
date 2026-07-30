@@ -202,7 +202,15 @@ restriction maps: L stays symmetric PSD, ker L = H⁰, ρ keeps its bound. The Q
 **Q2 ✅ ANSWERED: tangent-space linearised.** Karcher mean each tick, lift via log, run the
 existing apparatus in the tangent space, map back. E12 tests whether it earns its cost.
 
-**Q2b 🔴 NEW, RAISED BY Q1's ANSWER — linearised in WHICH geometry?**
+**Q2b ✅ RESOLVED (§5t, flag corrected 2026-07-30) — linearised in WHICH geometry?**
+
+> The 🔴 on this question was **stale for three days**. §5t resolved it: a **hybrid metric with an
+> explicit dispatch rule** — Fisher–Rao/information geometry for π_v fusion, Bures–Wasserstein for
+> distance and merging — and the two are kept as *distinct operations on the same objects* rather
+> than reconciled into one. The analysis below stands as the reasoning; only the open flag was wrong.
+>
+> A stale 🔴 is not harmless: §5aa records that a superseded "NEXT — BLOCKING" line re-blocked work
+> that was already unblocked, and this flag was doing the same thing to Phase-2 items 2 and 3.
 
 MOS currently uses **two different Riemannian structures on the same objects**:
 
@@ -268,6 +276,18 @@ confidence region are computed differently without either being wrong — **not 
 into Paper A rather than leaving it implicit.
 
 ### Q2c — should the two be blended into one learned metric? (asked 2026-07-27)
+
+> **✅ COLLAPSED 2026-07-29 (§5y) — E15 returned NO.** WFR/Hellinger–Kantorovich has **no Bures
+> analogue between Gaussians** (citations searched; the literature offers only entropic
+> regularisations, per-pair Riccati solves at O(d³), the Dirac case, or gradient-flow ODEs that
+> are not a distance). So the "blend toward WFR" branch has nothing to blend toward and **the
+> merge metric stays Bures**. What was recovered instead is the **Cone–Bures** construction
+> (§5z) — the cone over Bures rather than over ℝᵈ — which is HK-*type*, not HK, and is an upper
+> bound by construction. Its validity is conditional on `σ_dir/δ` staying small and is now
+> monitored per tick (V6, `cone_bures.RegimeMonitor`), not assumed.
+>
+> The verdict below ("interpolate yes, train no") is retained as the reasoning that was correct
+> before E15 answered; the question itself is closed.
 
 **Proposal considered:** a new metric interpolating both, with the weight obtained by training.
 **Verdict: interpolate yes (for distance only), train no.**
@@ -359,16 +379,46 @@ decay to, but never below, the point of collapse.
 
 ## D.3 The organ contract (blocks E5, the gate)
 
-**Q9 ✅ ANSWERED (2026-07-27): a scalar in [−1,1] plus a confidence.** η is one-dimensional per
+> ## 🚨 Q9/Q10/Q11 — SUPERSEDED 2026-07-30 (FIX-12). READ THIS BEFORE THE TEXT BELOW.
+>
+> **Q9's ✅ is RETRACTED and Q11's default is WRONG.** Both specify a *symmetric* `agreement`
+> score. A 1-cochain is **antisymmetric** — `η(v,u) = −η(u,v)` — so a symmetric score
+> antisymmetrises to **η ≡ 0** and the Hodge split has nothing to decompose. The contract below
+> could not have produced a measurement at all.
+>
+> **NORMATIVE CONTRACT, as implemented in `python/experiment_e5.py` and the one that actually
+> produced the §5x weak PASS:**
+>
+> ```json
+> {"first": "<organ>", "second": "<organ>",
+>  "sub_claim": "<at most 12 words>",
+>  "push_first": <number in [-1,1]>, "push_second": <number in [-1,1]>,
+>  "confidence": <number in [0,1]>}
+> ```
+>
+> with `η_(u,v) = push_v − push_u`, **antisymmetric by construction rather than by assumption**.
+> The `sub_claim` is not decoration: without a per-pair proposition the two pushes are not
+> answers to the same question, and E5's first two elicitation designs failed on exactly that.
+>
+> - **Q9 → the pair of pushes, not one scalar.** Antisymmetry is a *property of the encoding*.
+> - **Q10 → bound pairs only.** The default stands; it was never in dispute.
+> - **Q11 → the schema above**, one call, batched (A14 unchanged).
+> - **Confidence → π_e** is now *wired*, not aspirational (§5ah): `confidence → ν_v → π_e → τ_f`
+>   via the cell-weight tower, `core::vertex_precision` / `core::edge_precision`. ⚠️ Nothing
+>   populates `AgentThought::confidence` yet, so π is still uniform in practice.
+>
+> Everything below this box is kept only as the record of what was superseded.
+
+~~**Q9 ✅ ANSWERED (2026-07-27): a scalar in [−1,1] plus a confidence.**~~ η is one-dimensional per
 edge — cheap, and enough for the Hodge split to be meaningful. **The confidence feeds π_e
 directly, which finally gives precision a non-constant source that is not a hallucinated
 logprob** (the gap Remark 6.6 of the `.tex` leaves open and audit finding on the 1/n law
 identifies as disabling the whole π_v mechanism).
 
-**Q10 🔴 Which pairs are judged?** → *Default: only bound pairs (edges of W)*, not all pairs.
+**Q10 ✅ Which pairs are judged?** → **DECIDED: only bound pairs (edges of W)**, not all pairs.
 
-**Q11 🔴 Batched output schema?** → *Default: one call, JSON list of `{u, v, agreement, confidence}`.*
-Mandatory per A14.
+~~**Q11 🔴 Batched output schema?** → *Default: one call, JSON list of `{u, v, agreement, confidence}`.*~~
+**SUPERSEDED — see the box above.** Batching itself is unchanged and mandatory per A14.
 
 **Q12 🟢 Do organs judge, or does one moderator judge on their behalf?**
 → *Default: organs judge.* A single moderator would make η a function of one global view, which

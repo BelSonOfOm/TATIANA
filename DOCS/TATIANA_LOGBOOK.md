@@ -1068,8 +1068,18 @@ Under the reading the engine implements, the algebra is **nearly free** (9% belo
 **Tests:** `coherence.py` 15/15 · `mos_coarse_complex_tests` 12/12 ·
 `mos_pi_fusion_tests` 6/6 · `mos_kernel_tests` PASS. No regressions, no new warnings.
 
-**NEXT — blocking, and it is a modelling decision, not a computation: CHOOSE THE
-CATEGORY** (audit F10). Both candidates the book offers fail: in Hol(𝒟) every Gaussian
+> **🚫 THIS "NEXT — BLOCKING" LINE IS DEAD. Struck 2026-07-30 (FIX-12 propagation pass).**
+> It was already superseded **the day it was written** by §5r's two-complex decision, and
+> `MEMORY_MODEL_TWO_COMPLEX.md` dissolved F10 outright on 2026-07-27 ("dissolved, not answered.
+> This model does not require memories to have canonical atoms, so it does not need
+> Jordan–Hölder, K₀, or Ext¹"). It nevertheless sat here for three days telling every reader
+> that 𝕂/W implementation was blocked on a category choice. It was not.
+> **Nothing is blocked on this. Do not act on the paragraph below** — it is kept only as the
+> reasoning that retired the schema, and the dead end is filed in §6.
+> *This is the stale-artefact failure §5aa drew the lesson from; see also §5af and §5ah.*
+
+~~**NEXT — blocking, and it is a modelling decision, not a computation: CHOOSE THE
+CATEGORY**~~ (audit F10). Both candidates the book offers fail: in Hol(𝒟) every Gaussian
 concept is a *simple* module (k[x] is simple over the Weyl algebra in char 0), so
 JH(M)={[M]}, length 1, and the K₀ class says no more than "which memory is this"; in
 Rep(Q) the K₀ class *is* the dimension vector, which collides catastrophically as a
@@ -2159,17 +2169,21 @@ C² inner product (measured, 0.00e+00 over τ ∈ [1e-3, 1e3]).
 - ~~**E7 at engine level. NOT DONE.**~~ **✅ DONE 2026-07-30, §5ah.** `assembly_log.{hpp,cpp}`,
   always-on, recording inside `select_commuting_slice`; 7 test cases including "recording does not
   change scheduling". E7 discipline previously existed only for E5's elicitations.
-- **V6** — σ_dir on the real corpus + `σ_dir/δ` in telemetry. Free. The §5z verdict still rests on
-  a calibrated simulation, and Phase-2 item 8 (rank-k stalks) builds on that metric.
-  **Now the top time-sensitive item.**
+- ~~**V6** — σ_dir on the real corpus + `σ_dir/δ` in telemetry.~~ **PARTLY DONE, §5ai.**
+  ✅ Telemetry shipped (`cone_bures.RegimeMonitor`, `sigma_dir_sq`, `implied_gap`) and the
+  measurement tool is written and self-verified (`measure_sigma_dir.py --db`, needs **no
+  embedding model** — the store persists the stalks). 🚫 **The measurement itself is BLOCKED:
+  every checked-in store has 0 rows.** Runs the moment a corpus exists. ⚠️ The monitor is not
+  yet called from the tick.
 
 **Cheap, blocking a specific item:**
 - ~~**ε rename**~~ **✅ DONE, §5ah** — and there were **three** ε's, not two: `ε_ρ`, `ε_W2`
   (the W₂ ball, which C6-2 missed), and `ε_flow` reserved for the not-yet-existing controller.
-- **FIX-12 propagation** — the antisymmetric contract is decided but not written into
-  `MOS_FINALIZATION.md` (Q9/Q10/Q11) or the `.tex`; items 2 and 3 inherit it. Fold in the stale
-  **Q2b 🔴** flag and §5t's stale **"CHOOSE THE CATEGORY"** NEXT line at the same time.
-  **Now the only cheap blocker left.**
+- ~~**FIX-12 propagation**~~ **✅ DONE, §5ai.** Antisymmetric contract written into
+  `MOS_FINALIZATION.md` (Q9/Q10/Q11) and the `.tex` (`rem:antisym`); **Q2b 🔴 → ✅**, Q2c marked
+  collapsed, §5t's "CHOOSE THE CATEGORY" NEXT line struck. Also caught a **live falsehood in the
+  `.tex`** — `rem:uncal` still documented `D = −ln c` and `UNCALIBRATED_VARIANCE_PRIOR`, both
+  deleted by FIX-13. ⚠️ Not compile-verified (no LaTeX toolchain).
 - ~~**Confidence → π_e routing**~~ **✅ DONE, §5ah** — and it was *not* cheap-and-minor: the engine
   was using the Hebbian coupling as π_e in **both languages**, with a test pinning the bug. Until
   it landed, Π was inert and the whole §5ac/§5ag derivation was a no-op in the engine.
@@ -2422,6 +2436,92 @@ today's task and not silently folded into it.
   `F_MOS` needs a normalisation before it drives anything.
 - The curvature controller itself is still **not in the engine** (§5ad, unchanged).
 
+## 5ai. V6 INSTRUMENTED (measurement BLOCKED) · FIX-12 PROPAGATED (2026-07-30)
+
+### 🚫 V6's LIVE MEASUREMENT CANNOT RUN HERE — and the reason is worth recording
+V6 asks for σ_dir on the **real corpus**. There isn't one. All three checked-in stores
+(`mos_brain_ipc.db`, `mos_brain_repl.db`, `mos_brain_test_operad.db`) have
+`distilled_theorems` present with **0 rows**, and `fastembed`/`onnxruntime` are not installed,
+so live bge-small vectors are unavailable too. **The number V6 exists to produce cannot be
+produced until the engine has ingested something.** Filed as blocked-on-data, not as done.
+
+What *was* shippable is everything around it, and one finding changes the plan:
+
+### ★ THE STORE ALREADY HOLDS THE STALKS — V6 NEEDS NO EMBEDDING MODEL
+`distilled_theorems` persists `mu_vector` (BLOB of d doubles), `u_matrix` (d·k doubles,
+**column-major**, `knowledge_base.cpp:19`) and `noise_floor`. That is a complete Gaussian. So
+the V6 measurement reads back **the stalks the engine actually merged on** and never touches
+an embedding model. That is strictly better than re-embedding the text, which would measure a
+corpus the engine never saw if the model or its version ever drifted. It also fixes the *unit*:
+pairs of **stored concepts**, because the merge predicate is applied concept-to-concept — an
+organ-level aggregate would answer a question nobody asks.
+
+`measure_sigma_dir.py --db <store>` is therefore one command away from producing V6 the moment
+a corpus exists. The reader is **verified against a synthetic store in the real schema** —
+round-trip of μ, U (column-major) and D, σ_dir² against a hand computation, and a rank/blob
+size mismatch **refused rather than reshaped** (`--selftest`). It refuses everywhere rather
+than substituting: V1c is already a simulation, and producing a second one labelled "measured"
+is the worst available outcome.
+
+### ✅ THE MONITORING HALF SHIPPED — this is the part 5z actually demanded
+§5z's closing line was *"σ_dir/δ must be **monitored, not assumed**"*, and the engine then
+shipped with nothing monitoring it. Now in `cone_bures.py`:
+- **`sigma_dir_sq`** — `ûᵀΣû` along `û = Δμ/‖Δμ‖`, averaged over the pair; `eps + ‖ûᵀU‖²`, one
+  projection per stalk, O(d·k), no dense covariance. **Refuses coincident means** rather than
+  inventing a direction.
+- **`regime_ratio`** = σ_dir/δ · **`implied_gap`** = `1 + (σ_dir/δ)²`, V1's law — which converts
+  the monitored ratio into **the actual multiplicative error on every merge distance**. Verified
+  against V1's measured points to **<0.6%** across a 10× spread range.
+- **`RegimeMonitor`** — bounded window, per-tick telemetry, thresholds read off §5z's own
+  numbers (0.10 measured regime · 0.30 stated degradation point · 0.60 chance).
+
+**⚠️ `sigma_eff_sq` is the V1c error, sitting unlabelled in the code.** It is the d-averaged
+spread — exactly what V1c corrected — and is now documented as *not* the governing quantity.
+Asserted: with spread 3.0 **orthogonal** to the separation, `sigma_eff² is 142× sigma_dir²`.
+
+### ★ MY OWN MONITOR HAD A BLIND SPOT, AND THE TEST CAUGHT IT
+I first drove the status off the **p95**, reasoning that a per-pair decision is made on the
+tail. Wrong, and the self-test failed on it: with **exactly 5%** bad pairs, the 95th percentile
+lands on the boundary and interpolates back into the healthy population — so the distribution
+`95% @ 0.05, 5% @ 0.90` reports **mean 0.0925 and p95 0.0925**, both of which read like MOS's
+*healthy* measured regime (~0.09), while one merge in twenty is a coin flip.
+
+**Status is now driven by the FRACTION above each threshold**, which has no such blind spot.
+`BAD_FRACTION = 1%` is labelled in the source as a **policy** choice, not a derived one.
+*A percentile chosen to catch a tail can be defeated by a tail of exactly that size.*
+
+### ✅ FIX-12 PROPAGATED — four stale artefacts cleared
+- **`MOS_FINALIZATION.md` Q9/Q10/Q11** — the normative box now carries the antisymmetric
+  contract `(sub_claim, push_first, push_second, confidence)` with `η_(u,v) = push_v − push_u`.
+  The superseded text is struck, not deleted. Q10's default is confirmed as decided.
+- **Q2b** — 🔴 → ✅. Resolved by §5t three days earlier; the flag was re-blocking Phase-2
+  items 2 and 3.
+- **Q2c** — marked **collapsed** (E15 returned NO), pointing at Cone–Bures and V6's monitor.
+- **§5t's "NEXT — blocking … CHOOSE THE CATEGORY"** — struck. It was superseded *the day it was
+  written* and `MEMORY_MODEL_TWO_COMPLEX.md` had already dissolved F10.
+
+### ⚠️ AND THE `.tex` CONTAINED A LIVE FALSEHOOD
+`Remark 6.6 (rem:uncal)` still documented **`D = −ln c`** and
+**`UNCALIBRATED_VARIANCE_PRIOR = 1.0`** — both deleted by FIX-13 — i.e. the paper described a
+mechanism the engine no longer has, with the 229.76 : 4 dimensional bug in it. Rewritten to
+state why an isotropic variance is the wrong home for a scalar confidence, and where confidence
+actually goes. Added `rem:tower` (the cell-weight tower, with the π_e ≠ w(σ,t) warning) and
+`rem:antisym` (why the organ contract cannot be symmetric — a symmetric score antisymmetrises
+to η ≡ 0). **⚠️ No LaTeX toolchain here, so this is NOT compile-verified** — environments and
+`\ref`s balance, nothing more.
+
+### 📋 TEST REPORT
+**9/9 Python** (cone_bures now carries 4 V6 cases; `measure_sigma_dir --selftest` passes).
+C++ untouched this round, still 11/11.
+
+### ⚠️ STILL OWED
+- **V6's actual number.** Blocked on a corpus. **The instrument is ready; the data is not.**
+- **Wire `RegimeMonitor` into the tick.** It exists and is tested but nothing calls it yet —
+  the same "wired but unfed" state as the confidence→π_e path (§5ah).
+- **Compile the `.tex`.** Three new remarks, none typeset.
+- V2/E14 still needs **Charbel's ~50 labelled pairs**. Unchanged, and now the *only* item on
+  the whole list that is blocked on a person rather than on data or work.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2525,6 +2625,20 @@ today's task and not silently folded into it.
   the W₂ ball) that C6-2 missed. Also: **the build was broken on Linux** — MSVC flags handed to
   GCC — fixed; `main.cpp`/`colibri_kernel.cpp` remain Windows-only and are NOT fixed, which is why
   none of this was caught sooner. **11/11 C++, 8/8 Python.** See §5ah.
+  **Then, same session — "let's go ahead": V6 and FIX-12.** V6's **live measurement is BLOCKED**
+  — every checked-in store has **0 rows** and fastembed is absent, so there is no corpus to
+  measure. Everything around it shipped: found that the store **already persists the stalks**
+  (`mu_vector`/`u_matrix` column-major/`noise_floor`), so V6 needs **no embedding model** and the
+  right unit is *stored concept pairs*, which is what the merge predicate actually compares.
+  `measure_sigma_dir.py` is self-verified against a synthetic store in the real schema and
+  refuses everywhere rather than simulating. §5z's "monitor, don't assume" is finally
+  implemented (`RegimeMonitor`, `sigma_dir_sq`, `implied_gap` — matching V1's law to <0.6%), and
+  `sigma_eff_sq` is now labelled as the V1c error it encodes (142× off on an orthogonal spread).
+  **My own monitor had a blind spot the self-test caught:** p95 misses a tail of exactly 5%, so
+  status is driven by the FRACTION instead. FIX-12 propagated into `MOS_FINALIZATION.md` and the
+  `.tex`, clearing four stale artefacts — and the `.tex` held a **live falsehood** (`rem:uncal`
+  still documented `D = −ln c` and `UNCALIBRATED_VARIANCE_PRIOR`, both deleted by FIX-13).
+  **9/9 Python.** See §5ai.
 - **2026-07-22** — Read all of DOCS + full MOS architecture. Established the two-level decision, killed "Pachner", drafted Construction 1, opened the fix registry, created this logbook. Charbel flagged: (a) wants brain-like *growth*; (b) wants this log; (c) fix everything but he's on a tight token budget — warn before expensive tasks.
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.

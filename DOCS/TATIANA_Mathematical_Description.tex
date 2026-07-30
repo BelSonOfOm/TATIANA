@@ -277,6 +277,30 @@ A $0$-cochain $x$ is a \emph{global section} iff $\delta x=0$, i.e. every bound 
 agrees after mapping into the shared comparison space $\Fs(e)$.
 \end{definition}
 
+\begin{remark}[The organ contract must be ANTISYMMETRIC]\label{rem:antisym}
+Proposition~\ref{prop:H0} makes the coboundary $\delta x$ useless as a growth signal:
+it is exact by construction, so $[\delta x]=0$ in $H^1$ for \emph{every} state, every
+sheaf, and every choice of restriction maps. Detecting an obstruction requires a
+genuinely \emph{measured} $1$-cochain $\eta$---organs emitting pairwise judgements---
+rather than $\delta$ of any global object.
+
+The fixing of an orientation in Definition~\ref{def:coboundary} is then not a
+bookkeeping convenience but a \textbf{constraint on what may be elicited}. A
+$1$-cochain satisfies $\eta_{(v,u)}=-\eta_{(u,v)}$, so any \emph{symmetric} quantity---
+an ``agreement score'', a similarity, a shared confidence---antisymmetrises to
+$\eta\equiv 0$ and carries no information whatsoever into the Hodge decomposition. The
+elicitation contract must therefore return, per pair, a shared sub-claim and two
+\emph{signed pushes}:
+\[
+  \bigl(\text{sub-claim},\ p_u,\ p_v,\ c\bigr),\qquad
+  \eta_{(u,v)} \;=\; p_v-p_u ,\qquad p_u,p_v\in[-1,1],\ c\in[0,1],
+\]
+which is antisymmetric by construction rather than by assumption, with the confidence
+$c$ routed to $\nu$ and thence to $\pi_e$ per Remark~\ref{rem:tower}. The shared
+sub-claim is load-bearing: without a common proposition the two pushes are not answers
+to the same question, and no sign convention can repair that afterwards.
+\end{remark}
+
 \begin{definition}[Sheaf Laplacian and discord]\label{def:laplacian}
 The (degree-$0$) \emph{sheaf Laplacian} is
 \begin{equation}\label{eq:laplacian}
@@ -667,14 +691,61 @@ Matrix determinant lemma: $\det(A+UV^\top)=\det A\,\det(I+V^\top A^{-1}U)$ with
 $A=DI$, $V=U$. Then $\det(DI)=D^d$ and $V^\top A^{-1}U=D^{-1}U^\top U$.
 \end{proof}
 
-\begin{remark}[Uncalibrated confidence]\label{rem:uncal}
-The noise floor $D$ of a \emph{grown} concept is set from the generating LLM's
-self-reported confidence $c$ via $D=-\ln c$ (so $c\to1\Rightarrow D\to0$). Against the
-deployed model, token log-probabilities are unavailable (the provider returns a hard
-error when they are requested), so $c$ is genuinely unknown; the engine then uses a
-named, warned prior $D=\texttt{UNCALIBRATED\_VARIANCE\_PRIOR}=1.0$ rather than
-fabricating a value. This is why the coherence score $\rho$---not self-reported
-confidence---is the primary signal.
+\begin{remark}[Where a reported confidence belongs]\label{rem:uncal}
+An earlier version of this engine set the noise floor $D$ of a \emph{grown} concept
+from the generating model's self-reported confidence $c$ via $D=-\ln c$, falling back
+to a named prior $D=1.0$ when $c$ was unavailable. \textbf{Both are now removed, and the
+reason is dimensional.} The Bures term between two isotropic covariances is
+$d(\sqrt{D_1}-\sqrt{D_2})^2$, which grows with $d$, whereas the semantic term
+$\norm{\mu_1-\mu_2}^2\le 4$ regardless of $d$. At $d=384$ the pair $(D=1.0,\ c=0.95)$
+gives an epistemic term of ${\approx}229.8$ against a semantic budget of $4$---a
+$57{:}1$ ratio in favour of a self-reported number the architecture elsewhere declines
+to trust. \emph{An isotropic variance in $d$ dimensions is the wrong destination for a
+scalar confidence.}
+
+$D$ is now the shared $O(1/d)$ shrinkage floor
+$\Sigma_v = S_v/(n_{\mathrm{eff}}+\kappa) + [\kappa/(d(n_{\mathrm{eff}}+\kappa))+\varepsilon]I$,
+a function of evidence rather than of assertion. A reported confidence instead enters
+the \emph{Laplacian's} inner product, as the vertex weight $\nu_v$ at the bottom of the
+cell-weight tower of Remark~\ref{rem:tower}, where it is dimensionally harmless and
+actually load-bearing. An unreported confidence leaves $\nu_v=1$, meaning
+\textsc{uncalibrated}---deliberately distinguishable from ``measured as average.''
+The coherence score $\rho$ remains the primary signal.
+\end{remark}
+
+\begin{remark}[The cell-weight tower]\label{rem:tower}
+Forman's cell weights are not decorative masses: they define the inner product in which
+the combinatorial Laplacian is self-adjoint, which is the only reason a
+Bochner--Weitzenb\"ock decomposition, and hence a Ricci term, exists at all. They are
+therefore fixed by whichever Laplacian the engine uses, here $L=\delta^\top\Pi\delta$.
+One rule generates every level:
+
+\begin{quote}
+the weight on a $p$-cell is the \textbf{harmonic mean} of the weights on its
+$(p-1)$-faces.
+\end{quote}
+
+\[
+  \nu_v \;=\; \text{reported confidence (floored)},\qquad
+  \pi_e \;=\; \frac{2}{\nu_u^{-1}+\nu_v^{-1}},\qquad
+  \tau_f \;=\; \frac{3}{\sum_{e\subset f}\pi_e^{-1}}.
+\]
+
+Each level is forced by error propagation: a $p$-cochain value is a signed sum over its
+faces, the signs square away, so its variance is the sum of the face variances and its
+precision is the harmonic sum. The per-face scaling---mean rather than sum---is the one
+deliberate choice, taken because these weights appear only inside ratios
+$w_{\text{face}}/w_{\text{cell}}$, so all levels must share a scale. It is also what
+makes day-one degradation exact: all confidences $1$ gives every weight $1$, and the
+augmented Forman curvature returns $4-\deg u-\deg v+3m$.
+
+Two consequences worth stating. First, a harmonic mean is dominated by its
+\emph{smallest} face, so one unreliable judgement discredits the pair or triple that
+contains it---the correct behaviour for a joint measurement. Second,
+$\pi_e$ is \textbf{not} the Hebbian coupling $w(\sigma,t)$: the coupling is a normalised
+bind indicator on $[0,1]$, a precision is an inverse variance and is unbounded above,
+and substituting one for the other computes the curvature of a different operator than
+the one $\omega$ and $\rho$ are reported from.
 \end{remark}
 
 % =====================================================================

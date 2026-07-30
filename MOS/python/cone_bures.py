@@ -98,8 +98,9 @@ without rescaling.
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Deque, Optional, Tuple
 
 import numpy as np
 
@@ -237,17 +238,215 @@ class ConeBures:
     # one property we cannot trade away. Tested below; read the result before
     # using this.
     def sigma_eff_sq(self, g0: Gaussian, g1: Gaussian) -> float:
-        """Mean per-dimension variance of the pair. In 1-D this is (eps0+eps1)/2."""
+        """Mean per-dimension variance of the pair. In 1-D this is (eps0+eps1)/2.
+
+        ⚠️ **THIS IS NOT THE QUANTITY THAT GOVERNS THE GAP, AND READING IT AS IF
+        IT WERE IS THE V1c ERROR.** It aggregates over all d dimensions, so in
+        high d it is dominated by directions the transport problem never sees.
+        The gap depends on the spread ALONG THE SEPARATION DIRECTION -- see
+        `sigma_dir_sq` below, which is what V6 monitors. Kept because
+        `distance_sq_corrected` (itself a rejected candidate) is defined in terms
+        of it; do not use it for regime reporting.
+        """
         d = g0.d
         t0 = (float(np.sum(g0.U * g0.U)) if g0.k else 0.0) + d * g0.eps
         t1 = (float(np.sum(g1.U * g1.U)) if g1.k else 0.0) + d * g1.eps
         return (t0 + t1) / (2.0 * d)
+
+    # ---------------------------------------------------------------------
+    # V6 -- THE REGIME MONITOR
+    # ---------------------------------------------------------------------
+    # 5z's verdict on Cone-Bures ("tracks true HK to under 1% in value and ~87%
+    # on the merge decision") holds ONLY because MOS's stalks are concentrated
+    # along the separation direction, measured at sigma_dir/delta ~ 0.09. Its own
+    # closing line:
+    #
+    #   > the bound is only this tight BECAUSE our stalks are concentrated along
+    #   > the separation direction -- it degrades fast if sigma_dir/delta ever
+    #   > rises above ~0.3, so sigma_dir/delta must be MONITORED, NOT ASSUMED.
+    #
+    # From the V1 law  HK^2 ~= D^2/(1 + (sigma_dir/delta)^2), the ratio is not a
+    # diagnostic curiosity: it IS the multiplicative error of every merge
+    # distance the engine computes. At 0.09 that is a 0.8% overstatement; at 0.3
+    # it is 9%; at 1.0 the distance is out by a factor of 2 and the merge
+    # predicate is at chance (5z's agreement table: 50%).
+
+    def sigma_dir_sq(self, g0: Gaussian, g1: Gaussian) -> float:
+        """sigma_dir^2 = u^T Sigma u along u = (mu0-mu1)/||mu0-mu1||, averaged
+        over the pair. THE governing spread (V1c).
+
+        For Sigma = U U^T + eps I this is  eps + ||u^T U||^2  -- one projection
+        per stalk, O(d*k). No dense covariance is ever formed.
+
+        Returns the mean of the two, matching validate_regime.py's `s_dir`, since
+        the transport problem sees both densities.
+
+        @raises ValueError if the means coincide: there is then no separation
+                direction, and inventing one would fabricate the number V6 exists
+                to watch.
+        """
+        dmu = np.asarray(g0.mu) - np.asarray(g1.mu)
+        nd = float(np.linalg.norm(dmu))
+        if nd <= 0.0:
+            raise ValueError(
+                "sigma_dir is undefined for coincident means: there is no "
+                "separation direction to project onto. Refusing to pick one.")
+        u = dmu / nd
+
+        def one(g: Gaussian) -> float:
+            v = float(g.eps)
+            if g.k:
+                p = u @ np.asarray(g.U)      # (k,)
+                v += float(p @ p)
+            return v
+
+        return 0.5 * (one(g0) + one(g1))
+
+    def regime_ratio(self, g0: Gaussian, g1: Gaussian) -> float:
+        """sigma_dir/delta -- the number V6 puts in telemetry.
+
+        Below ~0.1: the 5z verdict holds (sub-1% value gap, ~87% agreement).
+        Above ~0.3: agreement degrades fast; treat merge decisions as suspect.
+        """
+        return float(np.sqrt(self.sigma_dir_sq(g0, g1)) / self.delta)
+
+    def implied_gap(self, g0: Gaussian, g1: Gaussian) -> float:
+        """1 + (sigma_dir/delta)^2 -- V1's empirical law for D^2/HK_true^2.
+
+        Fits every V1 point to ~3%. This is the factor by which this pair's
+        squared distance OVERSTATES true HK, so it converts the monitored ratio
+        into the error it actually causes.
+        """
+        r = self.regime_ratio(g0, g1)
+        return 1.0 + r * r
 
     def distance_sq_corrected(self, g0: Gaussian, g1: Gaussian,
                               w0: float = 1.0, w1: float = 1.0) -> float:
         """D^2 / (1 + sigma_eff^2/delta^2). CANDIDATE -- may not be a metric."""
         s2 = self.sigma_eff_sq(g0, g1)
         return self.distance_sq(g0, g1, w0, w1) / (1.0 + s2 / self.delta ** 2)
+
+
+# --------------------------------------------------------------------------
+# V6 -- per-tick telemetry
+# --------------------------------------------------------------------------
+
+# The thresholds are read off 5z's own measurements, not chosen:
+#   0.10  the measured regime (V1c: 0.084-0.100 across 2..50 concepts/organ),
+#         where agreement is ~87% and the value gap is under 1%.
+#   0.30  5z's stated degradation point ("degrades fast if it ever rises above
+#         ~0.3"); the agreement table gives 63% here, down from 87%.
+#   0.60  agreement hits 50% -- chance. The merge predicate carries no
+#         information at or beyond this.
+REGIME_OK = 0.10
+REGIME_WARN = 0.30
+REGIME_CHANCE = 0.60
+
+
+@dataclass
+class RegimeReport:
+    """One window of sigma_dir/delta observations."""
+    n: int
+    mean: float
+    p50: float
+    p95: float
+    worst: float
+    mean_implied_gap: float     # mean of 1 + (sigma_dir/delta)^2
+    frac_above_warn: float
+    frac_above_chance: float
+    status: str                 # "ok" | "degrading" | "chance" | "empty"
+
+    def report(self) -> str:
+        if self.status == "empty":
+            return "[regime] no observations"
+        return (f"[regime] n={self.n} sigma_dir/delta mean={self.mean:.4f} "
+                f"p50={self.p50:.4f} p95={self.p95:.4f} worst={self.worst:.4f} "
+                f"| implied D^2/HK^2={self.mean_implied_gap:.4f} "
+                f"| {self.frac_above_warn * 100:.1f}% >= {REGIME_WARN}, "
+                f"{self.frac_above_chance * 100:.1f}% >= {REGIME_CHANCE} "
+                f"=> {self.status.upper()}")
+
+
+class RegimeMonitor:
+    """V6: watch sigma_dir/delta so the 5z verdict is checked, not assumed.
+
+    5z closed with "sigma_dir/delta must be MONITORED, NOT ASSUMED" and then the
+    engine shipped with nothing monitoring it. This is that instrument.
+
+    STATUS IS SET BY THE FRACTION OF BAD PAIRS, NOT BY THE MEAN OR A PERCENTILE.
+    A merge decision is made per PAIR, so the operationally meaningful question is
+    "what share of decisions are being made in the degraded regime". The mean
+    hides that outright: 95% of pairs at 0.05 with 5% at 0.90 has a mean of 0.09,
+    which reads exactly like MOS's healthy measured regime while one merge in
+    twenty is a coin flip.
+
+    A percentile is not good enough either, and the self-test below is what
+    caught it: with EXACTLY 5% bad pairs, p95 lands on the boundary and
+    interpolates back into the healthy population, reporting OK for the very
+    distribution it was chosen to detect. Fractions have no such blind spot.
+
+    `BAD_FRACTION` is a POLICY threshold, not a derived one -- it says how many
+    coin-flip merges we are willing to tolerate before calling the metric
+    degraded. It is stated here rather than buried so it can be argued with.
+
+    Cost: one O(d*k) projection per observed pair. Bounded history (a deque), so
+    it cannot grow without limit in a long-running engine.
+    """
+
+    #: Share of pairs beyond a threshold that flips the status. Policy, not derived.
+    BAD_FRACTION = 0.01
+
+    def __init__(self, metric: "ConeBures", window: int = 500):
+        if window <= 0:
+            raise ValueError("window must be positive")
+        self.metric = metric
+        self.window = window
+        self._ratios: Deque[float] = deque(maxlen=window)
+
+    def observe(self, g0: Gaussian, g1: Gaussian) -> Optional[float]:
+        """Record one pair. Returns sigma_dir/delta, or None for coincident means
+        (which carry no separation direction and are not evidence either way)."""
+        try:
+            r = self.metric.regime_ratio(g0, g1)
+        except ValueError:
+            return None
+        self._ratios.append(r)
+        return r
+
+    def observe_ratio(self, ratio: float) -> None:
+        """Record a pre-computed ratio (for callers that already have it)."""
+        if not np.isfinite(ratio) or ratio < 0.0:
+            raise ValueError(f"sigma_dir/delta must be finite and >= 0, got {ratio}")
+        self._ratios.append(float(ratio))
+
+    def __len__(self) -> int:
+        return len(self._ratios)
+
+    def report(self) -> RegimeReport:
+        if not self._ratios:
+            nan = float("nan")
+            return RegimeReport(0, nan, nan, nan, nan, nan, nan, nan, "empty")
+        a = np.asarray(self._ratios, dtype=float)
+        frac_warn = float(np.mean(a >= REGIME_WARN))
+        frac_chance = float(np.mean(a >= REGIME_CHANCE))
+        # Fractions, not the mean and not a percentile -- see the class docstring.
+        if frac_chance >= self.BAD_FRACTION:
+            status = "chance"
+        elif frac_warn >= self.BAD_FRACTION:
+            status = "degrading"
+        else:
+            status = "ok"
+        return RegimeReport(
+            n=int(a.size),
+            mean=float(a.mean()),
+            p50=float(np.percentile(a, 50)),
+            p95=float(np.percentile(a, 95)),
+            worst=float(a.max()),
+            mean_implied_gap=float(np.mean(1.0 + a * a)),
+            frac_above_warn=frac_warn,
+            frac_above_chance=frac_chance,
+            status=status,
+        )
 
 
 # --------------------------------------------------------------------------
@@ -414,6 +613,90 @@ if __name__ == "__main__":
     print("  => read the verdict above. A violation here means the corrected form")
     print("     may be used as a SCORE for ranking, but NOT as a metric, and merge")
     print("     transitivity is then not guaranteed.")
+
+    print("\n=== V6. sigma_dir is DIRECTIONAL, and that is the whole point ===")
+    # The V1c error in one assertion: build a stalk whose covariance is large but
+    # lies ORTHOGONAL to the separation. sigma_eff (the d-averaged spread) sees
+    # it; sigma_dir correctly does not, because the transport problem does not.
+    dd = 64
+    e0 = np.zeros(dd); e0[0] = 1.0
+    e1 = np.zeros(dd); e1[1] = 1.0            # separation along axis 0
+    big_orth = np.zeros((dd, 1)); big_orth[5, 0] = 3.0   # spread along axis 5
+    ga = Gaussian(mu=np.zeros(dd), U=big_orth, eps=1e-3)
+    gb = Gaussian(mu=e0.copy(), U=big_orth.copy(), eps=1e-3)
+    cb6 = ConeBures(delta=1.0)
+    s_dir = cb6.sigma_dir_sq(ga, gb)
+    s_eff = cb6.sigma_eff_sq(ga, gb)
+    assert abs(s_dir - 1e-3) < 1e-9, s_dir
+    assert s_eff > 100 * s_dir, (s_eff, s_dir)
+    print(f"    spread 3.0 ORTHOGONAL to the separation:")
+    print(f"      sigma_dir^2 = {s_dir:.3e}  (correctly blind to it)")
+    print(f"      sigma_eff^2 = {s_eff:.3e}  ({s_eff / s_dir:.0f}x larger -- THE V1c ERROR)")
+
+    # ...and when the spread IS along the separation, sigma_dir must see it.
+    along = np.zeros((dd, 1)); along[0, 0] = 0.5
+    gc = Gaussian(mu=np.zeros(dd), U=along, eps=1e-3)
+    gd = Gaussian(mu=e0.copy(), U=along.copy(), eps=1e-3)
+    s_dir2 = cb6.sigma_dir_sq(gc, gd)
+    assert abs(s_dir2 - (0.25 + 1e-3)) < 1e-9, s_dir2
+    print(f"      spread 0.5 ALONG the separation: sigma_dir^2 = {s_dir2:.4f} = 0.5^2 + eps  OK")
+
+    # Coincident means have no separation direction; refuse rather than invent one.
+    try:
+        cb6.sigma_dir_sq(ga, ga)
+    except ValueError:
+        print("      coincident means -> refused (no direction to project onto)  OK")
+    else:
+        raise AssertionError("should have refused coincident means")
+
+    print("\n=== V6. the implied gap matches V1's measured law ===")
+    # V1 measured D^2/HK^2 at delta=1 for 1-D Gaussians. implied_gap must
+    # reproduce 1 + (sigma/delta)^2 for those configurations.
+    for sigma, measured in ((0.15, 1.0218), (0.30, 1.0939), (0.60, 1.3687),
+                            (1.00, 2.0102), (1.50, 3.2401)):
+        g_a = Gaussian(mu=np.zeros(1), U=np.zeros((1, 0)), eps=sigma ** 2)
+        g_b = Gaussian(mu=np.array([1.0]), U=np.zeros((1, 0)), eps=sigma ** 2)
+        pred = cb6.implied_gap(g_a, g_b)
+        assert abs(pred - (1.0 + sigma ** 2)) < 1e-9
+        rel = abs(pred - measured) / measured
+        print(f"    sigma={sigma:4.2f}: predicted {pred:6.4f} vs V1 measured "
+              f"{measured:6.4f}  ({rel * 100:4.1f}%)")
+        assert rel < 0.06, (sigma, pred, measured, rel)
+    print("    the law tracks the measurement to <6% over a 10x spread range  OK")
+
+    print("\n=== V6. the monitor flags on the FRACTION, not the mean or a percentile ===")
+    mon = RegimeMonitor(cb6, window=1000)
+    assert mon.report().status == "empty"
+    # A comfortable mean hiding a bad tail: 95% at 0.05, 5% at 0.9.
+    for _ in range(950):
+        mon.observe_ratio(0.05)
+    for _ in range(50):
+        mon.observe_ratio(0.90)
+    rep = mon.report()
+    print("    " + rep.report())
+    assert rep.mean < REGIME_OK * 1.05, rep.mean
+    assert rep.status == "chance", rep.status
+    print(f"    mean={rep.mean:.4f} reads like MOS's HEALTHY regime (~0.09) --")
+    print(f"    and p95={rep.p95:.4f} ALSO reads healthy, because with exactly 5%")
+    print("    bad pairs the 95th percentile interpolates back into the good ones.")
+    print("    That blind spot is why status is driven by the FRACTION: 5.0% of")
+    print("    merges here are coin flips.  OK")
+
+    # A healthy population at MOS's measured regime must read ok.
+    mon_ok = RegimeMonitor(cb6, window=500)
+    for r in rng.uniform(0.08, 0.11, size=400):
+        mon_ok.observe_ratio(float(r))
+    ok_rep = mon_ok.report()
+    assert ok_rep.status == "ok" and ok_rep.mean_implied_gap < 1.02, ok_rep
+    print("    " + ok_rep.report())
+    print("    MOS's measured regime (sigma_dir/delta ~ 0.09) => OK, gap under 2%  OK")
+
+    # The window is bounded: a long-running engine cannot grow this without limit.
+    small = RegimeMonitor(cb6, window=10)
+    for _ in range(1000):
+        small.observe_ratio(0.1)
+    assert len(small) == 10
+    print("    bounded history: 1000 observations, window 10 -> len 10  OK")
 
     print("\nALL CONE-BURES SELF-TESTS PASSED (zero API calls)")
     print("""
