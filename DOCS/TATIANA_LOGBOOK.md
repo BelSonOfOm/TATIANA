@@ -2071,11 +2071,22 @@ Charbel said: derive it if it's cheap. **It is cheap to COMPUTE and not cheap to
 - **🚨 And it would invalidate E5.** Changing the C² inner product changes `curl` and `harm`, i.e.
   **every number in §5x** — the only empirical evidence the growth story has.
 
-**DECISION: `τ_f ≡ 1`, DECLARED** (option (a) of §5ac), on those two grounds and not on cost.
-*Rescue path if it is ever wanted:* derive `τ_f` from the **time-lagged** residual (a running
-average over past ticks), which breaks the circularity the same way BCM's sliding threshold does.
-That buys a new state variable and a new decision (the averaging window), so it is not free — and
-it still re-bases E5. Not now.
+**INTERIM: `τ_f ≡ 1`, DECLARED** (option (a) of §5ac), on those two grounds and not on cost. This
+is a placeholder to unblock Phase 2, NOT a closure of the question.
+
+> **🚨 CHARBEL (2026-07-30, later): REFUSED. "I don't want τ_f to die."** Explicit direction: do
+> NOT let the circularity kill a derived τ_f by default. Take **the arduous path** — fix the
+> parts that don't work (the circularity, and E5's dependence on the C² inner product) rather than
+> retreating to the declared constant. Same posture as the δ refusal in §5z ("Charbel refused to
+> accept E15's loss of δ and asked for an all-out attempt") — he now has a track record of that
+> refusal paying off (δ was recovered). **This one is HARDER: §5z's fix was a construction found
+> in one session; this one requires either (a) the time-lagged residual done properly — which is
+> itself a small research programme (choosing a window, proving it's no longer circular, showing
+> it doesn't drift), or (b) re-running E5 under the new inner product to certify the growth-story
+> evidence survives τ_f ≠ 1.** Neither is a quick fix. **`τ_f ≡ 1` remains the WORKING value
+> Phase 2 ships with**, but it is now explicitly a placeholder under active repair, not a decision.
+> Owed item **V7 (new): break the τ_f circularity via the time-lagged residual, then re-verify E5
+> under it.** Filed as its own line in the pre-Phase-2 list below, separate from the routine items.
 
 ### ✅ IS `w` CAPPED AT 1? — YES, AND THE QUESTION HAS A METHOD, NOT A TASTE.
 Charbel asked *how we can know*. **The method: enumerate every consumer of the variable and read
@@ -2102,7 +2113,17 @@ capped — so the symmetric upper barrier is required, not optional: `h(w) = 1 �
 
 ### 📋 WHAT ACTUALLY REMAINS BEFORE PHASE 2
 All eight Phase-2 items now have their blocking questions answered (Q4 · Q5+τ_f · Q13 · Q16 ·
-Q1/Q2/Q2b · F10). What is genuinely still owed first:
+Q1/Q2/Q2b · F10) — **τ_f = 1 is the WORKING value they ship with**, per Charbel's refusal above,
+not a settled answer. Phase 2 proceeds; V7 runs alongside it, not before it.
+
+**Open research item, not a quick fix — Charbel refused to let this die:**
+- **V7 — break the τ_f circularity properly.** Either (a) derive it from a **time-lagged**
+  residual (running average over past ticks, breaking the circularity the way BCM's sliding
+  threshold does) — requires choosing a window, proving the fixed point is actually gone, and
+  showing it doesn't drift; or (b) re-run E5 under whatever inner product results, to certify the
+  growth-story evidence (§5x, the whole empirical case for the cohomological growth law) survives
+  a C² weighting that is no longer identity. **Do not silently ship τ_f=1 as final** — it stays
+  flagged as a placeholder until V7 lands one way or the other.
 
 **Time-sensitive — do first:**
 - **E7 at engine level. NOT DONE.** E7 discipline exists only for E5's elicitations
@@ -2123,7 +2144,8 @@ Q1/Q2/Q2b · F10). What is genuinely still owed first:
 **Owed, not blocking Phase 2:**
 - FIX-7 / FIX-8 / FIX-9 (doc corrections) · FIX-15 (E5 significance overstated ~4×; fix before
   quoting the p-value) · FIX-16 (colibri test cannot diagnose its own failure) · E5b at b₁ ≥ 2 ·
-  V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5.
+  V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 · **V7 (τ_f, above — running
+  alongside Phase 2, not blocking it, but not to be forgotten either).**
 
 ## 6. Failures & dead ends (so we don't repeat them)
 
