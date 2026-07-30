@@ -2156,20 +2156,25 @@ C² inner product (measured, 0.00e+00 over τ ∈ [1e-3, 1e3]).
 > avoid it.**
 
 **Time-sensitive — do first:**
-- **E7 at engine level. NOT DONE.** E7 discipline exists only for E5's elicitations
-  (`e5_elicitations.jsonl`). The general "record assembly at composition time" is unimplemented,
-  and §5r's registry says *"impossible to recover later"*. Every tick run without it is data
-  permanently lost. **This is the only item on the list that gets worse by waiting.**
+- ~~**E7 at engine level. NOT DONE.**~~ **✅ DONE 2026-07-30, §5ah.** `assembly_log.{hpp,cpp}`,
+  always-on, recording inside `select_commuting_slice`; 7 test cases including "recording does not
+  change scheduling". E7 discipline previously existed only for E5's elicitations.
 - **V6** — σ_dir on the real corpus + `σ_dir/δ` in telemetry. Free. The §5z verdict still rests on
   a calibrated simulation, and Phase-2 item 8 (rank-k stalks) builds on that metric.
+  **Now the top time-sensitive item.**
 
 **Cheap, blocking a specific item:**
-- **ε rename** (`ε_flow` / `ε_ρ`, C6-2) — before item 3, or it becomes a bug.
+- ~~**ε rename**~~ **✅ DONE, §5ah** — and there were **three** ε's, not two: `ε_ρ`, `ε_W2`
+  (the W₂ ball, which C6-2 missed), and `ε_flow` reserved for the not-yet-existing controller.
 - **FIX-12 propagation** — the antisymmetric contract is decided but not written into
   `MOS_FINALIZATION.md` (Q9/Q10/Q11) or the `.tex`; items 2 and 3 inherit it. Fold in the stale
   **Q2b 🔴** flag and §5t's stale **"CHOOSE THE CATEGORY"** NEXT line at the same time.
-- **Confidence → π_e routing** — newly owed from FIX-13 (§5ae). `π_e` is the *only* remaining home
-  for reported confidence, and Q9 says precision needs a non-constant source.
+  **Now the only cheap blocker left.**
+- ~~**Confidence → π_e routing**~~ **✅ DONE, §5ah** — and it was *not* cheap-and-minor: the engine
+  was using the Hebbian coupling as π_e in **both languages**, with a test pinning the bug. Until
+  it landed, Π was inert and the whole §5ac/§5ag derivation was a no-op in the engine.
+  ⚠️ **Nothing populates `AgentThought::confidence` yet**, so the tower is still degenerate in
+  practice — the wiring is done, the source is not.
 
 **Owed, not blocking Phase 2:**
 - FIX-7 / FIX-8 / FIX-9 (doc corrections) · FIX-15 (E5 significance overstated ~4×; fix before
@@ -2269,6 +2274,154 @@ the test so it cannot quietly disappear.
   implementation and the derivation, not the controller.
 - **The `ε_flow`/`ε_ρ` rename (C6-2) is still un-done** and still blocks Phase-2 item 3.
 
+## 5ah. ✅ π_e ROUTED · E7 LANDED · THE THREE ε's SEPARATED (2026-07-30)
+
+Three items off the pre-Phase-2 list. The first one turned out to be much bigger than
+"cheap, blocking a specific item", and the reason is §5ag.
+
+### 🚨 THE ENGINE WAS USING THE HEBBIAN COUPLING AS π_e. Both languages.
+`coarse_complex.cpp`'s `pi_of` read **`weights_`** — `w(σ,t)` — and `set_use_precision`'s own
+doc said *"each edge uses its coupling weight as pi_e (a more-bound coalition is trusted
+more)"*. `module_vertex.py:213` did the identical thing. This is the exact substitution §5ac
+and §5af **both** ruled out in writing:
+
+> **`w(σ,t)` is a normalised coupling, capped on [0,1]. `π_e` is a precision, uncapped.
+> They are not the same variable and must never be substituted for one another.**
+
+It means ω and ρ — the numbers the engine prints — were the free energy of a **different
+operator** than the one the geometry is defined on. §5q had already eaten one divergence bug
+from this exact conflation (*"raw coupling weight as precision made `lr*precision` huge"*),
+patched with `max_step=0.5` rather than by separating the variables.
+
+**★ AND THE TEST ASSERTED THE BUG.** `test_coarse_complex.cpp:194` did `co_activate(100)`,
+flipped `set_use_precision(true)`, and required blame to move — i.e. it encoded
+"coupling *is* precision" as a **requirement**. That is why it survived being written down as
+forbidden twice. **A test that pins the defect is worse than no test**, and this is the third
+stale-artefact failure logged this week (§5aa's superseded NEXT line, §5af's unverified
+circularity claim, now this). The rewritten case asserts the opposite: an uncalibrated edge is
+**π=1**, and stating a precision is what moves blame.
+
+### ⚠️ WHY THIS BLOCKED EVERYTHING ELSE — Π was inert, so §5ac/§5ag delivered nothing
+`curator.cpp:41` was `(void)confidence;` — FIX-13 correctly stopped confidence becoming an
+isotropic variance but left it with **nowhere to go**, so it was discarded. With no source
+feeding π_e, and `use_precision_{false}` by default:
+
+$$\pi_e \equiv 1 \;\Rightarrow\; \tau_f \equiv 1 \;\Rightarrow\;
+F_{\mathrm{MOS}} \equiv 4 - \deg u - \deg v + 3m$$
+
+**Measured** (`python/curvature.py`, constant π sweep): the coface term takes a global scale
+and *nothing else moves*. The entire §5ac finding — "the weights must be Π, not w(σ,t)" — was a
+**no-op in the engine**, and would have stayed one through all eight Phase-2 items. That is why
+this was promoted ahead of E7 rather than done alongside it.
+
+### ★ THE CELL-WEIGHT TOWER — one rule generates all three levels
+Routing confidence needed a rule for combining *vertex* confidences into an *edge* precision.
+The answer is the same error-propagation argument that gave τ_f in §5ag, one dimension down —
+which means the whole weight tower is generated by a single rule:
+
+> **The weight on a p-cell is the HARMONIC MEAN of the weights on its (p−1)-faces.**
+>
+> | level | object | rule |
+> |---|---|---|
+> | 0 | `ν_v` | reported confidence, floored (the **only** measured input) |
+> | 1 | `π_e` | `2 / (1/ν_u + 1/ν_v)` |
+> | 2 | `τ_f` | `3 / Σ_{e⊂f} (1/π_e)` |
+
+Each level is forced: a p-cochain value is a signed sum over faces, the signs square away, the
+variance is the sum of face variances. The per-face scaling (mean, not sum) is the one
+deliberate choice, and it is the same one §5ag argued — Forman uses these only inside **ratios**
+`w_face/w_cell`, so every level must sit on one scale. Day-one degradation is then exact at
+every level: all confidences 1 ⇒ every weight 1 ⇒ unit-weight Forman.
+
+**Behaviour worth stating:** the harmonic mean is **dominated by the worst face**. Measured:
+`π_e(1000, 0.5) = 0.9995`. One unreliable endpoint discredits the pair no matter how confident
+the other is — which is the correct epistemics for a *pairwise* judgement and is exactly what an
+arithmetic mean would have got wrong.
+
+**Confidence is used AS the precision, not transformed** (no `−ln c`, no odds). Deliberate:
+`experiment_e5.py` elicits and uses it that way, and it is the contract that produced §5x.
+Inventing a transform here would silently put the engine on a different scale from the only
+empirical result the growth story has.
+
+### ✅ SHIPPED — item 1 (confidence → π_e)
+- **`core`**: `harmonic_cell_weight`, `vertex_precision` (floored at `EPS_FLOOR`, NaN-safe),
+  `edge_precision`. Single source of truth, mirroring `python/curvature.py`.
+- **`CoarseComplex`**: new `precisions_` map, **separate from `weights_` by contract**;
+  `set_precision` / `precision` / `clear_precision` / `calibrated_edge_count`. `pi_of` reads
+  precisions. A collapsed edge drops its precision (a re-bind must not inherit a stale
+  confidence); an *unbound but alive* edge keeps it.
+- **`SemanticEmbedding`**: carries `nu_`, defaulting to 1.0 = **UNCALIBRATED**, deliberately
+  distinguishable from "measured as average".
+- **`curator.cpp`**: confidence → `ν_v`; the Vietoris–Rips edge gets
+  `edge_precision(ν_new, ν_existing)`. Note the edge takes the *midpoint* for geometry and the
+  *harmonic mean* for precision — different operations because they are different objects.
+- **`module_vertex.py`**: same separation on the Python side, or the two would drift.
+
+### ✅ SHIPPED — item 2 (E7 at engine level)
+`assembly_log.{hpp,cpp}` + recording inside `select_commuting_slice`. **Always on, no enable
+flag** — a recorder you have to remember to switch on is off during the run you needed it.
+
+Records, per foliation round: which operators co-scheduled (by **kind**, with supports), which
+were deferred, and **which of the three rule branches deferred them**. `OperatorType` could not
+supply the identity — it is READ_ONLY/MUTATION, a concurrency mode — so `CognitiveOperator`
+gained a defaulted `name()`, overridden in all 9 concrete operators. An un-overridden one
+records as `<unnamed>`, which is meant to look like the defect it is.
+
+`co_scheduling_counts()` is documented as a **LOWER BOUND on I, not I**: co-scheduling means the
+support rule permitted it, *not* that the operators commute as state transformers. F4's whole
+point is that shared state (SQLite, Ω, mutation history) can break commutation anyway. Deciding
+that needs a differential test, which is E3's job and is **not** done here. `refused_counts()`
+is the other half — a pair absent from the counts might simply never have been offered.
+
+**The property that mattered most is that the instrument is inert**: 200 identical runs, the
+partition is unchanged as the log grows. Asserted, because E7 sits in the hot path of every tick
+and an instrument that perturbs what it measures is worse than none.
+
+### ✅ SHIPPED — item 3 (ε rename) — C6-2 said two ε's; **there are three**
+- **`ε_ρ`** — the RESOLVE/EXPLORE gate on ρ. Dimensionless, bounded in [0,1].
+  (`CriticalityMonitor::epsilon_rho()`, `KernelConfig::rho_threshold`.)
+- **`ε_W2`** — the 2-Wasserstein **ball radius** for edge formation and retrieval. A *squared
+  distance*: unbounded, dimensional, not comparable to ε_ρ at all. This is the third one, it was
+  also just called `epsilon`, and C6-2 did not catch it.
+- **`ε_flow`** — the controller step in `w ← w·exp(ε_flow·κ)`. **Does not exist yet** (Phase 2).
+  Named in `plasticity.hpp` anyway so it cannot be introduced as a bare `epsilon` and collide —
+  which is precisely what C6-2 predicted would happen.
+
+Renamed on both sides (C++ and Python together, or parity breaks).
+
+### 📋 TEST REPORT (2026-07-30)
+**11/11 C++ · 8/8 Python.** Two new suites: `mos_assembly_log_tests` (E7 — 7 cases) and
+`mos_precision_routing_tests` (8 cases). `test_coarse_complex`'s precision case rewritten.
+FIX-11's cases now run *through* the E7 recording path, which is free evidence the recorder
+does not disturb the foliation.
+
+### ⚠️ THE BUILD WAS BROKEN ON LINUX, AND THAT IS WHY NONE OF THIS WAS CAUGHT SOONER
+Configuring on anything but MSVC failed before a line of MOS compiled: the non-MSVC branch of
+`CMakeLists.txt` passed **`/std:c++17`** — MSVC syntax — to GCC/Clang, which read it as a source
+path. `CMAKE_CXX_STANDARD 17` already sets the standard, so the fix is warnings-only flags there;
+**the MSVC branch is untouched**. Also added `<mutex>`/`<shared_mutex>` to four TUs that relied on
+MSVC's transitive includes.
+
+**Still Windows-only and NOT fixed:** `src/main.cpp` and `src/translation/colibri_kernel.cpp`
+include `windows.h`. So `mos`, `mos_core` and the tests that link the LLM path still cannot build
+here; the 11 above were compiled against the sources they actually need. **A codebase that only
+builds on one developer's machine is a single point of failure for every "the suite is green"
+claim in this logbook** — worth an hour to abstract the HTTP client behind an interface, but not
+today's task and not silently folded into it.
+
+### ⚠️ STILL OWED
+- **Nothing reports a confidence yet.** The routing exists end to end and is tested, but until a
+  live path populates `AgentThought::confidence`, `ν ≡ 1` and the tower stays degenerate. Asserted
+  explicitly in the tests so it cannot be mistaken for working.
+- **`ν_v` from `Σ_v⁻¹`** (Phase-2 item 8) — the *stalk-derived* vertex precision, as opposed to
+  the *reported* one wired here. They are different sources for the same slot and the merge rule
+  between them is undecided.
+- **`F_MOS`'s dynamic range.** With π spread ~40× a single edge measured **F = 35.8**, which then
+  feeds `exp(ε_flow·κ)`. §5ad's barrier bounds `w`, but not the *step*. **E11 now owes two
+  things** — the sign behaviour vs π_e (§5ac, survived §5ag) and the κ distribution — and whether
+  `F_MOS` needs a normalisation before it drives anything.
+- The curvature controller itself is still **not in the engine** (§5ad, unchanged).
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2358,6 +2511,20 @@ the test so it cannot quietly disappear.
   Shipped `python/curvature.py` (7 tests) and a τ-aware, τ-invariance-asserting `hodge.py`
   (13 tests, 1–11 untouched). **V7 CLOSED.** The §5ac sign prediction *survives* and E11 still
   owes it. Second stale-claim failure this week — see the LESSON in §5af. See §5ag.
+  **Then, same session — Charbel: "do 1, 2, 3."** Confidence → π_e, E7, and the ε rename all
+  landed. **Item 1 was mis-sized on the list:** the engine was using the **Hebbian coupling as
+  π_e** in both C++ and Python — the substitution §5ac and §5af each forbade in writing — and
+  `test_coarse_complex.cpp` **asserted the bug as a requirement**, which is why it survived two
+  audits. With confidence discarded at `curator.cpp:41`, Π was identity ⇒ τ_f ≡ 1 ⇒ `F_MOS` ≡
+  unit-weight Forman: **§5ac/§5ag were inert in the engine**, and would have stayed inert through
+  all eight Phase-2 items. Routing it produced the **cell-weight tower** — one rule (harmonic mean
+  of the (p−1)-faces) generating ν → π_e → τ_f, with §5ag's τ_f as its top level, dominated by the
+  worst face. E7 shipped **always-on**, with the assertion that matters (200 identical runs, the
+  partition does not move as the log grows) and a `name()` on all 9 operators, since `OperatorType`
+  is a concurrency mode and cannot identify anything. The ε rename found a **third** ε (`ε_W2`,
+  the W₂ ball) that C6-2 missed. Also: **the build was broken on Linux** — MSVC flags handed to
+  GCC — fixed; `main.cpp`/`colibri_kernel.cpp` remain Windows-only and are NOT fixed, which is why
+  none of this was caught sooner. **11/11 C++, 8/8 Python.** See §5ah.
 - **2026-07-22** — Read all of DOCS + full MOS architecture. Established the two-level decision, killed "Pachner", drafted Construction 1, opened the fix registry, created this logbook. Charbel flagged: (a) wants brain-like *growth*; (b) wants this log; (c) fix everything but he's on a tight token budget — warn before expensive tasks.
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.

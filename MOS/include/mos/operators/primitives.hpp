@@ -23,6 +23,8 @@ public:
     bool apply(core::CognitiveState& state) override;
     core::OperatorType get_type() const noexcept override;
     std::set<int> get_support() const override;
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "SearchOp"; }
 
 private:
     std::string query_;
@@ -45,6 +47,8 @@ public:
     bool apply(core::CognitiveState& state) override;
     core::OperatorType get_type() const noexcept override;
     std::set<int> get_support() const override;
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "ComputeOp"; }
 
 private:
     std::string logic_code_;
@@ -64,6 +68,8 @@ public:
     bool apply(core::CognitiveState& state) override;
     core::OperatorType get_type() const noexcept override;
     std::set<int> get_support() const override;
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "ReasonOp"; }
 
 private:
     std::string premise_;
@@ -80,6 +86,8 @@ public:
     bool apply(core::CognitiveState& state) override;
     core::OperatorType get_type() const noexcept override;
     std::set<int> get_support() const override;
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "RespondOp"; }
 
 private:
     std::string response_context_;
@@ -93,6 +101,8 @@ public:
     bool apply(core::CognitiveState& state) override;
     core::OperatorType get_type() const noexcept override;
     std::set<int> get_support() const override;
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "VerifyOp"; }
 
 private:
     std::string command_;
@@ -112,6 +122,8 @@ public:
     bool apply(core::CognitiveState& state) override;
     core::OperatorType get_type() const noexcept override;
     std::set<int> get_support() const override;
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "ContextOp"; }
 
 private:
     std::string payload_;

@@ -21,7 +21,8 @@ namespace core {
 /// more compute. Named so the tolerance is explicit and tunable.
 static constexpr double SPECTRAL_TRUNCATION_EPSILON = 0.05;
 
-SemanticEmbedding::SemanticEmbedding(Eigen::VectorXd mu, Eigen::MatrixXd U, double D, std::string name)
+SemanticEmbedding::SemanticEmbedding(Eigen::VectorXd mu, Eigen::MatrixXd U, double D, std::string name,
+                                     double nu)
     : mu_(std::move(mu)), U_(std::move(U)), D_(D), name_(std::move(name)) {
     if (U_.rows() > 0 && mu_.size() != U_.rows()) {
         throw std::invalid_argument("Mean vector and U matrix must have compatible dimensions");
@@ -29,6 +30,16 @@ SemanticEmbedding::SemanticEmbedding(Eigen::VectorXd mu, Eigen::MatrixXd U, doub
     if (D_ <= 0.0) {
         throw std::invalid_argument("Noise floor D must be strictly positive");
     }
+    set_nu(nu);
+}
+
+void SemanticEmbedding::set_nu(double nu) {
+    if (!std::isfinite(nu) || nu <= 0.0) {
+        throw std::invalid_argument(
+            "[SemanticEmbedding] nu must be finite and > 0, got " +
+            std::to_string(nu) + ". It is a precision (inverse variance).");
+    }
+    nu_ = nu;
 }
 
 std::string SemanticEmbedding::description() const {
@@ -344,6 +355,43 @@ void assert_e4_budget(int d, double D_lo, double D_hi) {
            "Floors must be O(1/d).";
     throw std::invalid_argument(oss.str());
   }
+}
+
+// --- the cell-weight tower (5ag / 5ah) ------------------------------------
+
+double harmonic_cell_weight(const std::vector<double> &face_weights) {
+  if (face_weights.empty()) {
+    throw std::invalid_argument(
+        "[harmonic_cell_weight] a cell with no faces has no weight. Refusing "
+        "to return 1: a missing face is a missing measurement, not a weight "
+        "of 1 (same contract as hodge.hodge_split and tau_from_precision).");
+  }
+  double inv_sum = 0.0;
+  for (const double w : face_weights) {
+    if (!(w > 0.0)) {
+      throw std::invalid_argument(
+          "[harmonic_cell_weight] face weight must be > 0, got " +
+          std::to_string(w) +
+          ". A zero weight makes the inner product degenerate: the cell leaves "
+          "the geometry without leaving the complex.");
+    }
+    inv_sum += 1.0 / w;
+  }
+  // Harmonic MEAN, not sum: Forman uses these weights only inside the ratios
+  // w_face/w_cell, so every level of the tower must sit on the same scale.
+  // The harmonic sum would be smaller by exactly |faces| and would break
+  // day-one degradation (python/curvature.py, THE SCALE CHOICE).
+  return static_cast<double>(face_weights.size()) / inv_sum;
+}
+
+double vertex_precision(double confidence) noexcept {
+  // NaN-safe: `!(c > EPS_FLOOR)` is true for NaN, so an unparsed confidence
+  // floors rather than poisoning every downstream weight with NaN.
+  return (confidence > EPS_FLOOR) ? confidence : EPS_FLOOR;
+}
+
+double edge_precision(double nu_u, double nu_v) {
+  return harmonic_cell_weight({nu_u, nu_v});
 }
 
 } // namespace core

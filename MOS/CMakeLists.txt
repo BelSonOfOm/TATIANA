@@ -11,7 +11,13 @@ if(MSVC)
     # Suppress some verbose warnings in 3rd party code if needed
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4127 /wd4505 /wd4714")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+    # Was `/std:c++17` -- MSVC syntax handed to GCC/Clang, which read it as a
+    # source PATH. It broke configure before any of our code compiled (Eigen's
+    # "Can't link to the standard math library" probe fails first), so the
+    # project could not be built or tested on Linux at all. CMAKE_CXX_STANDARD 17
+    # above already selects the standard on every compiler, so the correct
+    # non-MSVC flag list is warnings only. The MSVC branch is untouched.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
 
 # Add include directories
@@ -61,6 +67,7 @@ set(SOURCES
     src/core/semantic_skill.cpp
     src/core/thread_pool.cpp
     src/core/operad.cpp
+    src/core/assembly_log.cpp
     src/core/kernel.cpp
     src/core/reflection.cpp
     src/core/knowledge_curator.cpp
@@ -131,3 +138,11 @@ target_link_libraries(mos_plasticity_tests PRIVATE mos_core)
 # FIX-11 (operad co-schedulability) + FIX-13 (stalk noise-floor contract)
 add_executable(mos_stalk_floor_tests tests/test_stalk_floor.cpp)
 target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
+
+# E7: the assembly record, written at composition time
+add_executable(mos_assembly_log_tests tests/test_assembly_log.cpp)
+target_link_libraries(mos_assembly_log_tests PRIVATE mos_core)
+
+# confidence -> nu_v -> pi_e -> tau_f, and the w(sigma,t)/pi_e separation
+add_executable(mos_precision_routing_tests tests/test_precision_routing.cpp)
+target_link_libraries(mos_precision_routing_tests PRIVATE mos_core)

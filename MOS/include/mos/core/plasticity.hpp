@@ -42,19 +42,40 @@ private:
 };
 
 /// @brief (5p mechanism 2) Beggs-Plenz self-organised criticality.
-/// Auto-calibrates the RESOLVE gate epsilon as a quantile of observed rho (kills
+/// Auto-calibrates the RESOLVE gate eps_rho as a quantile of observed rho (kills
 /// the hardcoded 0.10), and nudges decay toward branching ratio sigma ~ 1.
 /// C++ port of python/plasticity.py CriticalityMonitor.
+///
+/// THE THREE EPSILONS (C6-2, and there are three not two)
+/// -------------------------------------------------------
+/// C6-2 flagged that two different epsilons were about to collide and required
+/// a rename before the curvature controller is implemented. Enumerating the
+/// actual uses found THREE distinct quantities that were all called `epsilon`:
+///
+///   eps_rho   THIS ONE. The RESOLVE/EXPLORE gate on discord rho. Dimensionless
+///             and bounded in [0,1] because rho is. Auto-calibrated here as a
+///             quantile; `KernelConfig::rho_threshold` is its static default.
+///   eps_w2    The 2-Wasserstein BALL RADIUS for edge formation and concept
+///             retrieval (curator.hpp, knowledge_base.hpp). A SQUARED DISTANCE
+///             in embedding space -- not bounded, not dimensionless, and not
+///             comparable to eps_rho in any way.
+///   eps_flow  The curvature controller's step size in w <- w*exp(eps_flow*kappa)
+///             (5ad). **Does not exist yet** -- Phase-2 work. Named here so it
+///             cannot be introduced as a bare `epsilon` and silently collide
+///             with either of the above, which is exactly what C6-2 predicted.
+///
+/// Renaming eps_rho and eps_w2 was the cheap half; keeping eps_flow out of the
+/// bare namespace is the half that was actually at risk.
 class CriticalityMonitor {
 public:
-  CriticalityMonitor(double default_epsilon = 0.10, std::size_t min_history = 20,
+  CriticalityMonitor(double default_epsilon_rho = 0.10, std::size_t min_history = 20,
                      double quantile = 0.75, std::size_t window = 500);
 
   void record_rho(double rho);
 
   /// The gate: q-quantile of observed rho, or the documented default below
   /// min_history (never a guess from noise). numpy-'linear' interpolation.
-  [[nodiscard]] double epsilon() const;
+  [[nodiscard]] double epsilon_rho() const;
 
   void record_avalanche(int n_binds);
   [[nodiscard]] std::optional<double> branching_ratio() const;
@@ -65,7 +86,7 @@ public:
                                      double gain = 0.1) const;
 
 private:
-  double default_epsilon_;
+  double default_epsilon_rho_;
   std::size_t min_history_;
   double quantile_;
   std::size_t window_;

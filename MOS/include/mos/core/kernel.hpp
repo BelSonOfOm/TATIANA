@@ -22,7 +22,10 @@ struct KernelConfig {
     float compute_lambda = 2.0f;
     double conflict_threshold = 100.0;
 
-    /// @brief Discord threshold epsilon for the RESOLVE/EXPLORE gate.
+    /// @brief eps_rho: the discord threshold for the RESOLVE/EXPLORE gate.
+    /// (Named per C6-2; see plasticity.hpp THE THREE EPSILONS. This is the
+    /// STATIC default -- CriticalityMonitor::epsilon_rho() supersedes it once
+    /// enough rho history exists.)
     /// Because rho is dimensionless and bounded in [0,1], this is a portable
     /// number rather than one that drifts with embedding scale or graph size.
     /// Calibrated empirically on real 384-d embeddings: agreement ~0.00,

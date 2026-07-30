@@ -18,7 +18,15 @@ public:
     /// @param U The N x k basis matrix representing structured low-rank covariance.
     /// @param D The scalar noise floor (isotropic variance).
     /// @param name The human-readable name of the concept.
-    SemanticEmbedding(Eigen::VectorXd mu, Eigen::MatrixXd U, double D, std::string name);
+    /// @param nu The REPORTED-CONFIDENCE precision (the vertex level of the
+    ///        cell-weight tower). Defaults to 1.0 meaning UNCALIBRATED.
+    ///        Deliberately NOT the same thing as D: D is the geometric noise
+    ///        floor of the stalk and lives in the Wasserstein metric; nu is what
+    ///        the source said about its own reliability and lives in the
+    ///        Laplacian's inner product. FIX-13 removed confidence from D
+    ///        precisely because those two were being conflated.
+    SemanticEmbedding(Eigen::VectorXd mu, Eigen::MatrixXd U, double D, std::string name,
+                      double nu = 1.0);
 
     /// @brief Gets the description of the embedding.
     [[nodiscard]] std::string description() const override;
@@ -42,6 +50,13 @@ public:
     /// @brief Gets the name of the concept.
     [[nodiscard]] const std::string& get_name() const noexcept { return name_; }
 
+    /// @brief The vertex precision nu_v -- reported confidence, floored.
+    /// 1.0 means UNCALIBRATED (nobody reported anything), not "average".
+    [[nodiscard]] double get_nu() const noexcept { return nu_; }
+
+    /// @brief Set nu_v. @throws std::invalid_argument if not finite and > 0.
+    void set_nu(double nu);
+
     /// @brief Calculates the exact differential entropy using the Matrix Determinant Lemma without dense expansion.
     [[nodiscard]] double calculate_entropy() const;
 
@@ -50,6 +65,7 @@ private:
     Eigen::MatrixXd U_;
     double D_;
     std::string name_;
+    double nu_{1.0}; ///< vertex precision (reported confidence); 1.0 = uncalibrated
 };
 
 /// @brief Precision-weighted fusion of several concept means (Construction 2, pi_v).
@@ -212,6 +228,63 @@ inline constexpr double EPS_FLOOR = 1e-3;
 /// wide enough for confidence to outweigh meaning.
 /// @throws std::invalid_argument if d*(sqrt(D_hi)-sqrt(D_lo))^2 > 4.
 void assert_e4_budget(int d, double D_lo, double D_hi);
+
+// --- THE CELL-WEIGHT TOWER (logbook 5ag / 5ah) ----------------------------
+//
+// Forman's cell weights are not decorative masses: they DEFINE the inner
+// product in which the combinatorial Laplacian is self-adjoint, which is the
+// only reason a Ricci term exists (5ac). So MOS needs one weight per cell
+// dimension, and they must be mutually consistent -- picking them
+// independently would weight different cells in incompatible units.
+//
+// ONE RULE GENERATES ALL OF THEM:
+//
+//     the weight on a p-cell is the HARMONIC MEAN of the weights on its
+//     (p-1)-faces.
+//
+//     nu_v  vertex  <- reported confidence (the only measured input)
+//     pi_e  edge    <- harmonic mean of its 2 vertex-faces   = 2/(1/nu_u+1/nu_v)
+//     tau_f 2-cell  <- harmonic mean of its 3 edge-faces     = 3/sum(1/pi_e)
+//
+// It is not a convention. Each level is fixed by ERROR PROPAGATION: a p-cochain
+// value is a signed sum over the faces, the signs square away, so its variance
+// is the sum of the face variances and its precision is the harmonic SUM. The
+// per-face scaling (x |faces|, i.e. mean rather than sum) is the one deliberate
+// choice, taken because Forman uses these weights only inside RATIOS
+// w_face/w_cell, so every level must sit on the same scale. It is also what
+// makes day-one degradation exact: all confidences 1 => every weight 1 =>
+// F_MOS returns 4 - deg u - deg v + 3m. See python/curvature.py, which is the
+// reference implementation and carries the full derivation.
+//
+// **pi_e IS NOT w(sigma,t).** The Hebbian coupling is a normalised bind
+// indicator on [0,1]; a precision is an inverse variance and is unbounded
+// above. 5q already ate one divergence bug from conflating them
+// ("raw coupling weight as precision made lr*precision huge"). CoarseComplex
+// stores them in SEPARATE maps for exactly this reason.
+
+/// @brief Harmonic mean of a cell's face weights -- the rule above.
+///
+/// @param face_weights Weights of the (p-1)-faces; each must be > 0.
+/// @throws std::invalid_argument if empty or if any weight is <= 0 (a zero
+///         weight would make the inner product degenerate, silently deleting
+///         the cell from the geometry while leaving it in the complex).
+[[nodiscard]] double harmonic_cell_weight(const std::vector<double> &face_weights);
+
+/// @brief nu_v from a reported confidence, floored at EPS_FLOOR.
+///
+/// The floor is not cosmetic: a zero-precision cell drops out of the inner
+/// product without dropping out of the complex, which is the degenerate case
+/// hodge.hodge_split refuses outright. Matches `max(confidence, 1e-3)` in
+/// python/experiment_e5.py's `to_cochain` -- the contract that produced 5x.
+///
+/// Confidence is used AS the precision rather than transformed (-ln c, odds,
+/// ...) deliberately: E5 measured with this contract, and inventing a transform
+/// here would silently put the engine on a different scale from the only
+/// empirical result the growth story has.
+[[nodiscard]] double vertex_precision(double confidence) noexcept;
+
+/// @brief pi_e = 2/(1/nu_u + 1/nu_v), the edge level of the tower.
+[[nodiscard]] double edge_precision(double nu_u, double nu_v);
 
 } // namespace core
 } // namespace mos

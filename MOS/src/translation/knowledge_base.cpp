@@ -153,7 +153,7 @@ double KnowledgeBase::calculate_wasserstein_2_sq(const Eigen::VectorXd& mu1, dou
 std::vector<std::shared_ptr<const core::SemanticEmbedding>> KnowledgeBase::get_relevant_concepts(
         const Eigen::VectorXd& thought_mu, 
         double thought_D, 
-        double epsilon) const {
+        double epsilon_w2) const {
         
     std::lock_guard<std::mutex> lock(mutex_);
     std::vector<std::shared_ptr<const core::SemanticEmbedding>> results;
@@ -191,7 +191,7 @@ std::vector<std::shared_ptr<const core::SemanticEmbedding>> KnowledgeBase::get_r
         if (D <= 0.0) D = 1e-9;
         
         double w2_sq = calculate_wasserstein_2_sq(thought_mu, thought_D, mu, U, D);
-        if (w2_sq <= epsilon) {
+        if (w2_sq <= epsilon_w2) {
             std::string reasoning = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
             results.push_back(std::make_shared<core::SemanticEmbedding>(mu, U, D, reasoning));
         }

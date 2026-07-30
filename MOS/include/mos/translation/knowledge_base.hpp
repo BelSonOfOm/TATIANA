@@ -37,12 +37,13 @@ public:
     /// @brief Retrieves only the concepts that fall within the Wasserstein distance of the current thought.
     /// @param thought_mu The Fourier-projected mean of the current thought.
     /// @param thought_D The isotropic variance (noise floor) of the current thought.
-    /// @param epsilon The maximum 2-Wasserstein distance threshold.
+    /// @param epsilon_w2 The maximum 2-Wasserstein distance (SQUARED).
+    ///        Renamed per C6-2; see plasticity.hpp THE THREE EPSILONS.
     /// @return A vector of geometrically relevant axioms.
     [[nodiscard]] std::vector<std::shared_ptr<const core::SemanticEmbedding>> get_relevant_concepts(
         const Eigen::VectorXd& thought_mu, 
         double thought_D, 
-        double epsilon) const;
+        double epsilon_w2) const;
 
 private:
     /// Helper to calculate the O(k^3) Bures-Wasserstein distance between isotropic and low-rank Gaussians

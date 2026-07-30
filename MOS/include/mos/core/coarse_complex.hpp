@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <cstddef>
 #include <map>
 #include <optional>
 #include <string>
@@ -141,11 +142,54 @@ public:
   void set_restriction(const ModuleId &u, const ModuleId &v,
                        const Eigen::MatrixXd &R_u, const Eigen::MatrixXd &R_v);
 
-  /// @brief Precision-weight discord by coalition strength: each edge uses its
-  /// coupling weight as pi_e (a more-bound coalition is trusted more). Off by
-  /// default => uniform pi=1, the pre-5p behaviour.
+  /// @brief Master switch for precision weighting. Off by default => uniform
+  /// pi=1, the pre-5p behaviour, which the parity test depends on.
+  ///
+  /// **CHANGED (5ah): this no longer means "use the coupling weight as pi_e".**
+  /// It used to read `weights_`, i.e. the Hebbian coupling w(sigma,t), which is
+  /// the exact conflation 5ac and 5af both ruled out:
+  ///
+  ///   > w(sigma,t) is a normalised coupling, capped on [0,1]. pi_e is a
+  ///   > precision, uncapped. They are not the same variable and must never be
+  ///   > substituted for one another.
+  ///
+  /// Using the coupling computed the curvature and the free energy of a
+  /// DIFFERENT operator than the one the engine prints omega and rho from --
+  /// a consistent-looking number about the wrong thing. 5q had already eaten a
+  /// divergence bug from the same conflation ("raw coupling weight as precision
+  /// made lr*precision huge"). pi_e now comes from `set_precision` only, and
+  /// unset edges are pi=1 (UNCALIBRATED, not "trusted").
   void set_use_precision(bool on) noexcept { use_precision_ = on; }
   [[nodiscard]] bool use_precision() const noexcept { return use_precision_; }
+
+  /// @brief Set the edge precision pi_e for {u,v} -- an inverse variance, and
+  /// the ONLY home for a reported confidence (Q9, FIX-13).
+  ///
+  /// Stored separately from the Hebbian coupling and never derived from it. In
+  /// the cell-weight tower (semantic_skill.hpp) this is the edge level; use
+  /// `core::edge_precision(nu_u, nu_v)` to build it from two endpoint
+  /// confidences, or pass a directly-measured pair confidence when one exists
+  /// (python/experiment_e5.py elicits exactly that, and a direct measurement
+  /// always beats a derivation).
+  ///
+  /// @throws std::invalid_argument if pi <= 0 or is not finite.
+  void set_precision(const ModuleId &u, const ModuleId &v, double pi);
+
+  /// @brief The stored pi_e, or nullopt if this edge was never calibrated.
+  /// Deliberately distinguishable from 1.0: "nobody measured this" and "measured
+  /// as exactly average" are different facts and the telemetry must not merge
+  /// them.
+  [[nodiscard]] std::optional<double> precision(const ModuleId &u,
+                                                const ModuleId &v) const;
+
+  /// @brief Forget an edge's precision (back to UNCALIBRATED).
+  void clear_precision(const ModuleId &u, const ModuleId &v);
+
+  /// @brief How many live edges carry a measured pi_e. Telemetry for the
+  /// question "is Pi actually doing anything yet?" -- if this is 0 then
+  /// tau_f == 1, F_MOS collapses to the unit-weight formula, and the whole
+  /// derived-weight story is inert (5ah).
+  [[nodiscard]] std::size_t calibrated_edge_count() const;
 
   /// @brief Measure discord over K. Edges touching an idle organ are ignored,
   /// since an organ with no position cannot meaningfully agree or disagree.
@@ -167,7 +211,9 @@ private:
   double decay_rate_;
   std::vector<ModuleId> order_; ///< registration order, for stable reporting
   std::map<ModuleId, std::optional<Eigen::VectorXd>> stalks_;
-  std::map<CoarseEdge, double> weights_;
+  std::map<CoarseEdge, double> weights_;   ///< w(sigma,t): Hebbian coupling, [0,1]-ish
+  std::map<CoarseEdge, double> precisions_; ///< pi_e: inverse variance, UNCAPPED.
+                                            ///< Separate from weights_ by contract (5ah).
   std::vector<std::string> mutation_log_;
   // (5p mechanism 1) per-edge restriction pair (R_u, R_v); absent => identity.
   std::map<CoarseEdge, std::pair<Eigen::MatrixXd, Eigen::MatrixXd>> restriction_;

@@ -28,11 +28,15 @@ AgentCurator::AgentCurator(math::FourierMapper mapper)
 ///
 /// Per Q9 (MOS_FINALIZATION.md) the correct home for a reported confidence is the
 /// EDGE PRECISION pi_e in L = delta^T Pi delta, where it is dimensionally
-/// harmless and actually load-bearing. Routing it there is separate wiring and is
-/// deliberately NOT done here — this function's job is now only to supply the
+/// harmless and actually load-bearing. This function's job is only to supply the
 /// shared O(1/d) noise floor, and it no longer pretends a confidence is a
-/// geometry. `confidence` is retained in the signature because the caller still
-/// carries it towards pi_e.
+/// geometry.
+///
+/// **The routing now EXISTS (5ah).** `curate` sends the confidence to
+/// `nu` on the SemanticEmbedding via `core::vertex_precision`, and the edge
+/// skill's precision is `core::edge_precision(nu_new, nu_existing)` -- the
+/// cell-weight tower. `confidence` stays in this signature because the caller
+/// still needs it for that, not because this function uses it.
 ///
 /// @param d The embedding dimension. Passed explicitly rather than inferred:
 ///          the floor is a function of d, and silently assuming a dimension is
@@ -46,8 +50,9 @@ double AgentCurator::compute_variance(std::optional<double> confidence, int d) c
                          "(provider returned no logprobs). This no longer affects "
                          "the noise floor D, which is now the shared O(1/d) "
                          "shrinkage floor for every stalk (FIX-13). Confidence, "
-                         "when present, belongs in the edge precision pi_e and is "
-                         "not yet wired there.\n";
+                         "when present, is routed to nu_v and thence to pi_e "
+                         "(5ah); with none available this concept stays "
+                         "UNCALIBRATED at nu = 1.\n";
             warned = true;
         }
     }
@@ -63,7 +68,7 @@ double AgentCurator::calculate_wasserstein_2_sq(const Eigen::VectorXd& mu1, doub
     return core::wasserstein_2_terms(mu1, D1, mu2, U2, D2).total();
 }
 
-std::shared_ptr<core::Operad> AgentCurator::curate(const AgentThought& new_thought, const core::CognitiveState& state, size_t new_vertex_id, double epsilon, core::ThreadPool* pool) {
+std::shared_ptr<core::Operad> AgentCurator::curate(const AgentThought& new_thought, const core::CognitiveState& state, size_t new_vertex_id, double epsilon_w2, core::ThreadPool* pool) {
     auto operad = std::make_shared<core::Operad>();
     
     // 1. Process the new AgentThought (Agent -> 0-simplex)
@@ -72,8 +77,18 @@ std::shared_ptr<core::Operad> AgentCurator::curate(const AgentThought& new_thoug
     double thought_D = compute_variance(new_thought.confidence,
                                         static_cast<int>(thought_mu.size()));
     Eigen::MatrixXd thought_U(thought_mu.size(), 0);
-    
-    auto thought_skill = std::make_shared<core::SemanticEmbedding>(thought_mu, thought_U, thought_D, new_thought.reasoning_chain);
+
+    // 5ah: confidence -> nu_v. This is the ONLY measured input to the whole
+    // cell-weight tower (nu -> pi_e -> tau_f); with it absent every weight is 1,
+    // tau_f == 1, and F_MOS silently collapses to the unit-weight Forman
+    // formula. An absent confidence is UNCALIBRATED (nu = 1), never invented.
+    const double thought_nu =
+        new_thought.confidence.has_value()
+            ? core::vertex_precision(*new_thought.confidence)
+            : 1.0;
+
+    auto thought_skill = std::make_shared<core::SemanticEmbedding>(
+        thought_mu, thought_U, thought_D, new_thought.reasoning_chain, thought_nu);
     
     auto thought_op = std::make_shared<operators::ExpansionOperator>(new_vertex_id, thought_skill);
     auto thought_node = std::make_shared<core::OperadNode>(thought_op);
@@ -99,7 +114,7 @@ std::shared_ptr<core::Operad> AgentCurator::curate(const AgentThought& new_thoug
                     double w2_sq = calculate_wasserstein_2_sq(thought_mu, thought_D,
                                                               existing_semantic->get_mu(), existing_semantic->get_U(), existing_semantic->get_D());
                     
-                    if (w2_sq <= epsilon) {
+                    if (w2_sq <= epsilon_w2) {
                         // They mathematically intersect! Draw a 1-simplex between them.
                         int existing_id = existing_v.get_vertices()[0];
                         
@@ -109,7 +124,19 @@ std::shared_ptr<core::Operad> AgentCurator::curate(const AgentThought& new_thoug
                         double edge_D = 0.5 * (thought_D + existing_semantic->get_D());
                         Eigen::MatrixXd edge_U(edge_mu.size(), 0);
                         
-                        auto edge_skill = std::make_shared<core::SemanticEmbedding>(edge_mu, edge_U, edge_D, "Vietoris-Rips Intersection");
+                        // 5ah, the edge level of the cell-weight tower: pi_e is
+                        // the harmonic mean of its two vertex-faces, which is
+                        // the error-propagation precision of a difference of
+                        // two independent estimates. NOT the midpoint average
+                        // used for the geometry above -- averaging precisions
+                        // would let one confident endpoint mask an unreliable
+                        // one, and the whole point of the harmonic mean is that
+                        // the WORST face dominates.
+                        const double edge_nu = core::edge_precision(
+                            thought_nu, existing_semantic->get_nu());
+
+                        auto edge_skill = std::make_shared<core::SemanticEmbedding>(
+                            edge_mu, edge_U, edge_D, "Vietoris-Rips Intersection", edge_nu);
                         auto edge_op = std::make_shared<operators::EdgeExpansionOperator>(new_vertex_id, existing_id, edge_skill);
                         auto edge_node = std::make_shared<core::OperadNode>(edge_op);
                         

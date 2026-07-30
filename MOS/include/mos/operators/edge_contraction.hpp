@@ -28,6 +28,9 @@ public:
         return {static_cast<int>(v_keep_), static_cast<int>(v_remove_)};
     }
 
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "EdgeContractionOperator"; }
+
 private:
     topology::VertexID v_keep_;
     topology::VertexID v_remove_;

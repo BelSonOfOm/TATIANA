@@ -153,6 +153,10 @@ void CoarseComplex::tick_decay() {
         mutation_log_.push_back("collapse " + it->first.first + "~" +
                                 it->first.second);
       }
+      // The edge is gone, so its precision goes with it. Leaving it behind
+      // would let a future re-bind silently inherit a stale confidence from a
+      // coalition that has since collapsed.
+      precisions_.erase(it->first);
       it = weights_.erase(it);
     } else {
       if (was_bound && it->second < bind_threshold_) {
@@ -162,6 +166,37 @@ void CoarseComplex::tick_decay() {
       ++it;
     }
   }
+}
+
+void CoarseComplex::set_precision(const ModuleId &u, const ModuleId &v,
+                                  double pi) {
+  if (!std::isfinite(pi) || pi <= 0.0) {
+    throw std::invalid_argument(
+        "[CoarseComplex::set_precision] pi_e must be finite and > 0, got " +
+        std::to_string(pi) +
+        ". It is an inverse variance; 0 would delete the edge from the inner "
+        "product without deleting it from the complex.");
+  }
+  precisions_[make_key(u, v)] = pi;
+}
+
+std::optional<double> CoarseComplex::precision(const ModuleId &u,
+                                               const ModuleId &v) const {
+  auto it = precisions_.find(make_key(u, v));
+  if (it == precisions_.end()) return std::nullopt;
+  return it->second;
+}
+
+void CoarseComplex::clear_precision(const ModuleId &u, const ModuleId &v) {
+  precisions_.erase(make_key(u, v));
+}
+
+std::size_t CoarseComplex::calibrated_edge_count() const {
+  std::size_t n = 0;
+  for (const auto &e : edges()) {
+    if (precisions_.count(e)) ++n;
+  }
+  return n;
 }
 
 bool CoarseComplex::is_bound(const ModuleId &u, const ModuleId &v) const {
@@ -249,10 +284,14 @@ CoherenceReport CoarseComplex::report() const {
   //   omega = sum_e pi_e || R_u x_u - R_v x_v ||^2.
   // With no maps set and use_precision_ false (defaults) this is exactly the
   // pre-5p  sum ||x_u - x_v||^2  -- the parity test depends on that identity.
+  // 5ah: reads precisions_, NOT weights_. See set_use_precision's note -- using
+  // the Hebbian coupling here measured the wrong operator. An edge with no
+  // measured precision is UNCALIBRATED and contributes pi=1; it is not treated
+  // as strongly-coupled just because it is strongly bound.
   auto pi_of = [&](const CoarseEdge &e) -> double {
     if (!use_precision_) return 1.0;
-    auto it = weights_.find(e);
-    return (it != weights_.end()) ? it->second : 1.0;
+    auto it = precisions_.find(e);
+    return (it != precisions_.end()) ? it->second : 1.0;
   };
   double omega = 0.0;
   for (const auto &e : live) {

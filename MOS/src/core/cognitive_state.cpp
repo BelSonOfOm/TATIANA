@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <mutex>
+#include <shared_mutex>
 #include <stdexcept>
 
 namespace mos {

@@ -182,7 +182,7 @@ int main() {
     CoarseComplex K(1.0, 0.25);
     for (const auto &m : {"a", "b", "c"}) K.register_module(m);
     K.set_stalk("a", a); K.set_stalk("b", b); K.set_stalk("c", c);
-    K.co_activate("a", "b", 100.0);   // coupling (= precision when enabled) 100
+    K.co_activate("a", "b", 100.0);   // Hebbian coupling 100 -- NOT a precision
     K.co_activate("b", "c", 1.0);     // coupling 1
 
     // uniform pi: the big raw gap (b,c) is the guilty edge
@@ -190,8 +190,22 @@ int main() {
     auto wf = flat.worst_edge();
     assert(wf.has_value() && wf->first == "b" && wf->second == "c");
 
-    // precision on: 100*0.04=4.0 outweighs 1*1.0 -> blame moves to (a,b)
+    // 5ah: turning precision ON is no longer enough by itself. It used to read
+    // the Hebbian coupling, so co_activate(100) doubled as "precision 100" --
+    // the exact w(sigma,t)/pi_e conflation 5ac and 5af ruled out, encoded here
+    // as a REQUIREMENT. With nothing calibrated, pi is uniformly 1 and blame
+    // must stay where the uniform measure put it.
     K.set_use_precision(true);
+    auto uncal = K.report().worst_edge();
+    assert(uncal.has_value() && uncal->first == "b" && uncal->second == "c"
+           && "an uncalibrated edge is pi=1, NOT its coupling weight");
+    assert(K.calibrated_edge_count() == 0);
+
+    // The precision must be stated as a precision. Only then does blame move:
+    // 100*0.04 = 4.0 outweighs 1*1.0.
+    K.set_precision("a", "b", 100.0);
+    K.set_precision("b", "c", 1.0);
+    assert(K.calibrated_edge_count() == 2);
     auto ww = K.report().worst_edge();
     std::cout << "9. precision reweight -> worst (" << ww->first << ", "
               << ww->second << ")\n";

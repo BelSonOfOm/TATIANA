@@ -28,6 +28,9 @@ public:
         return {static_cast<int>(v1_), static_cast<int>(v2_)};
     }
 
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "EdgeExpansionOperator"; }
+
 private:
     topology::VertexID v1_;
     topology::VertexID v2_;

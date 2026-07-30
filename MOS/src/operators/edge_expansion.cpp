@@ -1,6 +1,8 @@
 #include "mos/operators/edge_expansion.hpp"
 #include "mos/core/cognitive_state.hpp"
 #include <shared_mutex>
+#include <mutex>
+#include <shared_mutex>
 
 namespace mos {
 namespace operators {

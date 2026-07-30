@@ -22,10 +22,13 @@ public:
     /// @param new_thought The parsed reasoning chain and latent from the agent.
     /// @param state The current global cognitive state.
     /// @param new_vertex_id The vertex ID to assign to the new thought.
-    /// @param epsilon The 2-Wasserstein distance threshold for edge formation.
+    /// @param epsilon_w2 The 2-Wasserstein distance threshold (a SQUARED
+    ///        distance) for edge formation. Renamed from `epsilon` per C6-2:
+    ///        it is not the RESOLVE gate eps_rho and not the controller step
+    ///        eps_flow. See plasticity.hpp THE THREE EPSILONS.
     /// @param pool Optional ThreadPool for parallelizing O(N^3) Wasserstein metric
     /// @return A populated Operad containing the vertex and its Vietoris-Rips edges.
-    std::shared_ptr<core::Operad> curate(const AgentThought& new_thought, const core::CognitiveState& state, size_t new_vertex_id, double epsilon, core::ThreadPool* pool = nullptr);
+    std::shared_ptr<core::Operad> curate(const AgentThought& new_thought, const core::CognitiveState& state, size_t new_vertex_id, double epsilon_w2, core::ThreadPool* pool = nullptr);
 
 private:
     math::FourierMapper fourier_mapper_;

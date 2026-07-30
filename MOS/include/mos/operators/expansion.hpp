@@ -32,6 +32,9 @@ public:
         return {static_cast<int>(new_v_)};
     }
 
+    /// E7: stable operator identity for the assembly record.
+    [[nodiscard]] const char *name() const noexcept override { return "ExpansionOperator"; }
+
 private:
     topology::VertexID new_v_;
     std::shared_ptr<core::ProceduralSkill> skill_;

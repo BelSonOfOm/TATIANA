@@ -149,6 +149,9 @@ class CoarseComplex:
         self.learner = RestrictionMapLearner(EMBED_DIM)
         self.use_learned_maps: bool = False
         self.use_precision: bool = False
+        # pi_e, stored SEPARATELY from self.weights by contract (5ah). Missing
+        # key => UNCALIBRATED => pi = 1. Mirrors CoarseComplex::precisions_.
+        self.precisions: Dict[Edge, float] = {}
 
     # --- membership ---------------------------------------------------------
     def register(self, vertex: ModuleVertex) -> None:
@@ -209,7 +212,14 @@ class CoarseComplex:
         st = self.states()
         live = [(u, v) for (u, v) in self.edges() if u in st and v in st]
         restriction = self.learner.as_restriction_dict(live) if self.use_learned_maps else None
-        precision = ({e: self.weights[self._key(*e)] for e in live}
+        # 5ah: pi_e comes from `precisions`, NOT from `weights`. This line used to
+        # read self.weights -- the Hebbian coupling -- which is the conflation
+        # 5ac and 5af both ruled out: w(sigma,t) is a normalised bind indicator
+        # on [0,1], pi_e is an unbounded inverse variance, and using the former
+        # computes the free energy of a different operator than the one we print
+        # rho from. An edge nobody calibrated is pi=1 (UNCALIBRATED), not
+        # "as trusted as it is bound".
+        precision = ({e: self.precisions.get(self._key(*e), 1.0) for e in live}
                      if self.use_precision else None)
         return coherence(st, live, restriction=restriction, precision=precision)
 

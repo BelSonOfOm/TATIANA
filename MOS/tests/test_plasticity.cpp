@@ -45,12 +45,12 @@ int main() {
   // ---- 3. criticality epsilon: fallback + quantile ------------------------
   {
     CriticalityMonitor m(0.10, 5, 0.75);
-    assert(close(m.epsilon(), 0.10) && "cold start returns default");
+    assert(close(m.epsilon_rho(), 0.10) && "cold start returns default");
     for (double v : {0.0, 0.1, 0.2, 0.3, 0.4})
       m.record_rho(v);
     // 75th percentile of {0,.1,.2,.3,.4}, numpy-linear: pos=0.75*4=3 -> 0.3
-    std::cout << "3. criticality epsilon = " << m.epsilon() << " (expect 0.3)\n";
-    assert(close(m.epsilon(), 0.3));
+    std::cout << "3. criticality epsilon = " << m.epsilon_rho() << " (expect 0.3)\n";
+    assert(close(m.epsilon_rho(), 0.3));
   }
 
   // ---- 4. decay controller direction --------------------------------------
