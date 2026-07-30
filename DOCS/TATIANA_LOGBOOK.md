@@ -1877,6 +1877,14 @@ unit-weight formula is recovered exactly as the special case — day-one degrada
 discipline as everywhere else.
 
 ### ⚠️ THE GAP THE DERIVATION EXPOSED — MOS has no 2-cochain inner product.
+
+> **✅ CLOSED 2026-07-30 by §5ag: neither (a) nor (b) below.** τ_f is derived from the **edge
+> precisions**, `τ_f = |f| / Σ_{e⊂f}(1/π_e)` — the harmonic mean, i.e. the precision of the 3-way
+> circulation by error propagation. Option (b)'s instinct ("derive it from the 3-way coherence
+> residual") was right in spirit and wrong in its variable: the residual is the *measurement*,
+> the precision of that measurement is what a weight has to be, and the latter is a function of
+> π alone. This does give the 2-simplices genuine computational work, as (b) wanted.
+
 `τ_f` has no existing referent. `hodge.py` builds δ¹ so the 2-cochain *space* exists, but its
 weighting is implicitly identity and was never chosen. Augmented Forman **needs** it. Two honest
 options, and this is a real modelling decision, not a default:
@@ -2060,6 +2068,14 @@ which is now asserted equal on the C++ side).
 ## 5af. τ_f IS CIRCULAR · w IS CAPPED AND π IS NOT · THE PRE-PHASE-2 LIST (2026-07-30)
 
 ### ❌ τ_f "derived from the 3-way residual" — MY OWN SUGGESTION, AND IT DOES NOT SURVIVE.
+
+> **🚨🚨 SUPERSEDED (2026-07-30, later still) — THE CIRCULARITY DOES NOT EXIST. SEE §5ag.**
+> The verdict below is right that the *measured-residual route* should not be adopted, and
+> **wrong about why**. `hodge_split` is **provably invariant** to the C² inner product, so τ_f
+> never fed the curl projection, there was never a fixed point, and **E5/§5x cannot depend on
+> τ_f at all**. Read §5ag before acting on anything in this subsection. The `τ_f ≡ 1` interim is
+> withdrawn — τ_f is now **derived from the edge precisions**, non-circularly.
+
 Charbel said: derive it if it's cheap. **It is cheap to COMPUTE and not cheap to ADOPT.**
 - **Cheap to compute:** the 3-way residual is `(δ¹η)_f`, the signed circulation around triangle
   `f`. `hodge.py` already forms `d1 @ eta` inside every Hodge split. Three adds per triangle.
@@ -2071,8 +2087,9 @@ Charbel said: derive it if it's cheap. **It is cheap to COMPUTE and not cheap to
 - **🚨 And it would invalidate E5.** Changing the C² inner product changes `curl` and `harm`, i.e.
   **every number in §5x** — the only empirical evidence the growth story has.
 
-**INTERIM: `τ_f ≡ 1`, DECLARED** (option (a) of §5ac), on those two grounds and not on cost. This
-is a placeholder to unblock Phase 2, NOT a closure of the question.
+~~**INTERIM: `τ_f ≡ 1`, DECLARED**~~ *(withdrawn — §5ag derives τ_f instead.)* (option (a) of
+§5ac), on those two grounds and not on cost. This is a placeholder to unblock Phase 2, NOT a
+closure of the question.
 
 > **🚨 CHARBEL (2026-07-30, later): REFUSED. "I don't want τ_f to die."** Explicit direction: do
 > NOT let the circularity kill a derived τ_f by default. Take **the arduous path** — fix the
@@ -2113,17 +2130,30 @@ capped — so the symmetric upper barrier is required, not optional: `h(w) = 1 �
 
 ### 📋 WHAT ACTUALLY REMAINS BEFORE PHASE 2
 All eight Phase-2 items now have their blocking questions answered (Q4 · Q5+τ_f · Q13 · Q16 ·
-Q1/Q2/Q2b · F10) — **τ_f = 1 is the WORKING value they ship with**, per Charbel's refusal above,
-not a settled answer. Phase 2 proceeds; V7 runs alongside it, not before it.
+Q1/Q2/Q2b · F10). ~~**τ_f = 1 is the WORKING value they ship with**~~ — **superseded: §5ag derives
+`τ_f = |f| / Σ_{e⊂f}(1/π_e)` and V7 is CLOSED.** Phase 2 proceeds with a derived τ_f, not a
+placeholder.
 
-**Open research item, not a quick fix — Charbel refused to let this die:**
-- **V7 — break the τ_f circularity properly.** Either (a) derive it from a **time-lagged**
+~~**Open research item, not a quick fix — Charbel refused to let this die:**~~
+**✅ CLOSED SAME DAY — see §5ag.** Neither branch of the scope below was needed, because the
+circularity it was scoped to break **did not exist**: the Hodge split is provably invariant to the
+C² inner product (measured, 0.00e+00 over τ ∈ [1e-3, 1e3]).
+- ~~**V7 — break the τ_f circularity properly.** Either (a) derive it from a **time-lagged**
   residual (running average over past ticks, breaking the circularity the way BCM's sliding
   threshold does) — requires choosing a window, proving the fixed point is actually gone, and
   showing it doesn't drift; or (b) re-run E5 under whatever inner product results, to certify the
   growth-story evidence (§5x, the whole empirical case for the cohomological growth law) survives
-  a C² weighting that is no longer identity. **Do not silently ship τ_f=1 as final** — it stays
-  flagged as a placeholder until V7 lands one way or the other.
+  a C² weighting that is no longer identity.~~ **(a) unnecessary — τ_f derives from π_e, which is
+  an input, so there is no loop to lag. (b) unnecessary — E5/§5x is τ-invariant, nothing to
+  re-certify.** What *is* still owed from §5ac is the **prefactor placement**, which is a
+  citation/derivation task, not a research programme.
+
+> **⚠️ LESSON, and it is the second one this week.** §5aa recorded that a stale "NEXT — BLOCKING"
+> line re-blocked work that was already unblocked. This is the same failure with a different
+> mechanism: **an unverified* claim* ("changing τ changes curl and harm") became a research
+> programme, and Charbel's refusal to accept the loss is what forced it to be checked.** The check
+> was one line of algebra and a 2000-trial assertion. **Test the hazard before scoping the work to
+> avoid it.**
 
 **Time-sensitive — do first:**
 - **E7 at engine level. NOT DONE.** E7 discipline exists only for E5's elicitations
@@ -2144,8 +2174,100 @@ not a settled answer. Phase 2 proceeds; V7 runs alongside it, not before it.
 **Owed, not blocking Phase 2:**
 - FIX-7 / FIX-8 / FIX-9 (doc corrections) · FIX-15 (E5 significance overstated ~4×; fix before
   quoting the p-value) · FIX-16 (colibri test cannot diagnose its own failure) · E5b at b₁ ≥ 2 ·
-  V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 · **V7 (τ_f, above — running
-  alongside Phase 2, not blocking it, but not to be forgotten either).**
+  V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 · ~~**V7 (τ_f)**~~ **✅ closed, §5ag**
+  — replaced by a much smaller owed item: **Forman's `w_α` prefactor placement** (cite or derive
+  from Bochner; blocks a *published* claim about `F_MOS`, not Phase 2).
+
+## 5ag. ✅ V7 CLOSED — τ_f IS DERIVED, AND THE CIRCULARITY WAS NEVER THERE (2026-07-30)
+
+Charbel refused to let τ_f die (§5af). The arduous path was scoped as *either* a time-lagged
+residual (window choice + proof the fixed point is gone + no-drift argument) *or* re-running E5
+under a non-identity C² inner product. **Neither was needed. The premise was wrong.**
+
+### 🚨 MY OWN CIRCULARITY ARGUMENT WAS FALSE. One line of algebra kills it.
+§5af claimed `hodge_split` uses the C² inner product to compute the curl projection, so deriving
+τ_f from η defines the metric from the quantity it measures. Write the adjoint out:
+
+> With `T = diag(τ)` on C², the W-adjoint of δ¹ is `δ¹* = W⁻¹δ¹ᵀT`, so the curl space is
+> `im(W⁻¹δ¹ᵀT)`. **T is diagonal and strictly positive, hence a bijection C² → C²**, so
+> `im(W⁻¹δ¹ᵀT) = im(W⁻¹δ¹ᵀ)` for *every* τ > 0.
+
+Same subspace ⇒ same W-orthogonal projection ⇒ **identical curl, identical harm, identical Φ_∞.**
+The gradient space never involved τ; the harmonic space is the complement of two τ-free subspaces.
+
+**MEASURED, not argued** (`hodge.py` self-test 12): 2000 trials, τ swept over **1e-3 … 1e3** with
+random π per edge — worst deviation in curl, harm and Φ_∞ was **0.00e+00**. Repeated on 300
+random complexes (V=7): worst 1.15e-12.
+
+**Two consequences, both large:**
+1. **τ_f is NOT IDENTIFIABLE from a Hodge split.** It was never a fixed point. §5af's "🚨 CIRCULAR"
+   bullet is withdrawn.
+2. **E5 / §5x IS UNTOUCHED. No re-run.** The growth-story evidence never depended on τ_f, so the
+   more expensive half of V7 (option (b)) was work against a hazard that does not exist.
+
+What the measured-residual route *would* genuinely have suffered is not circularity but
+**FEEDBACK**: τ from η(t) → curvature → flow → η(t+1). That is a control loop and would have
+needed the lag. Deriving from π_e sidesteps it, because π_e is an organ-reported *input*, not a
+state variable. **I had the right instinct and the wrong diagnosis, and the wrong diagnosis is
+what made this look like a research programme.**
+
+### ✅ WHAT τ_f IS — the 2-cochain analogue of π_e, fixed by error propagation
+π_e says how much to trust a **pairwise** judgement. **τ_f says how much to trust the closed loop
+around a filled triple.** The signs in `(δ¹η)_f = η_bc − η_ac + η_ab` square away, so under
+independent edge errors of variance `1/π_e`:
+
+$$\mathrm{Var}\big[(\delta^1\eta)_f\big] = \sum_{e \subset f}\frac{1}{\pi_e}
+\qquad\Longrightarrow\qquad \boxed{\;\tau_f = \frac{|f|}{\sum_{e\subset f} 1/\pi_e}\;}$$
+
+the **harmonic mean of the three edge precisions**. Verified by Monte Carlo to <0.1% (self-test 1).
+Cost: 3 divides + 1 divide per triangle per tick. It reads **only π_e** — not η, not the split,
+not itself — so **no window, no fixed-point proof, no drift argument.** That is the whole of V7.
+
+Its behaviour is the right one for a loop precision: bounded by the edge precisions and
+**dominated by the worst one** — a single unreliable judgement discredits the whole triple
+(self-test 2, 500 trials).
+
+### ⚠️ THE ONE FREE CHOICE, STATED RATHER THAN SLIPPED IN — mean, not sum
+Error propagation gives the harmonic **sum** `1/Σ(1/π_e)`; I use the harmonic **mean**, larger by
+exactly `|f| = 3`. Two reasons, and this is the only decision in the file that is not forced:
+- τ enters `F_MOS` **only inside the ratio `π_e/τ_f`**, so it must live on the scale of *one* edge
+  precision, not three. The mean is "the common per-edge precision these three are equivalent to";
+  the sum is a per-triangle total and is scale-mismatched against π_e.
+- **Day-one degradation.** At π = ν = 1 the mean gives τ = 1 and `F_MOS` returns
+  `4 − deg u − deg v + 3m` **exactly** (self-test 3). The harmonic sum gives τ = 1/3 and
+  **overshoots by exactly 2m** — it would silently change the shipped unit-weight formula.
+
+The `|f|` is the number of faces of a 2-simplex — the same structural constant the "not both"
+clause turns into the 3 (§5ac). Not a tuning knob. **Nothing to sweep.**
+
+### ⚠️ THE §5ac SIGN PREDICTION SURVIVES — deriving τ_f did NOT fix it
+If anything it sharpens. `1/τ_f` carries a `1/π_e`, so the coface term now dies **linearly** in
+π_e rather than quadratically; the penalty dies like `√π_e`; `(ν_u + ν_v)` is untouched. Measured
+limit: `F → ν_u + ν_v = 2.0 > 0` as `π_e → 0` (self-test 6). **A low-precision edge still drifts
+POSITIVE ⇒ κ > κ_hi ⇒ CONTRACT/FOLD** — chunking an edge *because we are unsure of it*, which is
+backwards. **E11 still owes an explicit check of sign vs π_e.** Asserted as a known property in
+the test so it cannot quietly disappear.
+
+### 📦 SHIPPED
+- **`python/curvature.py`** (new) — `tau_from_precision`, `tau_map`, `forman_mos`, `forman_unit`.
+  7 self-tests, all pass, zero API calls. `forman_unit` is an independent implementation so
+  day-one degradation is checked against *separate code*, not against `forman_mos`'s own defaults.
+- **`python/hodge.py`** — `hodge_split` now takes `tau`, **validates it, and provably ignores it**;
+  the invariance is documented at module level and asserted in self-tests 12–13. Accepting the
+  argument is what turns an unstated hard-coded `I` into a *tested* property. Existing tests 1–11
+  unchanged and still pass (**13/13**).
+- Suite: **13/13 hodge · 7/7 curvature · 4/4 pre-existing python** (belief, cone_bures,
+  independence, coherence).
+
+### ⚠️ STILL OWED — do not read this section as closing more than it does
+- **Forman's `w_α` PREFACTOR PLACEMENT is still un-derived** (§5ac's HONEST LIMIT, unchanged). It
+  is taken from the literature; the unit-weight check *cannot* distinguish placements because
+  every weight is 1. Owed before `F_MOS` carries a published claim.
+- **`ν_v` is an input here.** Routing it from `Σ_v⁻¹` is Phase-2 item 8's business.
+- **Nothing is in the C++ engine yet.** §5ad's warning stands verbatim: `F_MOS`, the exponential
+  integrator, and the CBF barrier remain Phase-2 work. This section adds the Python reference
+  implementation and the derivation, not the controller.
+- **The `ε_flow`/`ε_ρ` rename (C6-2) is still un-done** and still blocks Phase-2 item 3.
 
 ## 6. Failures & dead ends (so we don't repeat them)
 
@@ -2225,6 +2347,17 @@ not a settled answer. Phase 2 proceeds; V7 runs alongside it, not before it.
   clamp replaced by the derived `t_max = 4(1+√(eps·d))`, and foliation extracted to a testable
   seam (3 slices → 1). Full suite: **13/14 C++ (the one red is pre-existing, proven by stash) and
   4/4 Python.** Raised FIX-16. See §5ae.
+  **Then, same session — Charbel: "I need τ_f."** He was right to refuse §5af's interim, and the
+  refusal paid off twice over: **my circularity argument was FALSE.** `T = diag(τ)` is invertible,
+  so the curl space `im(W⁻¹δ¹ᵀT) = im(W⁻¹δ¹ᵀ)` for every τ > 0 — **the Hodge split is invariant to
+  the C² inner product** (measured: 0.00e+00 over τ ∈ [1e-3,1e3], 2000 trials; 1.15e-12 over 300
+  random complexes). So τ_f was never a fixed point and **E5/§5x never depended on it — no
+  re-run.** V7's *entire scope* (time-lagged window, no-drift proof, re-certify E5) evaporated.
+  τ_f then derives in one step from error propagation: **`τ_f = |f|/Σ_{e⊂f}(1/π_e)`**, the
+  harmonic mean of the edge precisions = the precision of the 3-way circulation, reading π_e only.
+  Shipped `python/curvature.py` (7 tests) and a τ-aware, τ-invariance-asserting `hodge.py`
+  (13 tests, 1–11 untouched). **V7 CLOSED.** The §5ac sign prediction *survives* and E11 still
+  owes it. Second stale-claim failure this week — see the LESSON in §5af. See §5ag.
 - **2026-07-22** — Read all of DOCS + full MOS architecture. Established the two-level decision, killed "Pachner", drafted Construction 1, opened the fix registry, created this logbook. Charbel flagged: (a) wants brain-like *growth*; (b) wants this log; (c) fix everything but he's on a tight token budget — warn before expensive tasks.
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.

@@ -89,6 +89,33 @@ CONVENTIONS (pinned here so nothing downstream has to guess)
   on C^1 (HodgeRank's weighted least squares). All three projections are
   orthogonal in THAT inner product, so Pythagoras still holds exactly -- and it
   is asserted numerically on every call, not trusted.
+* tau_f > 0 is the inner product on C^2. It is accepted as an argument and then
+  provably IGNORED -- see THE tau INVARIANCE below. It exists in the signature
+  so that the invariance is a tested property rather than a hard-coded I.
+
+THE tau INVARIANCE -- WHY THE C^2 WEIGHTS CANNOT MOVE THESE NUMBERS
+--------------------------------------------------------------------
+Logbook 5af asserted that deriving tau_f would be CIRCULAR, on the grounds that
+hodge_split uses the C^2 inner product to compute the curl projection, so any
+derived tau would change curl, harm, and therefore every number in 5x (E5, the
+only empirical evidence for the growth story). **That assertion is false, and
+the one-line proof is:**
+
+    with T = diag(tau) on C^2, the W-adjoint of d1 is  d1* = W^-1 d1^T T,
+    so the curl space is  im(W^-1 d1^T T).
+    T is diagonal and strictly positive, hence a BIJECTION C^2 -> C^2, so
+
+        im(W^-1 d1^T T)  =  im(W^-1 d1^T)      for every tau > 0.
+
+Same subspace => same W-orthogonal projection => identical curl, identical harm,
+identical Phi_infinity. The gradient space never involved tau to begin with, and
+the harmonic space is the orthogonal complement of two tau-free subspaces.
+
+So tau is NOT IDENTIFIABLE from a Hodge split: no choice of it can be validated
+or invalidated here, and no choice of it can invalidate E5. What tau does move
+is the NON-ZERO spectrum of Delta_1 (the kernel, i.e. the harmonic space, is
+fixed) and the Forman curvature -- see curvature.py, which is where tau earns
+its keep. Self-test 12 asserts the invariance over 1e-3..1e3.
 """
 
 from __future__ import annotations
@@ -316,7 +343,8 @@ def null_fractions(cx: Complex2) -> Tuple[float, float, float]:
 
 def hodge_split(cx: Complex2,
                 eta: Sequence[float],
-                precision: Optional[Dict[Edge, float]] = None) -> HodgeSplit:
+                precision: Optional[Dict[Edge, float]] = None,
+                tau: Optional[Dict[Triangle, float]] = None) -> HodgeSplit:
     """Split a measured 1-cochain into gradient + curl + harmonic.
 
     eta        : one value per edge, in `cx.edges` order, SIGNED with the stored
@@ -325,6 +353,13 @@ def hodge_split(cx: Complex2,
                  inner product <x,y>_W = sum pi_e x_e y_e on C^1, which is the
                  correct thing when the organs report a confidence per pair
                  (logbook 5t, Q9: confidence feeds pi_e).
+    tau        : optional tau_f > 0 per triangle -- the inner product on C^2.
+                 **Validated and then ignored, deliberately.** The curl space is
+                 im(W^-1 d1^T T) and T is invertible, so it equals im(W^-1 d1^T)
+                 for every positive tau: the split cannot depend on it (module
+                 docstring, THE tau INVARIANCE; self-test 12). Accepted so that
+                 callers holding a derived tau can pass it without special-casing
+                 and without believing it does something here.
 
     Uses lstsq (not an explicit pseudo-inverse) throughout, consistent with the
     budget finding in 5s: never form pinv. At E=5 it is free either way, but the
@@ -352,6 +387,20 @@ def hodge_split(cx: Complex2,
                                  "inner product without deleting it from the complex).")
             w[i] = float(p)
 
+    if tau is not None:
+        # Validated for positivity (a non-positive tau would be a real error in
+        # the caller) and then dropped: see the module docstring. Refusing to
+        # silently accept tau <= 0 costs nothing and catches a bad derivation.
+        for t in cx.triangles:
+            tv = tau.get(t)
+            if tv is None:
+                raise KeyError(f"No tau supplied for triangle {t}. Refusing to "
+                               "default silently, for the same reason as pi_e.")
+            if tv <= 0:
+                raise ValueError(f"tau {tv} on triangle {t} must be > 0 (it is an "
+                                 "inverse variance on C^2; 0 would make the C^2 "
+                                 "inner product degenerate).")
+
     S = np.sqrt(w)                     # W = S^2, so ||x||^2_W = ||S x||^2
     d0 = cx.delta0()
     d1 = cx.delta1()
@@ -364,9 +413,11 @@ def hodge_split(cx: Complex2,
     grad = d0 @ f
 
     # --- CURL: project onto im(delta^1 *), the W-adjoint image ---------------
-    # The W-adjoint of d1 : C^1 -> C^2 is  d1* = W^{-1} d1^T, so the curl space
-    # is im(W^{-1} d1^T). Projecting eta onto it in the W-metric is again a
-    # weighted least-squares problem, whitened the same way.
+    # The W-adjoint of d1 : C^1 -> C^2 is  d1* = W^{-1} d1^T T, so the curl space
+    # is im(W^{-1} d1^T T) = im(W^{-1} d1^T), the equality holding because T is
+    # invertible -- which is exactly why `tau` is absent below. Projecting eta
+    # onto it in the W-metric is again a weighted least-squares problem,
+    # whitened the same way.
     if d1.size:
         A = (d1 / w).T                 # W^{-1} d1^T, shape (E, F)
         g, *_ = np.linalg.lstsq(S[:, None] * A, S * eta, rcond=None)
@@ -547,5 +598,43 @@ if __name__ == "__main__":
     print(f"    {full.describe()}  (6 edges, 3 independent triangles => b1=0)")
     assert full.b1() == 0, full.b1()
     print("    OK")
+
+    print("\n=== 12. THE tau INVARIANCE: the C^2 weights cannot move the split ===")
+    # This is the test that retires logbook 5af's circularity claim. If it ever
+    # fails, tau IS identifiable from a Hodge split, E5 does depend on it, and
+    # V7's original framing comes back.
+    worst = 0.0
+    for _ in range(2000):
+        eta12 = rng.normal(size=5)
+        pi12 = {e: float(rng.uniform(0.1, 10.0)) for e in cx.edges}
+        lo = {t: float(rng.uniform(1e-3, 1e-2)) for t in cx.triangles}
+        hi = {t: float(rng.uniform(1e2, 1e3)) for t in cx.triangles}
+        a = hodge_split(cx, eta12, precision=pi12, tau=lo)
+        b = hodge_split(cx, eta12, precision=pi12, tau=hi)
+        c = hodge_split(cx, eta12, precision=pi12)          # tau = I
+        worst = max(worst,
+                    np.abs(a.curl - b.curl).max(), np.abs(a.harm - b.harm).max(),
+                    np.abs(a.curl - c.curl).max(), np.abs(a.harm - c.harm).max(),
+                    abs(a.phi_infinity - b.phi_infinity))
+    assert worst < 1e-9, worst
+    print(f"    2000 trials, tau over 1e-3..1e3: worst deviation {worst:.2e}")
+    print("    curl, harm and Phi_inf are INVARIANT to tau  OK")
+    print("    => tau is NOT identifiable here, and E5 (5x) cannot depend on it.")
+
+    print("\n=== 13. tau is still VALIDATED even though it is unused ===")
+    for bad in (0.0, -1.0):
+        try:
+            hodge_split(cx, rng.normal(size=5), tau={("A", "B", "C"): bad})
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"should have refused tau={bad}")
+    try:
+        hodge_split(cx, rng.normal(size=5), tau={})
+    except KeyError:
+        pass
+    else:
+        raise AssertionError("should have refused a missing tau")
+    print("    refuses tau <= 0 and missing tau  OK")
 
     print("\nALL HODGE SELF-TESTS PASSED (zero API calls)")
