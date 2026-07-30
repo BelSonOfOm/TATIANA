@@ -671,7 +671,7 @@ GraphRAG, HippoRAG, MemGPT, Generative-Agents "reflection" (= our promotion, don
 | **E2** | Λ(t) compression curve on a held-out workload | a log | **the whole augmentation bet** if flat |
 | **E3** | clique polynomial on the REAL operator set | 1 day | all of Part II if I is empty (see below) |
 | **E4** | split W₂ into d_semantic / d_epistemic | free | that merges are semantically driven |
-| ~~**E5**~~ | ❌ **RUN 2026-07-29 → FAIL (§5v).** 4 organs, 5 edges, 1 filled triangle (the 3-organ version has b₁=0 and detects nothing) | 16 calls | **THE GATE. It fired: η is *more* gradient-like than noise. Growth story SUSPENDED.** |
+| **E5** | ✅ **RUN ×2, 2026-07-29 → PASS, weakly (§5x).** ~~FAIL (§5v)~~ retracted in §5w. 4 organs, 5 edges, 1 filled triangle (the 3-organ version has b₁=0 and detects nothing) | 54 calls | **THE GATE. Contested \|L₂\| = 0.41 vs a 0.26 no-cycle null, p ≈ 0.02–0.08. Obstruction real but small; ⚠️ b₁=1 ⇒ the ADDRESS is uninformative. Next config needs b₁ ≥ 2.** |
 | **E6** | ℂℙ³ numerics: sweep β, check no low band + linear growth + slope | weeks | Part VIII (the only result interesting outside MOS) |
 | **E7** | record Ext/assembly data AT COMPOSITION TIME | small | nothing — **do it now, impossible to recover later** |
 | **Q** | log Q(t) | a log | that the wiring is learning anything |
@@ -957,7 +957,7 @@ judged; batched schema) · Q16 (γ₀) · Q19 (what leaves 𝕂) · Q21 (Refuted
 All have recommended defaults in `MOS_FINALIZATION.md` §D. **Q1, Q2, Q2b, Q2c, Q9, Q13 resolved.**
 
 ### ⚠️ BEFORE ANY WRITING TOMORROW — three cheap things that can invalidate work
-1. ~~**E5, the gate** (~10 LLM calls, 1 hour). NOT YET RUN.~~ ❌ **RUN 2026-07-29 → FAIL (§5v).**
+1. ~~**E5, the gate** (~10 LLM calls, 1 hour). NOT YET RUN.~~ ✅ **RUN ×2, 2026-07-29 → PASS, weakly (§5x).** ~~FAIL (§5v)~~ retracted in §5w.
    The growth law, the aiming 2×2, the Φ_∞ rule and half of Paper B all assume measured η has
    harmonic/curl mass. It does not, under this protocol. **Running it before writing the theory
    was the right call — it would have invalidated the writing.**
@@ -1077,7 +1077,23 @@ retrieval index. §29–32 of the book argue in one category, §33–37 in the o
 neither. Jordan–Hölder guarantees canonicity **given** the category; it cannot pick the
 atoms. Discuss before any more memory-schema work.
 
-## 5v. ⭐ E5 RUN — THE GATE **FAILS** (2026-07-29). Measured η is more gradient-like than noise.
+## 5v. ⭐ E5 RUN (2026-07-29). ⚠️ **THE "FAIL" BELOW IS RETRACTED — see §5w.**
+
+> **🚨 READ THIS FIRST. The verdict in this section is WITHDRAWN.**
+> Two errors, both mine, both found the same day:
+> 1. **The p-value is wrong.** Repeats of one question are not independent
+>    (ICC ≈ 0.48, design effect ≈ 1.96, n_eff ≈ 4.6 not 9). Corrected: **z ≈ −1.56,
+>    p ≈ 0.06**, or p ≈ 0.12 treating questions as the unit. Not 0.014.
+> 2. **The statistic cannot support the verdict.** A positive control with a cycle
+>    planted *by construction* scores **0.214** on the non-gradient fraction; the
+>    contested questions scored **0.209**. Indistinguishable. A statistic a
+>    known-positive also fails cannot be used to declare that real questions lack
+>    obstructions.
+>
+> **Revised verdict: weak positive, underpowered — NOT a FAIL.** The instrument is
+> sound (probe separation 6.2× on |L₂|); the scoring rule was not. Everything below
+> is retained as the record of how it was found, not as a conclusion. §5w has the
+> corrected analysis.
 
 New files: **`python/hodge.py`** (the decomposition, free, 11 self-tests) ·
 **`python/experiment_e5.py`** (elicitation + verdict, 3 self-tests + `--analyze`) ·
@@ -1195,6 +1211,486 @@ detectable by construction) · closed-form nulls match 40k-draw Monte Carlo to <
 `--analyze` re-scores the recorded data at **zero API cost** — which is exactly what E7 was
 for, and it already paid off once when the verdict thresholds had to be replaced.
 
+## 5w. E5 VERDICT RETRACTED + THE BELIEF LAYER (2026-07-29, later same day)
+
+### 🚨 THE RETRACTION — a positive control killed my own verdict
+§5v declared FAIL. Two independent errors, both found by tests I should have run first.
+
+**(1) The p-value was overstated ~4–10×.** One-way ANOVA on the 9 contested
+measurements: MSB ≈ 0.119, MSW ≈ 0.032 ⇒ **ICC ≈ 0.48**, design effect ≈ 1.96,
+**n_eff ≈ 4.6 not 9**. Corrected: z ≈ −1.56, **p ≈ 0.06**; or p ≈ 0.12 with questions
+as the unit (n=3, t-test). I flagged the clustering as a caveat and then reported
+0.014 anyway. Don't do that again.
+
+**(2) ⭐ THE STATISTIC COULD NOT SUPPORT THE VERDICT.** We had two NEGATIVE controls
+and **no positive control** — nothing ever established the instrument could report an
+obstruction that *is* there. Added two probes (`--probe`, 6 calls):
+
+| probe | ground truth | non-grad fraction | **\|L₂\|** |
+|---|---|---|---|
+| **P1** rock-paper-scissors of competence (Verify beats Reason on algebra, Context beats Verify on scope, Reason beats Context on entailment) | cycle present | **0.214** | **1.23** (0.90–1.60) |
+| **P2** nested competences | no cycle | 0.084 | **0.20** (0.00–0.40) |
+
+> **P1 — cycle planted by construction — scores 0.214. The contested questions scored
+> 0.209.** The statistic behind the FAIL cannot tell a known-positive from the data.
+> **Verdict withdrawn.**
+
+**Why the fraction fails:** it is a *share*. P1's ‖η‖ was 1.57–1.81 because Search was
+uniformly weak — a large pure-**gradient** component. The obstruction was real and
+large; dividing by total disagreement diluted it to 0.21.
+
+**On |L₂| — the sum round the unfilled cycle — the instrument separates 6.2× with no
+overlap in range.** It sees obstructions and does not invent them. Rescored:
+
+| | Q-ikeda | Q-cp3-gap | Q-rho-truth | b1 (ctrl) | lemon (ctrl) |
+|---|---|---|---|---|---|
+| \|L₂\| | **0.63** | 0.33 | 0.13 | 0.23 | 0.18 |
+
+Contested 0.36 vs a no-obstruction null of 0.20. **Weak positive, underpowered.**
+corr(push spread, non-gradient) now **p = 0.015** at n=21 — the interaction story is
+significant.
+
+**Power:** to resolve a 0.19 shift against sd 0.262 needs ~12 *independent* units, and
+with ICC 0.48 the unit is the QUESTION. 5 questions × 3 repeats was the wrong
+allocation; **~12 questions × 2 repeats ≈ 25 calls** is right.
+
+### ⚠️ CONSEQUENCE FOR THE THEORY, NOT JUST THE EXPERIMENT
+§5r's control rule `Φ_∞/‖η‖² > θ ⇒ GROW` is a **fraction**, and P1 just demonstrated
+that a real, large obstruction scores 0.21 on exactly that fraction when ordinary
+rankable disagreement sits alongside it. **The rule as specified will systematically
+under-trigger.** Worse: `Φ_∞ = ‖η_H‖² + ‖η_C‖²` **sums the two things that encode the
+adapt-vs-grow distinction** — curl ⇒ repair an existing 2-simplex, harmonic ⇒ attach a
+cell. Q-ikeda r2 was almost pure curl (0.242/0.013), r3 almost pure harmonic
+(0.649/0.128): opposite correct remedies, identical Φ_∞ treatment.
+**Decided (Charbel): split them, give them different remedies, drop θ for a measured
+noise floor (|L₂| ≈ 0.20 from P2). Q25 dissolves rather than gets answered.**
+
+### 📐 MODEL COMPARISON IMPORTED — with a correction that sharpens it
+Charbel's import: *"given disagreement, how do I rewire?"* is structure learning / DCM,
+answered by model comparison, not a threshold. **But `grow iff F(C+cell) − F(C) > 0`
+never fires**, and structurally: with η measured on the OLD edges, a new vertex w
+appears in NO term of the fit (x_w is unconstrained), and filling a triangle leaves δ⁰
+untouched. Accuracy is unchanged, complexity rose ⇒ ΔF < 0 always.
+> **Adding structure cannot improve the explanation of data you already have.
+> Growth is inherently a claim about FUTURE reconcilability.** That rules out a whole
+> class of designs and is worth more than the criterion as stated.
+
+Repair — three nested models:
+| model | fitted | decidable on current data? |
+|---|---|---|
+| **M0 flow** | x only | ✅ |
+| **M1 adapt** | x and R (learned maps) | ✅ |
+| **M2 grow** | enlarged complex | ❌ needs held-out or **persistence** (= §5p's "*persistent* obstruction"; persistent homology is the existing machinery, cf. D1) |
+
+**Q4 (Householder m) is answered as a by-product**: m is the complexity knob, chosen by
+model evidence rather than by hand.
+
+### ✅ THE BELIEF LAYER — `python/belief.py` (NEW, 13 self-tests, 0 API calls)
+
+**Charbel's question — "since we discussed what the sheaf should be, shouldn't we use it
+when modelling uncertainty?" — caught a real defect.** The first design computed Σ_v from
+each organ's own concepts and stopped: a LOCAL estimate wearing sheaf vocabulary.
+
+The sheaf's actual contribution. The engine already implies a Gaussian model whose
+consistency term IS ω, so the posterior precision of the whole system is
+$$\Lambda = \mathrm{blockdiag}(\Sigma_v^{-1}) + L, \qquad L=\delta^\top\Pi\delta$$
+- **Σ_v is the PRIOR, not the answer.** `sheaf_diffusion()` already computes the posterior
+  MEAN; nobody had ever computed the **covariance**, which is where the structure is.
+- **Uncertainty is NON-LOCAL**: `[Λ⁻¹]_vv` depends on degree, neighbours' precisions, topology.
+- **`−½ log det Λ` IS the Occam factor** for M0-vs-M1. The density-matrix layer and the
+  rewiring criterion turn out to be *the same object*.
+- **It rescues the entropy diagnostic.** I had argued orthogonal maps give ΔS ≡ 0 so we'd
+  need lossy contractions. True of *transport* entropy, false of *posterior* entropy: Λ's
+  diagonal blocks get `R ᵀπR = πI` (R-independent) but the **off-diagonal** blocks get
+  `−π R_uᵀR_v`, the relative rotation. So Householder stays, ‖R‖≤1 and Anderson–Morley
+  stay, and the field is live.
+
+**★ THE MEASURED NUMBER: `sharpening(v) = S(prior) − S(posterior) ≥ 0`** — how much
+certainty an organ gains *from being part of the complex*. Non-negative by theorem
+(adding PSD L can only increase precision); asserted over 200 random configurations.
+Verified: Reason with 1 edge **1.76 nats**, with 3 edges **3.23 nats**; a disconnected
+organ gains **−9.3e-13** (exactly nothing); π 0.01→100 moves total 0.52→41.07 nats.
+**This is "the whole exceeds the parts" as a number the engine prints (A17: passes).**
+
+### ✅ BLOCKER 2 (D = 1.0) SOLVED — and E4 closed with it
+D was two incompatible things (epistemic confidence *and* semantic breadth) forced into an
+isotropic variance in 384 dims — the one shape guaranteeing E4's blow-up. Fix:
+1. **D demoted to a floor**; all real uncertainty moves into the low-rank U.
+2. **⚠️ The invariant is NOT "shared eps" — it is "floor = O(1/d)".** I had it as the
+   former, which is sufficient but too strong, and it forced the isotropic prior into U
+   giving **k = 387 and 6.0 s per report at d=384**. Correct statement: the covariance must
+   carry trace O(1) (matching unit-normalised embeddings), so `d(√D₁−√D₂)²` is O(1) and
+   stays commensurate with `‖μ₁−μ₂‖² ≤ 4`. E4's 229.75 came from D = O(1) ⇒ d·O(1).
+   Now enforced as an explicit guard that **refuses** configurations exceeding the semantic
+   scale. After folding the isotropic prior into the floor: **k = 3–6, 0.128 s (47× faster),
+   `log det Λ` bit-identical at 9924.2665, Bures headroom 0.005 vs 4.**
+3. **Shrinkage prior** `Σ_v = (S_v + κΣ₀)/(n_eff+κ) + εI`, n_eff = Kish. Fixes a real
+   inversion: a concept seen ONCE currently gets U empty ⇒ Σ = εI ⇒ **maximum confidence
+   from a single sighting**. Now n=1 ⇒ Σ ≈ Σ₀ (broad), → empirical as evidence accumulates.
+4. **Entropy quantity = effective rank** `exp(H)` of the normalised signal spectrum, not raw
+   von Neumann (which at d=384 is dominated by the floor and says nothing).
+
+`module_vertex.stalk_gaussian()` added **alongside** `stalk()`, which stays byte-identical
+— it is load-bearing for the C++ parity test (§5j) and the ρ calibration (§5h).
+
+**Cost control:** Λ is 2688×2688 at n=7,d=384 and is never formed. Kronecker + matrix
+determinant lemma ⇒ an n×n det plus a K×K det (K=Σk_v). Dense path retained ONLY as a
+test oracle; fast and dense asserted equal to 5.7e-14. Non-identity maps break the
+factorisation and are **refused** rather than silently falling into a minutes-long solve.
+
+### ⚠️ NEW FIX-REGISTRY ITEMS
+- **FIX-13 (H) — `cognitive_state.cpp:224` / `curator.cpp:20` still hardcode D=1.0 with
+  empty U.** The Python fix above is not ported. Until it is, C++ W₂ remains Euclidean and
+  every C++ entropy identical.
+- **FIX-14 (M) — `verdict()` in `experiment_e5.py` still gates on the isotropic-fraction
+  null.** Must move to the probe-calibrated absolute statistic. It currently prints FAIL on
+  data that no longer supports it.
+
+**Tests:** `belief.py` 13/13 · `hodge.py` 11/11 · `experiment_e5.py` 3/3 · `coherence.py`
+15/15 · `module_vertex.py` demo clean. No regressions. Today's spend: **22 Groq calls**.
+
+## 5x. ⭐ E5 RUN 2 — **PASS**, but weakly, and the address is an artifact (2026-07-29, later still)
+
+Closes **FIX-14**. Run 2 = 32 calls (16 questions × 2 repeats); combined with run 1 + probes
+the dataset is **53 measurements** in `python/e5_elicitations.jsonl`. Prompt for non-probe
+questions is byte-identical to run 1, so the two runs are poolable. Today's total: **54 calls**.
+
+### ✅ FIX-14 CLOSED — the gate moved off the isotropic-fraction null
+`verdict()` now gates on **|L₂|, the absolute obstruction round the unfilled cycle**,
+calibrated by the probes, with **the QUESTION as the independent unit** (ICC ≈ 0.48, §5w)
+and a percentile bootstrap CI. Added `_q_means`, `_bootstrap_ci`, `calibration`, and a
+**Gate 0 the old verdict lacked: if P1 does not clearly exceed P2 the instrument is blind
+and nothing else in the run is licensed.** Run 1's allocation error is also fixed —
+9 new contested questions, repeats cut 3 → 2.
+
+### THE RESULT
+
+| | \|L₂\| |
+|---|---|
+| **P1 — planted cycle** | **1.22** |
+| **P2 — no cycle (the null)** | **0.26** |
+| **contested, 12 questions** | **0.41**, 95% CI **[0.28, 0.53]** |
+| controls, 2 questions | 0.22 |
+
+Instrument sensitivity re-confirmed at n=5 each: **4.7×**. Contested clears the null with
+the CI excluding it — but only at **15% of the planted-cycle level**.
+
+| question | \|L₂\| | | question | \|L₂\| |
+|---|---|---|---|---|
+| Q-prop82 | **0.75** | | Q-cp3-gap | 0.34 |
+| Q-wfr | **0.65** | | Q-morse-bott | 0.30 |
+| Q-witten | 0.55 | | Q-rho-truth | 0.15 |
+| Q-h1-b1 | 0.55 | | Q-am-novel | 0.15 |
+| Q-householder | 0.52 | | Q-fca | **0.00** |
+| Q-ikeda | 0.48 | | Q-commute | 0.45 |
+
+`Q-fca = 0.00` is the right answer, not a failure: on a pure design question every organ
+defers to Context, so there is genuinely nothing to glue.
+
+**Mechanism now solid:** corr(push spread, non-gradient) = **+0.449, permutation p = 0.0008,
+n = 53**. The organ×claim interaction (§5w's exact iff) is confirmed as the driver, no longer
+marginal.
+
+### ⚠️ HOW STRONG IS THIS, HONESTLY — weaker than the verdict line says
+**The CI does not propagate uncertainty in the calibration.** The null 0.26 is itself
+estimated from 5 P2 measurements, se ≈ 0.076. Folding that in:
+
+| treatment | t | one-sided p |
+|---|---|---|
+| as `verdict()` computes it (null taken as exact) | 2.28 | **0.022** |
+| null uncertainty folded in | 1.48 | **0.083** |
+
+**Read it as p ≈ 0.02–0.08. Marginal-positive, NOT established.** Same class of error as
+run 1's overstatement, caught this time before publishing the number. → FIX-15.
+
+### 🚨 THE "CONSISTENT GROWTH ADDRESS" IS AN ARTIFACT — nearly reported as a finding
+Every measurement carrying harmonic mass named the same two edges, `(Verify,Context)` and
+`(Reason,Context)`. That looks like striking localisation. **It is forced by the geometry.**
+With b₁ = 1 the harmonic subspace is ONE-dimensional, so every harmonic component is a scalar
+multiple of the same fixed vector h ∝ (⅓, ⅔, −1, ⅓, 1); the two largest entries are RC and VC
+*by construction*, whatever the data says.
+
+> **A 1-dimensional harmonic space can report THAT an obstruction exists but can NEVER report
+> WHERE.** The address carries exactly zero bits. §5p's growth law needs the address, so the
+> minimal configuration — chosen in §7 precisely because it is minimal — is structurally
+> unable to test the half of the story that matters.
+
+**⇒ NEW REQUIREMENT: the next configuration must have b₁ ≥ 2.** That is the difference between
+"there is an obstruction" and "here is where to grow", and it costs roughly the same per run.
+
+### WHERE THIS LEAVES THE THEORY
+- The mechanism is **alive**, reversing §5v. The instrument is validated in both directions.
+- The measured obstruction is **real but small** (~1/6 of a constructed one) and **not yet
+  solidly significant**.
+- **Localisation is currently impossible by construction** — the binding limitation, and the
+  one to fix next.
+
+### ⚠️ NEW FIX-REGISTRY ITEM
+- **FIX-15 (M) — `verdict()` treats the probe calibration as exact.** The null level is an
+  estimate with its own se; the bootstrap CI should be over both. Currently overstates
+  significance by roughly 4×, the same failure mode as run 1's ICC error.
+
+## 5y. E15 ANSWERED (**NO**) + F(M1) vs F(M0) BUILT — and Q16 gets a DERIVED scale (2026-07-29)
+
+### ❌ E15 CLOSED — WFR/HK has NO Bures-analogue between Gaussians
+**First citations in this project that were actually SEARCHED, not recalled.** The standing
+⚠️ on §5r's bibliography is lifted for these four.
+
+| claim | status |
+|---|---|
+| Liero–Mielke–Savaré, *Optimal Entropy-Transport problems and a new Hellinger–Kantorovich distance*, **Inventiones mathematicae** (2018), arXiv:1508.07941 | ✅ **verified** — cite as is |
+| Chizat–Peyré–Schmitzer–Vialard, *An Interpolating Distance between Optimal Transport and Fisher–Rao* | ✅ exists, as described |
+| **Janati–Muzellec–Peyré–Cuturi, *Entropic OT between Unbalanced Gaussian Measures has a Closed Form*, NeurIPS 2020, arXiv:2006.02572** | ✅ **NEW — was not in our bibliography.** Closed form, but **entropic** (Sinkhorn-regularised): a different object with an extra parameter ε |
+| arXiv:2605.02497 (2026), *Closed Forms for Gaussian KL Unbalanced OT without Coupling Entropy* | ✅ closed form, **but** the covariance map is the solution of a **Riccati equation**, and the penalty is **KL, not HK** |
+
+What exists for HK proper: an explicit **cone formula between Diracs**,
+`HK²(δ_{x₁}m₁, δ_{x₂}m₂) = m₁ + m₂ − 2√(m₁m₂)·cos(|x₁−x₂|)` (cut off at π/2); LMS §7.8 treats
+"Gaussian Hellinger–Kantorovich"; and HK-Boltzmann gradient flow preserves Gaussians with
+explicit ODEs. **No single closed-form distance between two arbitrary Gaussians surfaced.**
+
+> **VERDICT: NO, in the operative sense.** The nearest results either regularise (entropic —
+> different object) or need a **Riccati solve per pair**: O(d³)×iterations ≈ 5.7e7 flops per
+> pair at d=384, against Bures at ~520K flops for **all 21 edges** (§5s). Two to three orders
+> of magnitude worse, per pair. That is exactly §7's stated FAIL condition — "needs an
+> optimisation solve per distance evaluation, dead on the per-tick path".
+
+**⇒ Per §7's own decision rule: Q2c COLLAPSES TO THEORY. The merge metric stays plain
+Bures–Wasserstein.** δ (the concept-identity length scale) is not available via WFR, so the
+merge/split question loses its interpretable parameter and must be settled another way.
+
+*Possible escape, flagged NOT claimed:* our stalks are now rank-k with k = 3–6 (§5w), and a
+Riccati on a rank-k-plus-floor structure may reduce to k×k. Unverified. Do not build on it.
+
+### ✅ F(M1) vs F(M0) BUILT — `belief.py` model comparison (tests 13–16)
+Integrating the latent state out exactly (both factors Gaussian) gives, with
+`P = blockdiag(Σ_v⁻¹)` and `Λ = P + L`:
+$$-2\log p(\mu) = \underbrace{\mu^\top(P - P\Lambda^{-1}P)\mu}_{\text{accuracy}} + \underbrace{\log\det\Lambda}_{\text{Occam}} - \log\det P$$
+Both terms come from the object §5w already builds. **No penalty had to be invented.**
+
+- **13** general-R dense Λ reduces to the identity fast path exactly (261.08856219 both ways).
+- **14** consistent organ reports beat inconsistent ones (F 287 vs 499).
+- **15** learned maps cut accuracy 29.75 → 0.24 — **and M0 still wins**, because the parameter
+  charge is 851.7. The comparison independently rediscovers §5s's RAM finding: a full
+  orthogonal map is unaffordable **as a model**, not merely to store.
+
+### ★ 15b — THE RESULT THAT MATTERS: one tick cannot afford ANY learned map
+At real scale (d=384, n=7, 21 edges ⇒ **2688 observations/tick**):
+
+| parameterisation | params | over-parameterised by |
+|---|---|---|
+| Householder m=1 | 8,043 | **3.0×** |
+| Householder m=4 | 32,172 | **12.0×** |
+| full orthogonal | 1,544,256 | **574.5×** |
+
+> **Restriction maps CANNOT be learned from a single tick — even the cheapest one.** They
+> require accumulation. That is precisely the two-complex model's slow crystallization
+> γ₀ ≪ 1, which was adopted on anti-catastrophic-interference grounds; it is now **forced by
+> the evidence**, independently.
+
+### ★ 15c — Q16 (γ₀) MOVES FROM HAND-SET TO DERIVED
+Accuracy gain accumulates **linearly** in observations while the BIC charge grows only
+**logarithmically**, so the crossover T (least T with `T·gain > k·log(T·obs)`) gives
+**γ₀ ~ 1/T** — the rate at which W may write back to 𝕂. New `ticks_to_justify()`.
+
+⚠️ **The numbers printed (m=4 → T ≥ 32768 ⇒ γ₀ ~ 3e-5; m=1 → T ≥ 8192 ⇒ γ₀ ~ 1.2e-4) are the
+METHOD demonstrated on a d=12 SYNTHETIC accuracy gain. They are NOT a calibrated γ₀.** The
+real value needs the real per-tick gain measured on real organ data. What is established is
+the *derivation route*, not the constant.
+
+Two approximations, both named in code: **BIC** is crude (exact route = prior on R + Laplace
+`−½ log det H_R`); and `ticks_to_justify` assumes **independent** per-tick gains, which they
+are not — so T is a **lower** bound and γ₀ an **upper** bound.
+
+### 16 — M2 (grow) confirmed undecidable on current data
+ΔF = **+124.08**: growth rejected, as §5w predicted structurally. A new vertex appears in no
+term of the fit and filling a triangle leaves δ⁰ untouched, so accuracy cannot improve while
+complexity rises. **Growth is a claim about FUTURE reconcilability** — persistence or
+held-out data, never current fit.
+
+**Tests:** `belief.py` **16/16**. No regressions.
+
+## 5z. CONE–BURES: δ RECOVERED, THEN MEASURED, AND THE CLAIM CUT DOWN (2026-07-29)
+
+Charbel refused to accept E15's loss of δ and asked for an all-out attempt. New files:
+**`python/cone_bures.py`** (10 test groups) · **`python/validate_cone_bures.py`** (V1).
+Zero API calls. **Read §V1 RESULT before using any of this** — the construction works,
+the *interpretation* I first gave it does not survive measurement.
+
+### THE DIAGNOSIS THAT CONTAINED THE CONSTRUCTION
+Bures exists because the W₂ cost `|x−y|²` is **quadratic**, and quadratic costs preserve
+the Gaussian family (optimal map affine). HK's cone cost
+`−2log cos(min(|x−y|/2δ, π/2))` is **not** quadratic, so the optimal plan destroys mass in
+some regions and creates it in others and leaves the family. That is why no Bures analogue
+exists — structural, not an oversight. **So: don't attack the cost, attack what is
+transported.**
+
+### THE CONSTRUCTION — three facts we already had, never combined
+1. **HK IS a cone metric** (LMS): over any base metric space, `r = √mass`,
+   `d² = r₀²+r₁²−2r₀r₁cos(min(d_base, π/2))`. **The construction needs only that the base
+   be a metric space** — it does not care that the base is ℝᵈ.
+2. **MOS's state space is the GAUSSIAN MANIFOLD**, not measures on ℝᵈ. So build the cone
+   over **(Gaussian space, Bures–Wasserstein)** — a base whose distance we already compute.
+3. **We already have mass**: the Hebbian weight `w(σ,t)`. Decay destroys it, reinforcement
+   creates it. WFR's reaction term *is* bind/collapse, not an import.
+
+Derivation: restricting the WFR action to Gaussian paths with spatially uniform growth and
+substituting `r=√m` gives `𝒜 = ∫[r²|ẋ|²_BW + 4λṙ²]dt`, exactly the geodesic energy of
+`ds² = 4λdr² + r²ds²_BW` — a metric cone over BW rescaled by `1/(2δ)`, `δ=√λ`. Hence
+$$D_\delta^2 = w_0 + w_1 - 2\sqrt{w_0w_1}\cos\!\big(\min(d_{BW}/2\delta,\ \pi/2)\big)$$
+
+- **Metric**: capping a metric preserves the triangle inequality; the cone over a metric
+  space is a metric (BBI 3.6.13); `d̄ ≤ π/2 < π` so the min is inactive. **Tested: 20,000
+  random triples across five δ, worst violation exactly `+0.000e+00`.**
+- **Rank-k reduction**: `W = span(U₀)+span(U₁)`, `dim p ≤ 2k`; both `Σ₀^{1/2}` and `Σ₁`
+  preserve `W` and act as scalars on `W^⊥`, so only a `p×p` square root is formed.
+  Verified against dense: **max err 3.2e-12** over 200 pairs. **259.7 µs/pair at d=384,k=6
+  ⇒ 5.45 ms/tick for 21 edges** (the Riccati route E15 rejected: ~10¹⁰–10¹¹ flops/tick).
+- **Three limits, measured**: δ→∞ gives weighted Bures to **1e-8** (day-one degradation
+  exact, convergence `O(1/δ²)`) · `d_BW=0` gives pure Hellinger `(√w₀−√w₁)²` to 1e-12 ·
+  beyond `πδ` **saturates at `w₀+w₁`** and stays there (cutoff fires exactly at πδ), so
+  **D² is bounded — which independently kills the E4 runaway.**
+
+### 🚨 V1 RESULT — THE BOUND IS TIGHT ONLY FOR CONCENTRATED STALKS
+Built an **exact** HK solver (no entropic ε): semi-coupling form, constraints decouple
+(m₀ by rows, m₁ by columns), and each block step is closed-form — with `t=√m₀` the
+constraint makes `Σt²` constant so the step is `max⟨t,s⟩` s.t. `‖t‖=√μᵢ`, i.e.
+`t = √μᵢ·s/‖s‖` by Cauchy–Schwarz. Diracs exact to 4e-16; far-apart exact.
+
+**✅ SOLVER CAVEAT RESOLVED — and it was milder than first recorded.** A first pass capped
+at 3,000 iterations failed check 3 (ratio 1.05/1.32/1.60) and I recorded the solver as
+unreliable. A 60,001-iteration run on a finer grid shows it is a **convergence-RATE issue
+at very large δ, not a solver defect**:
+
+| δ | 3,000 iters | **60,001 iters** |
+|---|---|---|
+| 20 | 1.0494 | **1.0003** |
+| 60 | 1.3248 | 1.0238 |
+| 200 | 1.6000 | 1.2189 |
+
+At δ=20 it is essentially exact. Slow convergence only bites where the objective is O(1e-5).
+**The measurement below runs at δ=1, well inside the reliable regime**, and the two runs
+agree to ~1–3% with the better-converged one giving marginally *larger* gaps. So the
+"lower bound" caveat stands but is **quantified at ~1–3%**, not open-ended.
+
+Numbers below are from the 60,001-iteration run.
+
+| σ (spread) | D²/HK² at sep 1 | at sep 2 | `1+σ²/δ²` |
+|---|---|---|---|
+| 0.15 | 1.022 | 1.030 | 1.02 |
+| 0.30 | 1.094 | 1.116 | 1.09 |
+| 0.60 | 1.369 | 1.414 | 1.36 |
+| 1.00 | 2.010 | 2.039 | 2.00 |
+| 1.50 | 3.240 | 3.210 | 3.25 |
+
+**★ EMPIRICAL LAW FOUND: `HK_true² ≈ D²/(1 + σ²/δ²)`** to ~3% over a 10× spread range and
+every separation (the ratio is also near-constant in separation at fixed σ: 1.33→1.50
+across sep 0.25→3.14). Mechanism: true HK destroys the non-overlapping **tails**
+selectively; our uniform-growth restriction must move or destroy the whole lump, and the
+penalty scales with how much tail there is.
+
+### ❌ THE SPREAD CORRECTION IS DEAD — it breaks the metric
+`D̃² = D²/(1+σ_eff²/δ²)` would buy most of that accuracy back. Tested:
+**worst triangle violation +1.08 at δ=0.3 and +0.54 at δ=1.0** — structural, not numerical.
+Holds only at δ=3 where the correction is ≈1 anyway. **Usable as a ranking SCORE, never as
+a metric; merge transitivity is lost.** Not adopted.
+
+### 🚨🚨 CORRECTION (V1c, `python/validate_regime.py`) — THE REGIME CLAIM BELOW IS WRONG
+The section that follows concluded MOS sits at σ/δ ≳ 0.5 and therefore at ~50% agreement.
+**That was my error and it inverts the verdict.** I read the regime off **‖U‖_F**, which
+aggregates over all 384 dimensions and all k columns. What the transport problem sees is the
+spread **along the separation direction**, `σ_dir² = ûᵀΣû`, `û = Δμ/‖Δμ‖`. Since the rank-k
+covariance is mostly orthogonal to Δμ (k ≪ d), σ_dir is far smaller than ‖U‖_F.
+
+Measured, on stalks built the way `belief.py` builds them (calibrated to the logbook's own
+5h/E1 cosine statistics — cos_within ≈ 0.833, unit-normalised bge-small):
+
+| concepts/organ | ‖Δμ‖ | **σ_dir** | d_BW | δ (πδ = d_BW) | **σ_dir/δ** | implied gap |
+|---|---|---|---|---|---|---|
+| 2 | 1.361 | 0.0440 | 1.389 | 0.442 | **0.100** | 1.010 |
+| 5 | 1.317 | 0.0400 | 1.369 | 0.436 | 0.092 | 1.008 |
+| 25 | 1.291 | 0.0361 | 1.340 | 0.427 | 0.085 | 1.007 |
+| 50 | 1.291 | 0.0355 | 1.329 | 0.423 | **0.084** | 1.007 |
+
+**σ_dir ≈ 0.035–0.044, not ~0.3. So σ_dir/δ ≈ 0.084–0.100 — the BEST row of the table
+below, not the worst: ~87% predicate agreement and a value gap under 1%.**
+
+Two further points, both checked against the V1 data:
+- **The governing ratio really is σ/δ, not Mahalanobis separation.** Two V1 configurations
+  with identical `R = sep/σ = 6.67` give different gaps (1.022 vs 1.116), whereas the law
+  `1 + (σ/δ)²` fits every point to ~3% independently of separation. So the §5z framing was
+  right; only my estimate of σ was wrong.
+- **The residual ~13% disagreement is concentrated near the cutoff**, where any boundary is
+  intrinsically uncertain — not spread uniformly. Less damaging than the bare figure suggests.
+
+⚠️ Calibrated simulation, not live bge-small embeddings. It fixes the order of magnitude,
+which is what the question turns on. **Measuring σ_dir on the real corpus is now owed (V6).**
+
+### 🚨 AND THE OPERATIVE NUMBER IS WORSE THAN THE VALUES ~~(in MOS's regime)~~ — SEE THE CORRECTION ABOVE
+Merge-predicate agreement (`is_same_concept` vs HK saturation), by concentration:
+
+| σ/δ | 0.10 | 0.20 | 0.30 | 0.60 | 1.00 | 1.50 |
+|---|---|---|---|---|---|---|
+| agreement | 86.7% | 76.7% | 63.3% | **50.0%** | 50.0% | 50.0% |
+
+(n=30 per row, 60,001-iteration solver. A coarser 16-point/3,000-iteration pass gave
+87.5/75.0/62.5/50.0/50.0/50.0 — the pattern is stable, so this is not a resolution artefact.)
+
+~~**MOS's regime is structurally in the bad half.** Unit-normalised embeddings give
+`‖μ₀−μ₁‖ ≤ 2`, so δ ≤ 2/π ≈ 0.64; stalk spread is σ ~ 0.3–0.45, hence σ/δ ≳ 0.5 always ⇒
+~50% agreement ⇒ chance level.~~ **RETRACTED — see the V1c correction above. σ was read off
+‖U‖_F instead of the directional spread; the true σ_dir ≈ 0.04 puts MOS at σ/δ ≈ 0.09,
+i.e. ~87% agreement and a sub-1% value gap.**
+
+### ✅ BUT IT IMPROVES WITH ACCUMULATION — and that is testable
+`σ² ≈ S/(n_eff+κ)`. At n=5, σ~0.3; at n=50, σ drops ~2.9× to ~0.10, giving σ/δ ~0.16 and
+**~80%+ agreement**. So the metric becomes reliable *as organs accumulate concepts* —
+slope not intercept, the project's own thesis, and a concrete prediction to test.
+
+### ❌ V4 — NOT NOVEL. Cite, do not claim.
+Searched. Prior art exists: **"weighted Wasserstein–Bures" distances for unbalanced
+transport with BW as the balanced case, forming complete geodesic cones with radial (mass)
+/ angular (shape) splitting** (see *Conic Formulations of Transport Metrics for Unbalanced
+Measure Networks*, arXiv:2508.10888), and the cone-over-unit-trace-PSD-with-Bures = BW
+identification (which is §5t's own SPD≅cone-over-density-matrices observation). **The
+construction must be cited, not presented as new.** Under A17 that is fine: it earns its
+place by changing a number the engine prints, not by novelty.
+
+### WHERE THIS HONESTLY LEAVES US
+**SURVIVES:** a genuine metric with a length scale · bounded distance (E4 runaway killed) ·
+a **structural** merge predicate instead of a threshold · mass = Hebbian weight inside the
+metric · exact day-one degradation · 5.45 ms/tick · **and, per V1c, agreement with true HK
+to under 1% in value and ~87% on the merge decision at MOS's measured σ_dir/δ ≈ 0.09**.
+**DOES NOT SURVIVE:** novelty (V4) · and the bound is only this tight *because* our stalks
+are concentrated along the separation direction — it degrades fast if σ_dir/δ ever rises
+above ~0.3, so σ_dir/δ must be **monitored, not assumed**.
+
+> **δ is recovered and usable.** The construction is not new mathematics (V4) and it is not
+> literally WFR (it is the cone over Bures rather than over ℝᵈ, an upper bound by
+> construction) — but in MOS's measured regime it tracks true HK to under 1%, which is far
+> better than the qualitative agreement we would have settled for. The path there ran
+> through two of my own errors: an over-alarmed solver caveat, and reading the regime off
+> the wrong norm. Both were caught by measurement, which is the only reason the number can
+> be trusted now.
+
+### ⚠️ STILL OWED
+- ~~**V1b** — a non-stalling HK solver.~~ ✅ **Resolved by the 60k-iteration run**: the
+  solver converges (δ=20 → 1.0003); it was iteration budget, not a defect. Residual
+  caveat quantified at ~1–3%. A proper accelerated solver would still be needed to certify
+  the very-large-δ regime, but that regime is not where MOS operates.
+- **V2 / E14** — calibrate δ by sweep on ~50 hand-labelled pairs; publish the SENSITIVITY
+  CURVE, never a fitted value. Test 7 confirms the predicate is monotone in δ, so the
+  sweep is well-posed. **Needs Charbel: the labels.**
+- **V3** — the VerifyOp route (a merge that is later Refuted more often than the unmerged
+  pair was wrong). Needs accumulated sessions.
+- **V5** — test the accumulation prediction: does agreement rise with n_eff? V1c already
+  shows σ_dir falls 0.044 → 0.036 from 2 to 50 concepts, so the direction is confirmed;
+  the agreement measurement itself is still owed.
+- **V6 (new, from V1c)** — measure **σ_dir on the real corpus** with live bge-small
+  embeddings. V1c is a calibrated simulation; it fixes the order of magnitude but the whole
+  verdict now rests on σ_dir/δ ≈ 0.09, so that number must be measured, not simulated.
+  **Add σ_dir/δ to the per-tick telemetry** — if it ever drifts above ~0.3 the metric's
+  agreement with HK collapses and we need to know immediately.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -1206,6 +1702,10 @@ for, and it already paid off once when the verdict thresholds had to be replaced
   during consolidation. Not the foundation.* **Lesson: canonicity and growth are in tension; we
   want growth, and the audit's "choose a category" problem (F10) is dissolved by the two-complex
   model rather than solved.**
+- ⚠️ **[SUPERSEDED — the entry below was written from §5v and is RETRACTED. See §5w (why the
+  statistic could not support it) and §5x (run 2: weak PASS). Kept as the record of the error,
+  which was real and instructive: a verdict declared on a statistic that had never been shown
+  to discriminate a known positive.]**
 - ❌ **2026-07-29 — the cohomological growth law, on the evidence available: NOT SUPPORTED.**
   E5 ran (§5v). Measured η is *significantly more gradient-like than isotropic noise*
   (0.209 vs null 0.400, z=−2.19, p=0.014). One potential per organ largely explains the
@@ -1233,7 +1733,10 @@ for, and it already paid off once when the verdict thresholds had to be replaced
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.
 - **2026-07-29 (branched thread)** — E1 + E4 shipped, E3 partially run, `.tex` resynced, FIX-6 and FIX-10 closed. See §5u. Raised FIX-11.
-- **2026-07-29 (main thread)** — **Ran E5, the gate. It FAILS.** Built `hodge.py` and `experiment_e5.py`; derived the exact null distributions in closed form and caught that the run sheet's PASS criterion would have passed pure noise; caught that the specified organ contract is symmetric and therefore cannot be a 1-cochain (FIX-12); reformulated E5 as an Abramsky–Brandenburger contextuality test. Two elicitation designs failed informatively before the third worked. **Per §7's own FAIL action: the Φ_∞ rule, the aiming 2×2 and §5p's growth law are NOT to be written up as settled.** See §5v. 16 Groq calls.
+- **2026-07-29 (main thread, run 4)** — Charbel refused to lose δ. Built the **Cone–Bures metric** (`cone_bures.py`): the cone construction applied over Bures–Wasserstein rather than ℝᵈ, with mass = the Hebbian weight. Genuine metric (20k triples, zero violation), 5.45 ms/tick, exact day-one degradation, bounded (kills E4 runaway). Then validated: **V1** measured the gap with an exact HK solver — empirical law `HK²≈D²/(1+σ²/δ²)`; the correction it suggests **breaks the triangle inequality** and was rejected. **V4: not novel** (prior art — cite, don't claim). **V1c corrected two of my own errors**: an over-alarmed solver caveat (it was iteration budget, δ=20 → 1.0003 at 60k iters), and reading MOS's regime off ‖U‖_F instead of the spread along the separation direction — the real σ_dir ≈ 0.04, so **σ_dir/δ ≈ 0.09, agreement with true HK under 1% in value and ~87% on the merge decision. δ is recovered and usable.** New owed item V6: measure σ_dir on the real corpus and put σ_dir/δ in telemetry. See §5z.
+- **2026-07-29 (main thread, run 3)** — Retracted §5v's FAIL (§5w). Built `belief.py`: sheaf-theoretic uncertainty (Λ = blockdiag(Σ_v⁻¹) + L), **solved blocker 2 (D=1.0) and closed E4's dimensional bug**, `sharpening` as a measured "whole > parts". **E15 answered NO** — WFR/HK has no Bures analogue between Gaussians (citations SEARCHED, one new paper found); **Q2c collapses, merge metric stays Bures**. Built F(M1) vs F(M0); found that **no restriction-map parameterisation is affordable on one tick**, which forces γ₀ ≪ 1 from evidence and gives **Q16 a derived route**. Raised FIX-13. See §5y.
+- **2026-07-29 (main thread, run 2)** — Closed FIX-14; reran E5 with 12 contested questions, probe-calibrated |L₂|, questions as the independent unit. **PASS, weakly** (0.41 vs 0.26 null, p ≈ 0.02–0.08, 15% of the planted-cycle level). Caught that the apparent "consistent growth address" is a **b₁=1 artifact** carrying zero bits ⇒ next configuration needs b₁ ≥ 2. Raised FIX-15 (calibration treated as exact). 32 calls; 54 today. See §5x.
+- **2026-07-29 (main thread)** — ~~**Ran E5, the gate. It FAILS.**~~ *(retracted — see §5w, §5x)* Built `hodge.py` and `experiment_e5.py`; derived the exact null distributions in closed form and caught that the run sheet's PASS criterion would have passed pure noise; caught that the specified organ contract is symmetric and therefore cannot be a 1-cochain (FIX-12); reformulated E5 as an Abramsky–Brandenburger contextuality test. Two elicitation designs failed informatively before the third worked. **Per §7's own FAIL action: the Φ_∞ rule, the aiming 2×2 and §5p's growth law are NOT to be written up as settled.** See §5v. 16 Groq calls.
 
 ---
 ---
@@ -1248,9 +1751,12 @@ of Phases 1–3. Do NOT write theory before Phase 0 returns.
 ## PHASE 0 — THE THREE GATES (do these before anything else)
 
 ### ⭐ E5 — THE GATE. Does a measured η have curl or harmonic mass?
-> **❌ RUN 2026-07-29 — VERDICT: FAIL. See §5v.** Also: the PASS criterion below is UNSAFE as
-> written (isotropic noise scores 0.400, not 0), and the organ contract in step 2 is symmetric
-> and therefore not a 1-cochain (FIX-12). Both corrected in §5v; read that, not this.
+> **✅ RUN ×2, 2026-07-29 — VERDICT: PASS, weakly. See §5x.** (§5v's FAIL was retracted in §5w.)
+> Everything below is superseded on three counts: the PASS criterion is UNSAFE as written
+> (isotropic noise scores 0.400, not 0, and the *fraction* cannot discriminate a planted cycle
+> at all — use probe-calibrated |L₂|); the organ contract in step 2 is symmetric and therefore
+> not a 1-cochain (FIX-12); and **b₁ = 1 makes the growth ADDRESS uninformative, so the next
+> configuration needs b₁ ≥ 2.** Read §5v → §5w → §5x, not this.
 
 **Why first:** the growth law, the aiming 2×2 (§5s), the Φ_∞ stopping rule, and half of Paper B
 all assume a measured η is NOT pure gradient. Untested. If it fails, a large part of what we

@@ -92,6 +92,33 @@ class ModuleVertex(ABC):
         M = np.stack([c.vector for c in self._concepts])
         return (W[:, None] * M).sum(axis=0) / W.sum()
 
+    def stalk_gaussian(self, prior_factor: Optional[np.ndarray] = None,
+                       kappa: float = 1.0,
+                       rank: Optional[int] = None) -> Optional["belief.Gaussian"]:
+        """pi_v upgraded: the organ's PRIOR as a Gaussian, not just a point.
+
+        Same mean as stalk() by construction, plus a low-rank covariance read off
+        the spread of the concepts this organ is actually holding -- a tight
+        cluster is a focused organ, a scattered one is a vague organ.
+
+        This is a PRIOR, not the organ's uncertainty. The uncertainty the system
+        actually has about x_v is the posterior marginal [Lambda^-1]_vv, which
+        depends on the whole complex (see belief.SystemBelief). Computing a local
+        covariance and stopping would be a local estimate wearing sheaf
+        vocabulary.
+
+        Kept SEPARATE from stalk() rather than replacing it: stalk() is byte-for-
+        byte load-bearing for the C++ parity test (logbook 5j) and for the ρ
+        calibration in 5h.
+        """
+        import belief
+        if not self._concepts:
+            return None
+        return belief.stalk_gaussian(
+            [c.vector for c in self._concepts],
+            [c.weight for c in self._concepts],
+            prior_factor=prior_factor, kappa=kappa, rank=rank)
+
     # --- what this organ contributes to the algebra D -----------------------
     @abstractmethod
     def operators(self) -> List[str]:

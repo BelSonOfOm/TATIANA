@@ -211,6 +211,81 @@ QUESTIONS: List[Question] = [
         "current answer is CORRECT?",
         "contested",
         "The project's own standing claim is that coherence is not correctness."),
+    # --- added for run 2. The power analysis after run 1 found ICC ~ 0.48, i.e.
+    # the INDEPENDENT UNIT IS THE QUESTION, not the repeat. Run 1 spent 15 calls
+    # on 5 questions x 3 repeats, which is the wrong allocation: repeats buy
+    # almost nothing at that ICC. Run 2 trades repeats for questions.
+    Question(
+        "Q-witten",
+        "Is the thermally weighted Laplacian on CP^3 a Witten / Bakry-Emery drift "
+        "Laplacian, so that standard drift-Laplacian spectral bounds apply to it "
+        "directly?",
+        "contested",
+        "Retrievable-with-a-caveat. Search can find the drift theory; whether the "
+        "hypotheses transfer is a derivation question."),
+    Question(
+        "Q-morse-bott",
+        "The Heisenberg XXX Hamiltonian has degenerate eigenvalues, so the Morse "
+        "theory step is really Morse-Bott with critical set CP^2 union a point. "
+        "Does the stated conclusion survive that correction?",
+        "contested",
+        "Reason should dominate; Search has little; Verify can check the "
+        "Morse-Bott polynomial but not the transfer."),
+    Question(
+        "Q-prop82",
+        "Does Proposition 8.2 -- that the coboundary of a global state is always "
+        "exact -- block the growth law that reads a cell address off the "
+        "obstruction cocycle?",
+        "contested",
+        "MOS-internal. Reason strong, Context holds the design history, Search "
+        "has nothing, Verify cannot touch it."),
+    Question(
+        "Q-householder",
+        "Are restriction maps represented as products of 4 Householder "
+        "reflections expressive enough to encode the relations between cognitive "
+        "organs, or is that too small a family?",
+        "contested",
+        "Genuinely open. Reason can bound the family, Verify can check "
+        "orthogonality, Search has partial literature, Context holds the RAM "
+        "constraint that forced it."),
+    Question(
+        "Q-am-novel",
+        "Is the weighted Anderson-Morley bound a genuinely new theorem, or "
+        "standard signless-Laplacian folklore?",
+        "contested",
+        "Search should dominate decisively; Reason can verify the proof but not "
+        "the novelty; a real competence asymmetry."),
+    Question(
+        "Q-fca",
+        "Should a memory substrate be data-determined -- recomputed canonically "
+        "from the data it holds -- or history-determined, growing by accumulation?",
+        "contested",
+        "Context should dominate (it holds the commitment); Verify cannot touch "
+        "a design question at all."),
+    Question(
+        "Q-wfr",
+        "Does Wasserstein-Fisher-Rao / Hellinger-Kantorovich admit a closed form "
+        "between Gaussian measures, the way Bures-Wasserstein does?",
+        "contested",
+        "This is E15. Search-dominant and factual, but Verify could in principle "
+        "check a candidate formula."),
+    Question(
+        "Q-h1-b1",
+        "Under a constant sheaf with identity restriction maps, is a nonzero "
+        "first sheaf cohomology equivalent to a nonzero first Betti number, so "
+        "that the two diagnoses collapse into one?",
+        "contested",
+        "Reason-dominant with a clean answer; Verify can check the tensor "
+        "identity; Search moderate."),
+    Question(
+        "Q-commute",
+        "Do two operators whose declared node-supports are disjoint actually "
+        "commute as state transformers, given that both touch a shared database, "
+        "a shared obstruction counter and a shared mutation history?",
+        "contested",
+        "This is E3's hypothesis. Reason and Context should pull hard against "
+        "Search here."),
+
     Question(
         "Q-b1-cp3",
         "Is the first Betti number of CP^3 equal to zero?",
@@ -610,6 +685,50 @@ class Measurement:
                 f"p={p_value_nongrad(self.nongrad):.3f})")
 
 
+def _q_means(ms: List[Measurement], stat) -> Dict[str, float]:
+    """Per-question mean of `stat`. The QUESTION is the independent unit.
+
+    Run 1 measured ICC ~ 0.48 across repeats of one question, so treating each
+    repeat as an independent observation roughly doubles the apparent sample size
+    and quadruples the apparent significance. It did exactly that, and the
+    resulting p-value had to be retracted. Everything below aggregates to the
+    question first.
+    """
+    by: Dict[str, List[float]] = {}
+    for m in ms:
+        by.setdefault(m.q.qid, []).append(stat(m))
+    return {k: float(np.mean(v)) for k, v in by.items()}
+
+
+def _bootstrap_ci(vals: Sequence[float], reps: int = 20000,
+                  alpha: float = 0.05) -> Tuple[float, float]:
+    """Percentile bootstrap CI for the mean. Assumption-free, which matters at n=12."""
+    v = np.asarray(list(vals), dtype=float)
+    if v.size < 2:
+        return (float("nan"), float("nan"))
+    rs = np.random.default_rng(11)
+    means = np.array([rs.choice(v, size=v.size, replace=True).mean() for _ in range(reps)])
+    return (float(np.quantile(means, alpha / 2)), float(np.quantile(means, 1 - alpha / 2)))
+
+
+def calibration(ms: List[Measurement]) -> Tuple[Optional[float], Optional[float]]:
+    """(null level, planted level) for |L2|, read off the two probes.
+
+    This replaces the isotropic-fraction null that run 1 gated on. That null was
+    the right null for the WRONG statistic: the non-gradient FRACTION divides by
+    total disagreement, and the positive control -- a cycle planted by
+    construction -- scored 0.214 on it against 0.209 for the real questions. A
+    statistic on which a known positive is indistinguishable from the unknown
+    cannot decide anything, so the gate moves to the ABSOLUTE obstruction size,
+    calibrated by the probes rather than by a distributional assumption.
+    """
+    cx = e5_complex()
+    def lvl(kind):
+        v = [abs(loop_sums(cx, m.eta)[1]) for m in ms if m.q.kind == kind]
+        return float(np.mean(v)) if v else None
+    return lvl("probe-nested"), lvl("probe-positive")
+
+
 def verdict(measurements: List[Measurement]) -> Tuple[str, str]:
     """PASS / FAIL / UNINFORMATIVE, with the reasoning that produced it.
 
@@ -623,56 +742,73 @@ def verdict(measurements: List[Measurement]) -> Tuple[str, str]:
     if not contested:
         return "UNINFORMATIVE", "no contested questions were measured"
 
-    ng_c_vals = [m.nongrad for m in contested]
-    ng_c = float(np.mean(ng_c_vals))
-    ng_k = float(np.mean([m.nongrad for m in controls])) if controls else float("nan")
-    z, p = null_z(ng_c_vals)
+    cx = e5_complex()
+    l2 = lambda m: abs(loop_sums(cx, m.eta)[1])
 
-    # Necessary condition: context-dependent pushes.
+    null_lvl, pos_lvl = calibration(measurements)
+    qc = _q_means(contested, l2)          # question -> mean |L2|
+    qk = _q_means(controls, l2)
+    vals = list(qc.values())
+    lo, hi = _bootstrap_ci(vals)
+    mean_c = float(np.mean(vals)) if vals else float("nan")
+    mean_k = float(np.mean(list(qk.values()))) if qk else float("nan")
+
     spreads = [s for m in measurements for s in m.spread.values() if not np.isnan(s)]
     mean_spread = float(np.mean(spreads)) if spreads else float("nan")
 
-    # Stability across re-elicitation (orientation flipped between repeats).
-    by_q: Dict[str, List[float]] = {}
-    for m in contested:
-        by_q.setdefault(m.q.qid, []).append(m.nongrad)
-    gaps = [max(v) - min(v) for v in by_q.values() if len(v) > 1]
-    spread_rep = float(np.mean(gaps)) if gaps else float("nan")
+    reasons = [
+        f"statistic = |L2|, the absolute obstruction round the unfilled cycle",
+        f"probe calibration: null (no cycle) = "
+        f"{'n/a' if null_lvl is None else f'{null_lvl:.2f}'}, "
+        f"planted cycle = {'n/a' if pos_lvl is None else f'{pos_lvl:.2f}'}",
+        f"contested |L2| = {mean_c:.2f}   95% CI [{lo:.2f}, {hi:.2f}]   "
+        f"over {len(qc)} QUESTIONS (not repeats)",
+        f"control   |L2| = {mean_k:.2f}   over {len(qk)} questions",
+        f"mean organ push spread = {mean_spread:.3f}",
+    ]
 
-    reasons = [f"contested non-gradient fraction = {ng_c:.3f}  (null 0.400)",
-               f"  vs the isotropic null         : z = {z:+.2f}, one-sided p = {p:.4f}",
-               f"control non-gradient fraction   = {ng_k:.3f}",
-               f"mean organ push spread          = {mean_spread:.3f}",
-               f"mean spread across repeats      = {spread_rep:.3f}",
-               f"n contested = {len(contested)}, n control = {len(controls)}"]
+    if null_lvl is None or pos_lvl is None:
+        return "UNINFORMATIVE", ("the probes were not measured, so there is no "
+                                 "calibration and |L2| has no scale. | "
+                                 + " | ".join(reasons))
+
+    # Gate 0: is the instrument even able to see an obstruction? If the planted
+    # cycle does not clearly exceed the non-cyclic scenario, nothing else in this
+    # run means anything -- a blind instrument and a gradient world are
+    # indistinguishable. This gate is what run 1 lacked.
+    if pos_lvl < 2.0 * max(null_lvl, 1e-6):
+        return "UNINFORMATIVE", ("INSTRUMENT BLIND: the planted cycle does not "
+                                 "separate from the non-cyclic control, so no "
+                                 "conclusion about the organs is licensed. | "
+                                 + " | ".join(reasons))
 
     if not np.isnan(mean_spread) and mean_spread < 1e-6:
         return "FAIL", ("organ pushes are context-independent: one global potential "
                         "explains every pair, so eta is a pure gradient by "
-                        "construction and H^1 has nothing to find. | "
-                        + " | ".join(reasons))
+                        "construction. | " + " | ".join(reasons))
 
-    # FAIL comes first and is not rescued by instability: a measurement that is
-    # significantly MORE gradient-like than noise says the growth story has no
-    # address, and noisy repeats make that worse, not better.
-    if z < -1.64:
-        return "FAIL", ("measured eta is significantly MORE gradient-like than "
-                        "isotropic noise: one potential per organ largely explains "
-                        "the pairwise data, so H^1 has little to find and the "
-                        "cohomological growth law has no address to fire at. | "
+    if len(qc) < 8:
+        return "UNINFORMATIVE", (f"only {len(qc)} contested questions; the power "
+                                 "analysis after run 1 requires ~12 independent "
+                                 "questions to resolve an effect of this size. | "
+                                 + " | ".join(reasons))
+
+    # The CI is over questions, so it carries the clustering correctly.
+    if lo > null_lvl:
+        frac = (mean_c - null_lvl) / max(pos_lvl - null_lvl, 1e-9)
+        return "PASS", (f"contested questions carry a real obstruction: |L2| is "
+                        f"above the no-cycle null with the whole 95% CI clear of "
+                        f"it, at {100 * frac:.0f}% of the planted-cycle level. The "
+                        f"harmonic component exists and can carry a growth address. | "
                         + " | ".join(reasons))
-    if not np.isnan(spread_rep) and spread_rep > 0.30:
-        return "UNINFORMATIVE", ("the non-gradient fraction is not reproducible "
-                                 "across re-elicitation; we measured the "
-                                 "instrument, not the organs. | " + " | ".join(reasons))
-    if z > 1.64 and (np.isnan(ng_k) or ng_c - ng_k > 0.10):
-        return "PASS", ("measured eta carries reproducible non-gradient mass above "
-                        "the isotropic null and above the controls; the harmonic "
-                        "component exists and can carry a growth address. | "
+    if hi < null_lvl:
+        return "FAIL", ("contested questions carry LESS obstruction than a "
+                        "deliberately non-cyclic scenario: organ judgements are "
+                        "consistently rankable and H^1 has nothing to find. | "
                         + " | ".join(reasons))
-    return "UNINFORMATIVE", ("the non-gradient fraction is not separated from the "
-                             "isotropic null in either direction. | "
-                             + " | ".join(reasons))
+    return "UNINFORMATIVE", ("the contested obstruction is not separated from the "
+                             "no-cycle null: the CI straddles it. More questions, "
+                             "or a sharper elicitation. | " + " | ".join(reasons))
 
 
 # --------------------------------------------------------------------------
