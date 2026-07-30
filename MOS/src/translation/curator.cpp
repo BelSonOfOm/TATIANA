@@ -12,31 +12,46 @@ namespace translation {
 AgentCurator::AgentCurator(math::FourierMapper mapper)
     : fourier_mapper_(std::move(mapper)) {}
 
-/// Transitional prior used ONLY when confidence is unknown. Deliberately more
-/// humble than the old hidden 0.5 (this corresponds to c = e^-1 ~ 0.368), and
-/// deliberately NAMED so it is visible in the code rather than buried as a magic
-/// literal. This goes away once coherence-based confidence (rho, Construction 2b)
-/// is wired in: rho is measured from actual module agreement, not self-reported.
-static constexpr double UNCALIBRATED_VARIANCE_PRIOR = 1.0;
-
-double AgentCurator::compute_variance(std::optional<double> confidence) const {
-    // True epistemic variance based on information theory: \sigma^2 = -\ln(c)
+/// FIX-13. This function used to return -ln(c) as an isotropic variance, and
+/// UNCALIBRATED_VARIANCE_PRIOR = 1.0 when no confidence was available. Both are
+/// now gone, for one reason: **an isotropic variance in d dimensions is the wrong
+/// destination for a scalar confidence.**
+///
+/// The arithmetic (also documented at semantic_skill.hpp's WassersteinTerms): the
+/// Bures term between two isotropic covariances is d*(sqrt(D1)-sqrt(D2))^2, which
+/// grows with d, while the semantic term ||mu1-mu2||^2 <= 4 regardless of d. At
+/// d = 384, D = 1.0 against a confident c = 0.95 gave epistemic ~= 230 vs
+/// semantic <= 4 — a 57:1 ratio in favour of a self-reported LLM confidence the
+/// architecture elsewhere explicitly declines to trust. The old 1e-9 confidence
+/// clamp made this worse: it admits -ln(c) = 20.7, i.e. an epistemic term of
+/// ~15.8, still four times the whole semantic budget.
+///
+/// Per Q9 (MOS_FINALIZATION.md) the correct home for a reported confidence is the
+/// EDGE PRECISION pi_e in L = delta^T Pi delta, where it is dimensionally
+/// harmless and actually load-bearing. Routing it there is separate wiring and is
+/// deliberately NOT done here — this function's job is now only to supply the
+/// shared O(1/d) noise floor, and it no longer pretends a confidence is a
+/// geometry. `confidence` is retained in the signature because the caller still
+/// carries it towards pi_e.
+///
+/// @param d The embedding dimension. Passed explicitly rather than inferred:
+///          the floor is a function of d, and silently assuming a dimension is
+///          precisely the class of bug FIX-1 was opened for.
+double AgentCurator::compute_variance(std::optional<double> confidence, int d) const {
+    (void)confidence;  // deliberately unused; see the note above and Q9.
     if (!confidence.has_value()) {
-        // HONESTY: we do not manufacture a measurement. Warn once, loudly.
         static bool warned = false;
         if (!warned) {
-            std::cerr << "[Curator] WARNING: thought confidence is UNAVAILABLE "
-                         "(provider returned no logprobs). Using the explicit "
-                         "UNCALIBRATED_VARIANCE_PRIOR for the noise floor D. Concept "
-                         "variances are NOT measured until coherence-based (rho) "
-                         "confidence is wired in.\n";
+            std::cerr << "[Curator] NOTE: thought confidence is UNAVAILABLE "
+                         "(provider returned no logprobs). This no longer affects "
+                         "the noise floor D, which is now the shared O(1/d) "
+                         "shrinkage floor for every stalk (FIX-13). Confidence, "
+                         "when present, belongs in the edge precision pi_e and is "
+                         "not yet wired there.\n";
             warned = true;
         }
-        return UNCALIBRATED_VARIANCE_PRIOR;
     }
-    // Confidence is [0, 1]. Clamp strictly to avoid log(0).
-    double clamped_conf = std::max(1e-9, std::min(0.999999, *confidence));
-    return -std::log(clamped_conf);
+    return core::stalk_floor(d, /*n_eff=*/1.0);
 }
 
 double AgentCurator::calculate_wasserstein_2_sq(const Eigen::VectorXd& mu1, double D1,
@@ -54,7 +69,8 @@ std::shared_ptr<core::Operad> AgentCurator::curate(const AgentThought& new_thoug
     // 1. Process the new AgentThought (Agent -> 0-simplex)
     std::vector<double> mu_vec = fourier_mapper_.project(new_thought.latent);
     Eigen::VectorXd thought_mu = Eigen::Map<Eigen::VectorXd>(mu_vec.data(), mu_vec.size());
-    double thought_D = compute_variance(new_thought.confidence);
+    double thought_D = compute_variance(new_thought.confidence,
+                                        static_cast<int>(thought_mu.size()));
     Eigen::MatrixXd thought_U(thought_mu.size(), 0);
     
     auto thought_skill = std::make_shared<core::SemanticEmbedding>(thought_mu, thought_U, thought_D, new_thought.reasoning_chain);

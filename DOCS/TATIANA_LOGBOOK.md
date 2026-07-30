@@ -1691,6 +1691,358 @@ above ~0.3, so σ_dir/δ must be **monitored, not assumed**.
   **Add σ_dir/δ to the per-tick telemetry** — if it ever drifts above ~0.3 the metric's
   agreement with HK collapses and we need to know immediately.
 
+## 5aa. THE FINALIZATION QUESTIONNAIRE CLOSED (2026-07-30) — four decisions by Charbel, curvature held open
+
+Before any further building, the 🔴 questions in `MOS_FINALIZATION.md` §D were put to Charbel.
+**Three of them had MOVED since the questionnaire was written and the stale versions were not
+put to him** — recording that, because answering the old Q9/Q11 would have re-standardised a
+contract that FIX-12 already proved is the wrong type.
+
+### ✅ F10 — DISSOLVED, not answered. The K₀ / Jordan–Hölder memory schema is DROPPED.
+Both categories the book offers fail: in `Hol(𝒟)` every Gaussian concept is a *simple* module
+(k[x] is simple over the Weyl algebra in char 0) ⇒ JH length 1, and the K₀ class says no more
+than "which memory is this"; in `Rep(Q)` the K₀ class **is** the dimension vector, which
+collides catastrophically as a retrieval index. Jordan–Hölder guarantees canonicity *given* a
+category and cannot pick the atoms.
+**Decision: adopt §5r's position — the two-complex 𝕂/W model supplies memory identity through
+GROWTH HISTORY, so the canonical-schema programme is dropped rather than forced into a
+category.** Same reasoning that rejected FCA: canonicity and growth are in tension and we chose
+growth. This unblocks 𝕂/W implementation (Phase 2 item 5), which had been waiting on a category
+it turns out not to need. Filed as a dead end in §6.
+
+### ✅ Q9 / Q10 / Q11 — the ANTISYMMETRIC contract is now normative. Q9's ✅ is RETRACTED.
+`MOS_FINALIZATION.md` Q9 records "a scalar in [−1,1] plus a confidence" as ANSWERED and Q11
+defaults to `{u, v, agreement, confidence}`. **Both are wrong by FIX-12:** a 1-cochain is
+antisymmetric and a symmetric `agreement` score antisymmetrises to η ≡ 0.
+**Decision: standardise on `(sub-claim, push_u, push_v, confidence)` as implemented in
+`experiment_e5.py`** — the contract that actually produced the §5x weak PASS — and judge
+**bound pairs only** (Q10 default). Propagation owed: `MOS_FINALIZATION.md` Q9/Q10/Q11 and the
+`.tex`. FIX-12 stays OPEN but now has a decided target rather than an open question.
+
+### ✅ Q16 (γ₀) — USE THE DERIVED SCALE, not the hand-set 0.05.
+§5y's affordability result (no restriction-map parameterisation is affordable on one tick)
+forces γ₀ ≪ 1 **from evidence**. Adopted. E13 replay still validates rather than sets it.
+Passes A17 on the nose: it deletes a decision a human was making by hand.
+
+### ✅ Q4, Q19, Q21, Q25 — recommended defaults ADOPTED, logged as decided.
+- **Q4** — Householder m = 4 (6 KB/map). E10 may escalate to Cayley r = 4 at ~2× cost.
+- **Q19** — nothing is deleted from 𝕂; low-weight regions **demote to `gr` form** (keep the
+  cells, drop the learned restriction maps back to identity). Content persists, structure decays.
+- **Q21** — on Refuted, mark the supporting cells `Refuted` and exclude them from
+  instantiation; do NOT delete. Full AGM contraction deferred.
+- **Q25** — θ for the growth trigger = a **quantile of observed Φ_∞/‖η‖²**, same discipline as
+  ε and κ_hi/κ_lo.
+These are adopted so Phase 2 can start; the experiments (E10, E13) are free to overturn them.
+
+### 🔵 Q5 / Q6 — HELD OPEN by Charbel's choice: the curvature controller gets discussed first.
+Correct instinct — it is the only one of the mechanical questions that **actively moves weight
+around**, i.e. the only one whose default can silently damage the store. See §5ab.
+
+### ⚠️ Q2b / Q2c — the questionnaire is STALE and should be corrected.
+Q2b is still listed 🔴; it was resolved in §5t (hybrid metric + explicit dispatch rule). Q2c
+collapsed when E15 returned NO (§5y). Neither is open. Fold into the FIX-12 propagation pass.
+
+## 5ab. THE CURVATURE CONTROLLER — SIX FINDINGS, DECISION STILL OPEN (2026-07-30)
+
+Q5/Q6 held open per §5aa. Discussion raised six things, none of which are in `MOS_FINALIZATION.md`
+Part C. **Decision NOT yet taken** — recorded now because the findings stand independently of it.
+
+### ⚠️ C5-1 — Part C quotes the UNWEIGHTED Forman formula, but MOS's complex is WEIGHTED.
+Forman's curvature is defined for *weighted* cell complexes (ratios `w_v/w_e`, sums over parallel
+neighbours). `F(e) = 4 − deg u − deg v + 3m` is its **unit-weight specialisation**, as used in the
+network-science literature. MOS carries a real coupling `w(σ,t) ∈ [0,1]` on every simplex — that
+coupling *is* the plasticity substrate. **So Part C applies the all-weights-equal formula to a
+complex whose weights are the entire point.** Same family as FIX-12: right formula, wrong type of
+object. Not fatal (the combinatorial signal is still legitimate) but it must be a DECLARED
+approximation, never a silent one. Options: use Forman's weighted form, or state the
+specialisation and justify it.
+
+### ⚠️ C5-2 — the coefficient 3 is an UNVERIFIED convention, and Part C introduces it while
+claiming to remove a magic number (`decay = 0.1`). It is the standard unit-weight value but was
+**not** derived from Forman's general formula here. Either derive it, or label it a convention and
+let E11 report sensitivity to it.
+
+### ★ C5-3 — THE STRONGEST ARGUMENT FOR FORMAN IS VALIDITY, NOT COST (new).
+C.6's aiming 2×2 pairs κ (shape) against η_H (data), and its diagnostic power **depends on the two
+axes being independent** — that is what licenses the top-right cell ("contradiction with no
+structural cause ⇒ suspect the MEASUREMENT"). Augmented Forman reads only combinatorics and
+**never touches a stalk**; Ollivier reads stalk geometry through both `W₁` and `d`. Under Ollivier
+the axes partially correlate, a stalk-level artefact moves BOTH, and the self-diagnosis cell
+degrades to noise. **Forman keeps the signals genuinely independent.**
+
+### C5-4 — Ollivier got MORE available but is still off the per-tick path.
+§5z's Cone–Bures supplies the principled ground metric `d` Ollivier needs. But `W₁` over
+neighbourhoods costs `|N(u)|×|N(v)|` Cone–Bures evaluations per edge plus an LP, on top of a
+metric measured at 5.45 ms/tick. "Forman first, Ollivier on flagged edges" survives — now for a
+**measured** reason rather than an asymptotic one.
+
+### ⚠️ C6-1 — "signal-only for two weeks" is a CALENDAR, not a criterion (fails A17).
+Replace with **SHADOW MODE**: compute what `w` would become, record the counterfactual trajectory,
+apply nothing. Strictly more informative than signal-only (which logs κ; shadow logs κ's
+*consequence*) at the same zero cost. Then gate the live switch on evidence: E11 shows a
+non-degenerate κ distribution **and** the shadow trajectory drives no edge to `w_floor` faster
+than observed natural decay.
+
+### ⚠️ C6-2 — TWO DIFFERENT ε's ARE ABOUT TO COLLIDE.
+The flow's ε in `w ← (1 + ε·κ)w` is a **step size**; the coherence gate's ε in `ω > ε ⇒ RESOLVE`
+is a **threshold**. Part C's prose conflates them ("the same move that fixed ε"). **Rename to
+`ε_flow` and `ε_ρ` before implementation.**
+
+### ⚠️ C6-3 — Q6 CANNOT BE DECIDED WITHOUT Q8, AND Q8's DEFAULT IS TOO WEAK.
+The entire safety argument for the live flow *is* `w_floor`. Q8's default sets it to the bind
+threshold itself, so C.4 reads "may decay to, but never below, the point of collapse." **A bridge
+parked exactly AT the collapse point is not safe** — survival then depends on whether collapse
+fires on `w < θ` or `w ≤ θ` and on floating-point luck. If the floor is to guarantee bridges
+survive it must sit **strictly above** the trigger with a stated margin. Q8 is filed 🟡 but is
+load-bearing for a 🔴.
+
+### ⚠️ C6-4 — THE SIGN CONVENTION NEEDS A TEST, NOT A COMMENT.
+MOS uses coupling (`w` = strength); the literature uses distance. Inverted, the controller
+strengthens redundant edges and weakens bridges — **plausible-looking while quietly flattening the
+store.** One-line invariant test: positively-curved edge's weight rises, negatively-curved falls,
+floor holds.
+
+### ❓ OPEN, needs one line from Charbel — is `w` capped?
+C.3 sends `κ > κ_hi` to CONTRACT/FOLD while C.4 grows `w` when `κ > 0`. Reads as coherent and
+intended (gaining weight *is* becoming a fold candidate), but **no `w_ceiling` is stated anywhere**
+in Part C. Confirm whether `w` saturates at 1.
+
+### RECOMMENDATION ON THE TABLE (not yet accepted)
+- **Q5 = augmented Forman**, on C5-3, with C5-1 declared as an approximation and C5-2 declared a
+  convention. Ollivier as selective escalation.
+- **Q6 = shadow mode + measured gate**, bundled with the ε rename (C6-2), Q8 decided jointly with
+  a strict margin (C6-3), and the sign-invariant test (C6-4).
+
+## 5ac. Q5 DERIVED, NOT IMPORTED (2026-07-30) — the 3 is real and the WEIGHTS are the finding
+
+Charbel refused to import Forman before bending it to MOS's case. Correct call: the derivation
+closes C5-2 outright and turns C5-1 into something much more useful than a caveat.
+
+### ✅ C5-2 CLOSED — the coefficient 3 is DERIVED, not a convention.
+Forman's edge formula, for a p-cell α in a weighted complex:
+$$\mathrm{Ric}(\alpha) = w_\alpha\Big[\sum_{\beta > \alpha}\tfrac{w_\alpha}{w_\beta} + \sum_{\gamma < \alpha}\tfrac{w_\gamma}{w_\alpha}\Big] \;-\; w_\alpha\!\!\sum_{\alpha' \parallel \alpha}\Big|\sum_{\beta > \alpha,\alpha'}\tfrac{\sqrt{w_\alpha w_{\alpha'}}}{w_\beta} - \sum_{\gamma < \alpha,\alpha'}\tfrac{w_\gamma}{\sqrt{w_\alpha w_{\alpha'}}}\Big|$$
+where α ∥ α′ means they share a coface **or** a face, **but not both**. Specialise to an edge
+`e = {u,v}` in a graph-with-triangles, all weights 1, `m = #{triangles ∋ e}`:
+- **cofaces:** the m triangles, each contributing `w_e/w_f = 1` → **m**
+- **faces:** the two vertices, each contributing `w_γ/w_e = 1` → **2**
+- **parallel neighbours:** edges meeting e at a vertex number `(deg u − 1) + (deg v − 1)`. Of
+  those, the `2m` edges that close the m triangles share a vertex **and** a coface, so the "not
+  both" clause **excludes** them. Edges sharing a triangle but not a vertex cannot exist in a
+  simplicial complex. → **deg u + deg v − 2 − 2m**, each contributing `|0 − 1| = 1`.
+
+$$F(e) = (m + 2) - (\deg u + \deg v - 2 - 2m) = 4 - \deg u - \deg v + 3m \quad\checkmark$$
+
+**So `3 = 1 + 2`: one from the coface sum, two from the pair of triangle edges REMOVED from the
+penalty.** It is a consequence of the "not both" clause, not a tuning knob. Nothing to sweep.
+
+### ★ C5-1 RESOLVED, AND IT IS THE REAL FINDING — the weights must be Π, not w(σ,t).
+The instinct "don't import Forman unbent" pays off here. Forman's cell weights are **not**
+decorative masses: they define the **inner product** in which the combinatorial Laplacian is
+self-adjoint, which is the only reason a Bochner–Weitzenböck decomposition (and hence a Ricci
+term) exists at all. So the weights are not ours to pick freely — **they are already fixed by
+whichever Laplacian the engine actually uses.**
+
+MOS's Laplacian is `L = δᵀΠδ` (§5p's precision-weighted ω), and `belief.py` puts
+`Λ = blockdiag(Σ_v⁻¹) + L` on 0-cochains. Therefore:
+
+| Forman cell weight | MOS's already-existing object |
+|---|---|
+| vertex `w_v` | `ν_v`, a scalar precision summary of the stalk (from `Σ_v⁻¹`) |
+| edge `w_e` | **`π_e`**, the PC edge precision already inside Π |
+| 2-cell `w_f` | **UNDEFINED — MOS has no inner product on 2-cochains** |
+
+**Using `w(σ,t)` (the Hebbian coupling) as the Forman weight would compute the curvature of a
+DIFFERENT Laplacian than the one the engine prints ω and ρ from.** That is the substantive error
+C5-1 was circling, and it is worse than the unit-weight approximation: it would be a *consistent-
+looking* number about the wrong operator. Substituting the table above:
+
+$$\boxed{F_{\mathrm{MOS}}(e) = \pi_e^2\sum_{f \supset e}\frac{1}{\tau_f} \;+\; (\nu_u + \nu_v) \;-\; \sum_{\tilde e \parallel e} \nu_{\gamma(e,\tilde e)}\sqrt{\frac{\pi_e}{\pi_{\tilde e}}}}$$
+
+with `γ(e,ẽ)` the shared vertex. Setting `π = ν = τ = 1` returns `4 − deg u − deg v + 3m`, so the
+unit-weight formula is recovered exactly as the special case — day-one degradation, same
+discipline as everywhere else.
+
+### ⚠️ THE GAP THE DERIVATION EXPOSED — MOS has no 2-cochain inner product.
+`τ_f` has no existing referent. `hodge.py` builds δ¹ so the 2-cochain *space* exists, but its
+weighting is implicitly identity and was never chosen. Augmented Forman **needs** it. Two honest
+options, and this is a real modelling decision, not a default:
+- **(a) `τ_f ≡ 1`**, declared. Cheap, and the triangle term then counts filled cycles as the
+  unit-weight formula does.
+- **(b) derive `τ_f` from the 3-way coherence residual** on the triple — the natural analogue of
+  π_e being the 2-way precision. More principled, gives the 2-simplices genuine computational
+  work (the audit's standing complaint), and would make τ a *measured* quantity.
+Recommend (b) if it is cheap to compute from what δ¹ already assembles, else (a) declared.
+
+### ⚠️ A PREDICTION TO TEST, NOT A CLAIM — the low-precision limit may be backwards.
+As `π_e → 0` the coface term dies like `π_e²`, the penalty like `√π_e`, but `(ν_u + ν_v)` is
+untouched. So a **low-precision edge drifts POSITIVE** ⇒ `κ > κ_hi` ⇒ CONTRACT/FOLD. That would
+mean chunking an edge *because we are unsure about it*, which is backwards. It may be damped in
+practice by the ν terms. **E11 must check the sign behaviour against π_e explicitly** — flagged as
+a prediction because I have not measured it.
+
+### HONEST LIMIT OF THIS DERIVATION
+The **combinatorial** content is verified by hand above, including the 3. The **placement of the
+`w_α` prefactors** in Forman's general formula is taken from the literature and NOT re-derived
+here from the Bochner argument — and the unit-weight check cannot distinguish placements, since
+every weight is 1. If `F_MOS` ever becomes load-bearing for a published claim, that placement
+needs deriving or citing precisely. It does not affect the unit-weight case we would ship first.
+
+## 5ad. Q6 ANSWERED — THE FLOOR IS THE WRONG MECHANISM (2026-07-30)
+
+Charbel: drop signal-only ("no make-believe"), C6-2 is a no-brainer, and for C6-3 asked the right
+question — *how does the brain avoid severing, and does dynamical systems give us anything?*
+It does, and it deletes `w_floor` rather than tuning it.
+
+### ★ THE DIAGNOSIS — the danger is severing-by-TIMESTEP, not severing-by-decay.
+`w ← (1 + ε·κ)w` is a **forward-Euler step** on `ẇ = ε·κ·w`. The continuous flow is multiplicative,
+so `w(t) = w(0)·exp(ε∫κ)` is **strictly positive for all finite time**: the exact flow can never
+sever anything. What can sever is the *discretisation* — if `ε·κ < −1` then `(1 + εκ) < 0` and the
+weight **flips sign**. So `w_floor` was introduced to patch a numerical artefact of Euler, and it
+was diagnosed as a plasticity-safety mechanism.
+
+**Fix, free:** exponential (exact) integration `w ← w·exp(ε_flow·κ)`. Unconditionally positive for
+any ε, κ — positivity becomes *structural* rather than clipped. One `exp` per edge.
+
+### ★ THRESHOLD PROTECTION — the brain's answer and the control-theory answer are the SAME.
+Positivity is not enough: exponential decay still crosses the collapse threshold θ in finite time,
+which is the bridge-severing C.4 actually cares about. Two literatures converge.
+
+**Neuroscience — soft bounds.** Weight-dependent plasticity (van Rossum et al.; Gütig et al.):
+depression scales with distance from the bound, so `ẇ = ε·κ·(w − θ_safe)` for `κ < 0` sends
+`w → θ_safe` **asymptotically and never crosses it**. The vector field *vanishes* at the boundary,
+so `(θ_safe, ∞)` is forward invariant with no clip anywhere. Two further real mechanisms worth
+importing:
+- **Turrigiano's homeostatic synaptic scaling** regulates total drive **multiplicatively**, which
+  preserves relative weights and cannot zero anything. **Subtractive** normalisation is what
+  severs weak synapses. ⇒ *if MOS ever normalises w, it must normalise multiplicatively.*
+- **BCM sliding threshold** (Bienenstock–Cooper–Munro): the potentiation/depression boundary moves
+  with recent activity, so nothing can be depressed indefinitely. This is the same shape as
+  §5p's mechanism ③ (Butz–van Ooyen `dz/dt = ν(a* − a(t))`) — already in the design.
+
+**Control theory — control barrier functions** (Ames et al.). Take `h(w) = w − θ_safe`, safe set
+`C = {h ≥ 0}`. `C` is forward invariant iff `ḣ ≥ −α(h)` for a class-𝒦 function α. Given the
+*desired* flow `ẇ_des = ε·κ·w`, minimally modify it to satisfy the barrier condition — in 1-D the
+QP is closed-form:
+$$\dot w = \max\big(\varepsilon_{\text{flow}}\,\kappa\,w,\;-\alpha(w - \theta_{\text{safe}})\big)$$
+**This is exactly "monitor and control the flow so it doesn't sever the connections", with a
+proof instead of a clip.**
+
+> **And the two are the same object.** Choosing `α(h) = ε|κ|·h` recovers the soft bound exactly.
+> The brain's weight-dependent plasticity **is** a control barrier function with a linear class-𝒦
+> function. That is not decoration: it means we can implement the neuroscience and inherit the
+> invariance certificate, or implement the CBF and inherit the biological precedent.
+
+### ✅ DECISIONS
+- **Q5 = `F_MOS`** as derived in §5ac, shipped first in its unit-weight specialisation (which is
+  now a *derived special case*, not an imported formula), with `τ_f` per the §5ac choice.
+  Ollivier stays the selective escalation on flagged edges (C5-3: Forman keeps κ independent of
+  η_H, which is what makes C.6's 2×2 diagnostic).
+- **Q6 = live flow, no signal-only phase.** Per Charbel. Implemented as exponential integration
+  plus the CBF/soft-bound barrier, so "reversibility" is supplied by a *proof of invariance*
+  rather than by a two-week probation.
+- **`w_floor` is DELETED as a mechanism** (Q8 dissolves with it) and replaced by `θ_safe` inside
+  the barrier, which — unlike Q8's default — sits **strictly above** the collapse trigger by
+  construction, because the flow never reaches it. This closes C6-3 properly: the earlier worry
+  was that a bridge parked *exactly at* the collapse point is unsafe; under a barrier it never
+  arrives there at all. **Passes A17 twice: deletes a hand-set constant and changes a printed number.**
+- **C6-2 accepted:** rename to `ε_flow` (step size) and `ε_ρ` (RESOLVE threshold) before implementing.
+- **C6-4 accepted:** the sign-convention invariant gets a test, not a comment.
+- **`w` ceiling:** still owed, one line from Charbel. Not blocking — the barrier construction
+  applies symmetrically to an upper bound if one is wanted (`h(w) = w_max − w`).
+
+### ⚠️ NOT YET IMPLEMENTED
+§5ac and §5ad are derivation and decision only. `F_MOS`, the exponential integrator, the barrier,
+and the sign test are Phase-2 work and **no line of the curvature controller is in the engine yet.**
+Saying otherwise would misreport the state.
+
+## 5ae. ✅ FIX-11 AND FIX-13 CLOSED — the engine computes real geometry again (2026-07-30)
+
+Both were "silently wrong" bugs: neither ever failed a test, which is why both needed tests that
+assert the *property* rather than the symptom. New file `MOS/tests/test_stalk_floor.cpp`
+(16 assertions, registered as `mos_stalk_floor_tests`).
+
+### ✅ FIX-13 — the stalk noise-floor contract, ported from `belief.py`
+New in `core` (single source of truth, `semantic_skill.{hpp,cpp}`):
+`EPS_FLOOR = 1e-3` (asserted equal to belief.py's) · `stalk_floor(d, n_eff, kappa)` ·
+`max_epistemic_trace(d, eps)` · `assert_e4_budget(d, D_lo, D_hi)`.
+
+- **`cognitive_state.cpp` grow_concept:** `D = 1.0` ➜ `stalk_floor(dim, n_eff=1)` = **0.00230208**
+  at d=384. Trace `d·D = 0.884` — O(1), so the epistemic term is commensurate with the semantic
+  one instead of swamping it. Empty U was always CORRECT (one observation has zero scatter about
+  its own mean); the floor was the defect.
+- **`curator.cpp`:** `compute_variance` no longer returns `−ln(c)` as an isotropic variance, and
+  `UNCALIBRATED_VARIANCE_PRIOR = 1.0` is gone. **An isotropic variance in d dimensions is the wrong
+  destination for a scalar confidence** — per Q9 confidence belongs in the edge precision π_e.
+  Signature now takes `d` explicitly rather than inferring it (FIX-1 discipline).
+- **★ MEASURED, the E4 regression:** antipodal means (the largest possible semantic distance, 4).
+  Old constants ⇒ **epistemic = 229.76 vs semantic 4** — the documented ~230, reproduced. New
+  floor ⇒ **epistemic = 0** exactly (identical floors ⇒ the d-extensive term vanishes
+  identically, not "is small").
+- **★ W₂ is no longer inert:** same mean, rank-0 vs rank-1 stalk ⇒ epistemic `0 → 0.206`. The
+  optimal-transport machinery now measures *directional* structure, which is the whole point.
+- **★ A MAGIC NUMBER DELETED.** The old `min confidence = 1e-9` clamp existed only to dodge
+  `log(0)`. It admits `−ln c = 20.72`, i.e. a Bures term of **15.80 — nearly 4× the entire
+  semantic budget of 4.** Solving `d(√(eps+t/d) − √eps)² = 4` exactly gives
+  **`t_max = 4(1 + √(eps·d))` = 6.479** at d=384. Verified by substituting back at d=2, 16, 384,
+  4096 (all within 1e-9). The clamp is now a *consequence of the E4 budget*, not a guess.
+- The guard **fires** on the old `D = 1.0` and passes the new floor — a guard that never fires is
+  not a guard.
+
+**⚠️ HONESTLY NOT PORTED, and stated rather than faked:** part 2 of the Python fix ("all real
+uncertainty moves into U") cannot apply at `grow_concept`, because a single observation has no
+scatter and a scalar confidence carries no DIRECTION to put in U. Directional uncertainty appears
+only on aggregation (n ≥ 2) — `compute_pi_v`'s job. **Routing confidence to π_e is NOT done** and
+remains owed.
+
+### ✅ FIX-11 — operad co-schedulability is no longer order-dependent
+`operad.cpp:66` set `slice_is_global_mutation` for **any** empty-support node, so although the
+READ_ONLY guard let such a node *join* a slice, the flag then poisoned it for every node evaluated
+afterwards. Fix is `if (support.empty() && !is_read_only)`.
+
+**The fix required a seam to test it at.** The foliation rule lived inside `Operad::run`, entangled
+with a ThreadPool and a live CognitiveState, so the bug had been unobservable by construction.
+Extracted as `core::select_commuting_slice(ready, deferred)`; `run` now calls it. Measured:
+read-only-node-first goes from **3 slices to 1** on three co-schedulable nodes.
+
+Safety properties asserted to SURVIVE the loosening: a MUTATION global node still runs isolated ·
+a global MUTATION *holding* the slice still locks out a later read-only node · overlapping supports
+still serialise · slice count is insertion-order independent.
+
+**⚠️ One of my own tests was wrong and the code was right.** I first asserted that
+`[worker{5}, global-MUTATION, read-only]` puts the worker alone in slice 1. It does not, correctly:
+the global mutation cannot join a non-empty slice, so it is **deferred** and never sets the flag,
+leaving the read-only node free to join the worker. The mutation is not in that slice at all, so
+nothing leaks. Test corrected to put the mutation first (where it genuinely holds the slice), and a
+second test added pinning the deferred-mutation case explicitly.
+
+### 📋 TEST REPORT (2026-07-30, full suite)
+**C++ — 13 of 14 executables PASS**, including the new `mos_stalk_floor_tests` (16/16).
+- `mos_algebra` · `mos_coarse_complex` · `mos_curator` · `mos_fourier` · `mos_homology` ·
+  `mos_kernel` · `mos_knowledge_base` · `mos_pi_fusion` · `mos_plasticity` · `mos_probabilistic` ·
+  `mos_reflection` · `mos_stalk_floor` · `mos_tests` — all exit 0. **Zero compile errors.**
+- ❌ **`mos_colibri_tests` FAILS — PRE-EXISTING, not caused by these fixes.** Asserts
+  `!parsed.latent.empty()` at `test_colibri.cpp:31` on a **live Groq call**. Verified by
+  `git stash`-ing all changes, rebuilding, and reproducing the identical assertion on unmodified
+  code. `GROQ_API_KEY` **is** set (len 56), so this is not a missing-key problem; the call returns
+  without a usable latent.
+  **⚠️ New fix-registry item below — the test has a design hole:** it catches `ColibriException`
+  and passes when there is *no* connection, but has no path for a connection that *succeeds and
+  returns an error payload*. So a real API/auth/quota failure presents as a hard assert instead of
+  a diagnosable message.
+
+**Python — 4 of 4 PASS:** `belief.py` · `hodge.py` · `coherence.py` · `cone_bures.py`. No
+regressions from the C++ changes (as expected — they share no code, only the `EPS_FLOOR` constant,
+which is now asserted equal on the C++ side).
+*Note: `python` is not on PATH in the bash shell; the project interpreter is
+`%LOCALAPPDATA%\Programs\Python\Python311\python.exe` (3.11.4), per §3c.*
+
+### ⚠️ NEW FIX-REGISTRY ITEM
+- **FIX-16 (M) — `test_colibri.cpp` cannot distinguish "no LLM" from "LLM returned an error".**
+  It passes on `ColibriException` (no connection) but hard-asserts on an empty latent, so auth,
+  quota and malformed-response failures all surface as the same opaque abort. Should report the
+  HTTP status and body. This is the only red test in the suite and it currently tells us nothing
+  about *why*.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -1724,11 +2076,51 @@ above ~0.3, so σ_dir/δ must be **monitored, not assumed**.
   ("the obstruction cocycle names the cell to attach") cannot fire from δx: [δx]=0 in H¹ always.
   Needs a MEASURED η. Kept as a dead end because the mechanism is still wanted — only its input
   was wrong.
+- ❌ **2026-07-30 — the K₀ / Jordan–Hölder canonical memory schema (audit F10). DROPPED.**
+  The proposal was to give every memory a canonical identity as a Jordan–Hölder class in K₀ of a
+  suitable abelian category. It dies on the choice of category, and **both** candidates the book
+  offers fail for opposite reasons: `Hol(𝒟)` makes every Gaussian concept a *simple* module
+  (k[x] is simple over the Weyl algebra in char 0), so JH length is 1 and the class carries no
+  information beyond identity; `Rep(Q)` makes the class the *dimension vector*, which collides
+  catastrophically as a retrieval index. §29–32 of the book argue in one category, §33–37 in the
+  other, §47 in neither. **Lesson: Jordan–Hölder gives canonicity GIVEN a category — it cannot
+  pick the atoms, and no amount of downstream care supplies them.** Dissolved rather than solved:
+  the two-complex 𝕂/W model already supplies memory identity through growth history. Same
+  tension as the FCA rejection above — canonicity vs growth — resolved the same way, for growth.
+  *Salvage: none claimed. Q24's default (keep the D-module/Koszul/quiver chapters out of every
+  paper) now has a second independent reason behind it.*
 
 ---
 
 ### Session log
 
+- **2026-07-30** — Status review before building. Confirmed against source that **FIX-11 and
+  FIX-13 are both still open** (`operad.cpp:66` sets `slice_is_global_mutation` for *any*
+  empty-support node, poisoning the slice even after the READ_ONLY guard admits it;
+  `cognitive_state.cpp:224` and `curator.cpp:20` still build stalks with `empty_U(dim,0)` and a
+  1.0 prior, so **C++ W₂ is still Euclidean and every C++ entropy identical** — `belief.py`'s fix
+  is not ported). Then closed the finalization questionnaire: **F10 dissolved** (K₀/JH schema
+  dropped, see §6), **Q9 retracted and the antisymmetric organ contract made normative**,
+  **Q16 moved to the derived scale**, **Q4/Q19/Q21/Q25 defaults adopted**. Charbel held **Q5/Q6
+  (curvature)** open for discussion — correct, it is the only default that moves weight. Also
+  caught that `MOS_FINALIZATION.md` still lists **Q2b as 🔴** though §5t resolved it and §5y
+  collapsed Q2c. See §5aa, §5ab.
+  **Then, same session:** Charbel sent Q5 back to be derived rather than imported — which
+  **closed C5-2** (the coefficient 3 is `1 + 2` from Forman's "not both" clause, verified by hand)
+  and produced the real finding: **Forman's weights define the inner product for the Bochner
+  decomposition, so they are fixed by the Laplacian the engine already uses — Π and the stalk
+  precisions, NOT the Hebbian coupling w(σ,t).** Using w would compute the curvature of the wrong
+  operator. Exposed a genuine gap: **MOS has no inner product on 2-cochains**, which augmented
+  Forman needs. See §5ac. On Q6 he rejected the signal-only probation outright; the answer turned
+  out to be that **`w_floor` is the wrong mechanism** — the exact flow is multiplicative and
+  cannot sever, so the floor was patching a forward-Euler artefact. Replaced by exponential
+  integration plus a **control-barrier / soft-bound certificate**, which is the same object the
+  brain implements as weight-dependent plasticity. **Q8 dissolves with the floor.** See §5ad.
+  **Shipped:** FIX-11 and FIX-13 both closed, with a new 16-assertion test file; E4's epistemic
+  term measured at **229.76 → 0**, W₂ no longer inert (0 → 0.206 on rank), the 1e-9 confidence
+  clamp replaced by the derived `t_max = 4(1+√(eps·d))`, and foliation extracted to a testable
+  seam (3 slices → 1). Full suite: **13/14 C++ (the one red is pre-existing, proven by stash) and
+  4/4 Python.** Raised FIX-16. See §5ae.
 - **2026-07-22** — Read all of DOCS + full MOS architecture. Established the two-level decision, killed "Pachner", drafted Construction 1, opened the fix registry, created this logbook. Charbel flagged: (a) wants brain-like *growth*; (b) wants this log; (c) fix everything but he's on a tight token budget — warn before expensive tasks.
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.

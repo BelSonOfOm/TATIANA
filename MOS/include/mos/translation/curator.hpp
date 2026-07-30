@@ -34,7 +34,12 @@ private:
     /// Accepts an EMPTY optional meaning "confidence unknown", in which case an
     /// explicitly-named, warned, transitional prior is used instead of a silent
     /// fabricated value. See UNCALIBRATED_VARIANCE_PRIOR in curator.cpp.
-    double compute_variance(std::optional<double> confidence) const;
+    /// @brief The stalk noise floor D. Since FIX-13 this is the shared O(1/d)
+    /// shrinkage floor and NOT a function of `confidence` — see the definition
+    /// for why an isotropic variance is the wrong home for a scalar confidence,
+    /// and Q9 for where it belongs instead (the edge precision pi_e).
+    /// @param d The embedding dimension; passed explicitly, never inferred.
+    double compute_variance(std::optional<double> confidence, int d) const;
 
     // Helper to calculate the true Bures-Wasserstein trace distance squared between isotropic thought and low-rank semantic embedding
     double calculate_wasserstein_2_sq(const Eigen::VectorXd& mu1, double D1,

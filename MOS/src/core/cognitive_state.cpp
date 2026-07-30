@@ -218,13 +218,17 @@ void CognitiveState::grow_concept(const std::string &label,
     mu(i) = geometry[static_cast<size_t>(i)];
   }
 
-  // A freshly-grown concept starts with no established covariance structure
-  // (rank 0) and an explicit, named prior variance rather than a fabricated
-  // near-zero "certain axiom" value — this concept was inferred, not stated.
-  constexpr double GROWN_CONCEPT_VARIANCE_PRIOR = 1.0;
+  // FIX-13. A freshly-grown concept has ONE observation, so its scatter about
+  // its own mean is exactly zero and U is genuinely rank 0 — that part was
+  // always right. What was wrong was the floor: D = 1.0 is O(1), so the Bures
+  // epistemic term d*(sqrt(D1)-sqrt(D2))^2 came out O(d) = ~230 at d = 384
+  // against a semantic term bounded by 4. The shrinkage floor below is O(1/d),
+  // keeping trace(Sigma) = O(1) and the two terms commensurate. n_eff = 1 for a
+  // single sighting, which yields Sigma ~ Sigma_0 (broad, the prior) rather than
+  // the old behaviour of maximum confidence from one observation.
+  const double floor_D = stalk_floor(dim, /*n_eff=*/1.0);
   Eigen::MatrixXd empty_U(dim, 0);
-  auto skill = std::make_shared<SemanticEmbedding>(
-      mu, empty_U, GROWN_CONCEPT_VARIANCE_PRIOR, label);
+  auto skill = std::make_shared<SemanticEmbedding>(mu, empty_U, floor_D, label);
   math_sheaf_.attach(s, skill);
 
   if (!organ.empty()) {

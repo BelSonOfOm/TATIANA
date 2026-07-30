@@ -277,5 +277,74 @@ WassersteinTerms wasserstein_2_terms(const Eigen::VectorXd &mu1, double D1,
   return out;
 }
 
+// --- FIX-13: the stalk noise-floor contract (see semantic_skill.hpp) --------
+
+double stalk_floor(int d, double n_eff, double kappa) {
+  if (d <= 0) {
+    throw std::invalid_argument(
+        "[stalk_floor] embedding dimension must be positive, got " +
+        std::to_string(d));
+  }
+  if (n_eff < 1.0) {
+    throw std::invalid_argument(
+        "[stalk_floor] n_eff must be at least 1 (one observation is one "
+        "observation), got " + std::to_string(n_eff));
+  }
+  if (kappa <= 0.0) {
+    throw std::invalid_argument(
+        "[stalk_floor] prior pseudo-count kappa must be positive, got " +
+        std::to_string(kappa));
+  }
+  // Sigma_0 = (1/d) I has trace 1, so its contribution to the floor is
+  // kappa / (d * (n_eff + kappa)) -- O(1/d), which is what keeps trace O(1).
+  return EPS_FLOOR + kappa / (static_cast<double>(d) * (n_eff + kappa));
+}
+
+double max_epistemic_trace(int d, double eps) {
+  if (d <= 0) {
+    throw std::invalid_argument(
+        "[max_epistemic_trace] embedding dimension must be positive, got " +
+        std::to_string(d));
+  }
+  if (eps <= 0.0) {
+    throw std::invalid_argument(
+        "[max_epistemic_trace] floor must be positive, got " +
+        std::to_string(eps));
+  }
+  // Exact solution of d*(sqrt(eps + t/d) - sqrt(eps))^2 = 4 for t.
+  // MAX_SEMANTIC_DISTANCE_SQ = 4 is not a tuning knob: it is the largest
+  // possible ||mu1 - mu2||^2 between two unit-norm embeddings (antipodal).
+  constexpr double MAX_SEMANTIC_DISTANCE_SQ = 4.0;
+  const double root = std::sqrt(MAX_SEMANTIC_DISTANCE_SQ);
+  return MAX_SEMANTIC_DISTANCE_SQ +
+         2.0 * root * std::sqrt(eps * static_cast<double>(d));
+}
+
+void assert_e4_budget(int d, double D_lo, double D_hi) {
+  if (d <= 0) {
+    throw std::invalid_argument(
+        "[assert_e4_budget] embedding dimension must be positive, got " +
+        std::to_string(d));
+  }
+  if (D_lo <= 0.0 || D_hi <= 0.0) {
+    throw std::invalid_argument(
+        "[assert_e4_budget] stalk floors must be positive");
+  }
+  if (D_hi < D_lo) {
+    std::swap(D_lo, D_hi);
+  }
+  const double bures =
+      static_cast<double>(d) * std::pow(std::sqrt(D_hi) - std::sqrt(D_lo), 2.0);
+  if (bures > 4.0) {
+    std::ostringstream oss;
+    oss << "[assert_e4_budget] Stalk floors span [" << D_lo << ", " << D_hi
+        << "], giving an epistemic Bures term of " << bures << " at d=" << d
+        << ". That exceeds the maximum possible semantic distance (4), so "
+           "confidence would outweigh meaning -- exactly the E4 failure. "
+           "Floors must be O(1/d).";
+    throw std::invalid_argument(oss.str());
+  }
+}
+
 } // namespace core
 } // namespace mos

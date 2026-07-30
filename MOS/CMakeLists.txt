@@ -127,3 +127,7 @@ target_link_libraries(mos_pi_fusion_tests PRIVATE mos_core)
 # 5p mechanisms (2)(3)(4): criticality, homeostasis, selectionism
 add_executable(mos_plasticity_tests tests/test_plasticity.cpp)
 target_link_libraries(mos_plasticity_tests PRIVATE mos_core)
+
+# FIX-11 (operad co-schedulability) + FIX-13 (stalk noise-floor contract)
+add_executable(mos_stalk_floor_tests tests/test_stalk_floor.cpp)
+target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)

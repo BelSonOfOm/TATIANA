@@ -138,5 +138,80 @@ struct WassersteinTerms {
                                                    const Eigen::VectorXd &mu2,
                                                    const Eigen::MatrixXd &U2, double D2);
 
+// ===========================================================================
+// FIX-13 -- THE STALK NOISE-FLOOR CONTRACT, ported from python/belief.py
+// ===========================================================================
+//
+// This is the C++ half of the fix described at the top of python/belief.py and
+// in logbook 5w. Read that first; the summary is:
+//
+//   D was carrying TWO incompatible things -- epistemic confidence AND semantic
+//   breadth -- inside one isotropic variance in d = 384 dimensions. That is the
+//   one shape guaranteed to blow up, because the exact Bures term between two
+//   isotropic covariances is d*(sqrt(D1) - sqrt(D2))^2, which is d-EXTENSIVE,
+//   while the semantic term ||mu1-mu2||^2 is bounded by 4 for unit embeddings
+//   regardless of d.
+//
+// THE INVARIANT (stated correctly -- see logbook 5w item 2). It is NOT "every
+// stalk shares one eps"; that is sufficient but too strong, and forcing the
+// isotropic prior into U cost k = 387 and 6 s per report. The real invariant is
+//
+//        the covariance must carry trace O(1), i.e. the floor must be O(1/d)
+//
+// which keeps the epistemic term commensurate with the semantic one.
+//
+// WHAT IS PORTED HERE, AND WHAT DELIBERATELY IS NOT. Part 1 of the Python fix
+// (demote D to an O(1/d) floor, killing the d-extensive blow-up) ports exactly
+// and is the load-bearing half. Part 2 ("all real uncertainty moves into the
+// low-rank U") CANNOT be ported at the point a concept is first grown, and we
+// state that rather than fake it: a single observation has zero scatter about
+// its own mean, so U is genuinely rank 0, and a scalar confidence carries no
+// DIRECTION to put into U. Directional uncertainty appears only on aggregation
+// (n >= 2), which is compute_pi_v's job, not grow_concept's. Per Q9 the right
+// destination for a self-reported confidence is the edge precision pi_e in
+// L = delta^T Pi delta -- NOT the stalk covariance. Routing it there is separate
+// wiring and is NOT done by this fix.
+
+/// The shared numerical floor. Must equal `EPS_FLOOR` in python/belief.py or the
+/// C++/Python parity tests compare different objects.
+inline constexpr double EPS_FLOOR = 1e-3;
+
+/// @brief The shrinkage noise floor for a stalk built from `n_eff` observations.
+///
+/// Ports `belief.stalk_gaussian`'s isotropic branch:
+///     Sigma_v = S_v/(n_eff+kappa) + [ kappa/(d*(n_eff+kappa)) + eps ] I
+/// The prior Sigma_0 = (1/d) I is isotropic (trace 1, matching unit-normalised
+/// embeddings) and therefore belongs in the FLOOR, not in U.
+///
+/// The floor depending on n_eff LOOKS like a violation of the O(1/d) invariant.
+/// It is not: the added term is itself O(1/d), so trace stays O(1). A concept
+/// seen once gets Sigma ~ Sigma_0 (broad -- the prior), tightening towards the
+/// empirical scatter as evidence accumulates. The engine previously gave a
+/// once-seen concept D = 1.0 with empty U, i.e. MAXIMUM confidence from a single
+/// sighting, which is backwards.
+///
+/// @param d      Embedding dimension (must be > 0).
+/// @param n_eff  Kish effective sample size; 1.0 for a freshly grown concept.
+/// @param kappa  Prior pseudo-count ("how many observations the prior is worth").
+[[nodiscard]] double stalk_floor(int d, double n_eff = 1.0, double kappa = 1.0);
+
+/// @brief Largest isotropic spread `t` (as a TRACE, not a per-dimension variance)
+/// that can be added on top of `eps` without the epistemic term exceeding the
+/// maximum possible semantic distance of 4.
+///
+/// Solving d*(sqrt(eps + t/d) - sqrt(eps))^2 = 4 gives, exactly,
+///     t_max = 4 * (1 + sqrt(eps * d)).
+/// This DERIVES a bound that was previously a hand-picked clamp: the old
+/// `compute_variance` clamped confidence at 1e-9 purely to dodge log(0), which
+/// admits -ln(c) = 20.7 and an epistemic term of ~15.8 at d = 384 -- four times
+/// the entire semantic budget. The bound below is what the E4 budget actually
+/// permits, so it replaces a magic number with a consequence.
+[[nodiscard]] double max_epistemic_trace(int d, double eps = EPS_FLOOR);
+
+/// @brief The E4 guard: refuse a configuration whose stalk floors span a range
+/// wide enough for confidence to outweigh meaning.
+/// @throws std::invalid_argument if d*(sqrt(D_hi)-sqrt(D_lo))^2 > 4.
+void assert_e4_budget(int d, double D_lo, double D_hi);
+
 } // namespace core
 } // namespace mos
