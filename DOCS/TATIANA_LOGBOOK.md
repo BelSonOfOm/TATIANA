@@ -1707,8 +1707,22 @@ category and cannot pick the atoms.
 **Decision: adopt §5r's position — the two-complex 𝕂/W model supplies memory identity through
 GROWTH HISTORY, so the canonical-schema programme is dropped rather than forced into a
 category.** Same reasoning that rejected FCA: canonicity and growth are in tension and we chose
-growth. This unblocks 𝕂/W implementation (Phase 2 item 5), which had been waiting on a category
-it turns out not to need. Filed as a dead end in §6.
+growth. Filed as a dead end in §6.
+
+> **🚨 CORRECTION (2026-07-30, later) — F10 WAS NOT ACTUALLY BLOCKING, AND I SAID IT WAS.**
+> `MEMORY_MODEL_TWO_COMPLEX.md` **already dissolved F10 on 2026-07-27**: its header says
+> "closes finding F10", and §"what remains unclaimed" states "The category question (audit F10)
+> is **dissolved, not answered.** This model does not require memories to have canonical atoms,
+> so it does not need Jordan–Hölder, K₀, or Ext¹." The decision above is therefore a
+> **re-confirmation, not a new resolution**, and 𝕂/W implementation was never actually waiting
+> on it. What made it *look* blocking is a **stale "NEXT" line in §5t** ("blocking, and it is a
+> modelling decision: CHOOSE THE CATEGORY"), written the same day and never updated after §5r's
+> two-complex decision superseded it. **Lesson: a superseded "NEXT — BLOCKING" line is worse
+> than no line, because it re-blocks work that was already unblocked.** The dead-end entry in §6
+> and the reasoning both stand; only the claim that it was open is withdrawn.
+> **Retrieval, for the record, is geometric not algebraic:** the k-fold closed star of the seed
+> set (`ι*`), budget-gated on k, returning a *complex* rather than a top-n list. No canonical
+> index is required anywhere, which is exactly why K₀ was never needed.
 
 ### ✅ Q9 / Q10 / Q11 — the ANTISYMMETRIC contract is now normative. Q9's ✅ is RETRACTED.
 `MOS_FINALIZATION.md` Q9 records "a scalar in [−1,1] plus a confidence" as ANSWERED and Q11
@@ -2042,6 +2056,74 @@ which is now asserted equal on the C++ side).
   quota and malformed-response failures all surface as the same opaque abort. Should report the
   HTTP status and body. This is the only red test in the suite and it currently tells us nothing
   about *why*.
+
+## 5af. τ_f IS CIRCULAR · w IS CAPPED AND π IS NOT · THE PRE-PHASE-2 LIST (2026-07-30)
+
+### ❌ τ_f "derived from the 3-way residual" — MY OWN SUGGESTION, AND IT DOES NOT SURVIVE.
+Charbel said: derive it if it's cheap. **It is cheap to COMPUTE and not cheap to ADOPT.**
+- **Cheap to compute:** the 3-way residual is `(δ¹η)_f`, the signed circulation around triangle
+  `f`. `hodge.py` already forms `d1 @ eta` inside every Hodge split. Three adds per triangle.
+- **🚨 But it is CIRCULAR.** `τ_f` is not a free parameter of the curvature — **it IS the C²
+  inner product**, and `hodge_split` uses that inner product to compute the curl projection.
+  Read the code: `A = (d1 / w).T` weights **only C¹**; the C² weight is implicitly `I`. So
+  deriving `τ_f` from the residual of η means defining the inner product *from* the quantity that
+  inner product is used to *measure*. That is a fixed point, not a derivation.
+- **🚨 And it would invalidate E5.** Changing the C² inner product changes `curl` and `harm`, i.e.
+  **every number in §5x** — the only empirical evidence the growth story has.
+
+**DECISION: `τ_f ≡ 1`, DECLARED** (option (a) of §5ac), on those two grounds and not on cost.
+*Rescue path if it is ever wanted:* derive `τ_f` from the **time-lagged** residual (a running
+average over past ticks), which breaks the circularity the same way BCM's sliding threshold does.
+That buys a new state variable and a new decision (the averaging window), so it is not free — and
+it still re-bases E5. Not now.
+
+### ✅ IS `w` CAPPED AT 1? — YES, AND THE QUESTION HAS A METHOD, NOT A TASTE.
+Charbel asked *how we can know*. **The method: enumerate every consumer of the variable and read
+off the range each one requires.** Doing that finds two consumers with *conflicting* requirements
+— which is the actual answer:
+1. **As a coupling / bind indicator.** `coarse_complex.cpp:138,169` test `weights_[k] >=
+   bind_threshold_`, and `:255` returns **1.0 as the default** when a weight is absent — i.e. 1.0
+   already means "fully bound" in the engine. Construction 1 declares `w(σ,t) ∈ [0,1]`.
+   **Bounded, and the bound is 1.**
+2. **As a precision feeding Π.** Precisions are inverse variances and are **unbounded above**;
+   capping at 1 would cap confidence.
+
+**These are two different objects, and conflating them has ALREADY caused a divergence bug** —
+§5q's own note: *"raw coupling weight as precision made `lr*precision` huge → divergence"*, patched
+with `max_step=0.5`. §5ac independently reached the same separation from the other direction
+(Forman's weight must be `π_e`, **not** `w(σ,t)`). Two independent routes to one conclusion:
+
+> **`w(σ,t)` is a normalised coupling, capped on [0,1]. `π_e` is a precision, uncapped.
+> They are not the same variable and must never be substituted for one another.**
+
+**Consequence for the controller:** the flow `w ← w·exp(ε_flow·κ)` acts on **w**, which *is*
+capped — so the symmetric upper barrier is required, not optional: `h(w) = 1 − w` alongside
+`h(w) = w − θ_safe`. §5ad's construction covers it unchanged.
+
+### 📋 WHAT ACTUALLY REMAINS BEFORE PHASE 2
+All eight Phase-2 items now have their blocking questions answered (Q4 · Q5+τ_f · Q13 · Q16 ·
+Q1/Q2/Q2b · F10). What is genuinely still owed first:
+
+**Time-sensitive — do first:**
+- **E7 at engine level. NOT DONE.** E7 discipline exists only for E5's elicitations
+  (`e5_elicitations.jsonl`). The general "record assembly at composition time" is unimplemented,
+  and §5r's registry says *"impossible to recover later"*. Every tick run without it is data
+  permanently lost. **This is the only item on the list that gets worse by waiting.**
+- **V6** — σ_dir on the real corpus + `σ_dir/δ` in telemetry. Free. The §5z verdict still rests on
+  a calibrated simulation, and Phase-2 item 8 (rank-k stalks) builds on that metric.
+
+**Cheap, blocking a specific item:**
+- **ε rename** (`ε_flow` / `ε_ρ`, C6-2) — before item 3, or it becomes a bug.
+- **FIX-12 propagation** — the antisymmetric contract is decided but not written into
+  `MOS_FINALIZATION.md` (Q9/Q10/Q11) or the `.tex`; items 2 and 3 inherit it. Fold in the stale
+  **Q2b 🔴** flag and §5t's stale **"CHOOSE THE CATEGORY"** NEXT line at the same time.
+- **Confidence → π_e routing** — newly owed from FIX-13 (§5ae). `π_e` is the *only* remaining home
+  for reported confidence, and Q9 says precision needs a non-constant source.
+
+**Owed, not blocking Phase 2:**
+- FIX-7 / FIX-8 / FIX-9 (doc corrections) · FIX-15 (E5 significance overstated ~4×; fix before
+  quoting the p-value) · FIX-16 (colibri test cannot diagnose its own failure) · E5b at b₁ ≥ 2 ·
+  V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5.
 
 ## 6. Failures & dead ends (so we don't repeat them)
 
