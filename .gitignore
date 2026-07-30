@@ -27,3 +27,6 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# shell note containing a live API key - never commit
+DOCS/cd CUserscdargDesktopTATIANAMOS.txt
