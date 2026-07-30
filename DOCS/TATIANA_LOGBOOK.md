@@ -2595,6 +2595,77 @@ the part that was worth testing. It now also asserts §5ah's confidence→ν rou
 **16/16 C++ with assertions LIVE · 9/9 Python.** First fully green, fully-checked build of this
 project outside Windows.
 
+## 5ak. δ IS IN THE ENGINE (Phase-2 item 9) · CONFIDENCE ELICITED (2026-07-30)
+
+Two decisions by Charbel, both acted on.
+
+### ✅ DECISION 1 — confidence is ELICITED, not derived from logprobs
+The logprob branch in `colibri_kernel.cpp` was **structurally dead**: logprobs are deliberately
+never requested (llama-3.1-8b-instant hard-400s on them), so `confidence` was *always*
+`nullopt` and §5ah's routing was complete but permanently idle.
+
+The source is now an **explicit `confidence` field in the model's own JSON** — the contract
+`experiment_e5.py` already elicits, and the one that produced §5x. It also answers Q9 on its own
+terms: Q9 objected to *"a hallucinated logprob"*, and token entropy is a property of the sampler,
+not a statement about reliability. Precedence: **elicited > logprobs > UNCALIBRATED**.
+
+**Out-of-range or non-numeric values are DISCARDED, not clamped.** A model returning
+`"high"` or `7.5` has not followed the contract, and inventing a number for it is exactly how the
+old hardcoded `0.5` silently flattened the entire geometry.
+
+⚠️ **The prompt must now ask for the field.** The `{reasoning, conclusion}` schema is written by
+*callers*, not in this repo — the parser accepts `confidence`, but until a caller requests it,
+ν stays 1. That is a one-line change wherever the prompt is authored.
+
+### ✅ DECISION 2 — Cone–Bures ported to C++ as Phase-2 item 9. δ IS REAL.
+Charbel asked what was missing. Answered concretely, then closed:
+
+| # | Missing | Status |
+|---|---|---|
+| 1 | **`d_BW` between two rank-k Gaussians.** `wasserstein_2_terms` requires side 1 **isotropic** — it exploits `Σ₀^½Σ₁Σ₀^½ = D₀·Σ₁`, the one assumption Cone–Bures cannot make | ✅ `bures_w2_sq_general`, QR/span reduction, O(d k² + k³) |
+| 2 | The cone construction, `is_same_concept`, the saturation cutoff | ✅ `core::ConeBures` |
+| 3 | σ_dir + the regime monitor in C++ | ✅ `sigma_dir_sq`, `regime_ratio`, `implied_gap`, `RegimeMonitor` |
+| 4 | **A mass `w` per CONCEPT** | ❌ **STILL MISSING — see below** |
+| 5 | A calibrated **δ** | ❌ blocked on V2/E14 (Charbel's ~50 labels) |
+| 6 | Wiring into the merge path (`curator.cpp`'s `w2_sq <= ε_W2`) | ❌ blocked on 4 and 5 |
+
+**Parity with `python/cone_bures.py` is asserted numerically**, not assumed — 6 generated cases
+across every rank combination, agreeing to 1e-10 on `d_BW²`, `D²`, `is_same_concept` and
+`σ_dir²`. Python stays authoritative, the same discipline `coherence.py` holds over
+`CoarseComplex`. Also asserted: the **triangle inequality** (1600 triples × 4 δ, worst violation
+**0**), and all three limits — Hellinger on masses at `d_BW=0`, **saturation at `w₀+w₁`** (this
+is what bounds the metric and killed the E4 runaway), and `4δ²D² → w·d_BW²` as `δ→∞`
+(day-one degradation, converging to 2.1e-08).
+
+### 🚨 GAP 4 IS A MODELLING QUESTION, NOT AN OVERSIGHT — concepts have no mass
+§5z's construction says *"we already have mass: the Hebbian weight w(σ,t)"*. But `w(σ,t)` lives
+on **`CoarseComplex` edges — between ORGANS**. The merge predicate applies to **concepts**, which
+have no mass field at all (`SemanticEmbedding` carries μ, U, D, ν — no `w`).
+
+So the mass in the cone is currently **unsourced for the objects the metric is actually used on**.
+Three candidates, and this needs a decision rather than a default: (a) a per-concept activation
+count / recency, (b) `n_eff` — the evidence behind the stalk, which is already tracked and has
+the right "mass accumulates, decay destroys" semantics, (c) leave `w ≡ 1` and use Cone–Bures
+purely as a *bounded distance*, forfeiting the create/destroy half that motivated it.
+
+**(b) is my recommendation** — `n_eff` already grows with reinforcement, and §5z's whole argument
+is that mass should be the thing that accumulates and decays. But it is not the Hebbian weight
+§5z named, so it is a substitution and should be logged as one.
+
+⚠️ **Until 4 and 5 land, `ConeBures` is compiled, tested and CALLED BY NOTHING.** δ is real in
+the sense that the mathematics is in the engine and verified; it is not yet real in the sense of
+deciding a merge. Saying otherwise would misreport the state.
+
+### 🚫 THE CORPUS — I could not make one, and the reason is external
+Charbel asked to make a corpus so V6 can measure. `fastembed` **installed fine** from PyPI, but
+the model weights come from **`huggingface.co`, which this environment's network policy denies**
+(403 on CONNECT, confirmed against the proxy's own status endpoint). No model ⇒ no embeddings ⇒
+no corpus. **V6's number stays blocked, and not for want of trying.** Fabricating vectors to fill
+the gap would produce exactly the simulated-number-labelled-measured outcome §5ai refuses.
+
+### 📋 TEST REPORT
+**17/17 C++ with assertions LIVE · 9/9 Python.** New: `mos_cone_bures_tests` (6 groups).
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2725,6 +2796,19 @@ project outside Windows.
   hard-400s on logprobs, so the §5ah routing is permanently idle and Π stays identity through
   all of Phase 2), and **Cone–Bures/δ is in zero C++ files and is not on the Phase-2 list**.
   See §5aj.
+  **Then, same session — Charbel decided both open questions.** Confidence: **elicit it in the
+  JSON** (the E5 contract), not logprobs — parser done, precedence elicited > logprobs >
+  UNCALIBRATED, out-of-range values discarded rather than clamped; ⚠️ the *prompt* must now ask
+  for the field, and prompts are authored by callers outside this repo. δ: **make it real as
+  Phase-2 item 9.** Ported Cone–Bures to C++ with numeric parity against the authoritative
+  Python (1e-10 across all rank combinations), the triangle inequality (worst violation 0 over
+  1600 triples), and all three limits. The load-bearing gap was that `wasserstein_2_terms`
+  **requires side 1 isotropic** and so cannot do rank-k vs rank-k — closed by
+  `bures_w2_sq_general`. **Two gaps remain and one is a modelling decision: concepts have NO
+  MASS** (w(σ,t) lives on organ edges, not concepts), and δ is uncalibrated. Until both land,
+  `ConeBures` is compiled, tested and **called by nothing**. The corpus could not be built:
+  fastembed installs, but `huggingface.co` is **denied by network policy**, so V6 stays blocked.
+  **17/17 C++, 9/9 Python.** See §5ak.
 - **2026-07-22** — Read all of DOCS + full MOS architecture. Established the two-level decision, killed "Pachner", drafted Construction 1, opened the fix registry, created this logbook. Charbel flagged: (a) wants brain-like *growth*; (b) wants this log; (c) fix everything but he's on a tight token budget — warn before expensive tasks.
 - **[TOMORROW'S PLAN IS AT THE END OF THIS FILE — §7]**
 - **2026-07-27** — Audited the two incoming external documents (scrutiny + book) hostile-referee style; proofs checked by hand. Produced `AUDIT_SCRUTINY_AND_BOOK.md` (F1–F14) and `MEMORY_MODEL_TWO_COMPLEX.md`. Key findings: the ρ splitting and Prop 8.2 are real and load-bearing; Prop 8.2 **blocks §5p's growth law**; the `.tex` is stale vs the engine (F1); four technical errors in the incoming docs (F2, F7, F9, F13); the K₀ memory schema is vacuous (F10). Charbel rejected FCA as substrate and specified the two-complex (crystallized 𝕂 / working W) architecture, which was formalised via the sheaf adjunction ι_! ⊣ ι* ⊣ ι_*. Steps 1–4 branched to a separate chat — **this logbook is the shared state.** Adopted the "must change a number the engine prints" test for future formalism. See §5r.

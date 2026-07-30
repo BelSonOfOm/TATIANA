@@ -265,13 +265,55 @@ AgentThought ColibriKernel::generate_thought(const std::string &prompt) const {
             thought.reasoning_chain = text_output;
             thought.final_conclusion = text_output;
           }
+
+          // ELICITED CONFIDENCE (2026-07-30, Charbel's decision).
+          //
+          // The logprob branch further down is DEAD against every model we
+          // deploy: logprobs are deliberately never requested, because
+          // llama-3.1-8b-instant returns a hard 400 for them. So confidence was
+          // structurally always UNKNOWN, and the 5ah routing
+          // (confidence -> nu_v -> pi_e -> tau_f) was complete but permanently
+          // idle -- Pi stayed identity, tau_f stayed 1, and F_MOS could not
+          // distinguish anything.
+          //
+          // The source is now an explicit field in the model's own JSON, which
+          // is exactly the contract python/experiment_e5.py elicits and the one
+          // that produced the 5x weak PASS. It also answers Q9 on its own terms:
+          // Q9 objected to "a hallucinated logprob", and token entropy is a
+          // property of the sampler, not a statement about epistemic
+          // reliability. An asked-for confidence is at least an answer to the
+          // right question.
+          //
+          // Out-of-range or non-numeric values are DISCARDED rather than
+          // clamped: a model that returns confidence "high" or 7.5 has not
+          // followed the contract, and inventing a number for it is how the old
+          // hardcoded 0.5 silently flattened the entire geometry.
+          if (parsed.contains("confidence")) {
+            const auto &c = parsed["confidence"];
+            if (c.is_number()) {
+              const double cv = c.get<double>();
+              if (cv >= 0.0 && cv <= 1.0) {
+                thought.confidence = cv;
+              } else {
+                std::cerr << "[ColibriKernel] ignoring out-of-range confidence "
+                          << cv << " (contract is [0,1]); leaving UNCALIBRATED\n";
+              }
+            } else {
+              std::cerr << "[ColibriKernel] ignoring non-numeric confidence; "
+                           "leaving UNCALIBRATED\n";
+            }
+          }
         } catch (const nlohmann::json::exception &) {
           thought.reasoning_chain = text_output;
           thought.final_conclusion = text_output;
         }
       }
 
-      if (choice.contains("logprobs") && !choice["logprobs"].is_null()) {
+      // Logprobs remain a FALLBACK only, and only if a provider ever supplies
+      // them: an elicited confidence already parsed above wins, because it is an
+      // answer about reliability rather than about sampler entropy.
+      if (!thought.confidence.has_value() &&
+          choice.contains("logprobs") && !choice["logprobs"].is_null()) {
         auto &logprobs_obj = choice["logprobs"];
         if (logprobs_obj.contains("content") &&
             logprobs_obj["content"].is_array()) {
@@ -290,13 +332,13 @@ AgentThought ColibriKernel::generate_thought(const std::string &prompt) const {
             thought.confidence = std::max(0.0, 1.0 - avg_entropy);
           }
         }
-      } else {
-        // The provider returned no logprobs, so confidence is genuinely UNKNOWN.
-        // We leave it EMPTY rather than inventing a number. The previous code set
-        // a hardcoded 0.5 here; because this branch is the one that actually runs
-        // against Groq, that constant propagated into compute_variance() and gave
-        // EVERY stored concept the same noise floor D = -ln(0.5), silently turning
-        // the Bures-Wasserstein geometry into a constant.
+      } else if (!thought.confidence.has_value()) {
+        // Neither an elicited confidence nor logprobs, so it is genuinely
+        // UNKNOWN. Left EMPTY rather than invented. The original code set a
+        // hardcoded 0.5 here; because this branch is the one that actually runs
+        // against Groq, that constant propagated into compute_variance() and
+        // gave EVERY stored concept the same noise floor D = -ln(0.5), silently
+        // turning the Bures-Wasserstein geometry into a constant.
         thought.confidence.reset();
       }
     }

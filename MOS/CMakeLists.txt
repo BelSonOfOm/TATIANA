@@ -68,6 +68,7 @@ set(SOURCES
     src/core/thread_pool.cpp
     src/core/operad.cpp
     src/core/assembly_log.cpp
+    src/core/cone_bures.cpp
     src/core/kernel.cpp
     src/core/reflection.cpp
     src/core/knowledge_curator.cpp
@@ -163,3 +164,6 @@ mos_add_test(mos_assembly_log_tests tests/test_assembly_log.cpp)
 
 # confidence -> nu_v -> pi_e -> tau_f, and the w(sigma,t)/pi_e separation
 mos_add_test(mos_precision_routing_tests tests/test_precision_routing.cpp)
+
+# Phase-2 item 9: Cone-Bures (delta), with parity against python/cone_bures.py
+mos_add_test(mos_cone_bures_tests tests/test_cone_bures.cpp)
