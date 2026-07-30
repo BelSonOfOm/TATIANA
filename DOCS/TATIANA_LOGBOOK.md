@@ -2637,24 +2637,64 @@ across every rank combination, agreeing to 1e-10 on `d_BW²`, `D²`, `is_same_co
 is what bounds the metric and killed the E4 runaway), and `4δ²D² → w·d_BW²` as `δ→∞`
 (day-one degradation, converging to 2.1e-08).
 
-### 🚨 GAP 4 IS A MODELLING QUESTION, NOT AN OVERSIGHT — concepts have no mass
-§5z's construction says *"we already have mass: the Hebbian weight w(σ,t)"*. But `w(σ,t)` lives
-on **`CoarseComplex` edges — between ORGANS**. The merge predicate applies to **concepts**, which
-have no mass field at all (`SemanticEmbedding` carries μ, U, D, ν — no `w`).
+### 🚨🚨 GAPS 4 AND 5 AS I STATED THEM ARE BOTH WRONG. RETRACTED — Charbel caught it.
+He asked *"what happened to our old mass w?"* and *"we shouldn't just pretend we're implementing
+the theory we laid out."* Correct on both counts. What I wrote above proposed substituting
+`n_eff` for `w(σ,t)` — inventing a quantity because I had mislocated the one the theory names.
 
-So the mass in the cone is currently **unsourced for the objects the metric is actually used on**.
-Three candidates, and this needs a decision rather than a default: (a) a per-concept activation
-count / recency, (b) `n_eff` — the evidence behind the stalk, which is already tracked and has
-the right "mass accumulates, decay destroys" semantics, (c) leave `w ≡ 1` and use Cone–Bures
-purely as a *bounded distance*, forfeiting the create/destroy half that motivated it.
+**❌ MY ERROR: I applied Cone–Bures to the wrong complex.** I saw `curator.cpp`'s concept-level
+W₂ ball (`w2_sq <= ε_W2`, Vietoris–Rips on the FINE complex) and assumed that is where δ decides.
+It is not. §5z is explicit and the benchmark is unambiguous:
 
-**(b) is my recommendation** — `n_eff` already grows with reinforcement, and §5z's whole argument
-is that mass should be the thing that accumulates and decays. But it is not the Hebbian weight
-§5z named, so it is a substitution and should be logged as one.
+- `cone_bures.py`'s own header: *"an HK/WFR-type distance on **the stalk manifold**"*.
+- §5z's cost line: *"5.45 ms/tick for **21 edges**"*; §5s: *"at real scale (d=384, **n=7**,
+  21 edges)"*. 21 = C(7,2). **Seven organs. This is the COARSE complex K.**
+- `validate_regime.py` calibrates δ against *"the typical **inter-organ** d_BW"*.
 
-⚠️ **Until 4 and 5 land, `ConeBures` is compiled, tested and CALLED BY NOTHING.** δ is real in
-the sense that the mathematics is in the engine and verified; it is not yet real in the sense of
-deciding a merge. Saying otherwise would misreport the state.
+**So mass is exactly where the theory put it.** Construction 1 (§2): *"simplex = a bound
+coalition of modules; weight `w(σ,t) ∈ [0,1]` = coupling strength"* — defined on **K's
+simplices**, and already implemented as `CoarseComplex::weights_`. Decay destroys it,
+`co_activate` creates it. §5z's third fact holds verbatim; nothing needs substituting, and
+`n_eff` was a fudge for a gap that does not exist.
+
+### ★ THE REAL GAP, AND IT IS ONE OBJECT THAT IS ALREADY COMPUTED
+Cone–Bures needs organ stalks as **Gaussians** `(μ, Σ)`. `CoarseComplex::stalks_` is
+`map<ModuleId, optional<VectorXd>>` — **points, no covariance.**
+
+But π_v fusion *already forms* the covariance and **discards it**. `fuse_concept_means` computes
+`μ* = (Σᵢ Σᵢ⁻¹)⁻¹ (Σᵢ Σᵢ⁻¹ μᵢ)`, explicitly building `Eigen::MatrixXd Lambda` (the general
+path, `semantic_skill.cpp:220`) or `precision_sum` (the isotropic path, `:206`) — and returns
+only the mean. **The organ's covariance is `Λ⁻¹`: computed, then thrown away one line before the
+return.** Recovering it is not new mathematics, it is returning a quantity the existing formula
+already forms. That also *sharpens* Construction 2, which currently loses the organ's
+uncertainty entirely.
+
+### ✅ AND δ IS NOT BLOCKED ON THE LABELS EITHER — I conflated shipping with publishing
+V2/E14 says: *"calibrate δ by sweep on ~50 hand-labelled pairs; publish the SENSITIVITY CURVE,
+**never a fitted value**."* Read it again — the labels explicitly must **not** produce the
+operational δ. They produce a curve showing how sensitive the merge decision is to it.
+
+The operational rule already exists and is derived, not hand-set: **δ = mean(d_BW)/π**, so the
+saturation cutoff `πδ` sits at the typical inter-organ distance (V1c) — *"otherwise nothing is
+ever declared different and delta is idle."* That is the same auto-calibration discipline
+`CriticalityMonitor` already applies to ε_ρ as a quantile of observed ρ, and it passes A17.
+
+**Nothing conceptual blocks δ. Three concrete steps, none of them a modelling decision:**
+1. Return the fused precision from π_v (already formed; do not recompute).
+2. `CoarseComplex` carries organ stalks as Gaussians rather than points.
+3. δ auto-calibrates from the running mean of d_BW over live edges.
+
+Then `ConeBures` decides **coalition merges on K** with mass = `weights_`, and `RegimeMonitor`
+finally has something to monitor.
+
+⚠️ **Until those three land, `ConeBures` is compiled, tested and CALLED BY NOTHING.** The
+mathematics is in the engine and verified against Python; it does not yet decide a merge.
+
+> **LESSON, and it is the fourth stale/unfounded-claim failure this week** (§5aa's superseded
+> NEXT line, §5af's imagined circularity, §5ah's test asserting a bug, now this). All four share
+> a shape: **I reasoned from where the code happened to be instead of from what the construction
+> says.** The fix each time was to go back and read the definition. Construction 1 answers
+> "where does w live" in one line, and I did not look.
 
 ### 🚫 THE CORPUS — I could not make one, and the reason is external
 Charbel asked to make a corpus so V6 can measure. `fastembed` **installed fine** from PyPI, but
