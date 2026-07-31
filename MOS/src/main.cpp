@@ -42,7 +42,22 @@ void run_ipc_server() {
     auto llm = std::make_shared<mos::translation::ColibriKernel>(config);
     
     core::CognitiveState state;
-    core::OSKernel kernel(state);
+
+    // E7. The assembly record is the one artefact the registry calls impossible
+    // to recover later, so where it lands must not depend on the caller's
+    // working directory. communicator.py sets MOS_ASSEMBLY_LOG to the same path
+    // assembly_log.py reads; an empty value is the explicit opt-out.
+    core::KernelConfig kernel_config;
+    if (const char* log_path = std::getenv("MOS_ASSEMBLY_LOG")) {
+        kernel_config.assembly_log_path = log_path;
+    }
+    std::cerr << "[C++ Engine] E7 assembly log: "
+              << (kernel_config.assembly_log_path.empty()
+                      ? std::string("DISABLED")
+                      : kernel_config.assembly_log_path)
+              << "\n";
+
+    core::OSKernel kernel(state, kernel_config);
     kernel.set_knowledge_base(kb);
     kernel.set_llm(llm);
 

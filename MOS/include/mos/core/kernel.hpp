@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mos/core/assembly_log.hpp"
 #include "mos/core/coarse_complex.hpp"
 #include "mos/core/cognitive_state.hpp"
 #include "mos/core/operad.hpp"
@@ -10,6 +11,7 @@
 #include <memory>
 #include <functional>
 #include <cstdint>
+#include <string>
 
 namespace mos {
 namespace core {
@@ -29,6 +31,18 @@ struct KernelConfig {
     /// related-but-distinct ~0.06, off-topic ~0.14. Hence 0.10 sits between
     /// "different facets of the same problem" and "genuinely incoherent".
     double rho_threshold = 0.10;
+
+    /// @brief Where E7 appends assembly events. Empty disables recording.
+    ///
+    /// CWD-relative by default, matching the `mos_brain_ipc.db` convention in
+    /// main.cpp. Because `communicator.py` spawns the engine WITHOUT setting a
+    /// cwd, the child inherits the caller's directory — so relying on that
+    /// default would make the log land somewhere that depends on where the user
+    /// happened to be standing. main.cpp therefore honours the
+    /// `MOS_ASSEMBLY_LOG` environment variable, and `communicator.py` sets it to
+    /// `assembly_log.DEFAULT_PATH`, so writer and reader agree by construction
+    /// rather than by coincidence.
+    std::string assembly_log_path = "assembly_events.jsonl";
 };
 
 /// @brief The two-mode controller driven by discord over K.
@@ -94,6 +108,14 @@ public:
     /// @brief Set a halt condition for the kernel.
     void set_halt_condition(std::function<bool(const CognitiveState&)> condition);
 
+    /// @brief How many composites this kernel has executed. Also the `tick`
+    /// field of every E7 record, so it is the join key between the assembly log
+    /// and anything else logged per tick.
+    [[nodiscard]] std::uint64_t tick_count() const noexcept { return tick_count_; }
+
+    /// @brief The E7 recorder, or nullptr when `assembly_log_path` is empty.
+    [[nodiscard]] AssemblyLog* assembly_log() noexcept { return assembly_log_.get(); }
+
 private:
     CognitiveState& state_;
     std::shared_ptr<ReflectionEngine> reflection_engine_;
@@ -105,6 +127,8 @@ private:
     CoarseComplex coarse_;
     CoherenceReport last_coherence_;
     CognitiveMode mode_{CognitiveMode::UNKNOWN};
+    std::unique_ptr<AssemblyLog> assembly_log_;
+    std::uint64_t tick_count_ = 0;
 };
 
 } // namespace core

@@ -5,6 +5,7 @@
 #include <future>
 #include <algorithm>
 #include <iostream>
+#include <map>
 
 namespace mos {
 namespace core {
@@ -75,7 +76,47 @@ std::vector<std::shared_ptr<OperadNode>> select_commuting_slice(
     return slice;
 }
 
-void Operad::run(CognitiveState& state, ThreadPool& pool) {
+Foliation plan_foliation(const std::vector<std::shared_ptr<OperadNode>>& nodes) {
+    // In-degrees are recomputed from the child links rather than read off
+    // OperadNode::in_degree, so this is callable before, during or after a run
+    // without depending on (or disturbing) that counter.
+    std::map<const OperadNode*, int> indeg;
+    for (const auto& node : nodes) indeg.emplace(node.get(), 0);
+    for (const auto& node : nodes) {
+        for (const auto& child : node->children) {
+            auto it = indeg.find(child.get());
+            if (it != indeg.end()) it->second += 1;
+        }
+    }
+
+    std::vector<std::shared_ptr<OperadNode>> ready_queue;
+    for (const auto& node : nodes) {
+        if (indeg[node.get()] == 0) ready_queue.push_back(node);
+    }
+
+    Foliation foliation;
+    while (!ready_queue.empty()) {
+        std::vector<std::shared_ptr<OperadNode>> next_ready_queue;
+        auto slice = select_commuting_slice(ready_queue, next_ready_queue);
+        if (slice.empty()) break;  // no progress possible; a cycle would spin here
+
+        for (const auto& node : slice) {
+            for (const auto& child : node->children) {
+                auto it = indeg.find(child.get());
+                if (it != indeg.end() && --(it->second) == 0) {
+                    next_ready_queue.push_back(child);
+                }
+            }
+        }
+        foliation.push_back(std::move(slice));
+        ready_queue = std::move(next_ready_queue);
+    }
+    return foliation;
+}
+
+Foliation Operad::run(CognitiveState& state, ThreadPool& pool) {
+    Foliation executed;
+
     // 1. Find all initial ready nodes (in_degree == 0)
     std::vector<std::shared_ptr<OperadNode>> ready_queue;
     for (auto& node : nodes_) {
@@ -112,9 +153,13 @@ void Operad::run(CognitiveState& state, ThreadPool& pool) {
             }
         }
         
+        // Record what was actually co-scheduled, for E7.
+        executed.push_back(std::move(slice));
+
         // Swap ready queues for the next foliation round
         ready_queue = std::move(next_ready_queue);
     }
+    return executed;
 }
 
 } // namespace core

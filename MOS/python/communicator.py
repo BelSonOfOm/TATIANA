@@ -49,15 +49,28 @@ class Communicator:
             mos_exe_path = "mos.exe" # Fallback if in PATH
             
         print(f"[Communicator] Launching C++ IPC Server ({mos_exe_path})...")
+
+        # E7. Tell the engine exactly where to append assembly events, rather
+        # than letting it fall back to a cwd-relative default -- we do not pass
+        # cwd= below, so the child inherits ours, and the log would otherwise
+        # land wherever the user happened to run this from. The registry says
+        # this data is impossible to recover later, so "usually the right
+        # directory" is not good enough.
+        from assembly_log import DEFAULT_PATH as ASSEMBLY_LOG_PATH
+        child_env = dict(os.environ)
+        child_env["MOS_ASSEMBLY_LOG"] = ASSEMBLY_LOG_PATH
+        print(f"[Communicator] E7 assembly log -> {ASSEMBLY_LOG_PATH}")
+
         try:
             # Note: stdout and stderr are piped so we can read them asynchronously
             self.cpp_process = subprocess.Popen(
-                [mos_exe_path, "--ipc-server"], 
-                stdin=subprocess.PIPE, 
-                stdout=subprocess.PIPE, 
+                [mos_exe_path, "--ipc-server"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                bufsize=1
+                bufsize=1,
+                env=child_env
             )
             
             # Start background listener thread

@@ -62,6 +62,24 @@ public:
     const std::vector<std::shared_ptr<OperadNode>> &ready,
     std::vector<std::shared_ptr<OperadNode>> &deferred);
 
+/// @brief A foliation: the co-schedulable slices, in execution order.
+using Foliation = std::vector<std::vector<std::shared_ptr<OperadNode>>>;
+
+/// @brief Computes the foliation WITHOUT executing or mutating anything.
+///
+/// E7 records a composite at assembly time, which is before `run` exists to be
+/// asked what it did — so the slices in the record have to be predicted. This
+/// recomputes in-degrees from the child links rather than reading
+/// `OperadNode::in_degree`, so it is independent of whatever `run` has already
+/// done to that counter and can be called more than once.
+///
+/// The prediction equals the execution as long as `get_support()` returns the
+/// same set before and during `apply()`. That is true of every operator today
+/// and is NOT enforced by the interface, so `Operad::run` returns the foliation
+/// it actually executed and the kernel compares the two rather than assuming.
+[[nodiscard]] Foliation plan_foliation(
+    const std::vector<std::shared_ptr<OperadNode>>& nodes);
+
 /// @brief The Orchestration DAG that routes operators to the CognitiveState.
 class Operad {
 public:
@@ -72,7 +90,16 @@ public:
     void add_dependency(std::shared_ptr<OperadNode> parent, std::shared_ptr<OperadNode> child);
 
     /// @brief Executes the Operad, foliating the DAG into maximal commuting slices.
-    void run(CognitiveState& state, ThreadPool& pool);
+    /// @return The foliation actually executed, so E7 can record what happened
+    ///         rather than what was planned. Deliberately not [[nodiscard]]:
+    ///         callers that do not record are entitled to ignore it.
+    Foliation run(CognitiveState& state, ThreadPool& pool);
+
+    /// @brief The nodes, in insertion order. This order defines the node indices
+    /// used by the E7 record, so it must not be reordered.
+    [[nodiscard]] const std::vector<std::shared_ptr<OperadNode>>& nodes() const noexcept {
+        return nodes_;
+    }
 
 private:
     std::vector<std::shared_ptr<OperadNode>> nodes_;

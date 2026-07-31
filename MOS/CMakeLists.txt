@@ -62,6 +62,7 @@ set(SOURCES
     src/core/thread_pool.cpp
     src/core/operad.cpp
     src/core/kernel.cpp
+    src/core/assembly_log.cpp
     src/core/reflection.cpp
     src/core/knowledge_curator.cpp
     src/operators/edge_contraction.cpp
@@ -131,3 +132,12 @@ target_link_libraries(mos_plasticity_tests PRIVATE mos_core)
 # FIX-11 (operad co-schedulability) + FIX-13 (stalk noise-floor contract)
 add_executable(mos_stalk_floor_tests tests/test_stalk_floor.cpp)
 target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
+
+# E7 assembly recording. The signature cases here are shared with
+# python/check_signature_parity.py — if the two implementations drift, every
+# recurrence count is silently wrong while every other test still passes.
+add_executable(mos_assembly_log_tests tests/test_assembly_log.cpp)
+target_link_libraries(mos_assembly_log_tests PRIVATE mos_core)
+# The end-to-end case builds a real FlatBuffers DAG, so it needs the generated
+# header rather than only what mos_core exposes.
+add_dependencies(mos_assembly_log_tests fbs_headers)

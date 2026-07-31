@@ -57,14 +57,19 @@ public:
     }
 };
 
-OSKernel::OSKernel(CognitiveState& initial_state, const KernelConfig& config) 
+OSKernel::OSKernel(CognitiveState& initial_state, const KernelConfig& config)
     : state_(initial_state), config_(config) {
     unsigned int threads = config_.num_threads;
     if (threads == 0) {
         threads = std::thread::hardware_concurrency();
-        if (threads == 0) threads = config_.fallback_threads; 
+        if (threads == 0) threads = config_.fallback_threads;
     }
     thread_pool_ = std::make_shared<ThreadPool>(threads);
+
+    // E7. An empty path is the explicit opt-out; anything else records.
+    if (!config_.assembly_log_path.empty()) {
+        assembly_log_ = std::make_unique<AssemblyLog>(config_.assembly_log_path);
+    }
 }
 
 void OSKernel::set_reflection_engine(std::shared_ptr<ReflectionEngine> reflection_engine) {
@@ -110,6 +115,10 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
     std::map<int, std::shared_ptr<mos::core::OperadNode>> node_map;
     // Map of node id -> the organ (OpType) it belongs to, for the coarse complex.
     std::map<int, ModuleId> node_organ;
+    // Same OpType name keyed by node pointer, for the E7 record. The operad
+    // knows only READ_ONLY/MUTATION; the OpType lives on the FlatBuffers side,
+    // so it has to be carried across here or the record loses which organ acted.
+    std::map<const OperadNode*, std::string> node_op_type;
 
     // First pass: create all nodes and their operators
     for (const auto* node : *dag->nodes()) {
@@ -130,6 +139,7 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
                 mos::fbs::EnumNameOpType(op->type()) ? mos::fbs::EnumNameOpType(op->type())
                                                      : "UNKNOWN";
             node_organ[node->id()] = organ;
+            node_op_type[cpp_node.get()] = organ;
             coarse_.register_module(organ);
 
             if (op->geometry() && op->geometry()->size() > 0) {
@@ -175,8 +185,89 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
         }
     }
 
+    // 3b. E7 — RECORD THE ASSEMBLY, BEFORE IT RUNS.
+    // This has to happen here and not after: `rho_before` is only knowable
+    // before the composite mutates the state, and the registry says assembly
+    // data is impossible to recover later. The event is held open and closed at
+    // step 5b once rho has been re-measured.
+    ++tick_count_;
+    int assembly_handle = -1;
+    Foliation planned;
+    std::map<const OperadNode*, int> node_index;
+    if (assembly_log_) {
+        const auto& ordered = cpp_operad.nodes();
+        for (std::size_t i = 0; i < ordered.size(); ++i) {
+            node_index[ordered[i].get()] = static_cast<int>(i);
+        }
+
+        std::vector<NodeRecord> records;
+        records.reserve(ordered.size());
+        for (const auto& node : ordered) {
+            NodeRecord rec;
+            // An operator-less node still has structure worth signing; naming it
+            // UNKNOWN keeps the composite's shape honest instead of dropping it.
+            // OperadNode::get_type/get_support dereference op_ unconditionally,
+            // so the null check is load-bearing, not defensive noise.
+            if (node->op_) {
+                auto it = node_op_type.find(node.get());
+                rec.op_type = (it != node_op_type.end()) ? it->second : "UNKNOWN";
+                const auto support = node->get_support();
+                rec.support.assign(support.begin(), support.end());
+                rec.read_only = (node->get_type() == OperatorType::READ_ONLY);
+            } else {
+                rec.op_type = "UNKNOWN";
+                rec.read_only = true;
+            }
+            records.push_back(std::move(rec));
+        }
+
+        std::vector<std::pair<int, int>> record_edges;
+        for (const auto& node : ordered) {
+            const int p = node_index[node.get()];
+            for (const auto& child : node->children) {
+                auto it = node_index.find(child.get());
+                if (it != node_index.end()) record_edges.emplace_back(p, it->second);
+            }
+        }
+
+        planned = plan_foliation(ordered);
+        std::vector<std::vector<int>> slice_indices;
+        slice_indices.reserve(planned.size());
+        for (const auto& slice : planned) {
+            std::vector<int> idx;
+            idx.reserve(slice.size());
+            for (const auto& node : slice) idx.push_back(node_index[node.get()]);
+            slice_indices.push_back(std::move(idx));
+        }
+
+        try {
+            assembly_handle = assembly_log_->record(
+                std::move(records), std::move(record_edges), std::move(slice_indices),
+                tick_count_, last_coherence_.rho);
+        } catch (const std::exception& e) {
+            // A composite we cannot sign (cycle, bad edge) is a bug worth
+            // surfacing, but it must not take the tick down with it.
+            std::cerr << "[OSKernel] E7 record failed: " << e.what() << "\n";
+            assembly_handle = -1;
+        }
+    }
+
     // 4. Execute the Operad DAG on the cognitive state
-    cpp_operad.run(state_, *thread_pool_);
+    Foliation executed;
+    try {
+        executed = cpp_operad.run(state_, *thread_pool_);
+    } catch (...) {
+        // "We assembled this and never learned the outcome" is itself data, so
+        // the event is abandoned rather than left dangling or silently dropped.
+        if (assembly_log_ && assembly_handle >= 0) {
+            try {
+                assembly_log_->abandon(assembly_handle, "operad run threw");
+            } catch (const std::exception& e) {
+                std::cerr << "[OSKernel] E7 abandon failed: " << e.what() << "\n";
+            }
+        }
+        throw;
+    }
 
     // 4b. TWO-LEVEL BRIDGE (Construction 2, pi_v).
     // Now that operators have grown their concepts, replace each organ's COARSE
@@ -204,6 +295,50 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
     // or no organ carried geometry) rather than being defaulted to a number.
     last_coherence_ = coarse_.report();
     std::cerr << "[OSKernel] coherence: " << last_coherence_.summary() << "\n";
+
+    // 5b. E7 — CLOSE THE EVENT now that rho_after exists.
+    //
+    // `verified` is left NULL on purpose. Construction 3 is explicit that
+    // coherence is not correctness, so inferring VERIFIED from a rho improvement
+    // would fabricate exactly the evidence the promotion gate is supposed to
+    // supply. Routing VerifyOp's real outcome here is owed, not faked.
+    if (assembly_log_ && assembly_handle >= 0) {
+        std::string note;
+        // The record carries the PLANNED foliation because it is written before
+        // the run. If the executed one differs, some operator's get_support()
+        // changed under apply() and the recorded slices are wrong — say so in
+        // the record rather than letting it quietly disagree with reality.
+        std::vector<std::vector<int>> executed_indices;
+        executed_indices.reserve(executed.size());
+        for (const auto& slice : executed) {
+            std::vector<int> idx;
+            idx.reserve(slice.size());
+            for (const auto& node : slice) {
+                auto it = node_index.find(node.get());
+                idx.push_back(it != node_index.end() ? it->second : -1);
+            }
+            executed_indices.push_back(std::move(idx));
+        }
+        std::vector<std::vector<int>> planned_indices;
+        planned_indices.reserve(planned.size());
+        for (const auto& slice : planned) {
+            std::vector<int> idx;
+            idx.reserve(slice.size());
+            for (const auto& node : slice) idx.push_back(node_index[node.get()]);
+            planned_indices.push_back(std::move(idx));
+        }
+        if (planned_indices != executed_indices) {
+            note = "FOLIATION MISMATCH: planned != executed; recorded slices are the plan";
+            std::cerr << "[OSKernel] E7 WARNING: " << note << "\n";
+        }
+
+        try {
+            assembly_log_->close(assembly_handle, last_coherence_.rho,
+                                 std::nullopt, note);
+        } catch (const std::exception& e) {
+            std::cerr << "[OSKernel] E7 close failed: " << e.what() << "\n";
+        }
+    }
 
     // 6. THE TWO-MODE CONTROLLER.
     // rho now DRIVES behaviour rather than merely being logged. Note the three
