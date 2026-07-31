@@ -2568,6 +2568,99 @@ are `measure_sigma_dir`, `pi_v` and `validate_regime` — **all measurement scri
 > upgrade*, not a working mechanism. Of §0.2's five claims it touches **growth**, and only the
 > `merge` quarter of it. This does not make V6's result less true; it makes it less blocking.
 
+## 5al. ⭐ HANDOFF — STATE AT END OF 2026-07-31. READ THIS FIRST IN A NEW CHAT.
+
+**§7's run sheet is STALE (written 2026-07-27, Phase 0 is done). Read this section instead.**
+Charbel is forking to a new conversation to introduce *"two heavily drastic claims"* — those are
+not yet recorded anywhere and are not in this logbook. **This logbook is the shared state
+(§5r); both threads must read here before acting and append here after.**
+
+### WHAT SHIPPED THIS SESSION (7 commits, branch `fix-11-13-and-curvature-decisions`)
+| | what | where |
+|---|---|---|
+| ✅ **FIX-11** | read-only nodes no longer poison the operad slice; foliation extracted to the testable `select_commuting_slice`; 3 slices → 1 | §5ae |
+| ✅ **FIX-13** | stalk floor `O(1/d)`; **E4 epistemic 229.76 → 0**; W₂ no longer inert (0 → 0.206); `1e-9` clamp → derived `t_max = 4(1+√(eps·d))` | §5ae |
+| ✅ **Q5 derived** | Forman's coefficient 3 = 1+2 from the "not both" clause; **weights must be `π_e`, NOT `w(σ,t)`** | §5ac |
+| ✅ **Q6 answered** | `w_floor` was patching a forward-Euler artefact; replaced by exponential integration + a control-barrier / soft-bound certificate. **Q8 dissolves with it** | §5ad |
+| ✅ **π_e derived** | `1/(D_u+D_v+s_e)` from the PC free energy; ρ **bit-identical** on uniform floors | `edge_precision.py`, §5ag |
+| ✅ **τ_f derived** | harmonic mean of edge precisions; reduces to 1 so `F_MOS` reproduces `4−deg u−deg v+3m` | `derived_scales.py`, §5ag |
+| ✅ **δ derived** | equal-error crossing of within/between distributions, **no hand labels**, with an identifiability flag | `derived_scales.py`, §5ag |
+| ✅ **E7** | assembly recording, re-scoped off dead Ext¹ onto δ𝔇 promotion | `assembly_log.py` |
+| ✅ **D̃** | `δ_eff = √(δ²+σ_dir²)`; caught that **thresholding D̃ is vacuous** | `merge_score.py`, §5ai |
+| ✅ **π_v v2** | v1 restricted to the dominant mode; **refutes multi-modality as V6's cause** | `pi_v.py`, §5aj |
+| 🚨 **V6 / V6b** | **§5z's closeness claim does NOT survive real text** | §5ah, §5ak |
+| 🔵 **Construction 4** | organs as an overlapping cover, coarse complex as its nerve — **proposed, not built** | §3 |
+
+**Questionnaire closed:** F10 dissolved · Q9 retracted (antisymmetric contract normative) · Q16 derived
+· Q4/Q19/Q21/Q25 defaults adopted · Q5/Q6 answered · Q8 dissolved. **All eight Phase-2 items now have
+their blocking questions answered.**
+
+### 🚨 THE BIG NEGATIVE RESULT, STATED PLAINLY
+**σ_dir/δ measures 0.32 on real text against a simulated 0.09** ⇒ merge agreement ~62%, not the
+claimed 87%. Cause is **organ SEPARATION, not spread** (V1c calibrated within-organ spread and never
+calibrated between-organ separation). **Three fixes tried, none rescues it:** (a) D̃ — a defensible
+construction whose benefit is **still unmeasured**; (b) π_v v2 — mechanism real (−29% conditional)
+but prevalence 1/11, so **refuted as the cause**; (c) organ definition — **bounded at −23% even in a
+deliberately circular best case, and the TAIL WORSENS** (max 0.396 → 0.466).
+**Also found: no privileged granularity exists in this corpus** — the k-sweep is monotone with no
+optimum, which undercuts *every* partition-based organ definition and argues for the cover.
+**Scope of damage is smaller than it looks: Cone–Bures is NOT wired into the engine.** `coherence.py`
+(ω, ρ, contradiction detection) has **zero** Bures references. V6 falsifies a *proposed upgrade*.
+
+> **RECOMMENDATION ON THE TABLE, NOT YET ACCEPTED:** re-base the §5z claim rather than defend it.
+> Cone–Bures keeps everything that earned it a place under A17 — bounded, genuine metric, derived
+> length scale, deletes a hand-set threshold — with HK agreement **monitored, not claimed**.
+
+### 📋 NEXT, DEPENDENCY-ORDERED (supersedes every earlier "NEXT" in this file)
+**Do first — gets worse by waiting:**
+1. **E7 at engine level.** `assembly_log.py` exists but is NOT wired into the tick. The registry says
+   assembly data is *"impossible to recover later"* — every tick run without it is data permanently lost.
+
+**Cheap, each unblocks a specific Phase-2 item:**
+2. **ε rename** → `ε_flow` (step size) vs `ε_ρ` (RESOLVE threshold). Before the curvature controller, or it is a bug.
+3. **FIX-12 propagation** into `MOS_FINALIZATION.md` (Q9/Q10/Q11) and the `.tex`. Fold in the stale
+   **Q2b 🔴** marker and §5t's stale *"CHOOSE THE CATEGORY"* NEXT line at the same time.
+4. **Confidence → π_e wiring.** `edge_precision.py` derives it; nothing calls it yet. `CoarseComplex::set_use_precision`
+   still uses **the coupling weight as π_e — the type error §5af isolated.** Replace it.
+
+**Phase 2 proper (all questions answered; realistic scope: days):**
+5. Householder maps (m=4) → LSQR Hodge split → `F_MOS` + the barrier controller → PPR instantiation
+   → 𝕂/W split → γ(ν) → coning → rank-k SPD stalks in C++.
+
+**Owed, not blocking:**
+FIX-7/8/9 (docs) · FIX-15 (E5 significance overstated ~4×; fix before quoting the p-value) ·
+FIX-16 (colibri test cannot diagnose its own failure — the only red in the suite) ·
+**V7 (τ_f — Charbel refused to let it die; τ_f=1 is a WORKING value, not a closure)** ·
+E5b at b₁≥2 · V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 ·
+**V6c: a NON-CIRCULAR organ test (co-activation lens)** · **D̃ vs exact HK at the cutoff.**
+
+### ⚠️ FOUR THINGS THE NEXT THREAD MUST NOT RE-LITIGATE
+1. **τ_f is NOT circular.** The Hodge split is provably independent of `W₂` (invertible ⇒ image
+   unchanged), verified to 8.4e-16. I claimed otherwise and was wrong; the test lives in
+   `derived_scales.py` §0 so it cannot silently un-retract.
+2. **F10 is dissolved** and was already dissolved on 2026-07-27 in `MEMORY_MODEL_TWO_COMPLEX.md`.
+   A stale "NEXT — blocking" line made it *look* open. **Lesson: a superseded NEXT line is worse
+   than no line.**
+3. **`w(σ,t)` and `π_e` are different objects.** Coupling capped on [0,1]; precision uncapped.
+   Conflating them already caused one divergence bug (§5q).
+4. **coarse/fine ≠ 𝕂/W.** Stratification vs store-cache. Two axes, a 2×2 (see Construction 4).
+
+### 🧭 STRATEGIC POSITION (the honest read, for a cold start)
+**Converging on internal validity, untested on external validity.** ~12 hand-set constants have been
+converted to derived or measured, the architecture has survived every measurement so far, and the
+theory keeps anticipating its own failure modes. **But nothing has yet tested the actual bet:**
+Λ(t) unmeasured, T1 unrun, no slope observed. Every measured effect so far is **real but smaller
+than hoped** (E5 weak PASS at 15% of planted level; V6 62% not 87%) — characteristic of a true but
+modest theory, not a false one. **The formalism is ahead of the evidence and has been for a while.**
+Marginal value of more theory is now below the marginal value of getting Phase 2 into the engine and
+watching a number move.
+**Engine state:** a one-shot planner-executor with memory and a coherence score. It remembers and it
+notices disagreement. It does **not** yet grow, consolidate or restructure — all of that is Phase 2.
+**Costs:** compute is free (µs/tick; the one trap is the Hodge pseudo-inverse, 10¹¹ flops → use LSQR,
+10⁷). Space ceiling is real: 𝕂 at 100K concepts ≈ 735 MB fits in 5.9 GB, **1M ≈ 7.3 GB does not**.
+**LLM is the binding wall** — the quadratic judgement cost (n=7 ⇒ 21 calls ⇒ 47 events/day) makes
+batching, W-only judging and conflict-gating **mandatory, not optional**.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2694,7 +2787,15 @@ are `measure_sigma_dir`, `pi_v` and `validate_regime` — **all measurement scri
 ---
 ---
 
-# 7. TOMORROW — THE RUN SHEET (written 2026-07-27 for 2026-07-28)
+# 7. ~~TOMORROW — THE RUN SHEET~~ ⛔ **SUPERSEDED (written 2026-07-27). GO TO §5al.**
+
+> **⛔ DO NOT PLAN FROM THIS SECTION.** Phase 0 is DONE (E5 ran ×2 → weak PASS §5x; E15 answered
+> NO §5y; E3 partially run §5u). Phase 1's questionnaire is CLOSED (§5aa, §5ac, §5ad). Several
+> "NEXT — blocking" lines below and in §5s/§5t are **stale and were already superseded when
+> written down**, which cost us real time on F10: a stale blocker re-blocks work that was already
+> unblocked. **The live plan is §5al (HANDOFF).** This section is kept only as the record of what
+> was planned on 2026-07-27, and for the still-valid *procedures* (E5's configuration, E3's
+> read/write-set method, the not-valid-tests list), never for its ordering or its status marks.
 
 **Order is deliberate.** Phase 0 first, always: three cheap things that can invalidate the work
 of Phases 1–3. Do NOT write theory before Phase 0 returns.
