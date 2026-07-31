@@ -111,7 +111,9 @@ COMMENTS FROM CHARBEL:
   - `b₁` is defensible here (unlike most TDA-on-knowledge-graphs hand-waving) *only because* we defined simplices to mean genuine n-ary binding (Construction 1). Earned, not borrowed.
 
 - 🔵 **Construction 4 — ORGANS AS AN OVERLAPPING COVER; THE COARSE COMPLEX AS ITS NERVE
-  (proposed 2026-07-31, NOT IMPLEMENTED).** Answers the question A17 says we owe: *what determines
+  (proposed 2026-07-31, NOT IMPLEMENTED).** **⚠️ RE-BASED SAME DAY BY CONSTRUCTION 5 (below):
+  the NERVE half survives intact; the COVER half — what a cover element *is*, and how it is
+  initialized — is SUPERSEDED. Read Construction 5 before building anything here.** Answers the question A17 says we owe: *what determines
   the organ decomposition?* Today it is a hand-set list of ~6 cognitive modules, and **FIX-8 is the
   symptom of its arbitrariness** — the corpus says 7 organs in the `.tex`, 6 in the logbook, 4+RESPOND
   at runtime. A structure nobody can count consistently is a structure nobody derived.
@@ -284,6 +286,151 @@ COMMENTS FROM CHARBEL:
   - **Now qualified:** the PH payoff (epoch-restricted, per A4-1) · "no privileged granularity"
     (needs a null, see §5ak amendment).
   - **Verdict: keep, but do NOT cite the persistence payoff without the epoch qualifier.**
+
+- 🔵 **Construction 5 — THE COVER ELEMENT DERIVED: ORGANS AS LATENT CAUSES OF CO-ACTIVATION
+  (proposed 2026-07-31, NOT IMPLEMENTED. Phase-2 item 9.)** Construction 4 left *what a cover
+  element is* undecided between "region of ℝ³⁸⁴" and "set of concepts" (amendment A4-2), and its
+  criticality rule had no process to be measured on (the fourth blocker). **Both are the same
+  wound — nobody said what GENERATES the cover. This derives it.**
+
+  **THE CONSTRAINTS PIN THE ANSWER — nothing here is chosen.** (C1) metric-independence, or V6 goes
+  vacuous ⇒ the only admissible raw material is **co-activation history**; (C2) accumulates, never
+  recomputed (§6, the FCA rejection); (C3) overlap structurally possible, not a fudge; (C4) supports
+  the five typed ops; (C5) §5s cell budget. (C1) fixes the data: concepts `c = 1..N`, at tick `t`
+  an assembly `A_t ⊆ {1..N}` fires, `x_tc = 1` iff `c ∈ A_t`. **That record is exactly E7's output
+  and it is the entire input.**
+
+  **★ THE DERIVATION — the MODEL CLASS *is* the cover/partition choice.** Organs should be the
+  latent causes of co-activation. There are two model classes and the difference is not stylistic:
+
+  | | **competitive** (mixture / categorical / Dirichlet) | **disjunctive** (multiple-cause / noisy-OR) |
+  |---|---|---|
+  | latent | one `z_t ∈ {1..K}` picks a cause | `z_ti ~ Bern(π_i)`, several on at once |
+  | combination | convex, `Σ_i π_i p(c\|i)`, `Σπ_i = 1` | **additive**, `p(x_tc=0\|z_t) = exp(−Σ_i z_ti λ_ci)` |
+  | causes | compete for normalised mass | superpose, no normalisation |
+  | latent structure | **a PARTITION** — provably cannot represent overlap | **a COVER** |
+
+  with `θ_ci ∈ [0,1]` the probability organ `i` recruits concept `c`, and `λ_ci = −log(1−θ_ci) ≥ 0`.
+  > **COVER ⟺ ADDITIVE latent causes. PARTITION ⟺ CONVEX latent causes.** Construction 4 argued for
+  > the cover structurally ("sheaves only need a cover"). It now has a **statistical** characterisation
+  > and therefore a **falsifiable** one — fit both, compare on held-out data (T1).
+
+  **⇒ A cover element `U_i` IS a latent cause in a noisy-OR model of co-activation; its content is
+  the recruitment vector `θ_·i ∈ [0,1]^N`.** Neither "region" nor "set" was right: it is a **soft
+  membership vector**; the set reading is its thresholding, and the region reading never arises
+  because the model contains no geometry. Constraints check: (C1) ✓ the embedding never appears —
+  **so V6 still bites**; (C2) ✓ accumulates via sufficient statistics `n_ci` (times `c` fired with
+  organ `i`), `m_i` (times `i` was active); (C3) ✓ `Σ_i θ_ci` is unconstrained and its excess over 1
+  **is** the overlap; (C4) ✓ birth = new column, growth = statistics accumulate, split/merge = column
+  ops, decay = discounting; (C5) ✓ `K·N` sparse.
+
+  **THE OBJECTIVE, AND WHY IT HAS AN OPTIMUM WHERE σ_dir HAD NONE.** Variational free energy with
+  `q(z_t) = ∏_i Bern(q_ti)`:
+  `F = Σ_t E_q[−log p(x_t|z_t,θ)] + Σ_t KL(q(z_t)‖p(z)) + KL(q(θ)‖p(θ))`
+  — accuracy plus complexity, i.e. MDL, i.e. **the same free-energy principle §5ag already used to
+  derive `π_e`. Not a new import.** Accuracy decreases in `K`; complexity grows `O(KN)`. **So `F(K)`
+  CAN have an interior minimum, whereas `σ_dir` cannot** — §5ak swept `k` with an instrument k-means
+  drives monotonically downward by construction (see that section's amendment), so of course it found
+  no dip. **`F(K)` is the non-monotone instrument that sweep needed.** Not guaranteed: if the corpus
+  has no organ structure `F` bottoms at `K=1` or `K=N`. **Its absence is then a finding, not an
+  artefact of the instrument** (T2/T4).
+
+  **INITIALIZATION — Construction 4's option (b), now derived instead of analogised.** Beta prior
+  **per `(c,i)` pair**, strength `κ`, base `π⁰_ci` = the hand-set six modules. Posterior mean:
+  > `θ̂_ci = (n_ci + κ·π⁰_ci) / (m_i + κ)`
+
+  At `n=0` you get the hand-set list; as history accumulates you get the data; `κ` is what the
+  hand-set structure is worth in observations. **The hand-set structure becomes a starting condition
+  evidence can move** — Construction 4's stated intent, now falling out of the model. **Beta-per-pair,
+  NOT Dirichlet-over-organs: Dirichlet normalises `Σ_i` to 1 and would smuggle the partition back in
+  through the PRIOR even under a noisy-OR likelihood.** This discharges A4-2's stated debt.
+
+  **★ THE NERVE BECOMES A GENUINE FILTRATION, AND THE LAST KNOB DISSOLVES.** Thresholding `θ` would
+  reintroduce a hand-set number. Instead define, for a set of organs `S`, the expected number of
+  concepts shared by all of them, and filter by it:
+  > `w(S) = Σ_c ∏_{i∈S} θ_ci`,  `N_τ = { S : w(S) ≥ τ }`
+
+  - **`N_τ` is a simplicial complex.** For `S' ⊆ S`, each `θ_ci ∈ [0,1]` gives `∏_{S'} θ ≥ ∏_S θ`,
+    so `w(S') ≥ w(S)`, so `S ∈ N_τ ⇒ S' ∈ N_τ`. Closed under faces. ∎
+  - **`{N_τ}` is a monotone filtration.** `τ' ≤ τ ⇒ N_τ ⊆ N_τ'`. ∎
+
+  Consequences: (1) **the overlap/gain parameter — Mapper's most-criticised knob, and the one A4-2
+  threatened to reintroduce — dissolves into a filtration parameter.** Don't pick `τ`; take what
+  persists across `τ`. Same dissolution that worked for F10 and that §5ak wants for δ. (2) **This
+  filtration is MONOTONE, so standard PH applies unconditionally** — A4-1's zigzag afflicts only the
+  *time* axis. **The persistence payoff is rescued more cleanly than by A4-1's epoch fix:** honest PH
+  over `τ` at every tick, epoch-restricted PH along time. (3) **The nerve theorem is not needed**
+  (A4-3, cleaner): `N_τ` is *defined* from `θ`, not approximating an underlying space. Nothing borrowed.
+
+  **⚠️ `(τ, t)` IS A BI-FILTRATION AND WE ARE NOT GOING THERE.** Multiparameter persistence has no
+  complete discrete invariant (Carlsson–Zomorodian). **Use the `τ`-barcode at fixed `t`; read time as
+  a SEQUENCE of barcodes.**
+
+  **THE FOURTH BLOCKER, CLOSED BY THE SAME OBJECT.** `σ` needed a process; the generative model **is**
+  one. Given fitted `θ, π`, the expected number of further concepts recruited when `c` fires is closed
+  form, so criticality becomes a condition on the fitted model, measurable per tick.
+  **⚠️ STATED LIMIT, NOT BURIED: this is the branching of the MODEL's implied cascade — a statistic of
+  co-activation — NOT the engine's causal bind dynamics.** Better than a synthetic random walk (it is
+  fitted to real assemblies), weaker than instrumenting the real causal tree. **Never quote it as the
+  engine's σ.**
+
+  **🚧 SCOPE FENCE — WHAT WE ARE DELIBERATELY NOT BUILDING** (the over-engineering trap, named before
+  it is fallen into): no multiparameter persistence · no zigzag persistence (A4-1's epoch fix stands) ·
+  no geometric regions or Bures membership · no learned restriction maps · no organ-count search beyond
+  a bounded `K` sweep · **and no topology half at all until Tier 0 passes.** Three cheap tests can kill
+  this before one line of PH code exists. That is the point of the tiering.
+
+  ### 📋 TEST BATTERY — WHAT CONSTRUCTION 5 MUST PASS TO OPERATE AT OPTIMUM
+  Written before building, per §7. **Tiers are GATES: do not start a tier until the previous passes.**
+
+  **TIER 0 — IS THE MODEL CLASS RIGHT? Cheap kill-shots. Run these FIRST; they can end the whole thing.**
+  | | test | pass criterion | if it fails |
+  |---|---|---|---|
+  | **T1** | **noisy-OR vs mixture**, both fitted to the same assembly record, compared on **held-out predictive log-likelihood** (NOT in-sample `F`, which rewards flexibility). Split by **tick BLOCKS**, not random ticks — assemblies are temporally correlated | noisy-OR wins held-out | **the COVER IS WRONG and the partition was right. Constructions 4 AND 5 both die.** This is Construction 4's failure mode 1, made decisive |
+  | **T2** | **`F(K)` interior optimum**, `K` swept over a bounded range | interior minimum, reproducible across restarts (T5) | no natural organ count; MDL fails exactly where σ_dir failed |
+  | **T3** | **overlap is real**: fraction of concepts with `Σ_i θ_ci > 1`, and fitted `θ` not near-binary/near-disjoint | a stated non-trivial fraction, surviving T4 | cover degenerates to a partition — **overlap was fiction**; Construction 4's failure mode 3 |
+
+  **TIER 1 — IS THE FIT AN ARTEFACT? Nulls and stability.**
+  | | test | pass criterion | notes |
+  |---|---|---|---|
+  | **T4** | **structureless null**: refit on assemblies with concept identities permuted within ticks, **preserving assembly sizes and concept marginals** so only co-activation structure is destroyed | real corpus's `F(K)` optimum lies outside the null's spread | **⭐ this ABSORBS the owed V6d.** Same null answers "is there a privileged granularity" properly, with a non-monotone instrument |
+  | **T5** | **restart stability**: multiple random restarts; report spread of `F` at the optimum and cover agreement (organs matched by overlap) | a stated agreement threshold | **noisy-OR fitting is non-convex. "Optimal cover" means a LOCAL optimum, restart-dependent. Report the spread; never report a single fit as "the" cover** |
+  | **T6** | **identifiability flag**: detect always-co-active cause pairs, which are not separable from one cause | flagged, never silently reported as distinct organs | mirrors the δ identifiability flag already in `derived_scales.py` |
+  | **T7** | **sample adequacy**: `θ` has `K·N` parameters against `~T·E[\|A\|]` observations | a stated minimum `T` before ANY fit is reported | **do not repeat §5aj's `n < d` problem.** No fit below the floor gets quoted, even informally |
+
+  **TIER 2 — DOES THE TOPOLOGY EARN ITS PLACE?**
+  | | test | pass criterion | if it fails |
+  |---|---|---|---|
+  | **T8** | **filtration validity as a regression assertion** on real fitted `θ`: `N_τ` closed under faces, nested in `τ` | both hold | it is proved above — so a failure is an implementation bug, and this is the test that catches it |
+  | **T9** | **barcode non-triviality**: `τ`-barcode bars vs the T4 null's barcode | bars significantly longer than null | **the nerve's topology carries nothing — drop the PH half and keep the cover.** Construction 4's failure mode 1 |
+  | **T10** | **`b₁` not a trivial function of `K`**: regress bar count/length on vertex count | not fully explained by `K` | it is an expensive clustering. **Drop it** |
+
+  **TIER 3 — DOES IT ACTUALLY GROW? (the FCA requirement, §6)**
+  | | test | pass criterion | notes |
+  |---|---|---|---|
+  | **T11** | **structural events occur**: after `N` sessions the cover shows split/merge/birth and differs measurably from `π⁰` | nonzero events + stated divergence from the prior | Construction 4's failure mode 4 verbatim: *"it is the hand-set list with extra steps"* |
+  | **T12** | **incremental ≡ batch**: refit from accumulated `n_ci, m_i` vs a from-scratch batch fit | agreement to stated tolerance | **this is the test that proves it GROWS rather than secretly RECOMPUTING.** The FCA rejection is only honoured if this passes |
+  | **T13** | **epoch length**: ticks between split/decay events, vs the bar lengths T9 finds | epochs long enough to contain the bars | **closes A4-1's unmeasured consequence.** If epochs are ~3 ticks, epoch-restricted PH sees nothing and A4-1's fix is hollow |
+
+  **TIER 4 — DOES IT BREAK WHAT ALREADY WORKS?**
+  | | test | pass criterion | notes |
+  |---|---|---|---|
+  | **T14** | **⭐ non-circularity, directly**: refit `θ` with the **embeddings permuted**; `θ` must be **bit-identical** | bit-identical | strong and cheap. **If `θ` moves at all, embedding geometry has leaked in and the V6 circularity trap has fired.** This is the test that protects the whole point of (C1) |
+  | **T15** | **cold start**: at `n = 0`, `θ̂ = π⁰` exactly | exact | regression test on the prior formula |
+  | **T16** | **budget**: `K·N` sparse storage + per-tick nerve recomputation against §5s | within budget, numbers stated | (C5) |
+
+  **⚠️ PRECONDITION, NOT A QUEUE ITEM: E7 AT ENGINE LEVEL.** No assembly record ⇒ no `θ` ⇒ no cover.
+  **Construction 5 cannot be built, and NONE of T1–T16 can be run, until the tick records assemblies** —
+  and the registry says that data is *"impossible to recover later."* **Every tick run without E7 is
+  cover-training data permanently destroyed.** This is why E7 is NEXT item 1 and why it now has a second
+  independent consumer.
+
+  **OTHER COSTS, STATED:** non-convexity (T5) · identifiability (T6) · **cold start defers the
+  growth-address problem rather than solving it** — early structure is the hand-set list by design.
+
+  *Prior art to cite, not claim:* multiple-cause mixture model (Saund 1995) · noisy-OR component
+  analysis (Šingliar & Hauskrecht 2006) · Mapper (Singh, Mémoli & Carlsson 2007) · cellular sheaves
+  (Hansen & Ghrist) · MDL/free-energy equivalence (standard).
 
 ## 3c. FIX-1 CLOSED (2026-07-22)
 
@@ -2683,7 +2830,8 @@ not yet recorded anywhere and are not in this logbook. **This logbook is the sha
 | ✅ **D̃** | `δ_eff = √(δ²+σ_dir²)`; caught that **thresholding D̃ is vacuous** | `merge_score.py`, §5ai |
 | ✅ **π_v v2** | v1 restricted to the dominant mode; **refutes multi-modality as V6's cause** | `pi_v.py`, §5aj |
 | 🚨 **V6 / V6b** | **§5z's closeness claim does NOT survive real text** | §5ah, §5ak |
-| 🔵 **Construction 4** | organs as an overlapping cover, coarse complex as its nerve — **proposed, not built**; **AMENDED same day: filtration→zigzag, cover element = concept SET, granularity claim downgraded** | §3 |
+| 🔵 **Construction 4** | organs as an overlapping cover, coarse complex as its nerve — **proposed, not built**; **AMENDED same day: filtration→zigzag, granularity claim downgraded** | §3 |
+| 🔵 **Construction 5** | **the cover element DERIVED** — organs as latent causes of co-activation (noisy-OR), `F(K)` supplies the optimum σ_dir could not, the gain knob dissolves into a τ-filtration. **Re-bases C4's cover half. 16 tests in 4 gated tiers. Phase-2 item 9, PARALLEL to the main chain, blocked only on E7** | §3 |
 
 **Questionnaire closed:** F10 dissolved · Q9 retracted (antisymmetric contract normative) · Q16 derived
 · Q4/Q19/Q21/Q25 defaults adopted · Q5/Q6 answered · Q8 dissolved. **All eight Phase-2 items now have
@@ -2720,6 +2868,12 @@ optimum, which undercuts *every* partition-based organ definition and argues for
 **Phase 2 proper (all questions answered; realistic scope: days):**
 5. Householder maps (m=4) → LSQR Hodge split → `F_MOS` + the barrier controller → PPR instantiation
    → 𝕂/W split → γ(ν) → coning → rank-k SPD stalks in C++.
+6. **★ Phase-2 item 9 (NEW, 2026-07-31) — Construction 5, the derived cover** (§3). **It is PARALLEL
+   to the chain above, not serial**: the cover is fitted from co-activation alone and touches no stalk
+   geometry (that is constraint C1, and T14 enforces it), so it does **not** wait on rank-k SPD stalks
+   or the Hodge split. **It waits on E7 and nothing else.** Order inside the item is forced by the
+   test tiers: **E7 into the tick → fit `θ` over a few hundred ticks → TIER 0 (T1–T3), which can kill
+   it cheaply → only then Tier 1, then the topology half.** Do not write PH code before T1 passes.
 
 **Owed, not blocking:**
 FIX-7/8/9 (docs) · FIX-15 (E5 significance overstated ~4×; fix before quoting the p-value) ·
@@ -2728,9 +2882,9 @@ FIX-16 (colibri test cannot diagnose its own failure — the only red in the sui
 E5b at b₁≥2 · V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 ·
 **V6c: a NON-CIRCULAR organ test (co-activation lens)** · **D̃ vs exact HK at the cutoff** ·
 **V6d: the k-sweep against a structureless null** — without it "no privileged granularity" is
-reading off k-means' own monotonicity (§5ak amendment). Cheap; blocks citing that finding ·
-**Construction 4's membership prior** — the shrinkage init is stated over covariances but the
-cover is now set-valued, so it needs restating over membership (§3 amendment A4-2).
+reading off k-means' own monotonicity (§5ak amendment). **⭐ NOW ABSORBED INTO Construction 5's T4,
+which answers it properly with a non-monotone instrument — do not build V6d separately.**
+~~**Construction 4's membership prior**~~ — **DISCHARGED by Construction 5's Beta-per-pair prior (§3).**
 
 ### ⚠️ FOUR THINGS THE NEXT THREAD MUST NOT RE-LITIGATE
 1. **τ_f is NOT circular.** The Hodge split is provably independent of `W₂` (invertible ⇒ image
