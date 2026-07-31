@@ -2074,6 +2074,12 @@ Charbel said: derive it if it's cheap. **It is cheap to COMPUTE and not cheap to
 **INTERIM: `τ_f ≡ 1`, DECLARED** (option (a) of §5ac), on those two grounds and not on cost. This
 is a placeholder to unblock Phase 2, NOT a closure of the question.
 
+> **🚨🚨 THE CIRCULARITY CLAIM BELOW IS RETRACTED — SEE §5ag. Charbel was right to push back:
+> the Hodge split is provably independent of τ (an invertible `W₂` cannot change an image),
+> verified to 8.4e-16. τ_f is now DERIVED and implemented; E5 is untouched. The interim
+> `τ_f ≡ 1` above is superseded by the harmonic mean of the edge precisions, which reduces to 1
+> in the unit case so nothing regresses.**
+
 > **🚨 CHARBEL (2026-07-30, later): REFUSED. "I don't want τ_f to die."** Explicit direction: do
 > NOT let the circularity kill a derived τ_f by default. Take **the arduous path** — fix the
 > parts that don't work (the circularity, and E5's dependence on the C² inner product) rather than
@@ -2147,6 +2153,117 @@ not a settled answer. Phase 2 proceeds; V7 runs alongside it, not before it.
   V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 · **V7 (τ_f, above — running
   alongside Phase 2, not blocking it, but not to be forgotten either).**
 
+## 5ag. 🚨 THE τ_f CIRCULARITY CLAIM IS RETRACTED — Charbel was right (2026-07-31)
+
+§5af claimed a derived `τ_f` was **circular** ("τ_f IS the C² inner product, and `hodge_split` uses
+that inner product to compute the curl projection") and that adopting one "would invalidate E5".
+Charbel rejected both. **Both were wrong.**
+
+### THE ALGEBRA
+With inner products `W₀, W₁, W₂` the adjoint of `δ¹ : C¹ → C²` is `(δ¹)* = W₁⁻¹(δ¹)ᵀW₂`, so the
+curl space is
+$$\mathrm{im}\big(W_1^{-1}(\delta^1)^\top W_2\big) = W_1^{-1}(\delta^1)^\top\!\cdot\mathrm{im}(W_2) = W_1^{-1}(\delta^1)^\top\!\cdot C^2 = \mathrm{im}\big(W_1^{-1}(\delta^1)^\top\big)$$
+because `W₂` is positive-definite and therefore **onto**. **An invertible map does not change an
+image.** So the curl subspace — hence the projection onto it, hence the whole grad ⊕ curl ⊕
+harmonic split of η — is **independent of τ**.
+
+**Verified numerically, not just argued:** on the E5 complex,
+`‖P(W₂=I) − P(W₂=random)‖_F ≈ 8.4e-16` over six random positive `W₂`. Test lives in
+`derived_scales.py` §0 so the retraction cannot silently un-retract.
+
+**Consequences:** (1) no circularity — τ_f may be derived from the circulation `(δ¹η)_f` without
+feeding back into how that circulation is split; (2) **E5's numbers do not move**, so §5x is not
+re-based. `hodge.py`'s `A = (d1/w).T` (implicitly `W₂ = I`) computes the same projector any
+positive `W₂` would, which also means hodge.py was never missing anything.
+**Where τ_f DOES matter:** the magnitudes of `Δ₁ = δ⁰(δ⁰)* + (δ¹)*δ¹` (hence its spectrum), and
+`F_MOS`'s coface term. Worth deriving — just not load-bearing for E5.
+
+**Lesson:** I inferred a functional dependence from an *appearance* in a formula without checking
+whether it survived to the object being computed. The check was four lines of numpy.
+
+### ✅ τ_f DERIVED — the same construction as π_e, one dimension up
+`π_e = 1/Var(ε_e)` where `ε_e = (δ⁰x)_e`. The 2-cell weight is the same thing on the next
+coboundary: **τ_f is the precision of the triangle circulation** `(δ¹η)_f = η_ab + η_bc + η_ca`.
+Independent edge values ⇒ variances add (signs square away) ⇒ `Var((δ¹η)_f) = Σ_{e∈f} 1/π_e`, so
+$$\tau_f = \frac{|f|}{\sum_{e \in f} 1/\pi_e} = \text{harmonic mean of } \{\pi_e : e \in f\}$$
+**The `|f|` factor is a stated NORMALISATION choice, not a derivation:** τ_f is the precision of
+the *mean* circulation per edge rather than the total. Two reasons, the second checkable —
+(a) it keeps τ dimensionally comparable to π so `π_e²/τ_f` is a pure number; (b) **exact day-one
+degradation: all π_e = 1 ⇒ τ_f = 1 ⇒ `F_MOS` collapses to `4 − deg u − deg v + 3m`.** Without it
+the derived curvature would silently disagree with the derivation that justified it.
+**Tested:** unit weights reproduce the combinatorial value exactly (edge AB: 2.000000, edge CD:
+−1.000000); the filled/unfilled sign ordering survives non-uniform precisions.
+
+### ✅ π_e DERIVED — and the engine's current source is a TYPE ERROR
+`CoarseComplex::set_use_precision(true)` documents itself as using **the coupling weight** as π_e.
+That is exactly the conflation §5af isolated: `w(σ,t)` is capped on [0,1], `π_e` is an unbounded
+precision. `python/edge_precision.py` derives the right thing from the PC free energy — with
+(H1) independent stalks, (H2) orthogonal restrictions (the standing Anderson–Morley hypothesis,
+not a new assumption) and (H3) isotropic coarse stalks, `R(D I)Rᵀ = D I` and variances add:
+$$\pi_e = \frac{1}{D_u + D_v + s_e}, \qquad s_e = \frac{-\ln c_e}{d}$$
+**This is where Q9's confidence belongs and why it is safe here:** π_e is ONE SCALAR multiplying
+‖ε_e‖², so `s_e`'s trace contribution is `−ln(c) = O(1)` and no d-extensive term is created —
+unlike D, where the Bures term `d(√D₁−√D₂)²` reached 229.76 (§5ae).
+**Measured day-one degradation:** ρ is invariant under uniform rescaling of π (ω and the
+Anderson–Morley bound B are both linear in π), so uniform floors give ρ **bit-identical** to
+`π=None` — verified against the real `coherence.coherence`, 0.3483650554768379 both ways — while
+a genuinely broader organ (0.2493) and a low-confidence judgement (0.3315) do move it.
+
+### ✅ δ DERIVED — from the data, without hand labels
+V2/E14 planned to calibrate δ by sweeping ~50 **hand-labelled** pairs. The organ structure is
+already weak supervision: same-organ pairs are evidence of "one thing", different-organ pairs of
+"two things". `derived_scales.derive_delta` takes the **equal-error crossing** — the `d*` where
+false-splits equal false-merges — and `δ = d*/π` by §5z's saturation convention. Parameter-free:
+no threshold is chosen, it is read off. It also reports **separability**, so a δ from two
+overlapping distributions is flagged NOT IDENTIFIABLE rather than quoted as meaningful.
+**This does not replace E14** — a sweep against real labels, published as a SENSITIVITY CURVE
+rather than a fitted point, is still the stronger evidence.
+
+## 5ah. 🚨 V6 RUN — THE §5z VERDICT DOES NOT SURVIVE REAL TEXT (2026-07-31)
+
+`python/measure_sigma_dir.py`. Live bge-small on the project's own DOCS (11 organs, one per
+document, paragraphs as concepts). **The number the whole §5z verdict rests on was simulated;
+measured, it is ~4× worse.**
+
+| | V1c simulated | **V6 measured** | factor |
+|---|---|---|---|
+| σ_dir | 0.035–0.044 | **0.06–0.10** | ~2× |
+| d_BW (separation) | 1.33–1.39 | **~0.5** | **~2.7× smaller** |
+| σ_dir/δ (per-pair) | 0.084–0.100 | **0.42 med, 0.62 max** | ~5× |
+| σ_dir/δ (global δ) | — | **0.32 med, 0.42 max** | ~3.5× |
+
+### THE DIAGNOSIS — it is NOT σ_dir, it is the SEPARATION
+σ_dir came in at ~2× the simulation, same order. The gap is almost entirely that V1c placed organ
+means **1.33–1.39 apart** while real same-project prose separates by **~0.5**. (2× larger σ) ×
+(2.7× smaller δ) ≈ 5.4×, and 0.09 × 5.4 ≈ 0.49 ≈ the measured median. **The arithmetic fully
+accounts for the discrepancy — nothing anomalous happened.**
+**Root cause: V1c calibrated the WITHIN-organ spread to `cos_within ≈ 0.833` but never calibrated
+the BETWEEN-organ separation** — it placed the means far apart by fiat. bge-small maps
+same-author, same-project prose into a tight cone.
+
+### ⚠️ ONE OF MY OWN ERRORS, CAUGHT BY MY OWN COLUMN LABEL
+The first run computed δ from `‖Δμ‖` while the column said `d_BW`. Since
+`d_BW² = ‖Δμ‖² + TrΣ₀ + TrΣ₁ − 2Tr(...) ≥ ‖Δμ‖²`, that understated δ ~2.4× and **overstated** the
+ratio by the same factor (max 1.47 → 0.62 once fixed) — the direction that flatters a bad result.
+
+### WHAT THIS DOES AND DOES NOT KILL
+- **SURVIVES:** Cone–Bures is still a genuine metric (20k triples, zero violation), still bounded,
+  still gives δ a structural meaning, still 5.45 ms/tick. None of that was regime-dependent.
+- **DOES NOT SURVIVE:** the claim that it *tracks true HK closely in MOS's regime.* Against §5z's
+  own agreement table, σ/δ ≈ 0.32 is roughly **60% merge agreement**, not the 87% V1c implied.
+  Better than chance, far short of the claim.
+- **Using a GLOBAL derived δ (what a deployed system actually has) is materially better than the
+  per-pair saturation δ** — median 0.42 → 0.32 — because per-pair δ shrinks exactly where pairs
+  are closest. Telemetry should carry the global ratio.
+
+### ⚠️ CAVEATS, STATED NOT BURIED
+Organs here are **documents**; MOS's coarse organs are cognitive modules — this is a proxy. The
+corpus is monothematic (one project, one author). But the direction is robust: any grouping of one
+project's corpus gives small separations, and that is arguably the deployment case. **V6b owed:
+re-run with organs defined as topic clusters, and once real module stalks exist, on those.**
+δ's own separability here is **0.628**, only just above the identifiability bar — so δ is usable
+but weak on this corpus, and that is reported rather than smoothed over.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2198,6 +2315,21 @@ not a settled answer. Phase 2 proceeds; V7 runs alongside it, not before it.
 
 ### Session log
 
+- **2026-07-31** — **Charbel overturned my τ_f circularity claim and was right.** The Hodge split
+  is provably independent of `W₂` (an invertible map cannot change an image), verified to 8.4e-16
+  — so there was never any circularity and E5 was never at risk. **τ_f, π_e and δ are now all
+  DERIVED and implemented** (`derived_scales.py`, `edge_precision.py`): τ_f = harmonic mean of the
+  edge precisions (reduces to 1 in the unit case, so `F_MOS` reproduces `4−deg u−deg v+3m`
+  exactly); π_e = 1/(D_u+D_v+s_e) from the PC free energy, which is finally where Q9's confidence
+  belongs and is dimensionally safe there (ρ verified **bit-identical** on uniform floors); δ from
+  the equal-error crossing of the within/between distance distributions, no hand labels, with an
+  identifiability flag. Also shipped **E7** (`assembly_log.py`, re-scoped off the dead Ext¹ purpose
+  onto δ𝔇 promotion) and **V6** (`measure_sigma_dir.py`). **V6 is a bad result and it stands:
+  σ_dir/δ measures 0.32–0.42 against a simulated 0.084–0.100, so §5z's "tracks true HK to under
+  1%" does NOT survive real text** — the cause is not σ_dir but organ SEPARATION (V1c calibrated
+  within-organ spread and never calibrated between-organ separation). Cone–Bures survives as a
+  metric; the closeness claim does not. Caught one of my own errors mid-run (δ from ‖Δμ‖ while the
+  column said d_BW, overstating the ratio 2.4×). See §5ag, §5ah.
 - **2026-07-30** — Status review before building. Confirmed against source that **FIX-11 and
   FIX-13 are both still open** (`operad.cpp:66` sets `slice_is_global_mutation` for *any*
   empty-support node, poisoning the slice even after the READ_ONLY guard admits it;
