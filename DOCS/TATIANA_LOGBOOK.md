@@ -2508,6 +2508,66 @@ construction. Those stand. **The σ_dir argument does not — recorded so it is 
   A genuinely mixed-topic corpus would show higher prevalence and a larger marginal effect —
   **that is V6b's question and it is not answered here.**
 
+## 5ak. V6b — HOW MUCH CAN THE ORGAN DEFINITION FIX? A BOUND, AND IT IS SMALL (2026-07-31)
+
+`python/measure_organ_definitions.py`. Charbel asked for the (c) question to be **measured, not
+argued**. Design: use k-means organs — which are **circular by construction**, since k-means
+minimises exactly the within-organ scatter we then measure — **deliberately, as a BEST CASE**.
+A bound from an optimistic assumption is informative when it fails.
+
+Everything held fixed against §5ah: same corpus, same paragraphs, same bge-small contract, same
+`stalk_gaussian`, same `sigma_dir`, same global δ (0.2558, separability 0.632). **Only the
+assignment of concepts to organs changes.**
+
+| organ definition | pairs | d_BW med | **σ_dir/δ med** | max | frac>0.3 |
+|---|---|---|---|---|---|
+| documents (V6 baseline) | 55 | 0.611 | **0.3233** | 0.3962 | 0.71 |
+| k-means, k=4 | 6 | 0.556 | 0.2961 | 0.3620 | 0.50 |
+| k-means, k=11 | 55 | 0.593 | 0.2708 | 0.3630 | 0.27 |
+| k-means, k=16 | 120 | 0.671 | 0.2588 | 0.3692 | 0.20 |
+| k-means, k=32 | 435 | 0.708 | **0.2491** | **0.4657** | 0.15 |
+
+### 🚨 THE BOUND: −22.9%, AND THE TAIL GETS WORSE
+**The most favourable organ definition available — one that optimises the measured quantity —
+buys 23%.** Median 0.3233 → 0.2491. Against §5z's agreement table that moves merge agreement from
+~62% to roughly ~70%. **It does not approach 87%, and it is an optimistic bound, so the honest
+expectation for any real (non-circular) organ definition is less.**
+
+**And the maximum gets WORSE, not better: 0.3962 → 0.4657.** Finer organs help the typical pair and
+hurt the tail, because more organs means more *adjacent* pairs with small separation and comparable
+spread. Since the merge predicate fails pair-by-pair, **the tail is what corrupts the store** — so
+the headline median improvement overstates the real gain.
+
+### ★ NO PRIVILEGED GRANULARITY EXISTS IN THIS CORPUS — the deeper finding
+The k-sweep IS a granularity sweep, and the ratio moves **monotonically and slowly**
+(0.296, 0.298, 0.297, 0.271, 0.259, 0.258, 0.249) with **no dip, no optimum, no natural scale.**
+If the concept space had a preferred organ granularity we would see the ratio bottom out at some k.
+It does not. Consequences, and they are the useful part of this run:
+- **No k is "correct".** Choosing one is arbitrary at every scale, which undercuts *every*
+  partition-based organ definition, not just documents.
+- **This supports the COVER over the PARTITION** (Construction 4): if no natural partition scale
+  exists, forcing a partition is arbitrary by construction — whereas overlap is exactly what a
+  scale-free continuum looks like when you insist on grouping it.
+- **It supports replacing δ-calibration with PERSISTENCE ACROSS δ.** Don't pick the scale; take
+  what survives across scales. Same dissolution move that worked for F10.
+
+### ⚠️ WHAT THIS DOES AND DOES NOT SETTLE
+- **Settles:** (c) cannot rescue §5z's closeness claim. Best case ~70% vs the claimed 87%, with a
+  worsening tail. **Three fixes have now been tried — (a) unmeasured, (b) refuted, (c) bounded
+  at −23% — and none rescues the number.**
+- **Does NOT settle:** whether a *non-circular* organ definition (co-activation lens, Construction
+  4) helps at all. k-means cheats in (c)'s favour, so its result is a ceiling, never evidence.
+- **Scope unchanged:** one project, one author, 400 concepts, 11 documents.
+
+### 📉 AND THE SCOPE OF THE DAMAGE IS SMALLER THAN §5ah IMPLIED
+Traced the consumers: **`coherence.py` (ω, ρ, contradiction detection) contains ZERO references to
+Bures** — it runs on `L = δᵀΠδ` with the derived π_e. C++ edge formation (`curator.cpp:102`) uses
+plain `wasserstein_2_terms`, **not** Cone–Bures. The only importers of `cone_bures`/`merge_score`
+are `measure_sigma_dir`, `pi_v` and `validate_regime` — **all measurement scripts.**
+> **Cone–Bures is not wired into the engine at all.** V6 falsifies a claim about a *proposed
+> upgrade*, not a working mechanism. Of §0.2's five claims it touches **growth**, and only the
+> `merge` quarter of it. This does not make V6's result less true; it makes it less blocking.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
