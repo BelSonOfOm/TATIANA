@@ -110,6 +110,105 @@ COMMENTS FROM CHARBEL:
   - **Corrections made to the source text:** (1) it conflated simplicial `b₁` with sheaf `H¹` — these are DIFFERENT: `b₁` = a hole in the shape ⇒ *structure missing* (no binding theorem); sheaf `H¹` = failure to glue ⇒ *data inconsistent* (modules contradict). Conflating them makes you fill a hole when you actually have a contradiction. (2) The "Fréchet derivative" `J = ‖∂F/∂x‖` **does not exist** — F runs through discrete LLM token sampling, a DAG generator and DB lookups; nothing is differentiable. Reformulated honestly as **paraphrase-perturbation variance** (run k paraphrases, measure spread), which costs k× API and must be rationed.
   - `b₁` is defensible here (unlike most TDA-on-knowledge-graphs hand-waving) *only because* we defined simplices to mean genuine n-ary binding (Construction 1). Earned, not borrowed.
 
+- 🔵 **Construction 4 — ORGANS AS AN OVERLAPPING COVER; THE COARSE COMPLEX AS ITS NERVE
+  (proposed 2026-07-31, NOT IMPLEMENTED).** Answers the question A17 says we owe: *what determines
+  the organ decomposition?* Today it is a hand-set list of ~6 cognitive modules, and **FIX-8 is the
+  symptom of its arbitrariness** — the corpus says 7 organs in the `.tex`, 6 in the logbook, 4+RESPOND
+  at runtime. A structure nobody can count consistently is a structure nobody derived.
+
+  **⚠️ FIRST, A CLARIFICATION THAT COST US CONFUSION.** There are TWO orthogonal axes and they are
+  routinely merged (Charbel merged them, and the merged version is intuitive enough that it will
+  happen again):
+
+  | | 𝕂 (accumulated over time) | W (adapted to this problem) |
+  |---|---|---|
+  | **coarse** (organs) | all organs, all learned couplings | the organs this task woke |
+  | **fine** (concepts) | everything ever crystallised | concepts instantiated by `ι*` |
+
+  *coarse/fine* is the **stratification** (modules vs concepts inside a module, §1 2026-07-22).
+  *𝕂/W* is **store vs cache** (§5r). "Accumulated over time" vs "adapts to the problem" describes
+  **𝕂/W, not coarse/fine.** Both levels exist in both complexes.
+
+  **⚠️ AND A RELIC TO KILL: "organs = documents" was never architecture.** It was invented for V6
+  (§5ah) because a real corpus was needed and documents were the nearest grouping. Rejected by
+  Charbel, correctly. V6's organ definition is a proxy and its number inherits that.
+
+  **THE CONSTRUCTION.** Sheaf theory never required a *partition* — it requires a **cover**, and
+  covers may **overlap**. Let organs be regions `{U_i}` of concept space. The **Čech nerve**
+  `N({U_i})` has one vertex per organ and a k-simplex for every (k+1)-fold non-empty intersection.
+  That **is** the coarse complex — derived rather than drawn.
+
+  > **★ A k-simplex appears exactly when k+1 organs SHARE a concept.** 2 organs → an edge;
+  > 3 → a filled triangle; 4 → a tetrahedron. **Interdisciplinary knowledge literally creates
+  > higher-dimensional simplices.** This finally makes §0.5's claim ("simplices = honest n-ary
+  > relations") true *by construction* rather than by our promising to build them honestly.
+
+  **🚨 THE TRAP, AND THE FIX — a naive nerve repeats FCA's mistake.** Mapper/nerve as classically
+  used is a SNAPSHOT: fix data, build cover, take nerve, **recompute** when data changes. That is
+  data-determined, which is precisely why FCA was rejected (§6: "MOS must GROW, not be RECOMPUTED").
+  **Resolution: the COVER is the state, the NERVE is the observable.** Cover elements are persistent
+  objects with birth time, weight and accumulated concept set; they grow / split / merge / are born /
+  decay via the typed ops of Construction 1. The nerve is recomputed cheaply on demand from current
+  overlaps. Structure is derived (A17 ✓); the thing it derives *from* accumulates (growth ✓).
+  The cover lives on the **𝕂** side.
+
+  **WHAT IT TURNS ON.** Cover growth induces simplicial maps (the nerve is functorial), so a growing
+  cover is a **filtration** — exactly what persistent homology consumes. §2's glossary already
+  specifies the consumer ("deciding which coalitions are stable enough to consolidate into permanent
+  memory") and it has sat unused since July for want of a principled filtration. This supplies one.
+
+  **INITIALIZATION — the prior, not the truth.** Candidates: (a) empty, grow from nothing — purely
+  history-determined but the first few concepts fix the organ structure permanently (the
+  growth-address problem at its worst); (b) **seed with the functional modules and let them evolve**;
+  (c) bootstrap by clustering a first batch — reintroduces recomputation at t=0 plus Mapper's
+  parameter sensitivity. **Take (b), framed as the shrinkage prior `belief.py` already implements
+  and tests:** `Σ_v = (S_v + κΣ₀)/(n_eff + κ) + εI`. The six modules are `Σ₀`, worth `κ`
+  observations. At `n_eff = 0` you get the hand-set list; as evidence accumulates you get the data.
+  **The hand-set structure becomes a starting condition evidence can move, not a permanent decision.**
+
+  **★ OPTIMAL INITIAL CONDITIONS — criticality pins Mapper's worst hyperparameter.** §5p mechanism ②:
+  *"σ = mean binds triggered per co-activation; σ≈1 → scale-free avalanches, max dynamic range
+  (Beggs–Plenz, Kinouchi–Copelli)."* Too few/large organs ⇒ everything overlaps ⇒ σ ≫ 1,
+  supercritical. Too many/small ⇒ nothing overlaps ⇒ σ ≪ 1, nothing propagates. **Mapper's most
+  criticised parameter is the GAIN (how much cover elements overlap) — and overlap is exactly what
+  controls branching. So: set initial granularity/overlap so the measured branching parameter starts
+  near 1.** A hand-tuned knob becomes a derived one, measurable per tick, with independent empirical
+  support.
+
+  **🚨 THE CIRCULARITY TRAP — any data-driven organ definition can make V6 VACUOUS.** If organs are
+  defined by minimising within-organ spread and we then measure σ_dir (the within-organ spread) on
+  those organs, we have optimised the quantity we are measuring. V6 stops testing the metric and
+  starts testing the clustering. **Two honest exits:** (1) build the cover from a lens INDEPENDENT of
+  the metric under test — **co-activation history** (which concepts fire together), not embedding
+  distance; or (2) demote V6 to a consistency check and stop citing it as evidence for the metric.
+  *Note this is an argument FOR the hand-set list that nobody expected to be making.*
+  **Recommended: (1), a co-activation lens** — it is history-determined (the 𝕂 side), independent of
+  embedding distance so V6 still bites, and it is what "constructed over time" actually means.
+
+  **⚠️ TWO COSTS, NOT HIDDEN.** (i) **Combinatorial blow-up**: generous overlap produces many
+  high-dimensional simplices; criticality wants overlap, the §5s cell budget wants sparsity, and
+  these pull against each other. It may turn out σ≈1 is unaffordable and we must run subcritical.
+  (ii) **The Nerve Theorem's hypothesis is probably not met**: it needs a *good* cover (every
+  non-empty intersection contractible), unverifiable for concept regions in ℝ³⁸⁴. So `b₁` of the
+  nerve is **suggestive of** the concept space's shape, NOT provably equal to it. This is exactly the
+  borrowed-guarantee pattern §0.5 cut from the inherited formalism — state it as a caveat, never
+  quote it as a theorem.
+
+  **📋 STATED WAYS TO FAIL (per §7's discipline — written before building):**
+  1. If the grown cover's nerve has `b₁ = 0` always (or `b₁` a trivial function of vertex count),
+     the topology carries no information and this is an expensive clustering. **Drop it.**
+  2. If the branching parameter cannot be brought near 1 at any overlap the cell budget affords,
+     the criticality criterion is vacuous and initialization is back to hand-tuning.
+  3. If σ_dir on cover-organs is **not** lower than on document-organs (§5ah's 0.32), the
+     multi-modality diagnosis behind π_v v2 and this construction is wrong.
+  4. If after N sessions the cover has produced no split/merge/birth events and still equals the
+     initial prior, it is not growing — it is the hand-set list with extra steps.
+
+  *Prior art to cite, not claim:* **Mapper** (Singh, Mémoli & Carlsson 2007) is this construction
+  made algorithmic — cover via a lens, take the nerve. Cellular sheaves over such complexes:
+  Hansen & Ghrist. Nerve theorem: standard (Borsuk). **Mapper's known weakness is exactly the
+  parameter sensitivity item (ii) and the criticality rule address.**
+
 ## 3c. FIX-1 CLOSED (2026-07-22)
 
 Single embedding contract established: **`python/embeddings.py`**, model `BAAI/bge-small-en-v1.5` via fastembed/ONNX, **EMBED_DIM=384**, local CPU, zero API quota. **Rule: never truncate, never pad — RAISE on mismatch** (silent reshaping is what corrupted every distance before). Verified live: cos(math, chat)=0.449 vs cos(math, math)=0.833 — real semantic structure.
@@ -2264,6 +2363,73 @@ re-run with organs defined as topic clusters, and once real module stalks exist,
 δ's own separability here is **0.628**, only just above the identifiability bar — so δ is usable
 but weak on this corpus, and that is reported rather than smoothed over.
 
+## 5ai. D̃ SHIPPED — AND MY OWN RECOMMENDATION WAS A CATEGORY ERROR (2026-07-31)
+
+`python/merge_score.py` (30 self-tests, 0 API calls, ~420 µs/pair at d=384, k=6). I recommended
+"use D̃ for the merge decision, D as the metric". **Implemented literally, that ships a predicate
+that returns True for every pair.**
+
+### 🚨 THE VACUITY — why a value correction can never fix a decision
+- Cone–Bures is **bounded**: `D² ≤ w₀+w₁` always (the property that killed E4's runaway).
+- `D̃ = D/√(1+σ²/δ²)` is always **smaller** than D.
+- So `D̃² < w₀+w₁` is satisfied unconditionally. Everything merges.
+- And rescaling the threshold by the same factor returns D's own predicate unchanged.
+
+> **General fact, worth keeping: multiplying a score AND its threshold by the same number cannot
+> change any decision.** A pairwise monotone rescaling is decision-invariant. I proposed a value
+> correction and called it a decision fix.
+
+**Verified independently of the implementation:** max `D̃²` = **1.7987** over 3000 random pairs
+against the bound 2.0 — never reaches it.
+
+### ✅ THE ACTUAL FIX — the correction is a LENGTH SCALE, not a value
+Small-angle expansion gives `D̃² ≈ w·d_BW²/(4(δ²+σ²))` against `D² ≈ w·d_BW²/(4δ²)`, so dividing
+by `(1+σ²/δ²)` **is** replacing δ by
+$$\delta_{\text{eff}} = \sqrt{\delta^2 + \sigma_{\text{dir}}^2}$$
+**Directional spread adds to the identity scale in quadrature** — physically right: fuzzier
+concepts genuinely cannot be resolved below that scale, so they should merge more readily. The
+predicate becomes D's own structural cutoff read at δ_eff: `d_BW < π√(δ² + σ_dir²)`.
+Exact at σ→0, monotone in σ, **still no fitted threshold**. This is a better construction than the
+one asked for.
+
+### MEASURED
+- **Day-one degradation is exact**: σ_dir = 0 constructed exactly ⇒ D̃ **bit-identical** to D
+  (`max|diff| = 0.0`, asserted with `==`, not a tolerance); correction factor exactly 1.0.
+- **D̃ ≤ D always**: 5000 pairs over five δ, strict on 5000/5000.
+- **Predicate divergence** (δ=0.4, analytic stalks): σ/δ = 0.079 → 0% · 0.25 → 1.2% · 0.50 → 5.0%
+  · 1.00 → 17.5% · 1.77 → 43.8%. Monotone.
+- **★ Every flip is in the MERGE direction — D̃ never splits what D merges.** Structural
+  (δ_eff ≥ δ). The correction can only make the system more permissive, never more fragmentary.
+- **Ranking works**: two pairs at *identical* D (0.446213, |ΔD| = 0.0) with σ_dir 1e-4 vs 0.50 are
+  separated by D̃ (0.446213 vs 0.399105). D is blind to spread; that reordering is the whole
+  operational value of the score.
+
+### 🚨 THE TRIANGLE VIOLATION IS WORSE WITH MEASURED σ_dir, NOT BETTER
+| δ | §5z (σ_eff) | **measured σ_dir** |
+|---|---|---|
+| 0.3 | +1.08 | **+1.29** |
+| 3.0 | held | **+0.13** |
+
+So switching to a measured σ does not soften §5z's "never a metric" verdict — it hardens it, and
+newly breaks at δ=3 where §5z reported it holding. **The D/D̃ dispatch is MANDATORY, not
+stylistic.** ⚠️ *Reproduction note: the δ=0.3 violation is easy to find (+0.58 at 4k triples, grows
+with sample size). The δ=3 violation is RARE — not reproduced at 4k draws; it rests on the 20k run.*
+
+### ⚠️ THE CLAIM THAT MOTIVATED THIS IS STILL UNMEASURED
+**§5z's agreement table was computed for D against an exact HK solver. The same table for D̃ has
+never been computed.** So "D̃ improves the merge decision" — my entire argument for doing this —
+is **inferred from the value law, not measured**. Worse, δ_eff is pinned only by matching at
+*small* angle, while the two laws diverge most **at the cutoff**, which is the only place the
+predicate is ever decided (5.2% at σ/δ=1, 0.99% at 0.32). **Owed: an exact-HK measurement of
+cutoff location vs σ.** Until then D̃ is a defensible construction, not evidence.
+Also unvalidated: `max(σ_a, σ_b)` as the pairing rule — V1 fitted a single shared σ, so no
+combination rule is validated on heterogeneous stalks.
+
+### ⚠️ SYNTHETIC STALKS ALARM RATHER THAN FLATTER
+Random `U` at scale 0.4 gives σ_dir/δ ≈ **1.9**, far worse than §5ah's corpus median of 0.32,
+because random `U` is not concentrated orthogonally to Δμ the way real stalk covariance is.
+**Never tune this metric against simulated stalks** — the failure direction is not conservative.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2315,6 +2481,17 @@ but weak on this corpus, and that is reported rather than smoothed over.
 
 ### Session log
 
+- **2026-07-31 (later)** — Implemented **D̃** (`merge_score.py`) and **caught that my own
+  recommendation was a category error**: thresholding D̃ is VACUOUS (D is bounded by w₀+w₁ and
+  D̃ ≤ D, so the test always passes; max D̃² = 1.7987 vs bound 2.0 over 3000 pairs). *Multiplying a
+  score and its threshold by the same number cannot change a decision.* The real correction is a
+  **length scale**: `δ_eff = √(δ² + σ_dir²)` — spread adds to the identity scale in quadrature.
+  Triangle violations are **worse** with measured σ_dir (+1.29 at δ=0.3 vs §5z's +1.08), so the
+  D/D̃ dispatch is mandatory. **The motivating claim is still unmeasured** — §5z's agreement table
+  was never computed for D̃. Then, on Charbel's push that "organs = documents" is a relic: clarified
+  the coarse/fine vs 𝕂/W confusion and wrote **Construction 4** (organs as an overlapping cover,
+  coarse complex as its Čech nerve; cover is the state, nerve the observable; functional modules as
+  a κ-weighted prior; overlap pinned by criticality σ≈1; four stated ways to fail). See §5ai, §3.
 - **2026-07-31** — **Charbel overturned my τ_f circularity claim and was right.** The Hodge split
   is provably independent of `W₂` (an invertible map cannot change an image), verified to 8.4e-16
   — so there was never any circularity and E5 was never at risk. **τ_f, π_e and δ are now all
