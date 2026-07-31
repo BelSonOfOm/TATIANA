@@ -24,13 +24,24 @@ struct KernelConfig {
     float compute_lambda = 2.0f;
     double conflict_threshold = 100.0;
 
-    /// @brief Discord threshold epsilon for the RESOLVE/EXPLORE gate.
+    /// @brief eps_rho: the discord THRESHOLD for the RESOLVE/EXPLORE gate,
+    /// `rho > eps_rho => RESOLVE`.
+    ///
     /// Because rho is dimensionless and bounded in [0,1], this is a portable
     /// number rather than one that drifts with embedding scale or graph size.
     /// Calibrated empirically on real 384-d embeddings: agreement ~0.00,
     /// related-but-distinct ~0.06, off-topic ~0.14. Hence 0.10 sits between
     /// "different facets of the same problem" and "genuinely incoherent".
-    double rho_threshold = 0.10;
+    ///
+    /// NAMED eps_rho (C6-2). MOS's other epsilon is eps_flow, the STEP SIZE in
+    /// the curvature flow `w <- w*exp(eps_flow*kappa)` (5ad) — not yet in the
+    /// engine. One is compared against a measurement, the other multiplies a
+    /// rate; nothing but a Greek letter is shared. Renamed BEFORE the flow
+    /// lands, so there is no name left for it to collide with.
+    ///
+    /// `CriticalityMonitor::eps_rho()` is the auto-calibrated replacement for
+    /// this constant; this remains the cold-start value.
+    double eps_rho = 0.10;
 
     /// @brief Where E7 appends assembly events. Empty disables recording.
     ///

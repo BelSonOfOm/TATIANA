@@ -89,9 +89,9 @@ class Homeostat:
 class CriticalityMonitor:
     """Auto-calibrated RESOLVE gate + branching-ratio nudge toward sigma~1."""
 
-    def __init__(self, default_epsilon: float = 0.10, min_history: int = 20,
+    def __init__(self, default_eps_rho: float = 0.10, min_history: int = 20,
                  quantile: float = 0.75, window: int = 500):
-        self.default_epsilon = default_epsilon
+        self.default_eps_rho = default_eps_rho
         self.min_history = min_history
         self.quantile = quantile
         self.window = window
@@ -105,12 +105,21 @@ class CriticalityMonitor:
             if len(self.rho_history) > self.window:
                 self.rho_history = self.rho_history[-self.window:]
 
-    def epsilon(self) -> float:
-        """The RESOLVE/EXPLORE threshold, auto-calibrated as the q-quantile of
-        observed rho. Below min_history we cannot calibrate, so we return the
-        documented default (0.10 from 5h) rather than guess from noise."""
+    def eps_rho(self) -> float:
+        """eps_rho: the RESOLVE/EXPLORE THRESHOLD on rho, auto-calibrated as the
+        q-quantile of observed rho. Below min_history we cannot calibrate, so we
+        return the documented default (0.10 from 5h) rather than guess from noise.
+
+        NAMED eps_rho, NOT epsilon (C6-2). MOS has a second, unrelated epsilon:
+        eps_flow, the STEP SIZE in the curvature flow `w <- w*exp(eps_flow*kappa)`
+        (5ad). A threshold and a step size share nothing but a Greek letter --
+        one is compared against a measurement, the other multiplies a rate -- and
+        the prose in Part C already conflated them once. The flow is not in the
+        engine yet, so this rename is preventive: by the time eps_flow lands
+        there is no name left for it to collide with.
+        """
         if len(self.rho_history) < self.min_history:
-            return self.default_epsilon
+            return self.default_eps_rho
         return float(np.quantile(self.rho_history, self.quantile))
 
     # --- the fine-level tool (underpowered at coarse; provided for fine) ----
@@ -167,17 +176,17 @@ if __name__ == "__main__":
     print("    B (in two edges) =", round(agg["B"], 3), " A =", round(agg["A"], 3))
 
     print("\n=== 4. CRITICALITY: cold start returns the documented default ===")
-    m = CriticalityMonitor(default_epsilon=0.10, min_history=20)
-    assert m.epsilon() == 0.10
-    print("    epsilon() with no history =", m.epsilon(), " (falls back, no guessing)")
+    m = CriticalityMonitor(default_eps_rho=0.10, min_history=20)
+    assert m.eps_rho() == 0.10
+    print("    eps_rho() with no history =", m.eps_rho(), " (falls back, no guessing)")
 
-    print("\n=== 5. CRITICALITY: epsilon auto-calibrates to the rho quantile ===")
+    print("\n=== 5. CRITICALITY: eps_rho auto-calibrates to the rho quantile ===")
     rng = np.random.default_rng(0)
     for _ in range(400):
         m.record_rho(float(abs(rng.normal(0.05, 0.03))))  # a realistic low-rho stream
-    eps = m.epsilon()
+    eps = m.eps_rho()
     q75 = float(np.quantile(m.rho_history, 0.75))
-    print(f"    epsilon() = {eps:.4f}  (== 75th percentile {q75:.4f})")
+    print(f"    eps_rho() = {eps:.4f}  (== 75th percentile {q75:.4f})")
     assert abs(eps - q75) < 1e-9
 
     print("\n=== 6. CRITICALITY: decay controller pushes sigma toward 1 ===")

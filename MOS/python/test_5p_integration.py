@@ -90,11 +90,11 @@ assert "Search" not in h.organs_needing_growth()
 print("\n" + "=" * 68)
 print("MECHANISM (2) CRITICALITY - the RESOLVE gate auto-calibrates")
 print("=" * 68)
-mon = CriticalityMonitor(default_epsilon=0.10, min_history=20)
-print(f"  cold start: epsilon = {mon.epsilon():.3f} (documented default, no guess)")
+mon = CriticalityMonitor(default_eps_rho=0.10, min_history=20)
+print(f"  cold start: eps_rho = {mon.eps_rho():.3f} (documented default, no guess)")
 for _ in range(300):
     mon.record_rho(float(abs(rng.normal(0.05, 0.02))))
-print(f"  after 300 rho observations: epsilon = {mon.epsilon():.4f} "
+print(f"  after 300 rho observations: eps_rho = {mon.eps_rho():.4f} "
       f"(75th percentile of observed discord)")
 
 print("\n" + "=" * 68)

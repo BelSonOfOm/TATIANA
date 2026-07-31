@@ -113,7 +113,7 @@ def main():
     print("=" * 70)
     # Build a real evolving scene: 3 organs holding real vectors across frames.
     homeo = Homeostat(setpoint=0.15, leak=0.3)
-    mon = CriticalityMonitor(default_epsilon=0.10, min_history=5, quantile=0.75)
+    mon = CriticalityMonitor(default_eps_rho=0.10, min_history=5, quantile=0.75)
     rmaps = learner.as_restriction_dict([("Reason", "Search")])
 
     frames = [
@@ -134,7 +134,7 @@ def main():
     print(f"\n  (3) HOMEOSTAT after sustained off-topic:")
     print(f"      organs flagged for growth = {homeo.organs_needing_growth()}")
     assert "Verify" in homeo.organs_needing_growth()
-    print(f"  (2) CRITICALITY auto-calibrated gate epsilon = {mon.epsilon():.4f} "
+    print(f"  (2) CRITICALITY auto-calibrated gate eps_rho = {mon.eps_rho():.4f} "
           f"(from the real rho stream, not hardcoded 0.10)")
 
     # (4) SELECTION over REAL candidates: inject each into the guilty edge and

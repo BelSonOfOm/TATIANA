@@ -350,10 +350,10 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
         std::cerr << "[OSKernel] mode=UNKNOWN (discord undefined: "
                   << last_coherence_.status
                   << "). Refusing to infer a mode from a missing measurement.\n";
-    } else if (*last_coherence_.rho > config_.rho_threshold) {
+    } else if (*last_coherence_.rho > config_.eps_rho) {
         mode_ = CognitiveMode::RESOLVE;
         std::cerr << "[OSKernel] mode=RESOLVE (rho=" << *last_coherence_.rho
-                  << " > eps=" << config_.rho_threshold
+                  << " > eps_rho=" << config_.eps_rho
                   << "): organs disagree; reconcile before expanding.\n";
         if (auto guilty = last_coherence_.worst_edge()) {
             std::cerr << "[OSKernel]   aim resolution at '" << guilty->first
@@ -363,7 +363,7 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
     } else {
         mode_ = CognitiveMode::EXPLORE;
         std::cerr << "[OSKernel] mode=EXPLORE (rho=" << *last_coherence_.rho
-                  << " <= eps=" << config_.rho_threshold
+                  << " <= eps_rho=" << config_.eps_rho
                   << "): internally coherent; free to build outward.\n";
     }
 

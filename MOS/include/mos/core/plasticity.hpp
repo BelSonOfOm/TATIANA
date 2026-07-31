@@ -42,19 +42,26 @@ private:
 };
 
 /// @brief (5p mechanism 2) Beggs-Plenz self-organised criticality.
-/// Auto-calibrates the RESOLVE gate epsilon as a quantile of observed rho (kills
+/// Auto-calibrates the RESOLVE gate eps_rho as a quantile of observed rho (kills
 /// the hardcoded 0.10), and nudges decay toward branching ratio sigma ~ 1.
 /// C++ port of python/plasticity.py CriticalityMonitor.
 class CriticalityMonitor {
 public:
-  CriticalityMonitor(double default_epsilon = 0.10, std::size_t min_history = 20,
+  CriticalityMonitor(double default_eps_rho = 0.10, std::size_t min_history = 20,
                      double quantile = 0.75, std::size_t window = 500);
 
   void record_rho(double rho);
 
-  /// The gate: q-quantile of observed rho, or the documented default below
-  /// min_history (never a guess from noise). numpy-'linear' interpolation.
-  [[nodiscard]] double epsilon() const;
+  /// eps_rho: the RESOLVE/EXPLORE THRESHOLD on rho. The q-quantile of observed
+  /// rho, or the documented default below min_history (never a guess from
+  /// noise). numpy-'linear' interpolation.
+  ///
+  /// NAMED eps_rho, NOT epsilon (C6-2). The second epsilon in MOS is eps_flow,
+  /// the STEP SIZE in the curvature flow `w <- w*exp(eps_flow*kappa)` (5ad).
+  /// A threshold is compared against a measurement; a step size multiplies a
+  /// rate. They share only a Greek letter, and the prose conflated them once
+  /// already. The flow is not in the engine yet, so this rename is preventive.
+  [[nodiscard]] double eps_rho() const;
 
   void record_avalanche(int n_binds);
   [[nodiscard]] std::optional<double> branching_ratio() const;
@@ -65,7 +72,7 @@ public:
                                      double gain = 0.1) const;
 
 private:
-  double default_epsilon_;
+  double default_eps_rho_;
   std::size_t min_history_;
   double quantile_;
   std::size_t window_;

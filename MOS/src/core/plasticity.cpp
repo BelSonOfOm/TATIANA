@@ -64,10 +64,10 @@ Homeostat::per_organ_discord(const std::map<CoarseEdge, double> &per_edge) {
 
 // ------------------------------------------------------ CriticalityMonitor ---
 
-CriticalityMonitor::CriticalityMonitor(double default_epsilon,
+CriticalityMonitor::CriticalityMonitor(double default_eps_rho,
                                        std::size_t min_history, double quantile,
                                        std::size_t window)
-    : default_epsilon_(default_epsilon), min_history_(min_history),
+    : default_eps_rho_(default_eps_rho), min_history_(min_history),
       quantile_(quantile), window_(window) {}
 
 void CriticalityMonitor::record_rho(double rho) {
@@ -76,9 +76,9 @@ void CriticalityMonitor::record_rho(double rho) {
     rho_history_.pop_front();
 }
 
-double CriticalityMonitor::epsilon() const {
+double CriticalityMonitor::eps_rho() const {
   if (rho_history_.size() < min_history_)
-    return default_epsilon_;
+    return default_eps_rho_;
   std::vector<double> s(rho_history_.begin(), rho_history_.end());
   std::sort(s.begin(), s.end());
   // numpy default 'linear' quantile: position = q*(n-1), interpolate.
