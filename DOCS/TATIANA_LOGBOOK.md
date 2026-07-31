@@ -2430,6 +2430,84 @@ Random `U` at scale 0.4 gives σ_dir/δ ≈ **1.9**, far worse than §5ah's corp
 because random `U` is not concentrated orthogonally to Δμ the way real stalk covariance is.
 **Never tune this metric against simulated stalks** — the failure direction is not conservative.
 
+## 5aj. π_v v2 SHIPPED — AND IT RULES OUT THE COMPETING EXPLANATION FOR V6 (2026-07-31)
+
+`python/pi_v.py`, 45 self-tests, zero model loads. Built to test the §5ah hypothesis that σ_dir is
+inflated by **model misspecification** (an organ that is really several topics collapsed to one
+Gaussian centroid). **It is not. The hypothesis is refuted, and that is the value of the run.**
+
+### ⚠️ CONSTRUCTION 2'S WORDING IS DEFECTIVE — resolved, not quietly reinterpreted
+Construction 2 says *"v2 = top principal component if needed."* **That cannot be read literally:**
+v1 returns a **position**; a principal component is a **direction** — translation-invariant (carries
+zero location information) and sign-ambiguous. Substituting one for the other makes every
+cross-organ distance meaningless. What PC1 *can* do is diagnose inadequacy and name a split. So:
+> **π_v2 = π_v1 restricted to the dominant mode of the fine complex.**
+
+v2 is not a new estimator — it **calls v1 on a sub-complex**, inheriting Kish `n_eff`, the shrinkage
+prior and the O(1/d) floor unchanged. Day-one degradation is therefore **structural, not asserted**:
+one mode ⇒ the restriction is the identity ⇒ bit-identical output. **Construction 2's text should be
+amended to this.**
+
+### ★ THE EIGENGAP IS NOT THE VERDICT — elongation ≠ multi-modality
+The obvious diagnostic (leading eigengap) fails, with an explicit counter-example in the tests: an
+**elongated unimodal "cigar" scores eigengap 49.8** while a **genuinely bimodal cloud scores 12.2**.
+So the verdict is a model comparison instead: project on PC1, compare 1-Gaussian vs 2-component
+mixture by **BIC (ΔBIC > 10** — the same "decisive" bar `belief.compare_models` already prints**)**
+**and** require **Ashman's D ≥ 2**. Tests 11/12 show each guard catching a *different* unimodal
+family, so the conjunction is necessary and neither statistic is decoration.
+
+### 🐛 A REAL BUG FOUND AND FIXED MID-BUILD (worth remembering)
+EM from a two-means initialisation can only propose **offset** splits, so a **concentric core+halo**
+cloud (one topic with a heavy tail) was fitted as left/right and **falsely declared multi-modal ~60%
+of the time**. It persisted at n/d = 25, so it was a **basin-of-attraction** problem, not
+small-sample noise. Fixed with a second closed-form start (concentric narrow/broad), letting
+likelihood choose. False positives went to **0/120** across d = 8…384. Both starts are
+deterministic, so the diagnostic remains seed-free and order-invariant.
+
+### 🚨 THE RESULT — v2 does NOT fix V6, and the decomposition is the finding
+| σ_dir/δ (global δ = 0.2553) | v1 | v2 |
+|---|---|---|
+| median | 0.3242 | **0.3138** (−3.1%) |
+| max | 0.4164 | **0.4164** (0.0%) |
+| fraction > 0.3 | 0.709 | 0.582 |
+
+- **Conditional effect: −29.1%.** On the 10 pairs v2 touched, median ratio 0.318 → 0.226.
+  **The mechanism is real** — where an organ genuinely is several things, the centroid *does*
+  inflate σ_dir and v2 removes it.
+- **Prevalence: 1/11 organs (9%).** Ten of eleven are adequately described by ONE Gaussian, so the
+  marginal effect is only −3.1% and the worst pair does not move at all. (The single hit,
+  `output 2`, keeps 95.2% of its mass — an outlier trim, not a two-topic organ.)
+
+> **⇒ Multi-modality is NOT what makes V6's number bad.** σ_dir here is *genuine within-organ
+> spread* measured against a *small between-organ separation* — which is §5ah's own diagnosis
+> ("it is NOT σ_dir, it is the SEPARATION"), **now confirmed from the other side by eliminating the
+> competing explanation. V6's bad result STANDS.**
+
+### ✅ v2 STILL EARNS ITS PLACE (A17), just not as V6's fix
+Free when unimodal (bit-identical to v1), pays off where multi-modality does occur, and —
+the real win — **it converts `split`, one of `CoarseComplex`'s four typed structural operations,
+from an operation with NO firing criterion into a derived one.** `pi_v_modes()` returns the
+split-ready decomposition.
+
+### ⚠️ CONSEQUENCE FOR CONSTRUCTION 4 — its motivation must be re-based
+Construction 4's stated failure mode 3 was "if σ_dir on cover-organs is not lower than on
+document-organs, the multi-modality diagnosis behind π_v v2 and this construction is wrong."
+**This run does not test cover-organs, but it does show multi-modality is rare (9%) at the
+document granularity** — so the "organs are secretly multi-modal" argument for Construction 4 is
+**weakened and should not be leaned on.** Construction 4's remaining justification is the part that
+never depended on it: derived rather than hand-drawn structure, overlaps as first-class objects,
+the growth filtration that activates persistent homology, and n-ary simplices that are honest by
+construction. Those stand. **The σ_dir argument does not — recorded so it is not silently reused.**
+
+### COULD NOT VERIFY (stated, not buried)
+- **PC1 only.** An organ splitting along a low-variance direction is missed. A 384-d mixture cannot
+  be fitted from ~60 paragraphs, so this is the *affordable* test, not the complete one.
+- **n < d makes PC1 itself noisy**, so verdicts near the BIC bar are not sharp. A resampling
+  stability check is the obvious next step and is **not implemented**.
+- **Scope**: 11 document-organs, one project, one author. V6's caveat carries over unchanged.
+  A genuinely mixed-topic corpus would show higher prevalence and a larger marginal effect —
+  **that is V6b's question and it is not answered here.**
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -2492,6 +2570,16 @@ because random `U` is not concentrated orthogonally to Δμ the way real stalk c
   the coarse/fine vs 𝕂/W confusion and wrote **Construction 4** (organs as an overlapping cover,
   coarse complex as its Čech nerve; cover is the state, nerve the observable; functional modules as
   a κ-weighted prior; overlap pinned by criticality σ≈1; four stated ways to fail). See §5ai, §3.
+  Then **π_v v2** (`pi_v.py`, 45 tests): caught that Construction 2's "v2 = top principal
+  component" is **type-defective** (v1 returns a position, a PC is a direction) and resolved it as
+  *v1 restricted to the dominant mode*; found the eigengap is **not** a valid multi-modality test
+  (an elongated cigar scores 49.8 vs a truly bimodal 12.2) and replaced it with BIC ∧ Ashman's D;
+  fixed a basin-of-attraction bug that falsely called concentric core+halo clouds bimodal 60% of
+  the time. **Result: v2 does NOT fix V6** — conditional effect −29.1% but prevalence only 1/11
+  organs, so the median moves −3.1% and the worst pair not at all. **This ELIMINATES model
+  misspecification as the explanation and confirms §5ah's separation diagnosis from the other
+  side. V6's bad result stands.** Construction 4's multi-modality argument is correspondingly
+  weakened and must not be reused. See §5aj.
 - **2026-07-31** — **Charbel overturned my τ_f circularity claim and was right.** The Hodge split
   is provably independent of `W₂` (an invertible map cannot change an image), verified to 8.4e-16
   — so there was never any circularity and E5 was never at risk. **τ_f, π_e and δ are now all
