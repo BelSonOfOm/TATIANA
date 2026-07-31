@@ -209,6 +209,82 @@ COMMENTS FROM CHARBEL:
   Hansen & Ghrist. Nerve theorem: standard (Borsuk). **Mapper's known weakness is exactly the
   parameter sensitivity item (ii) and the criticality rule address.**
 
+  ---
+
+  ### ⚠️ AMENDMENT 2026-07-31 (same day, after §5aj/§5ak). Three corrections. None fatal; all
+  are scoping decisions that must be made BEFORE anyone builds this.
+
+  **A4-1. 🚨 THE FILTRATION CLAIM IS FALSE AS WRITTEN — the history is a ZIGZAG, not a filtration.**
+  The construction says *"cover growth induces simplicial maps, so a growing cover is a filtration —
+  exactly what persistent homology consumes"*, while two lines earlier allowing cover elements to
+  *"grow / split / merge / are born / decay."* Those are not compatible. Write `N(𝒰)` = the complex
+  with a simplex on `S ⊆ I` iff `⋂_{i∈S} U_i ≠ ∅`, and check each op:
+
+  | op | induced map | direction |
+  |---|---|---|
+  | **grow** `U_i ⊆ U_i'` | every non-empty intersection stays non-empty ⇒ `N(𝒰) ↪ N(𝒰')` | forward, inclusion ✓ |
+  | **birth** | old simplices survive, vertex added | forward, inclusion ✓ |
+  | **merge** `i,j ↦ k`, `U_k = U_i ∪ U_j` | vertex map `f` has `U_{f(i)} ⊇ U_i`, so `⋂_{f(S)}U ⊇ ⋂_S U ≠ ∅` | forward, **simplicial map** (collapses, not an inclusion) ✓ |
+  | **split** `U_k ↦ U_i,U_j` with `U_i,U_j ⊆ U_k` | the map that exists is `N(new) → N(old)` | **REVERSED** ✗ |
+  | **decay / shrink** | shrinking kills intersections ⇒ simplices vanish ⇒ no forward simplicial map; only `N(new) ↪ N(old)` | **REVERSED** ✗ |
+
+  Standard persistent homology consumes a one-directional sequence (inclusions, or simplicial maps
+  à la Dey–Fan–Wang). It does **not** consume alternating arrows. Split and decay reverse the
+  arrows, so the cover's history is a **zigzag** (Carlsson–de Silva) — a heavier machine with no
+  drop-in barcode.
+  > **★ AND THE STING: §5aj just derived a firing criterion for `split` (`pi_v_modes()`) — the one
+  > structural op that was previously undefined is precisely the op that breaks the filtration.**
+
+  **DECISION TAKEN: exit (a) — restart the filtration at each split/decay.** Run standard PH within
+  growth/birth/merge epochs; a split or decay closes the epoch and opens a new one. Costs nothing,
+  is honest, and the named consumer (§2: *"which coalitions are stable enough to consolidate"*) is a
+  **within-epoch** question anyway. Rejected: (b) zigzag persistence — real but expensive and not
+  yet justified; (c) forbid `split` — unattractive now that it is the one derived op we have.
+
+  **A4-2. 🚨 "COVER ELEMENT" IS USED IN TWO INCOMPATIBLE SENSES IN THE TEXT ABOVE, and the choice
+  decides the circularity question.** The construction says both *"regions `{U_i}` of concept
+  space"* (geometric — membership predicate in ℝ³⁸⁴) and *"accumulated concept set"*
+  (combinatorial — overlap = shared concept IDs). These are different objects:
+
+  | | geometric region | **concept set** |
+  |---|---|---|
+  | overlap test | membership predicate in ℝ³⁸⁴ | set intersection, trivial |
+  | nerve-theorem caveat (ii) | live | **irrelevant** |
+  | shrinkage-prior init | natural (`Σ₀` = the six modules) | needs re-derivation |
+  | V6 circularity | **reintroduced** — regions defined by embedding distance | **avoided** — co-activation is metric-independent |
+
+  **The geometric reading is close to dead, and the stalk decision is what kills it.** Since §5t Q1
+  a concept's stalk is a rank-k SPD Gaussian `Σ = UUᵀ + DI`, **not a point**. So *"is concept `c`
+  inside `U_i`?"* has no crisp answer — it needs a soft membership (Bures ball, mass threshold),
+  which is **exactly the metric under test**, reintroducing the V6 circularity through the back
+  door. **TAKE THE COMBINATORIAL READING:** a cover element is a persistent object carrying an
+  accumulated **set of concept IDs**; overlap is set intersection. This is also what makes the
+  recommended co-activation lens actually implementable. **Cost, stated:** the shrinkage-prior
+  initialization `Σ_v = (S_v + κΣ₀)/(n_eff + κ) + εI` is a statement about *covariances*, i.e. about
+  ellipsoids — under the combinatorial reading it must be restated as a prior over **membership**
+  (κ pseudo-observations of "concept `c` belongs to module `i`"), not over shape. **Not yet done.**
+
+  **A4-3. CAVEAT (ii) COSTS LESS THAN STATED — the nerve theorem is not needed for the primary use.**
+  Once *"the COVER is the state"* is taken seriously, `b₁` of the nerve is an honest invariant **of
+  the cover itself**, not an estimate of anything. The nerve theorem is required only to claim
+  `H_*(N(𝒰)) ≅ H_*(⋃U_i)` — i.e. only if we say *"concept space has a hole."* We do not need that
+  claim: the consumer wants *"the organ cover has a hole,"* which is a fact, not an approximation.
+  **Keep caveat (ii) worded as-is for any statement about concept space; drop it for statements
+  about the cover.** Do not quote the nerve theorem in either case.
+
+  **STILL UNEXECUTABLE (not a correction, a gap):** the criticality rule for the gain parameter.
+  §5p's `σ` = *"mean binds triggered per co-activation"* presupposes a **propagation process on the
+  cover** that is nowhere defined. Stated failure mode 2 asks *"can we afford σ≈1"*; the prior
+  question is **"σ is measured on what dynamics."** Answer that before failure mode 2 means anything.
+
+  **NET LEDGER AFTER THIS AMENDMENT.**
+  - **Stands unconditionally:** derived-not-drawn structure (A17) · overlaps as first-class objects ·
+    **n-ary simplices honest by construction** (the strongest item; nothing has touched it).
+  - **Retracted:** the σ_dir / multi-modality argument (§5aj).
+  - **Now qualified:** the PH payoff (epoch-restricted, per A4-1) · "no privileged granularity"
+    (needs a null, see §5ak amendment).
+  - **Verdict: keep, but do NOT cite the persistence payoff without the epoch qualifier.**
+
 ## 3c. FIX-1 CLOSED (2026-07-22)
 
 Single embedding contract established: **`python/embeddings.py`**, model `BAAI/bge-small-en-v1.5` via fastembed/ONNX, **EMBED_DIM=384**, local CPU, zero API quota. **Rule: never truncate, never pad — RAISE on mismatch** (silent reshaping is what corrupted every distance before). Verified live: cos(math, chat)=0.449 vs cos(math, math)=0.833 — real semantic structure.
@@ -2551,6 +2627,24 @@ It does not. Consequences, and they are the useful part of this run:
 - **It supports replacing δ-calibration with PERSISTENCE ACROSS δ.** Don't pick the scale; take
   what survives across scales. Same dissolution move that worked for F10.
 
+> ### ⚠️ AMENDMENT (same day) — "NO PRIVILEGED GRANULARITY" IS UNDER-SUPPORTED AS STATED
+> **k-means minimises within-cluster scatter, and its objective is monotone non-increasing in `k`
+> by construction.** σ_dir *is* within-organ spread and δ is held global and fixed, so
+> **σ_dir/δ falling as `k` rises is guaranteed by the algorithm, not observed in the corpus.**
+> The same sweep run on isotropic Gaussian noise would produce the same monotone shape. Therefore
+> *"no dip ⇒ no natural scale exists"* does **not** follow: absence of an optimum in a
+> monotone-by-construction quantity is close to vacuous.
+> - **To make it bite:** re-run the k-sweep against a **structureless null** (isotropic Gaussians,
+>   n and d matched) and show the real corpus fails to dip *relative to the null*. Cheap — one
+>   afternoon, no new machinery. **NOT DONE.**
+> - **What survives untouched:** the **max worsening 0.3962 → 0.4657**. That is not implied by
+>   k-means monotonicity — finer organs producing *more adjacent pairs with small separation* is a
+>   fact about this corpus, and since the merge predicate fails pair-by-pair it is the tail that
+>   corrupts the store. **The −22.9% bound and the worsening tail both stand.**
+> - **Consequence for Construction 4:** the "supports COVER over PARTITION" bullet above is
+>   **downgraded to a conjecture pending the null.** Construction 4 does not need it (see the §3
+>   amendment's net ledger) — but it must not be cited as a measured result.
+
 ### ⚠️ WHAT THIS DOES AND DOES NOT SETTLE
 - **Settles:** (c) cannot rescue §5z's closeness claim. Best case ~70% vs the claimed 87%, with a
   worsening tail. **Three fixes have now been tried — (a) unmeasured, (b) refuted, (c) bounded
@@ -2589,7 +2683,7 @@ not yet recorded anywhere and are not in this logbook. **This logbook is the sha
 | ✅ **D̃** | `δ_eff = √(δ²+σ_dir²)`; caught that **thresholding D̃ is vacuous** | `merge_score.py`, §5ai |
 | ✅ **π_v v2** | v1 restricted to the dominant mode; **refutes multi-modality as V6's cause** | `pi_v.py`, §5aj |
 | 🚨 **V6 / V6b** | **§5z's closeness claim does NOT survive real text** | §5ah, §5ak |
-| 🔵 **Construction 4** | organs as an overlapping cover, coarse complex as its nerve — **proposed, not built** | §3 |
+| 🔵 **Construction 4** | organs as an overlapping cover, coarse complex as its nerve — **proposed, not built**; **AMENDED same day: filtration→zigzag, cover element = concept SET, granularity claim downgraded** | §3 |
 
 **Questionnaire closed:** F10 dissolved · Q9 retracted (antisymmetric contract normative) · Q16 derived
 · Q4/Q19/Q21/Q25 defaults adopted · Q5/Q6 answered · Q8 dissolved. **All eight Phase-2 items now have
@@ -2632,7 +2726,11 @@ FIX-7/8/9 (docs) · FIX-15 (E5 significance overstated ~4×; fix before quoting 
 FIX-16 (colibri test cannot diagnose its own failure — the only red in the suite) ·
 **V7 (τ_f — Charbel refused to let it die; τ_f=1 is a WORKING value, not a closure)** ·
 E5b at b₁≥2 · V2/E14 (**needs Charbel's ~50 labelled pairs**) · V3 · V5 ·
-**V6c: a NON-CIRCULAR organ test (co-activation lens)** · **D̃ vs exact HK at the cutoff.**
+**V6c: a NON-CIRCULAR organ test (co-activation lens)** · **D̃ vs exact HK at the cutoff** ·
+**V6d: the k-sweep against a structureless null** — without it "no privileged granularity" is
+reading off k-means' own monotonicity (§5ak amendment). Cheap; blocks citing that finding ·
+**Construction 4's membership prior** — the shrinkage init is stated over covariances but the
+cover is now set-valued, so it needs restating over membership (§3 amendment A4-2).
 
 ### ⚠️ FOUR THINGS THE NEXT THREAD MUST NOT RE-LITIGATE
 1. **τ_f is NOT circular.** The Hodge split is provably independent of `W₂` (invertible ⇒ image
