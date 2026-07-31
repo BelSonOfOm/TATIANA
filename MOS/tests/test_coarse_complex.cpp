@@ -3,6 +3,7 @@
 // is wrong — that is the whole point of keeping a tested reference implementation.
 
 #include "mos/core/coarse_complex.hpp"
+#include "mos/core/edge_precision.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -182,21 +183,70 @@ int main() {
     CoarseComplex K(1.0, 0.25);
     for (const auto &m : {"a", "b", "c"}) K.register_module(m);
     K.set_stalk("a", a); K.set_stalk("b", b); K.set_stalk("c", c);
-    K.co_activate("a", "b", 100.0);   // coupling (= precision when enabled) 100
-    K.co_activate("b", "c", 1.0);     // coupling 1
+    K.co_activate("a", "b", 100.0);   // Hebbian coupling strength, NOT pi_e
+    K.co_activate("b", "c", 1.0);
 
     // uniform pi: the big raw gap (b,c) is the guilty edge
     auto flat = K.report();
     auto wf = flat.worst_edge();
     assert(wf.has_value() && wf->first == "b" && wf->second == "c");
 
-    // precision on: 100*0.04=4.0 outweighs 1*1.0 -> blame moves to (a,b)
+    // (5af) Turning precision on with NO derived pi_e set must change nothing.
+    // Before the fix this silently reused the coupling weights and DID change
+    // the answer, which is exactly how a Hebbian count got read as an inverse
+    // variance without anyone noticing.
     K.set_use_precision(true);
+    auto no_pi = K.report().worst_edge();
+    assert(no_pi.has_value() && no_pi->first == "b" && no_pi->second == "c"
+           && "coupling weights must NOT leak in as pi_e");
+    std::cout << "9a. use_precision with no pi_e set -> unchanged (type error fixed)\n";
+
+    // Now supply real precisions: 100*0.04=4.0 outweighs 1*1.00 -> blame moves.
+    K.set_edge_precision("a", "b", 100.0);
+    K.set_edge_precision("b", "c", 1.0);
     auto ww = K.report().worst_edge();
-    std::cout << "9. precision reweight -> worst (" << ww->first << ", "
+    std::cout << "9b. derived pi_e reweight -> worst (" << ww->first << ", "
               << ww->second << ")\n";
     assert(ww.has_value() && ww->first == "a" && ww->second == "b"
            && "precision must move blame to the trusted-but-disagreeing edge");
+
+    // The derived formula itself: pi_e = 1/(D_u + D_v + s_e), s_e = -ln(c)/d.
+    // Parity target computed from python/edge_precision.py, which is
+    // authoritative. A confident edge must be MORE precise than an unsure one.
+    {
+        const int d = 384;
+        const std::map<ModuleId, double> floors{{"a", 0.002}, {"b", 0.002}, {"c", 0.002}};
+        const std::map<CoarseEdge, double> conf{{{"a", "b"}, 0.9}};
+        const auto pi = edge_precision({{"a", "b"}, {"b", "c"}}, floors, d, conf);
+
+        const double s_ab = -std::log(0.9) / 384.0;
+        const double expect_ab = 1.0 / (0.002 + 0.002 + s_ab);
+        const double expect_bc = 1.0 / (0.002 + 0.002);   // no confidence => s_e = 0
+        assert(close(pi.at({"a", "b"}), expect_ab, 1e-12));
+        assert(close(pi.at({"b", "c"}), expect_bc, 1e-12));
+        // A REPORTED confidence adds noise, so it LOWERS precision relative to
+        // an edge with no report. Absence of a measurement is not noise.
+        assert(pi.at({"a", "b"}) < pi.at({"b", "c"}));
+        std::cout << "9c. derived pi_e: confident-but-reported " << pi.at({"a", "b"})
+                  << " < unreported " << pi.at({"b", "c"}) << "\n";
+
+        // A missing stalk floor is a missing measurement, not a floor of 1.
+        bool threw = false;
+        try {
+            (void)edge_precision({{"a", "zzz"}}, floors, d);
+        } catch (const std::invalid_argument &) { threw = true; }
+        assert(threw && "a missing stalk floor must not default silently");
+
+        // c = 0 is not a confidence; c > 1 is a caller bug. Neither is clamped.
+        for (double bad : {0.0, 1.5}) {
+            threw = false;
+            try { (void)report_variance(bad, d); }
+            catch (const std::invalid_argument &) { threw = true; }
+            assert(threw);
+        }
+        assert(report_variance(std::nullopt, d) == 0.0);
+        std::cout << "9d. absent confidence -> s_e = 0; c<=0 and c>1 refused\n";
+    }
 
     // identity restriction maps must reproduce the no-map discord EXACTLY
     K.set_use_precision(false);

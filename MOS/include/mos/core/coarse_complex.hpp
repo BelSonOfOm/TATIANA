@@ -141,11 +141,33 @@ public:
   void set_restriction(const ModuleId &u, const ModuleId &v,
                        const Eigen::MatrixXd &R_u, const Eigen::MatrixXd &R_v);
 
-  /// @brief Precision-weight discord by coalition strength: each edge uses its
-  /// coupling weight as pi_e (a more-bound coalition is trusted more). Off by
-  /// default => uniform pi=1, the pre-5p behaviour.
+  /// @brief Precision-weight discord by the DERIVED pi_e. Off by default =>
+  /// uniform pi=1, the pre-5p behaviour that the parity test depends on.
+  ///
+  /// FIXED (5af): this used to fall back to each edge's COUPLING WEIGHT as pi_e.
+  /// That was a type error. The coupling weight is a Hebbian co-activation
+  /// count; pi_e is an INVERSE VARIANCE, 1/(D_u + D_v + s_e). Different units,
+  /// different direction, plausible-looking numbers -- which is why it survived.
+  /// Precisions now come only from set_edge_precision(), i.e. from
+  /// core::edge_precision(), and an edge with none set contributes pi=1 rather
+  /// than silently borrowing its coupling strength.
   void set_use_precision(bool on) noexcept { use_precision_ = on; }
   [[nodiscard]] bool use_precision() const noexcept { return use_precision_; }
+
+  /// @brief Set the derived precision pi_e for one edge. See
+  /// `core::edge_precision()`, which computes the whole map from stalk floors
+  /// and reported confidences.
+  /// @throws std::invalid_argument for a non-positive pi_e — a zero precision
+  ///         means "infinitely noisy", which is a measurement, not a default.
+  void set_edge_precision(const ModuleId &u, const ModuleId &v, double pi_e);
+
+  /// @brief Bulk form, taking the output of `core::edge_precision()` directly.
+  void set_edge_precisions(const std::map<CoarseEdge, double> &pi);
+
+  /// @brief The precision currently set for an edge, if any. Empty means the
+  /// edge falls back to pi=1, NOT that its precision is zero.
+  [[nodiscard]] std::optional<double> edge_precision_of(const ModuleId &u,
+                                                        const ModuleId &v) const;
 
   /// @brief Measure discord over K. Edges touching an idle organ are ignored,
   /// since an organ with no position cannot meaningfully agree or disagree.
@@ -171,6 +193,10 @@ private:
   std::vector<std::string> mutation_log_;
   // (5p mechanism 1) per-edge restriction pair (R_u, R_v); absent => identity.
   std::map<CoarseEdge, std::pair<Eigen::MatrixXd, Eigen::MatrixXd>> restriction_;
+  // (5af) The DERIVED pi_e per edge. Deliberately separate from weights_: a
+  // coupling strength and an inverse variance must not share storage, or the
+  // type error this replaced can reappear by accident.
+  std::map<CoarseEdge, double> precision_;
   bool use_precision_{false};
 };
 

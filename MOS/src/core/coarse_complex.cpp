@@ -190,6 +190,31 @@ void CoarseComplex::set_restriction(const ModuleId &u, const ModuleId &v,
   restriction_[make_key(u, v)] = {R_u, R_v};
 }
 
+void CoarseComplex::set_edge_precision(const ModuleId &u, const ModuleId &v,
+                                       double pi_e) {
+  if (!(pi_e > 0.0)) {
+    throw std::invalid_argument(
+        "set_edge_precision: pi_e must be strictly positive (got " +
+        std::to_string(pi_e) +
+        "). Zero precision means an infinitely noisy edge, which is a "
+        "measurement to make explicit, not a default to fall into.");
+  }
+  precision_[make_key(u, v)] = pi_e;
+}
+
+void CoarseComplex::set_edge_precisions(const std::map<CoarseEdge, double> &pi) {
+  for (const auto &kv : pi) {
+    set_edge_precision(kv.first.first, kv.first.second, kv.second);
+  }
+}
+
+std::optional<double>
+CoarseComplex::edge_precision_of(const ModuleId &u, const ModuleId &v) const {
+  auto it = precision_.find(make_key(u, v));
+  if (it == precision_.end()) return std::nullopt;
+  return it->second;
+}
+
 CoherenceReport CoarseComplex::report() const {
   CoherenceReport rep;
 
@@ -249,10 +274,15 @@ CoherenceReport CoarseComplex::report() const {
   //   omega = sum_e pi_e || R_u x_u - R_v x_v ||^2.
   // With no maps set and use_precision_ false (defaults) this is exactly the
   // pre-5p  sum ||x_u - x_v||^2  -- the parity test depends on that identity.
+  // (5af) pi_e comes from precision_, NEVER from weights_. The coupling weight
+  // is a Hebbian count and pi_e is an inverse variance; reading one for the
+  // other is the type error this replaced. An edge with no derived precision
+  // contributes pi=1 -- the documented absent-weight default, matching
+  // python/edge_precision.py's note about this very function.
   auto pi_of = [&](const CoarseEdge &e) -> double {
     if (!use_precision_) return 1.0;
-    auto it = weights_.find(e);
-    return (it != weights_.end()) ? it->second : 1.0;
+    auto it = precision_.find(e);
+    return (it != precision_.end()) ? it->second : 1.0;
   };
   double omega = 0.0;
   for (const auto &e : live) {

@@ -57,6 +57,7 @@ set(SOURCES
     src/math/fourier.cpp
     src/core/cognitive_state.cpp
     src/core/coarse_complex.cpp
+    src/core/edge_precision.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
     src/core/thread_pool.cpp
