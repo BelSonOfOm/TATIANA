@@ -60,6 +60,7 @@ set(SOURCES
     src/core/edge_precision.cpp
     src/core/hodge.cpp
     src/core/curvature.cpp
+    src/core/instantiate.cpp
     src/core/householder.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
@@ -145,6 +146,10 @@ target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 # python/hodge.py so the two implementations cannot drift together.
 add_executable(mos_hodge_tests tests/test_hodge.cpp)
 target_link_libraries(mos_hodge_tests PRIVATE mos_core)
+
+# Phase-2 item 4: PPR instantiation. The ACL size-independence claim is measured.
+add_executable(mos_instantiate_tests tests/test_instantiate.cpp)
+target_link_libraries(mos_instantiate_tests PRIVATE mos_core)
 
 # Phase-2 item 3: F_MOS curvature + the control-barrier flow that replaces w_floor.
 add_executable(mos_curvature_tests tests/test_curvature.cpp)
