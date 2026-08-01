@@ -618,28 +618,37 @@ $d(D_1+D_2-2\sqrt{D_1D_2})=d(\sqrt{D_1}-\sqrt{D_2})^2$.
 \end{proof}
 
 \begin{hon}\Hon
-Proposition~\ref{prop:w2hazard} says two uncomfortable things.
-\emph{(i) Today the machinery is inert.} Every grown concept carries the named prior
-$D=1.0$ with empty $U$ (Remark~\ref{rem:uncal}), so $D_1=D_2$ and $W_2^2$ is
-\textbf{exactly squared Euclidean distance}. The optimal-transport apparatus is
-currently a Euclidean distance with a Wasserstein-shaped proof attached. Not wrong;
-just not doing anything.
-\emph{(ii) It becomes actively harmful the moment calibration is fixed.} The semantic
-term is $d$-\emph{intensive}---bounded by $4$ for unit-normalised embeddings whatever
-$d$ is---while the epistemic term is $d$-\emph{extensive}, growing linearly in $d$ for
-a fixed disagreement about certainty. At $d=384$, the uncalibrated prior $D_1=1.0$
-against a confident concept $c=0.95$ ($D_2=-\ln0.95$) gives an epistemic term of
-$\approx230$ against a semantic term of $2$ for orthogonal embeddings: a ratio of
-about $115$ to $1$, driven entirely by a self-reported confidence that
-Remark~\ref{rem:uncal} identifies as unavailable and untrustworthy. Merge/split and
-the consolidation logic of Section~\ref{sec:growth} would be governed by hallucinated
-confidences.
-This is a latent defect that switches on precisely when the system is
-\emph{improved}. Summing a $d$-intensive and a $d$-extensive quantity and thresholding
-the sum is a dimensional error, not a modelling preference; the two must be
-thresholded separately. Implemented as \texttt{core::wasserstein\_2\_terms}
-(2026-07-28), which also removes a byte-identical duplicate of this formula that had
-been maintained in two files.
+Proposition~\ref{prop:w2hazard} said two uncomfortable things. \textbf{Both were
+true when written and both were fixed by FIX-13; the diagnosis is retained
+because it is what forced the fix, but neither is a current defect} (corrected
+2026-08-01, FIX-17).
+
+\emph{(i) The machinery was inert.} Every grown concept carried the prior $D=1.0$
+with empty $U$, so $D_1=D_2$ and $W_2^2$ was \textbf{exactly squared Euclidean
+distance} --- an optimal-transport apparatus with a Wasserstein-shaped proof
+attached and nothing to do. \emph{Now:} the floor is the $O(1/d)$ shrinkage floor
+of Remark~\ref{rem:uncal} and varies with $n_{\mathrm{eff}}$ and with rank, so
+$D_1\neq D_2$ in general. On two stalks with the same mean and ranks $0$ and $1$
+the epistemic term moves from $0$ to $0.206$: the geometry is live.
+
+\emph{(ii) It would have become actively harmful the moment calibration was
+fixed.} The semantic term is $d$-\emph{intensive}---bounded by $4$ for
+unit-normalised embeddings whatever $d$ is---while the epistemic term is
+$d$-\emph{extensive}. At $d=384$ the prior $D_1=1.0$ against a confident concept
+$c=0.95$ ($D_2=-\ln0.95$) gave an epistemic term of $\approx230$ against a
+semantic term of $2$: about $115$ to $1$, driven entirely by a self-reported
+confidence the architecture elsewhere declines to trust, so merge/split and the
+consolidation logic of Section~\ref{sec:growth} would have been governed by
+hallucinated confidences. A latent defect that switches on precisely when the
+system is \emph{improved}. \emph{Now:} that same configuration measures $0$,
+because confidence no longer reaches the stalk geometry at all.
+
+The structural lesson survives both fixes and is the reason the terms are
+reported separately: summing a $d$-intensive and a $d$-extensive quantity and
+thresholding the sum is a dimensional error, not a modelling preference.
+Implemented as \texttt{core::wasserstein\_2\_terms} (2026-07-28), which also
+removed a byte-identical duplicate of this formula that had been maintained in
+two files.
 \end{hon}
 
 \subsection{Pairwise fusion and its entropy}
@@ -667,14 +676,39 @@ Matrix determinant lemma: $\det(A+UV^\top)=\det A\,\det(I+V^\top A^{-1}U)$ with
 $A=DI$, $V=U$. Then $\det(DI)=D^d$ and $V^\top A^{-1}U=D^{-1}U^\top U$.
 \end{proof}
 
-\begin{remark}[Uncalibrated confidence]\label{rem:uncal}
-The noise floor $D$ of a \emph{grown} concept is set from the generating LLM's
-self-reported confidence $c$ via $D=-\ln c$ (so $c\to1\Rightarrow D\to0$). Against the
-deployed model, token log-probabilities are unavailable (the provider returns a hard
-error when they are requested), so $c$ is genuinely unknown; the engine then uses a
-named, warned prior $D=\texttt{UNCALIBRATED\_VARIANCE\_PRIOR}=1.0$ rather than
-fabricating a value. This is why the coherence score $\rho$---not self-reported
-confidence---is the primary signal.
+\begin{remark}[The stalk floor, and where confidence actually goes]\label{rem:uncal}
+\textbf{Corrected 2026-08-01 (FIX-17); the previous version of this remark
+described behaviour the engine had already stopped having.} It stated that the
+noise floor of a grown concept is set from the generating model's self-reported
+confidence via $D=-\ln c$, with a named prior
+$D=\texttt{UNCALIBRATED\_VARIANCE\_PRIOR}=1.0$ when $c$ is unavailable. Both were
+removed by FIX-13 and neither exists in the code.
+
+The floor $D_i$ of Definition~\ref{def:concept-gauss} is now the shared shrinkage
+floor,
+\[
+  D \;=\; \varepsilon + \frac{\kappa}{d\,(n_{\mathrm{eff}}+\kappa)} \;=\; O(1/d),
+\]
+independent of any reported confidence. The scaling is the point: $D$ feeds a
+Bures term that is $d$-\emph{extensive}, so a floor of order $1$ contributes a
+trace of order $d$ and swamps a semantic term bounded by $4$. At $d=384$ the two
+retired forms give isotropic traces of $-\ln(0.95)\cdot d\approx19.7$ and
+$1.0\cdot d=384$ respectively; the shrinkage floor gives $0.88$.
+
+\emph{Confidence is relocated, not discarded.} Per Q9 its home is the edge
+precision, entering as $s_e=-\ln c_e/d$ in Remark~\ref{rem:pie} --- carrying the
+same $1/d$ for the same reason, so its \emph{trace} contribution $-\ln c_e$ is
+$O(1)$. There it is dimensionally harmless and load-bearing; as an isotropic
+stalk variance it was neither.
+
+Against the deployed model token log-probabilities are unavailable (the provider
+returns a hard error when they are requested), so $c$ is genuinely unknown and
+the engine warns once rather than fabricating one. This is why the coherence
+score $\rho$---not self-reported confidence---is the primary signal. The contract
+is pinned by \texttt{tests/test\_stalk\_floor.cpp}, which asserts that
+\texttt{compute\_variance} returns the identical floor for $c\in\{\text{none},
+0.99, 0.05\}$: it was previously guaranteed only by a comment, which is precisely
+how this remark came to be four days out of date without anything failing.
 \end{remark}
 
 % =====================================================================

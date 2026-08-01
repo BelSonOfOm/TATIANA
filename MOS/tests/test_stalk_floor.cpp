@@ -11,8 +11,10 @@
 #include <stdexcept>
 
 #include "mos/core/cognitive_state.hpp"
+#include "mos/core/edge_precision.hpp"
 #include "mos/core/operad.hpp"
 #include "mos/core/semantic_skill.hpp"
+#include "mos/translation/curator.hpp"
 
 using namespace mos;
 
@@ -349,10 +351,72 @@ void test_overlapping_supports_still_serialise() {
   std::cout << "  [ok] overlapping supports still serialise\n";
 }
 
+// ---------------------------------------------------------------------------
+// FIX-17. FIX-13 removed `D = -ln c` and UNCALIBRATED_VARIANCE_PRIOR = 1.0 from
+// AgentCurator::compute_variance, but nothing PINNED that. The contract was held
+// by a comment, and a comment is exactly what regresses -- the `.tex` had already
+// drifted back to describing the old behaviour for four days without anything
+// failing. These tests make the contract executable.
+// ---------------------------------------------------------------------------
+
+void test_curator_floor_ignores_confidence() {
+  const translation::AgentCurator curator{math::FourierMapper(8, 8)};
+
+  // The SAME floor for every confidence, including none at all. If a future
+  // edit routes confidence back into the stalk geometry, this fails.
+  const double none = curator.compute_variance(std::nullopt, kDeployedDim);
+  const double sure = curator.compute_variance(0.99, kDeployedDim);
+  const double unsure = curator.compute_variance(0.05, kDeployedDim);
+
+  assert(none == sure && sure == unsure &&
+         "confidence must NOT reach the stalk floor -- per Q9 its home is pi_e");
+  assert(close(none, core::stalk_floor(kDeployedDim, 1.0)) &&
+         "the floor must be the shared shrinkage floor, not a bespoke constant");
+  std::cout << "  [ok] compute_variance is identical for c=none/0.99/0.05 (" << none << ")\n";
+}
+
+void test_curator_floor_is_order_one_over_d() {
+  // The FIX-13 invariant, asserted where the OLD code violated it: the isotropic
+  // trace d*D must stay O(1). The retired D = -ln(0.95) = 0.0513 gives a trace of
+  // 19.7 at d = 384, and the retired prior D = 1.0 gives 384 -- against a
+  // semantic budget of 4. Both are what made the epistemic term swamp meaning.
+  const translation::AgentCurator curator{math::FourierMapper(8, 8)};
+  for (const int d : {12, 128, kDeployedDim}) {
+    const double D = curator.compute_variance(0.95, d);
+    const double trace = static_cast<double>(d) * D;
+    assert(trace < 2.0 && "isotropic trace must be O(1), not O(d)");
+  }
+  const double retired_lnc = -std::log(0.95) * kDeployedDim;
+  const double retired_prior = 1.0 * kDeployedDim;
+  assert(retired_lnc > 19.0 && retired_prior > 383.0);
+  std::cout << "  [ok] trace O(1) at d=12/128/384; the retired forms gave "
+            << retired_lnc << " and " << retired_prior << "\n";
+}
+
+void test_confidence_lives_in_pi_e_with_the_1_over_d() {
+  // The other half of FIX-17: confidence is not discarded, it is RELOCATED.
+  // s_e = -ln(c)/d, so the TRACE contribution is -ln(c) = O(1) -- the same
+  // scaling discipline the stalk floor follows, in the place Q9 puts it.
+  const double c = 0.95;
+  const double s_e = core::report_variance(c, kDeployedDim);
+  assert(close(s_e, -std::log(c) / kDeployedDim));
+  const double trace_contribution = s_e * kDeployedDim;
+  assert(close(trace_contribution, -std::log(c)) && trace_contribution < 1.0);
+  // And an ABSENT confidence contributes no noise at all.
+  assert(core::report_variance(std::nullopt, kDeployedDim) == 0.0);
+  std::cout << "  [ok] confidence relocated to pi_e: s_e*d = -ln(c) = "
+            << trace_contribution << " (O(1))\n";
+}
+
 }  // namespace
 
 int main() {
-  std::cout << "=== FIX-13: the stalk noise-floor contract ===\n";
+  std::cout << "=== FIX-17: confidence is not a stalk geometry ===\n";
+  test_curator_floor_ignores_confidence();
+  test_curator_floor_is_order_one_over_d();
+  test_confidence_lives_in_pi_e_with_the_1_over_d();
+
+  std::cout << "\n=== FIX-13: the stalk noise-floor contract ===\n";
   test_eps_floor_matches_python();
   test_stalk_floor_is_order_one_over_d();
   test_floor_broadens_with_fewer_observations();

@@ -2886,7 +2886,8 @@ Python parity and instrument checks pass.
   is specified (FIX-12) and unimplemented.
 - **The nine items are built and unit-tested; they are not yet composed into a running tick.**
   Wiring them into `execute_dag` is Phase 3, not Phase 2.
-- **FIX-17 is open** (`.tex` still carries the pre-FIX-13 `D = −ln c`).
+- ~~**FIX-17 is open**~~ — **CLOSED 2026-08-01**, see §5am. The engine was already correct; the
+  lag was documentation, and the contract is now pinned by a test rather than a comment.
 - **V7 (τ_f) still runs alongside**; τ_f = 1 remains a working value, not a closure.
 
 ## 5am. ✅ THE FOUR PRE-PHASE-2 BLOCKERS, CLOSED (2026-07-31)
@@ -2914,14 +2915,38 @@ this work); Python parity checks pass.
 - **Absent measurements serialise as `null`, never `0.0`**, or a composite that was never measured
   would read as one that reliably did nothing.
 
-### 🆕 FIX-17 (M) — FOUND WHILE PROPAGATING FIX-12, NOT FIXED
-`.tex` Remark~\ref{rem:uncal} still says the grown-concept noise floor is **`D = −ln c`**, with no
-`1/d`. **FIX-13 established the floor must be `O(1/d)`** (trace `O(1)`), which is what `belief.py`
-and the C++ `stalk_floor` now implement, and what the new Remark `rem:pie` uses for `s_e = −ln c/d`.
-**So the `.tex` carries the pre-FIX-13 scaling and now contradicts its own neighbouring remark.**
-Deliberately NOT fixed here: the honest fix needs a check of whether the engine's
-`UNCALIBRATED_VARIANCE_PRIOR = 1.0` is *also* wrong under FIX-13, which is an investigation rather
-than a text edit, and it is outside FIX-12's scope. **Do not quote `D = −ln c` until this closes.**
+### ✅ FIX-17 — CLOSED 2026-08-01. The investigation resolved the OPPOSITE way to the worry.
+
+**Found while propagating FIX-12:** the `.tex` still said the grown-concept floor is `D = −ln c`
+with no `1/d`, contradicting FIX-13 and its own neighbouring remark. It was left open because the
+honest fix needed a check of whether the *engine* was wrong too — an investigation, not a text edit.
+
+**The investigation's answer: the engine was already right.** `AgentCurator::compute_variance`
+returns `core::stalk_floor(d, n_eff=1)` and **deliberately ignores `confidence`**;
+`UNCALIBRATED_VARIANCE_PRIOR = 1.0` and `D = −ln c` are both gone from the code, removed by FIX-13.
+The only Python use of `−ln c` is `edge_precision.py:118`, which is `−ln(c)/d` — the **correct**
+home per Q9. **So FIX-17 was pure documentation lag, not a live defect.**
+
+**But the lag had a cause worth fixing, and that is the real content of FIX-17.**
+- **The contract was held by a COMMENT.** Nothing executable asserted that confidence stays out of
+  the stalk geometry, so the `.tex` drifted back to the retired behaviour for four days with
+  nothing failing. **Now pinned:** `test_stalk_floor.cpp` asserts `compute_variance` returns the
+  *identical* floor for `c ∈ {none, 0.99, 0.05}`, that the isotropic trace `d·D` stays `O(1)` at
+  `d = 12/128/384`, and that confidence is *relocated* rather than discarded (`s_e·d = −ln c`).
+  `compute_variance` was made public for exactly this — a comment is what regresses.
+- **`curator.hpp` carried the same defect and nobody had noticed.** Two doc comments were stacked
+  on `compute_variance`: the FIX-13 one, and *above it* the retired one still saying
+  "*Isotropic noise floor D from confidence: sigma^2 = −ln(c)*" and citing
+  `UNCALIBRATED_VARIANCE_PRIOR in curator.cpp`, **a constant that no longer exists**. Removed.
+- **The `.tex`'s `\begin{hon}` passage asserted TWO resolved problems as current** — "(i) today the
+  machinery is inert" and "(ii) it becomes actively harmful the moment calibration is fixed". Both
+  were true when written and both were fixed by FIX-13. Rewritten to keep the diagnosis (it is what
+  forced the fix) while recording the resolution with the numbers: epistemic `229.76 → 0`, and
+  `0 → 0.206` on rank-0 vs rank-1 stalks, i.e. the geometry is live rather than inert.
+
+**Numbers now in the paper, replacing the retired claim:** at `d = 384` the two retired forms give
+isotropic traces of `−ln(0.95)·d ≈ 19.7` and `1.0·d = 384`, against a semantic budget of `4`.
+The shrinkage floor gives `0.88`.
 
 ## 5al. ⭐ HANDOFF — STATE AT END OF 2026-07-31. READ THIS FIRST IN A NEW CHAT.
 
