@@ -61,6 +61,7 @@ set(SOURCES
     src/core/hodge.cpp
     src/core/curvature.cpp
     src/core/instantiate.cpp
+    src/core/two_complex.cpp
     src/core/householder.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
@@ -146,6 +147,10 @@ target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 # python/hodge.py so the two implementations cannot drift together.
 add_executable(mos_hodge_tests tests/test_hodge.cpp)
 target_link_libraries(mos_hodge_tests PRIVATE mos_core)
+
+# Phase-2 items 5 & 6: the K/W adjunction (i^* i_! = id) and gamma(nu).
+add_executable(mos_two_complex_tests tests/test_two_complex.cpp)
+target_link_libraries(mos_two_complex_tests PRIVATE mos_core)
 
 # Phase-2 item 4: PPR instantiation. The ACL size-independence claim is measured.
 add_executable(mos_instantiate_tests tests/test_instantiate.cpp)
