@@ -72,10 +72,50 @@ def build_search_dag(comm, query: str) -> bytearray:
     The payload geometry is embedded locally, which is the same path
     Communicator.serialize_to_flatbuffer takes for a planned DAG -- the engine
     cannot tell the difference and does not need to.
+
+    THE NESTING IS LOAD-BEARING. serialize_to_flatbuffer reads
+    node["operator"]["type"] and node["operator"]["payload"]; a flat
+    {"op_type": ..., "payload": ...} is not rejected, it is silently serialised
+    as an UNKNOWN operator with an empty payload and NO geometry. The result is
+    a structurally valid 80-byte DAG that runs, retrieves nothing, and logs a
+    tick with an empty assembly -- so an accumulation run would produce
+    thousands of blank rows and only the cover fit would ever notice.
+    `verify_dag` below exists because of exactly that.
     """
     return comm.serialize_to_flatbuffer({
-        "nodes": [{"id": 0, "op_type": "SEARCH", "payload": query, "children": []}]
+        "nodes": [{
+            "id": 0,
+            "operator": {"type": "SEARCH", "payload": query, "support": []},
+            "children_ids": [],
+        }]
     })
+
+
+def verify_dag(payload: bytearray, query: str, expect_dim: int) -> None:
+    """Parse the buffer back and assert it says what it was meant to say.
+
+    Serialising without throwing proves almost nothing here -- the failure mode
+    that matters produces a well-formed buffer with the content missing.
+    """
+    import mos.fbs.OperadDAG as OperadDAG
+    import mos.fbs.OpType as OpType
+
+    dag = OperadDAG.OperadDAG.GetRootAsOperadDAG(bytearray(payload), 0)
+    if dag.NodesLength() != 1:
+        raise AssertionError(f"expected 1 node, got {dag.NodesLength()}")
+    op = dag.Nodes(0).Operator()
+    if op.Type() != OpType.OpType.SEARCH:
+        raise AssertionError(
+            f"op type is {op.Type()}, not SEARCH ({OpType.OpType.SEARCH}) -- "
+            "the node dict shape is wrong")
+    got = op.Payload().decode() if op.Payload() else ""
+    if got != query:
+        raise AssertionError(f"payload round-trip failed: {got!r} != {query!r}")
+    if op.GeometryLength() != expect_dim:
+        raise AssertionError(
+            f"geometry is {op.GeometryLength()}-d, expected {expect_dim}. "
+            "SearchOp would fall back to a REMOTE embedding call, which both "
+            "costs quota and fails against a completions-only provider.")
 
 
 def main() -> int:
@@ -139,12 +179,10 @@ def main() -> int:
         for i, task in enumerate(tasks[:min(5, len(tasks))]):
             try:
                 payload = build_search_dag(comm, task)
-                vec = embed_text(task)
-                assert len(vec) == EMBED_DIM, f"embedding dim {len(vec)}"
-                assert len(payload) > 0
+                verify_dag(payload, task, EMBED_DIM)
                 ok += 1
-                print(f"  [ok] task {i}: {len(payload):5d} bytes, "
-                      f"{EMBED_DIM}-d geometry -- {task[:56]}")
+                print(f"  [ok] task {i}: {len(payload):5d} bytes, SEARCH, "
+                      f"{EMBED_DIM}-d geometry -- {task[:52]}")
             except Exception as e:
                 print(f"  [FAIL] task {i}: {e}")
                 return 1

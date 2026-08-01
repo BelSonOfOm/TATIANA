@@ -3009,6 +3009,23 @@ Construction 5's Tier 0.
 MOS's **retrieval** structure, not its **reasoning**. Tier 0 passing on it is a statement about
 retrieval co-activation, and must not be quoted as one about reasoning.
 
+> ### 🚨 THE DAG SCHEMA WAS FLAT, AND A WRONG SHAPE DOES NOT THROW — IT PRODUCES BLANKS
+> The driver first built nodes as `{"id", "op_type", "payload", "children"}`. But
+> `serialize_to_flatbuffer` reads **`node["operator"]["type"]`**, **`node["operator"]["payload"]`**
+> and **`node["children_ids"]`** (`communicator.py:315,403`) — the very shape its own LLM prompt
+> documents at `:146–151`. A flat node is **not rejected**: `.get("operator", {})` returns `{}`, so
+> the node serialises as an **UNKNOWN operator with an empty payload and NO geometry**.
+>
+> **The result is a structurally valid ~80-byte DAG that runs, retrieves nothing, and logs a tick
+> with an empty assembly.** An accumulation run would have produced *thousands of blank rows*, and
+> **only the cover fit would ever have noticed** — as a finding about organs that stopped
+> recruiting concepts. `verify_dag()` now parses the buffer back and asserts it says what it was
+> meant to say, because *serialising without throwing proves almost nothing here*.
+
+**Not verified end-to-end:** the dry run reaches serialisation and stops on a missing `fastembed`
+(the local bge-small ONNX embedder). The schema fix is verified **structurally** against the
+serialiser's reader, not by a completed run. **A real accumulation run is still owed.**
+
 ### STAGE 3a — the bridge, and a det = −1 trap that would have passed every test
 Operators act on `CognitiveState` (a `SimplicialComplex` + sheaf); every Phase-2 item is built on
 `hodge::Complex2`. **Two parallel representations of "the complex" with nothing joining them —
@@ -3213,6 +3230,122 @@ optimum, which undercuts *every* partition-based organ definition and argues for
 > Cone–Bures keeps everything that earned it a place under A17 — bounded, genuine metric, derived
 > length scale, deletes a hand-set threshold — with HK agreement **monitored, not claimed**.
 
+## 5ao. 🔓 PHASE 3 STAGES 0–3 BUILT (2026-08-01). Q(t) HAS LEFT ZERO.
+
+Charbel: *"do all the stages for me, no mistake."* All four stages shipped, suite 25/25 green.
+**The headline: the consolidation loop is closed and `Q(t)` moved off zero for the first time** —
+0 → 4.9e-4 → 2.0e-3 → 4.4e-3 → 7.8e-3 across four ticks, monotone, and **exactly** 0 when nothing
+is verified. Q = 0 is the constant sheaf, so this is the first evidence the engine consolidates
+rather than merely runs.
+
+### ⚠️ FIRST, A NAMING HAZARD: "PHASE 3" MEANT THREE DIFFERENT THINGS
+| where | what it called Phase 3 |
+|---|---|
+| §5an NEXT (live) | **Composition** — wire the nine items into a tick |
+| bottom-of-file PHASE 0–3 plan | **Test and benchmark** (E8–E14, B1–B4, T1) |
+| the 6-phase plan of 2026-07-22 | **Neurogenesis** (δ𝔇, microneurons) |
+The live one was the first. **The other two must be renumbered before anyone reads this file cold** —
+per the file's own lesson, a superseded NEXT line is worse than no line.
+
+### 🔑 THE ROOT CAUSE: ONE MISSING WIRE, THREE CONSUMERS
+`gamma_nu` takes a **`Verdict`**, not a number. `VerifyOp::apply` computed VERIFIED/REFUTED/
+UNVERIFIABLE, acted on the obstruction, and **discarded which of the three it saw.** So there was no
+verdict → no γ → `i_shriek` unreachable → nothing crystallised → Q pinned at 0 → and E7's `verified`
+column NULL. The same value is also the promotion gate for operator-algebra growth. **One wire
+blocked the entire consolidation loop, and nothing failed loudly while it did.**
+
+### 📐 FOUR FINDINGS THE DERIVATIONS DID NOT HAVE
+1. **⚠️ E7 CONTAINED NO ASSEMBLIES AT ALL.** `cover.py` claimed *"this is exactly what E7's assembly
+   log yields"*. **False.** `NodeRecord::support` is a foliation-scheduling constant — every
+   implementation returns a hard-coded `{0}`, `{1}` or `{}` — with no concept identity in it. No
+   amount of accumulation would have produced a T×N matrix. Fixed by recording **`retrieved`**
+   (KB concepts pulled in by SearchOp's Wasserstein query — the real co-activation, overlapping
+   across ticks) and **`grown`** separately. Growth is degenerate as activation: each concept is
+   grown exactly once, so a cover fitted to it measures growth order.
+2. **⚠️ T1's PASS CRITERION WAS BIASED TOWARD ITS OWN CONCLUSION.** `margin > 0` is only fair if the
+   classes are level when neither is true. Measured, N=24 K=3 (nats/tick, + favours cover):
+
+   | generator | T=300 | T=450 | T=700 | T=1200 |
+   |---|---|---|---|---|
+   | cover θ=0.20 | +0.212 | +0.182 | +0.128 | +0.127 |
+   | cover θ=0.12 | +0.267 | +0.112 | +0.049 | +0.023 |
+   | partition p=0.20 | +0.305 | +0.082 | −0.027 | −0.089 |
+   | **partition p=0.12** | **+0.489** | **+0.291** | **+0.123** | **+0.015** |
+   | permuted null | +0.062 | +0.037 | +0.021 | +0.000 |
+
+   A **partition** at p=0.12 scores higher than a genuine cover of equal strength. Run as specified
+   on a weak real corpus, **T1 would have returned COVER and confirmed Constructions 4 and 5 by
+   artefact.** Not an EM local optimum: 1 → 12 restarts moved it +0.137 → +0.128, i.e. nothing. It
+   is structural — at K=3 the noisy-OR marginalises 2³=8 latent configurations against the mixture's
+   3 at the same parameter count. **Fixed** by `calibrated_compare`: fit the mixture, simulate from
+   it, push each draw through the identical pipeline. False positives on weak partitions **1.00 →
+   0.12**; power on strong cover **1.00 → 1.00**. The failure mode changed from *confidently wrong*
+   to *honestly inconclusive*.
+   **The calibration detail that matters: the null generator is fitted on the TRAINING FOLD ONLY.**
+   Fitting it on all of X lets it see the held-out rows, the null sits too low, and the test
+   over-rejects — that first attempt ran 25% false positives at a nominal 5%.
+3. **⚠️ A GROWING STORE BIASES θ DOWNWARD FOR LATE CONCEPTS.** Construction 5 assumes fixed N; MOS
+   grows concepts. Unmasked, every tick before a concept was born contributes a "stayed silent"
+   term, so the model must explain the silence of something that did not exist. Measured on
+   identical-truth data with half the concepts born halfway: apparent early-vs-late θ gap **+0.1197
+   unmasked, −0.0128 masked**. **The bias mimics "organs stopped recruiting" exactly.** Fixed via
+   `alive_mask`; the M-step denominator had to become per-(concept, organ), not per-organ.
+4. **⚠️ THE TICK BUDGET WAS NEVER THE CONSTRAINT.** Embeddings are computed locally (bge-small,
+   384-d, ONNX); only `ReasonOp::generate_thought` reaches Groq. **A SEARCH-only accumulation run
+   costs ZERO API calls** — ~12 min of CPU for 1500 ticks. The "47 events/day" ceiling is the
+   quadratic *pairwise judgement* cost, which Tier 0 does not need. **The real constraint is the
+   supply of distinct tasks**, and `accumulate.py` refuses to hide it: cycling 6 tasks over 1500
+   ticks is warned about explicitly, because effective sample size is then nearer 6 than 1500.
+
+### 🧱 WHAT WAS BUILT
+- **`verdict.hpp`** — `Verdict` lifted out of `two_complex.hpp` (which drags in Eigen) so
+  `CognitiveState` can carry one. `combine` takes the **weakest** verdict: one refutation survives
+  any number of passing checks, or a single pass could launder a contradiction into the store.
+- **`CognitiveState`** — atomic `tick_verdict_` (lock-free CAS; several operators in one foliation
+  slice may verify), plus `retrieved`/`grown`/geometry accumulators under their own mutex.
+  **`nullopt` ≠ `UNVERIFIABLE`** and both are kept: "no oracle ran" is not "the oracle could not
+  decide". E7 stores the first as NULL, the second as the string.
+- **`concept_store.hpp/cpp`** — the bridge. `HodgeVertex` **is** `std::string`, so concept *names*
+  are the vertex identity: no index map, and an identity that does not drift as the store grows.
+  Edges are co-activation, the fine-level mirror of `CoarseComplex::co_activate`. No triangles —
+  nothing yet earns a 2-simplex, and guessing would move b₁.
+- **`align_map`** — the learning rule. **It must have EVEN parity.** One reflection aligns two unit
+  vectors (`w = (a−b)/‖a−b‖`) but has det = −1, landing in the *other component* of O(d) from the
+  identity the store starts at — `crystallise` then correctly refuses, the learned map never
+  reaches 𝕂, and **Q stays 0 while every test passes.** Built instead as `R = H_p H_w` with
+  `p ⊥ span{a,b}`: det = +1, `R a = b`. Antipodal and d=2 cases handled explicitly.
+- **`execute_dag`** — the spine, closed: retrieved set → `i_star` → learn `R^W` → `W.touch` → ν →
+  `gamma_nu` → `i_shriek` → `Q()`.
+- **`accumulate.py`** — the driver, with a provenance manifest written even on interrupt.
+
+### 🐛 THREE BUGS THE TESTS CAUGHT DURING THE BUILD
+- **`Store`'s constructor pre-fills every edge with an identity, and `emplace` does not overwrite.**
+  So the carried-over learned maps were silently dropped on every rebuild and the store reset to
+  the constant sheaf whenever a concept was added. Nothing threw; Q just returned to 0.
+  → `insert_or_assign`.
+- **`last_verdict_` was harvested at step 5b, after the loop needed it at 4c**, so each tick would
+  have crystallised on the *previous* tick's evidence — visibly wrong only on the tick after a
+  refutation.
+- **`accumulate.py`'s DAG dict was flat** (`op_type`/`payload`) where the serialiser wants
+  `{"operator": {...}}`. Not rejected — **silently serialised as an UNKNOWN op with empty payload
+  and no geometry**: a valid 80-byte DAG that runs, retrieves nothing, and logs blank assemblies.
+  An accumulation run would have produced thousands of empty rows. `verify_dag` now parses the
+  buffer back and asserts type, payload and 384-d geometry.
+
+### 📋 WHAT PHASE 3 DOES *NOT* CLAIM
+- **Tier 0 has still not been run on MOS's corpus.** The instrument is now trustworthy and the
+  pipeline that feeds it exists; no accumulation run has been executed.
+- **Q rising is not correctness.** It says the wiring left the constant sheaf, nothing more.
+  Coherence ≠ correctness still stands (Construction 3).
+- **`crystallise_unverified = true` is a DECISION, not a derivation.** γ(ν) is defined on three
+  verdicts and "no VerifyOp in the DAG" is a fourth state it says nothing about. Default treats it
+  as UNVERIFIABLE (γ = ε·γ₀) so the loop can learn in ordinary operation; `false` gives γ = 0 and,
+  with VerifyOp rare, leaves 𝕂 at the constant sheaf almost always. **Charbel should rule on this.**
+- **The consolidation loop is not yet PPR-instantiated.** `i_star` is seeded with the raw retrieved
+  set; Phase-2 item 4's sweep-cut is not in the path. The seed is honest but unrefined.
+- **Power at the realistic weak effect size is still short.** At θ=0.12, calibrated power is 0.17 at
+  T=700 and 0.75 at T=1500 (FP 0.12). Larger T measured separately.
+
 ### 📋 NEXT, DEPENDENCY-ORDERED (supersedes every earlier "NEXT" in this file)
 
 > ## ✅ ALL FOUR PRE-PHASE-2 BLOCKERS CLOSED (2026-07-31, later same day). §5am has the detail.
@@ -3239,10 +3372,16 @@ optimum, which undercuts *every* partition-based organ definition and argues for
    in both directions. **Its verdict about THIS corpus is still owed** and needs accumulated E7
    records; the tick only began producing them on 2026-07-31.
 
-**NEXT IS PHASE 3, AND IT IS COMPOSITION, NOT CONSTRUCTION.** The nine items are unit-tested in
-isolation; none of them is called from `execute_dag` yet. Phase 3 is wiring them into a running tick
-— and the first thing to wire is the one that produces data the others need: accumulate E7 records,
-then run Construction 5's Tier 0 against them.
+~~**NEXT IS PHASE 3, AND IT IS COMPOSITION, NOT CONSTRUCTION.**~~ — **BUILT 2026-08-01, see §5ao.**
+The consolidation spine is wired into `execute_dag` and Q(t) has left zero. What that section did
+NOT do, and what is now next:
+1. **Run the accumulation.** `python accumulate.py --tasks <file> --ticks 1500` — zero API calls,
+   ~12 min CPU. **Needs ≥1500 DISTINCT tasks**; cycling a short list inflates confidence.
+2. **Run Tier 0 with `calibrated_compare`, never `compare_model_classes`** — the latter's `margin>0`
+   rule returns COVER on weak partitions at rates up to 1.00 (§5ao finding 2).
+3. **Rule on `crystallise_unverified`** (§5ao) — what an unchecked tick is worth.
+4. **Renumber the two stale "Phase 3"s** at the bottom of this file and in the 6-phase plan.
+5. **Put PPR/sweep-cut in front of `i_star`** — currently seeded with the raw retrieved set.
 
 **Owed, not blocking:**
 FIX-7/8/9 (docs) · FIX-15 (E5 significance overstated ~4×; fix before quoting the p-value) ·
