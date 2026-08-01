@@ -1099,8 +1099,9 @@ of the architecture's current hand-set magic numbers.
 \subsection{Predictive coding is precision-weighted sheaf diffusion}
 
 \begin{proposition}[The identity]\label{prop:pc}
-Let each edge carry a scalar precision $\pi_e>0$ (the confidence attached to that
-organ pair's agreement). Define the \emph{predictive-coding free energy}
+Let each edge carry a scalar precision $\pi_e>0$; see Remark~\ref{rem:pie} for what
+$\pi_e$ is and, equally important, what it is not. Define the \emph{predictive-coding
+free energy}
 \begin{equation}\label{eq:pcfreeenergy}
 \mathcal F(x)\;=\;\sum_{e=\{u,v\}}\pi_e\,\norm{\varepsilon_e}^2,
 \qquad \varepsilon_e=(\delta x)_e=\rest{u\triang e}(x_u)-\rest{v\triang e}(x_v).
@@ -1112,6 +1113,30 @@ Laplacian $L_\pi=\delta^\top \Pi\, \delta$, $\Pi=\diag(\pi_e)$. \emph{Inference}
 F(x)=-L_\pi x$, i.e. sheaf diffusion (item (1) of Section~\ref{sec:limits}) with a
 precision-weighted Laplacian in place of the unweighted one.
 \end{proposition}
+
+\begin{remark}[What $\pi_e$ is, and two things it is not]\label{rem:pie}
+$\pi_e$ is an \emph{inverse variance}. With orthogonal restriction maps and isotropic
+stalk floors $D_u,D_v$ we have $\operatorname{Var}(\varepsilon_e)=(D_u+D_v)I$, and a
+reported confidence $c_e\in(0,1]$ contributes a further per-component variance
+$s_e=-\ln c_e/d$, giving
+\begin{equation}\label{eq:piederived}
+\pi_e\;=\;\frac{1}{D_u+D_v+s_e},\qquad s_e=\frac{-\ln c_e}{d}.
+\end{equation}
+The $1/d$ keeps the \emph{trace} contribution $-\ln c_e$ of order $1$, commensurate with
+the semantic scale, exactly as the prior $\Sigma_0=(1/d)I$ carries trace $1$.
+
+\emph{Not the confidence itself.} $\pi_e$ is a derived function of $c_e$ via
+\eqref{eq:piederived}, not $c_e$ rescaled; an edge with no reported confidence takes
+$s_e=0$ and is therefore \emph{more} precise than one with a report, since absence of a
+measurement is not evidence of noise.
+
+\emph{Not the coupling weight.} An earlier implementation substituted each edge's Hebbian
+co-activation strength for $\pi_e$, on the reading that a more strongly bound coalition
+should be trusted more. That is a type error: a co-activation count and an inverse
+variance carry different units and different provenance, and the substitution is
+detectable only by checking the derivation, since both quantities are positive and
+roughly monotone in ``how much we like this edge''.
+\end{remark}
 
 \begin{proposition}[Weighted Anderson--Morley]\label{prop:wam}
 Let $\pi_e\ge0$, $\Pi=\diag(\pi_e)$, $L_\pi=\delta^\top\Pi\delta$, and let the

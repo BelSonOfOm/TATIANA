@@ -1390,14 +1390,29 @@ Under the reading the engine implements, the algebra is **nearly free** (9% belo
 **Tests:** `coherence.py` 15/15 · `mos_coarse_complex_tests` 12/12 ·
 `mos_pi_fusion_tests` 6/6 · `mos_kernel_tests` PASS. No regressions, no new warnings.
 
-**NEXT — blocking, and it is a modelling decision, not a computation: CHOOSE THE
-CATEGORY** (audit F10). Both candidates the book offers fail: in Hol(𝒟) every Gaussian
-concept is a *simple* module (k[x] is simple over the Weyl algebra in char 0), so
+> **🚨 THE "NEXT — BLOCKING" LINE THAT WAS HERE IS RETRACTED (2026-07-31).** It read
+> *"blocking, and it is a modelling decision, not a computation: CHOOSE THE CATEGORY"* and it
+> **was already superseded when it was written** — `MEMORY_MODEL_TWO_COMPLEX.md` dissolved F10
+> the same day (2026-07-27), and §5r's two-complex decision removed the dependency entirely.
+> It sat here for four days making settled work look blocked. **See §5aa.**
+>
+> **The reasoning below stands as a dead-end record; only the claim that it BLOCKS anything is
+> withdrawn.** F10 is **dissolved, not answered**: the two-complex model does not require
+> memories to have canonical atoms, so it needs neither Jordan–Hölder, K₀, nor Ext¹.
+> Retrieval is **geometric, not algebraic** — the k-fold closed star of the seed set (`ι*`),
+> budget-gated on k, returning a *complex* rather than a top-n list. No canonical index is
+> required anywhere, which is why K₀ was never needed.
+>
+> **Lesson, third time recorded: a superseded "NEXT — BLOCKING" line is worse than no line,
+> because it re-blocks work that was already unblocked.**
+
+**THE DEAD END, FOR THE RECORD** (audit F10). Both candidates the book offers fail: in Hol(𝒟)
+every Gaussian concept is a *simple* module (k[x] is simple over the Weyl algebra in char 0), so
 JH(M)={[M]}, length 1, and the K₀ class says no more than "which memory is this"; in
 Rep(Q) the K₀ class *is* the dimension vector, which collides catastrophically as a
 retrieval index. §29–32 of the book argue in one category, §33–37 in the other, §47 in
 neither. Jordan–Hölder guarantees canonicity **given** the category; it cannot pick the
-atoms. Discuss before any more memory-schema work.
+atoms.
 
 ## 5v. ⭐ E5 RUN (2026-07-29). ⚠️ **THE "FAIL" BELOW IS RETRACTED — see §5w.**
 
@@ -2809,6 +2824,40 @@ are `measure_sigma_dir`, `pi_v` and `validate_regime` — **all measurement scri
 > upgrade*, not a working mechanism. Of §0.2's five claims it touches **growth**, and only the
 > `merge` quarter of it. This does not make V6's result less true; it makes it less blocking.
 
+## 5am. ✅ THE FOUR PRE-PHASE-2 BLOCKERS, CLOSED (2026-07-31)
+
+Charbel: *"do all four, not in a cheap way, in a way that matters."* Done. **Phase 2 is
+unblocked.** C++ suite **14/15** (`mos_colibri_tests` exit 3 is the known FIX-16 red and predates
+this work); Python parity checks pass.
+
+| | what shipped | the part that mattered |
+|---|---|---|
+| **E7** | `AssemblyLog` ported to C++; `record()` before `Operad::run`, `close()` after ρ is re-measured | **`canonical_signature` had to be byte-identical or every recurrence count splits silently across two keys with nothing failing.** Ported statement-by-statement (front-pop, back-append, stable re-sort; edge strings sort *lexicographically*, so `0>10` precedes `0>2` — invisible under 10 nodes). 6 cases duplicated in `check_signature_parity.py` with the same expected strings on both sides, so changing one implementation breaks the other's test. **Verified: both emit identical strings.** |
+| **ε** | `ε_ρ` (`eps_rho`) across 9 files | Renamed the ε that EXISTS *before* `ε_flow` arrives, so there is no name left to collide with. Doing it after would mean two live meanings of one identifier and a rename under load. |
+| **FIX-12** | `MOS_FINALIZATION.md` D.3 normative block; Q10/Q11 re-specified | The retracted schema is marked **retracted, not deprecated** — `η = p_v(c_uv) − p_u(c_uv)` is antisymmetric *by construction*, and `η` is now never reported directly, so no downstream step can re-symmetrise it. |
+| **π_e** | `edge_precision.{hpp,cpp}` ported; `CoarseComplex::precision_` map | The regression test is the real deliverable: **`use_precision` with no π_e set must now change nothing.** Before, it silently reweighted by coupling and moved the blame — which is exactly how a Hebbian count masqueraded as an inverse variance. Precisions deliberately do NOT share storage with `weights_`. Parity: 233.95225871270583 / 250.0, C++ and Python. |
+
+### ⚠️ NOT FAKED, STATED
+- **`verified` in the E7 record stays NULL.** Construction 3 says coherence ≠ correctness, so
+  inferring VERIFIED from a ρ improvement would fabricate the very evidence the promotion gate
+  exists to supply. **Routing VerifyOp's real outcome is owed.**
+- **Nothing yet produces per-edge confidences.** Q9's contract is unimplemented, so π_e currently
+  reduces to `1/(D_u+D_v)`. The wiring is there to receive them; the source is not built.
+- **`plan_foliation` is exact only while `get_support()` is stable across `apply()`** — true today,
+  not enforced by the interface. So `Operad::run` returns the foliation it *actually* executed and
+  the kernel writes a mismatch into the record's `note` rather than assuming.
+- **Absent measurements serialise as `null`, never `0.0`**, or a composite that was never measured
+  would read as one that reliably did nothing.
+
+### 🆕 FIX-17 (M) — FOUND WHILE PROPAGATING FIX-12, NOT FIXED
+`.tex` Remark~\ref{rem:uncal} still says the grown-concept noise floor is **`D = −ln c`**, with no
+`1/d`. **FIX-13 established the floor must be `O(1/d)`** (trace `O(1)`), which is what `belief.py`
+and the C++ `stalk_floor` now implement, and what the new Remark `rem:pie` uses for `s_e = −ln c/d`.
+**So the `.tex` carries the pre-FIX-13 scaling and now contradicts its own neighbouring remark.**
+Deliberately NOT fixed here: the honest fix needs a check of whether the engine's
+`UNCALIBRATED_VARIANCE_PRIOR = 1.0` is *also* wrong under FIX-13, which is an investigation rather
+than a text edit, and it is outside FIX-12's scope. **Do not quote `D = −ln c` until this closes.**
+
 ## 5al. ⭐ HANDOFF — STATE AT END OF 2026-07-31. READ THIS FIRST IN A NEW CHAT.
 
 **§7's run sheet is STALE (written 2026-07-27, Phase 0 is done). Read this section instead.**
@@ -2854,16 +2903,23 @@ optimum, which undercuts *every* partition-based organ definition and argues for
 > length scale, deletes a hand-set threshold — with HK agreement **monitored, not claimed**.
 
 ### 📋 NEXT, DEPENDENCY-ORDERED (supersedes every earlier "NEXT" in this file)
-**Do first — gets worse by waiting:**
-1. **E7 at engine level.** `assembly_log.py` exists but is NOT wired into the tick. The registry says
-   assembly data is *"impossible to recover later"* — every tick run without it is data permanently lost.
 
-**Cheap, each unblocks a specific Phase-2 item:**
-2. **ε rename** → `ε_flow` (step size) vs `ε_ρ` (RESOLVE threshold). Before the curvature controller, or it is a bug.
-3. **FIX-12 propagation** into `MOS_FINALIZATION.md` (Q9/Q10/Q11) and the `.tex`. Fold in the stale
-   **Q2b 🔴** marker and §5t's stale *"CHOOSE THE CATEGORY"* NEXT line at the same time.
-4. **Confidence → π_e wiring.** `edge_precision.py` derives it; nothing calls it yet. `CoarseComplex::set_use_precision`
-   still uses **the coupling weight as π_e — the type error §5af isolated.** Replace it.
+> ## ✅ ALL FOUR PRE-PHASE-2 BLOCKERS CLOSED (2026-07-31, later same day). §5am has the detail.
+> **Phase 2 is unblocked. Items 1–4 below are DONE and kept only for the record.**
+
+1. ✅ **E7 at engine level — DONE.** `AssemblyLog` ported to C++ (`assembly_log.{hpp,cpp}`),
+   recording bracketed around `Operad::run` inside `execute_dag`. `canonical_signature` is
+   byte-identical to the Python across 6 shared cases (`check_signature_parity.py`).
+   **No tick loses assembly data any more.**
+2. ✅ **ε rename — DONE.** `ε_ρ` everywhere (`eps_rho`), 9 files, zero stale references.
+   `ε_flow` has no name left to collide with when the curvature controller lands.
+3. ✅ **FIX-12 propagation — DONE.** `MOS_FINALIZATION.md` D.3 carries the normative correction;
+   Q10/Q11 re-specified to `{u, v, sub_claim, push_u, push_v, confidence}`; the stale **Q2b 🔴**
+   and §5t's *"CHOOSE THE CATEGORY"* NEXT line are both retracted in place.
+4. ✅ **Confidence → π_e — DONE.** `edge_precision.py` ported to C++; `CoarseComplex` stores
+   precisions in their own map and **no longer reads the coupling weight as π_e**. A regression
+   test asserts that `use_precision` with no π_e set changes nothing — which is precisely what
+   the type error used to violate.
 
 **Phase 2 proper (all questions answered; realistic scope: days):**
 5. Householder maps (m=4) → LSQR Hodge split → `F_MOS` + the barrier controller → PPR instantiation

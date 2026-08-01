@@ -202,7 +202,10 @@ restriction maps: L stays symmetric PSD, ker L = H⁰, ρ keeps its bound. The Q
 **Q2 ✅ ANSWERED: tangent-space linearised.** Karcher mean each tick, lift via log, run the
 existing apparatus in the tangent space, map back. E12 tests whether it earns its cost.
 
-**Q2b 🔴 NEW, RAISED BY Q1's ANSWER — linearised in WHICH geometry?**
+**Q2b ✅ ANSWERED (2026-07-27) — linearised in WHICH geometry?** *(Raised by Q1's answer. The
+🔴 on this heading was stale for four days while the answer sat 25 lines below it — see the
+dispatch rule at the end of this subsection. A superseded open-marker is worse than no marker,
+because it makes settled work look blocking; corrected 2026-07-31.)*
 
 MOS currently uses **two different Riemannian structures on the same objects**:
 
@@ -359,16 +362,44 @@ decay to, but never below, the point of collapse.
 
 ## D.3 The organ contract (blocks E5, the gate)
 
-**Q9 ✅ ANSWERED (2026-07-27): a scalar in [−1,1] plus a confidence.** η is one-dimensional per
-edge — cheap, and enough for the Hodge split to be meaningful. **The confidence feeds π_e
+> ### 🚨 FIX-12 — Q9/Q10/Q11 BELOW WERE THE WRONG TYPE. NORMATIVE CORRECTION (2026-07-31).
+> **A symmetric `agreement` cannot be a 1-cochain.** A 1-cochain is *antisymmetric*
+> (`η_(u,v) = −η_(v,u)`), and antisymmetrising a symmetric table gives **η ≡ 0 identically** —
+> so the Hodge split would have run on the zero cochain and reported a clean result forever.
+> This is now an assertion in `experiment_e5.py`'s self-test so it cannot silently return.
+>
+> **THE CONTRACT, as implemented and shipped in `experiment_e5.py`:** per bound pair `{u,v}`,
+> the instrument returns the sub-claim `c_uv` *those two organs jointly bear on*, plus **each
+> organ's own push** on it, and
+> > `η_(u,v) = p_v(c_uv) − p_u(c_uv)`
+>
+> **η is therefore antisymmetric BY CONSTRUCTION, not by measurement.** No antisymmetrisation
+> step is applied or needed. The old `{u, v, agreement, confidence}` schema is **retracted, not
+> deprecated** — do not implement it.
+>
+> **What survives unchanged:** Q9's *dimension* answer (η is one scalar per edge, which is all the
+> Hodge split needs) and the confidence channel. **The `.tex` inherits this correction**, as does
+> §7. Retraction recorded in `TATIANA_LOGBOOK.md` §5y and the fix registry.
+
+**Q9 ✅ ANSWERED (2026-07-27), then RE-TYPED by FIX-12 (2026-07-31): one scalar per edge plus a
+confidence — but the scalar is a DIFFERENCE OF PUSHES, not an agreement.** η is one-dimensional
+per edge — cheap, and enough for the Hodge split to be meaningful. **The confidence feeds π_e
 directly, which finally gives precision a non-constant source that is not a hallucinated
-logprob** (the gap Remark 6.6 of the `.tex` leaves open and audit finding on the 1/n law
+logprob** (the gap Remark 6.6 of the `.tex` leaves open and the audit finding on the 1/n law
 identifies as disabling the whole π_v mechanism).
+*Engine status (2026-07-31): `core::edge_precision()` now derives `π_e = 1/(D_u + D_v + s_e)`
+with `s_e = −ln(c)/d`, and `CoarseComplex::set_edge_precision` accepts it. **Nothing yet produces
+the confidences `c` — this contract is the missing source**, so `π_e` currently reduces to
+`1/(D_u + D_v)`.*
 
-**Q10 🔴 Which pairs are judged?** → *Default: only bound pairs (edges of W)*, not all pairs.
+**Q10 ✅ SETTLED BY FIX-12 — only bound pairs are judged**, since η is defined per bound pair
+`{u,v}` via a *shared sub-claim*, and an unbound pair has no such claim to be pushed on. What was
+a default is now forced by the contract's type.
 
-**Q11 🔴 Batched output schema?** → *Default: one call, JSON list of `{u, v, agreement, confidence}`.*
-Mandatory per A14.
+**Q11 ✅ RE-SPECIFIED BY FIX-12 — the schema is
+`{u, v, sub_claim, push_u, push_v, confidence}`**, one call, batched, mandatory per A14.
+**NOT `{u, v, agreement, confidence}`.** `η` is computed as `push_v − push_u`; it is never
+reported directly, so no downstream step can accidentally symmetrise it.
 
 **Q12 🟢 Do organs judge, or does one moderator judge on their behalf?**
 → *Default: organs judge.* A single moderator would make η a function of one global view, which
