@@ -63,6 +63,7 @@ set(SOURCES
     src/core/instantiate.cpp
     src/core/two_complex.cpp
     src/core/coning.cpp
+    src/core/rank_k_stalk.cpp
     src/core/householder.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
@@ -148,6 +149,11 @@ target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 # python/hodge.py so the two implementations cannot drift together.
 add_executable(mos_hodge_tests tests/test_hodge.cpp)
 target_link_libraries(mos_hodge_tests PRIVATE mos_core)
+
+# Phase-2 item 8: rank-k SPD stalks. Checks Woodbury against a dense solve and
+# that orthogonal congruence preserves form, trace and spectrum.
+add_executable(mos_rank_k_stalk_tests tests/test_rank_k_stalk.cpp)
+target_link_libraries(mos_rank_k_stalk_tests PRIVATE mos_core)
 
 # Phase-2 item 7: coning off cycles. Measures that it kills exactly one class,
 # and that the rejected chord alternative makes b1 WORSE.
