@@ -2824,6 +2824,71 @@ are `measure_sigma_dir`, `pi_v` and `validate_regime` — **all measurement scri
 > upgrade*, not a working mechanism. Of §0.2's five claims it touches **growth**, and only the
 > `merge` quarter of it. This does not make V6's result less true; it makes it less blocking.
 
+## 5an. 🏁 PHASE 2 IS CLOSED (2026-08-01). All nine items built, tested, committed.
+
+Charbel: *"finish phase 2, take all the time you need, but let's end phase 2."* Done.
+**C++ suite 21/22** (`mos_colibri_tests` exit 3 is the known FIX-16 red and predates all of this);
+Python parity and instrument checks pass.
+
+| # | item | where | what it actually establishes |
+|---|---|---|---|
+| 1 | Householder maps (m=4) | `householder.{hpp,cpp}` | 96× storage cut (12 KB vs 1.15 MB); **exactly** orthogonal, not to tolerance (7.1e-15 at d=384); `det = (−1)^m` ⇒ m=4 lands in SO(d) |
+| 2 | Hodge split via LSQR | `hodge.{hpp,cpp}` | matrix-free; **parity with `hodge.py` to 1e-12** in both uniform and π-weighted inner products; Pythagoras enforced, not hoped |
+| 3 | `F_MOS` + barrier | `curvature.{hpp,cpp}` | exact degradation to `4−deg u−deg v+3m`; barrier makes severing **structurally impossible** |
+| 4 | PPR instantiation | `instantiate.{hpp,cpp}` | **132 pushes at \|V\|=50, 500 AND 5000** — ACL size-independence measured, not cited; cut weight first-class |
+| 5+6 | 𝕂/W split + γ(ν) | `two_complex.{hpp,cpp}` | `ι*ι_! = id` asserted; Q rises 0 → 2.34; refuted sessions leave 𝕂 **bit-identical** |
+| 7 | Coning off cycles | `coning.{hpp,cpp}` | kills **exactly one** class per attachment; the rejected chord makes b₁ **worse** (1→2) |
+| 8 | rank-k SPD stalks | `rank_k_stalk.{hpp,cpp}` | Woodbury exact vs dense; congruence preserves form, trace **and spectrum** ⇒ unitary CPTP is a fact, not an analogy |
+| 9 | Construction 5 | `cover.py`, `test_cover.py` | the **instrument** validated on known ground truth, both directions |
+
+### 🔬 SIX FINDINGS THE DERIVATIONS DID NOT HAVE
+1. **⚠️ `5ad`'s positivity claim is false in floating point.** Exponential integration makes positivity
+   "structural" only in *exact arithmetic*: `exp` underflows to exactly 0 below ≈ −745, so
+   `ε_flow·κ = −1e5` severs the edge anyway — silently, and to zero rather than to something
+   negative anyone would notice. **The barrier does not have this failure mode**, and structurally
+   so: it *adds* the floor rather than multiplying, so an underflowed decay lands **on** `θ_safe`.
+   **⇒ bare exponential integration is NOT sufficient; only the barrier's guarantee survives float.**
+2. **⚠️ `5ac`'s low-precision prediction is CONFIRMED, in the direction it feared.** On the bridge
+   (A,D), `F(π) = 2 − 3√π` exactly, so the edge runs from −1 (EXPAND, correct for a bridge) to +2
+   (CONTRACT) as `π → 0`. **An edge we know nothing about gets folded away for being uninformative.**
+   Also: the approach is **not monotone** in general — on a filled edge `F` dips below its unit value
+   first. 5ac predicts the *limit*, not the path.
+3. **⚠️ The m=4 Householder family is NOT CLOSED under γ(ν) crystallisation.** A convex combination
+   of two products-of-4-reflections is not orthogonal, and the SVD projection back gives a general
+   orthogonal matrix needing up to `d−1` reflections. **The literal `Π_O(d)(R + γΔR)` cannot be
+   applied in the representation item 1 ships.** Both retractions are provided and they differ by
+   2.96 at γ=0.5 — a modelling choice, not an approximation of one by the other.
+4. **⚠️ A store starting as the constant sheaf could not learn at all.** Every `R^𝕂_e` is the
+   identity, which has **no reflection vectors**, so there was nothing to interpolate *from* and
+   crystallisation was a no-op for every `γ < 0.5` — while `γ₀ ≪ 1` by design. Fixed via
+   `H_v H_v = I`: the identity has many m-reflection representations, so the shorter map is padded
+   with cancelling duplicate pairs. **Falling out of it: reflection-count PARITY is a topological
+   obstruction** — `det = (−1)^m`, so maps of differing parity lie in different components of O(d)
+   and no continuous path joins them. `crystallise` refuses rather than jumping.
+5. **⚠️ Q13's chord is worse than "relocates".** Q13 says a chord *"often relocates a class rather
+   than killing it"*. Measured: on a 4-ring it splits one cycle into two and fills neither, so
+   **b₁ goes 1 → 2**. A growth loop built on chords would not spin — it would diverge.
+6. **⚠️ Noisy-OR without a leak is degenerate.** With all organs off, `P(concept fires) = 0`
+   exactly, so any tick where a concept fires while the model thinks every cause is silent has
+   likelihood zero. Not merely `0·(−∞) = NaN`: it says **the model must explain every co-activation
+   or be infinitely surprised.** A leak node is the standard answer and the honest one — concepts
+   fire for reasons outside the organ decomposition, and the model must be able to say so rather
+   than invent an organ for every stray activation.
+
+### 📋 WHAT PHASE 2 DOES *NOT* CLAIM
+- **Construction 5 has not been run on MOS's corpus.** The instrument recovers a planted organ
+  count and calls cover-data a cover *and* partition-data a partition — but **T1–T3's verdict about
+  this project needs accumulated E7 records, and the tick only began producing them yesterday.**
+- **`verified` in the E7 record is still NULL.** Coherence ≠ correctness (Construction 3), so
+  inferring it from a ρ improvement would fabricate the promotion gate's own evidence.
+  **Routing VerifyOp's real outcome is owed.**
+- **Nothing yet produces per-edge confidences**, so `π_e` reduces to `1/(D_u+D_v)`. Q9's contract
+  is specified (FIX-12) and unimplemented.
+- **The nine items are built and unit-tested; they are not yet composed into a running tick.**
+  Wiring them into `execute_dag` is Phase 3, not Phase 2.
+- **FIX-17 is open** (`.tex` still carries the pre-FIX-13 `D = −ln c`).
+- **V7 (τ_f) still runs alongside**; τ_f = 1 remains a working value, not a closure.
+
 ## 5am. ✅ THE FOUR PRE-PHASE-2 BLOCKERS, CLOSED (2026-07-31)
 
 Charbel: *"do all four, not in a cheap way, in a way that matters."* Done. **Phase 2 is
@@ -2921,15 +2986,17 @@ optimum, which undercuts *every* partition-based organ definition and argues for
    test asserts that `use_precision` with no π_e set changes nothing — which is precisely what
    the type error used to violate.
 
-**Phase 2 proper (all questions answered; realistic scope: days):**
-5. Householder maps (m=4) → LSQR Hodge split → `F_MOS` + the barrier controller → PPR instantiation
-   → 𝕂/W split → γ(ν) → coning → rank-k SPD stalks in C++.
-6. **★ Phase-2 item 9 (NEW, 2026-07-31) — Construction 5, the derived cover** (§3). **It is PARALLEL
-   to the chain above, not serial**: the cover is fitted from co-activation alone and touches no stalk
-   geometry (that is constraint C1, and T14 enforces it), so it does **not** wait on rank-k SPD stalks
-   or the Hodge split. **It waits on E7 and nothing else.** Order inside the item is forced by the
-   test tiers: **E7 into the tick → fit `θ` over a few hundred ticks → TIER 0 (T1–T3), which can kill
-   it cheaply → only then Tier 1, then the topology half.** Do not write PH code before T1 passes.
+**Phase 2 proper — ✅ ALL NINE ITEMS SHIPPED 2026-08-01. See §5an for the close-out.**
+5. ✅ Householder maps (m=4) → ✅ LSQR Hodge split → ✅ `F_MOS` + barrier → ✅ PPR instantiation
+   → ✅ 𝕂/W split → ✅ γ(ν) → ✅ coning → ✅ rank-k SPD stalks in C++.
+6. ✅ **Phase-2 item 9 — Construction 5's instrument** (`cover.py`), validated on known ground truth
+   in both directions. **Its verdict about THIS corpus is still owed** and needs accumulated E7
+   records; the tick only began producing them on 2026-07-31.
+
+**NEXT IS PHASE 3, AND IT IS COMPOSITION, NOT CONSTRUCTION.** The nine items are unit-tested in
+isolation; none of them is called from `execute_dag` yet. Phase 3 is wiring them into a running tick
+— and the first thing to wire is the one that produces data the others need: accumulate E7 records,
+then run Construction 5's Tier 0 against them.
 
 **Owed, not blocking:**
 FIX-7/8/9 (docs) · FIX-15 (E5 significance overstated ~4×; fix before quoting the p-value) ·
