@@ -2992,6 +2992,23 @@ Pinned by `test_tick_record.cpp`, and each assertion guards a failure that would
 - **`clear_tick_activation` actually clears**, or tick *t* inherits *t−1* and the assembly matrix
   accumulates instead of sampling.
 
+### STAGE 2 — the accumulation driver, and a costing error it corrects
+`accumulate.py` + `tasks_sample.txt`. Drives the engine until there are enough E7 ticks for
+Construction 5's Tier 0.
+
+> **🚨 THE PLANNING WAS COSTED WRONG.** The logbook's *"47 events/day"* is the **quadratic pairwise
+> judgement** cost — n=7 organs ⇒ 21 calls per tick. **Tier 0 needs none of that.** It needs
+> *assemblies*, and an assembly comes from SearchOp's retrieval, whose geometry is embedded
+> **locally** by `embeddings.py` (bge-small, 384-d, ONNX). Only ReasonOp's `generate_thought`
+> reaches Groq. **So a SEARCH-only accumulation run makes ZERO API calls and is bounded by CPU, not
+> by quota.** That is why the driver builds its DAGs directly rather than going through
+> `Communicator.pi_morphism`, which would spend a completion per tick planning a shape we already
+> know.
+
+**⚠️ THE VALIDITY COST OF THAT CHOICE, STATED IN THE FILE ITSELF:** a SEARCH-only corpus describes
+MOS's **retrieval** structure, not its **reasoning**. Tier 0 passing on it is a statement about
+retrieval co-activation, and must not be quoted as one about reasoning.
+
 ### STAGE 3a — the bridge, and a det = −1 trap that would have passed every test
 Operators act on `CognitiveState` (a `SimplicialComplex` + sheaf); every Phase-2 item is built on
 `hodge::Complex2`. **Two parallel representations of "the complex" with nothing joining them —
