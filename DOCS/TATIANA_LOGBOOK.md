@@ -2948,6 +2948,109 @@ home per Q9. **So FIX-17 was pure documentation lag, not a live defect.**
 isotropic traces of `−ln(0.95)·d ≈ 19.7` and `1.0·d = 384`, against a semantic budget of `4`.
 The shrinkage floor gives `0.88`.
 
+## 5ao. ✅ V7 RUN — τ_f IS NO LONGER A PLACEHOLDER, AND τ_f=1 WAS A 280× HAZARD (2026-08-01)
+
+`python/experiment_v7.py`. Charbel refused to let τ_f=1 be closed by declaration. It is now closed
+by measurement. **All checks pass; the headline is a finding nobody predicted.**
+
+### ROUTE (a) IS MOOT — and saying so is part of the answer
+V7 offered two routes. Route (a) — derive τ_f from a **time-lagged** residual, BCM-style — existed
+**only because τ_f-from-the-residual was believed circular.** §5ag retracted that: the adjoint is
+`(δ¹)* = W₁⁻¹(δ¹)ᵀW₂`, and `W₂` positive-definite ⇒ **onto** ⇒
+`im(W₁⁻¹(δ¹)ᵀW₂) = im(W₁⁻¹(δ¹)ᵀ)`. An invertible map does not change an image, so τ never reaches
+the curl subspace. With the circularity withdrawn, τ_f already has a non-circular derivation from
+`π_e` one dimension up. **There is nothing left for a time-lagged estimator to repair.** Route (a)
+is not skipped — *its premise was withdrawn.*
+
+### ROUTE (b) DISCHARGED, AND THE EMPIRICAL HALF HAD NEVER BEEN RUN
+§5ag proved W₂-independence analytically and checked **six random `W₂`**. That is not the same as
+checking it *at the τ_f the system actually derives, on the π_e the engine actually produces* —
+and until FIX-13 + the π_e wiring, **π_e was uniformly 1, so τ_f was 1 and nothing was ever
+evaluated off the degenerate point.**
+
+| measured on E5's complex, π_e from `edge_precision` at n_eff ∈ {1, 8, 40, 100} | |
+|---|---|
+| π_e spread | 203.18 … 478.63 (**2.36×**, genuinely non-uniform) |
+| **τ_f derived** | **281.95** — not 1. The placeholder is escapable |
+| τ_f at unit π | **1.000000 exactly** — day-one degradation intact |
+| grad/curl/harm fractions, `W₂=I` vs `W₂=diag(τ_f)`, 200 cochains | **worst Δ = 5.55e-16** |
+| the harmonic vector itself (**the growth address**) | **worst Δ = 6.66e-16** |
+| invariance across τ ∈ [1e-6, 1e6] | worst Δ = 8.88e-16 |
+
+> **⇒ E5's growth-story evidence (§5x) SURVIVES a non-identity C² weighting**, verified at the
+> derived τ rather than at random matrices. §5x is not re-based.
+
+### 🚨 THE FINDING: τ_f = 1 WAS SAFE ONLY WHILE π_e WAS ALSO 1
+`F_MOS`'s coface term is `π_e²·Σ_f 1/τ_f`, so pinning τ_f=1 scales it by **τ_f itself**:
+
+| `F_MOS(A,B)` with derived π_e | value |
+|---|---|
+| τ_f derived (281.95) | **147.60** |
+| τ_f pinned to 1 | **41 283.86** |
+| distortion | **≈ 280× (27 871 %)** |
+
+**Shipping derived `π_e` while leaving `τ_f = 1` would have been a two-orders-of-magnitude error in
+curvature** — and it gets *worse* as stalks sharpen, since τ_f scales with π_e. τ_f=1 was never a
+conservative default; it was only ever correct at the point where π_e=1 too.
+
+**The C++ engine is structurally immune, and that is by design, not luck.** `core::forman_mos`
+takes only `pi` and `nu` and derives τ internally via `tau_face` — **there is no parameter through
+which the two can be decoupled.** (Python's `forman_mos` *does* accept a `tau_f` override, which is
+how the hazard was measurable at all.) Pinned by `test_curvature.cpp`
+`test_tau_cannot_be_decoupled_from_pi`.
+
+### DRIFT (route (a)'s live worry) — bounded by construction
+τ_f is a harmonic mean of `{π_e}`, so it is bounded by min/max π_e identically. Over 40
+(n_eff, confidence) combinations spanning n_eff ∈ [1, 1000] and c ∈ {none, 0.99, 0.9, 0.6, 0.3}:
+**τ_f ∈ [177.01, 498.70]**, finite and positive throughout. No drift mechanism exists.
+
+### ⚠️ COULD NOT VERIFY (stated, not buried)
+**E5's complex has exactly ONE filled triangle, so exactly one τ_f exists.** A complex with several
+triangles *sharing edges* could in principle couple their τ_f's; nothing here tests that and
+nothing here claims it. That is the honest limit of this run.
+
+> **⇒ V7 CLOSED. `τ_f` is a derived quantity with exact day-one degradation, certified
+> non-load-bearing for E5 and demonstrably load-bearing for curvature.**
+
+## 5an. ✅ FIX-16 CLOSED — and it immediately found two real bugs (2026-08-01)
+
+The test could not diagnose its own failure, so **three** situations produced one opaque abort:
+no server (should pass), reachable but 401/429 (should *skip* — an environment fact), and a 2xx we
+cannot parse (should *fail* — our defect). Only the third is a defect, and it was the one case the
+test could not name.
+
+**Root cause was in the kernel, not the test.** `http_post` **never queried the HTTP status** — it
+returned the body whether that body was a completion or an error, so a 404 was parsed as if it were
+a completion. Added `ColibriHttpException` carrying status and body as **structured fields**, with
+`is_credential_or_quota()` so callers can separate "this environment cannot reach the provider"
+from "our request is wrong". Two more copies of the same pathology followed from it:
+`generate_thought` caught, logged, and returned an **empty thought**; the latent fetch was a bare
+`catch(...)`. Both now propagate or report.
+
+### 🚨 BUG 1 — THE ENGINE COULD NEVER REACH GROQ
+`main.cpp` and the test both set `host = api.groq.com` **while leaving the OLLAMA routes in place**,
+so every completion 404'd with *"Unknown request URL: POST /v1/chat/completions"*. Groq serves the
+OpenAI-compatible API under an **`/openai`** prefix — which `python/router.py` had right all along.
+**Nothing noticed, because the 404 body was parsed into an empty thought.** Added
+`ColibriConfig::groq()` so the provider's URL shape is stated **once**; two call sites independently
+getting it wrong is precisely how this happened. **The engine now gets real completions from Groq
+for the first time** (measured: a 1641-char reasoning chain).
+
+### 🚨 BUG 2 — THE TEST'S CONTRACT WAS WRONG, AND THAT IS WHAT MADE IT PERMANENTLY RED
+It required a **non-empty latent**. But concept geometry is computed **locally in Python** and
+carried across the adjunction boundary as the FlatBuffers `geometry` field — `kernel.cpp` says so
+outright: *"Operators use this instead of fetching embeddings remotely."* A completions-only
+provider has no embeddings for us (Groq rejects the Ollama default `nomic-embed-text` with a 404),
+so **an empty latent is CORRECT**, and downstream it means the organ stays **IDLE** rather than
+zero-filled. The test now checks what it is actually for — the completions path returns 2xx with a
+usable reasoning chain — and exercises curation only when geometry actually arrived, rather than
+testing the zero-fill path the architecture deliberately refuses to have.
+
+**Skips are counted separately from passes**, so a run that never exercises the live path cannot be
+mistaken for one that did.
+
+> ### ⭐ THE SUITE IS 22/22 WITH ZERO RED — the first time in the project's history.
+
 ## 5al. ⭐ HANDOFF — STATE AT END OF 2026-07-31. READ THIS FIRST IN A NEW CHAT.
 
 **§7's run sheet is STALE (written 2026-07-27, Phase 0 is done). Read this section instead.**

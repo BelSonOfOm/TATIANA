@@ -203,6 +203,52 @@ void test_low_precision_prediction_confirmed_and_it_is_a_worry() {
               << " -> " << f01 << " -> 2)\n";
 }
 
+// V7 (2026-08-01). The experiment found that pinning tau_f = 1 WHILE pi_e is
+// derived distorts F_MOS by a factor of tau itself -- 147.6 vs 41284 on E5's
+// complex, ~280x. tau_f = 1 was safe only while pi_e was also 1; the moment
+// pi_e became derived, tau_f = 1 stopped being a conservative placeholder and
+// became a two-orders-of-magnitude error.
+//
+// This API makes that impossible: forman_mos takes pi and nu, and derives tau
+// internally via tau_face, so there is no parameter through which the two can
+// be decoupled. This test pins BOTH facts -- the magnitude of the hazard, and
+// that the C++ side cannot express it.
+void test_tau_cannot_be_decoupled_from_pi() {
+    const Complex2 cx = e5_complex();
+    CurvatureWeights w = CurvatureWeights::unit(cx);
+    // Realistic non-uniform precisions, of the scale edge_precision() produces
+    // from O(1/d) stalk floors: pi ~ 1/(D_u + D_v) with D ~ 1e-3, so a few
+    // hundred. These are the exact values python/experiment_v7.py measured.
+    const std::vector<double> pis{203.181, 425.013, 297.124, 300.493, 478.629};
+    w.pi = pis;
+
+    // The triangle is (A,B,C), i.e. edges 0,1,2. tau is its harmonic mean.
+    const double tau_derived = tau_face({pis[0], pis[1], pis[2]});
+    assert(tau_derived > 100.0 && tau_derived < 1000.0);
+
+    // THE HAZARD, quantified: the coface term is pi_e^2 * sum_f 1/tau_f, so
+    // pinning tau to 1 would scale that term by tau_derived -- ~280x here.
+    // It is not a nudge, and it grows as the stalks get sharper.
+    const double coface_derived = pis[0] * pis[0] / tau_derived;
+    const double coface_pinned = pis[0] * pis[0];
+    assert(close(coface_pinned / coface_derived, tau_derived, 1e-9));
+    assert(coface_pinned / coface_derived > 100.0);
+
+    // AND THE STRUCTURAL POINT: forman_mos takes only pi and nu. There is no
+    // tau parameter, so the decoupling above cannot be expressed against this
+    // API at all -- tau is always the harmonic mean of the SAME pi used in the
+    // rest of the formula. (Python's forman_mos does accept a tau_f override,
+    // which is how experiment_v7.py was able to measure the hazard.)
+    const double f_derived = forman_mos(cx, 0, w);
+    const double f_unit = forman_mos(cx, 0, CurvatureWeights::unit(cx));
+    assert(std::fabs(f_derived - f_unit) > 1.0 &&
+           "derived precisions must actually move the curvature");
+
+    std::cout << "  [ok] V7: tau=" << tau_derived << ", so pinning it to 1 would inflate "
+              << "the coface term " << (coface_pinned / coface_derived)
+              << "x -- and the API cannot express that\n";
+}
+
 void test_forman_refusals() {
     const Complex2 cx = e5_complex();
     bool threw = false;
@@ -373,6 +419,7 @@ int main() {
     test_degradation_holds_on_random_complexes();
     test_weights_move_the_number();
     test_low_precision_prediction_confirmed_and_it_is_a_worry();
+    test_tau_cannot_be_decoupled_from_pi();
     test_forman_refusals();
 
     std::cout << "=== the barrier controller (Q6, logbook 5ad) ===\n";
