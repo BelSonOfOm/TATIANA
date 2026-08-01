@@ -1,0 +1,7 @@
+# sample task stream for a dry run
+sheaf cohomology of a simplicial complex
+Hodge decomposition on graphs
+persistent homology stability theorem
+Bures-Wasserstein metric on positive definite matrices
+Householder reflections and orthogonal groups
+noisy-OR latent variable models

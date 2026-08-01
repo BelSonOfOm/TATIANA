@@ -92,7 +92,20 @@ class AssemblyEvent:
     wall_time: float
     rho_before: Optional[float] = None
     rho_after: Optional[float] = None
+    # None means NO oracle ran. That is NOT the same as "UNVERIFIABLE", which
+    # means one ran and could not decide. Both reach gamma_nu differently, so the
+    # distinction is preserved rather than flattened at the point of recording.
     verified: Optional[str] = None    # "VERIFIED" | "REFUTED" | "UNVERIFIABLE"
+
+    # Stored concepts retrieved this tick: THE co-activation record, and the only
+    # field here that can be fed to a cover model. `support` on NodeRecord looks
+    # like it should serve and cannot -- it is a foliation-scheduling constant.
+    retrieved: List[str] = field(default_factory=list)
+    # Concepts grown this tick. The birth register, for cover.alive_mask. Each
+    # concept appears exactly once across the whole log, so this is degenerate as
+    # an activation record and must not be substituted for `retrieved`.
+    grown: List[str] = field(default_factory=list)
+
     closed: bool = False
     note: str = ""
 
@@ -183,6 +196,21 @@ class AssemblyLog:
         self._next_handle += 1
         self._open[h] = ev
         return h
+
+    def set_activation(self, handle: int,
+                       retrieved: Sequence[str] = (),
+                       grown: Sequence[str] = ()) -> None:
+        """Attach the tick's co-activation record to an open event.
+
+        Separate from record() because retrieval happens DURING the run while
+        record() fires before it, and separate from close() because close()
+        flushes -- anything set after it would never reach disk.
+        """
+        if handle not in self._open:
+            raise KeyError(f"unknown assembly handle {handle}")
+        ev = self._open[handle]
+        ev.retrieved = list(retrieved)
+        ev.grown = list(grown)
 
     def close(self, handle: int,
               rho_after: Optional[float] = None,

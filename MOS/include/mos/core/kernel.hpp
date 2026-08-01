@@ -3,6 +3,7 @@
 #include "mos/core/assembly_log.hpp"
 #include "mos/core/coarse_complex.hpp"
 #include "mos/core/cognitive_state.hpp"
+#include "mos/core/concept_store.hpp"
 #include "mos/core/operad.hpp"
 #include "mos/core/reflection.hpp"
 #include "mos/core/thread_pool.hpp"
@@ -11,6 +12,7 @@
 #include <memory>
 #include <functional>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace mos {
@@ -42,6 +44,33 @@ struct KernelConfig {
     /// `CriticalityMonitor::eps_rho()` is the auto-calibrated replacement for
     /// this constant; this remains the cold-start value.
     double eps_rho = 0.10;
+
+    /// @brief gamma0: how much of a VERIFIED session's learning crystallises.
+    double gamma0 = 0.05;
+
+    /// @brief eps: the UNVERIFIABLE discount, so gamma = eps*gamma0.
+    double gamma_eps = 0.1;
+
+    /// @brief What gamma to use when NO oracle ran at all.
+    ///
+    /// A DECISION, NOT A DERIVATION -- flagged here rather than buried.
+    /// gamma_nu is defined on three verdicts, and "no VerifyOp was in the DAG"
+    /// is a fourth state it says nothing about. Most ticks are in that state,
+    /// so the choice matters more than it looks:
+    ///
+    ///   true  (default) -- treat it as UNVERIFIABLE, gamma = eps*gamma0.
+    ///       Epistemically these agree: in both cases there is no external
+    ///       grounding, and the store crystallises slowly rather than not at
+    ///       all. This is what makes the loop able to learn during ordinary
+    ///       operation.
+    ///   false -- treat it as gamma = 0, so ONLY externally checked sessions
+    ///       ever move the store. Safer and much stricter; with VerifyOp rare,
+    ///       it means K stays at the constant sheaf almost always.
+    ///
+    /// E7 records the two cases DIFFERENTLY regardless of this flag: NULL for
+    /// "no oracle ran", the string "UNVERIFIABLE" for "one ran and could not
+    /// decide". The distinction is never lost in the data, only in gamma.
+    bool crystallise_unverified = true;
 
     /// @brief Where E7 appends assembly events. Empty disables recording.
     ///
@@ -127,6 +156,33 @@ public:
     /// @brief The E7 recorder, or nullptr when `assembly_log_path` is empty.
     [[nodiscard]] AssemblyLog* assembly_log() noexcept { return assembly_log_.get(); }
 
+    /// @brief K over concepts: the growing co-activation store the tick
+    /// crystallises into. Empty until the first tick that retrieves anything.
+    [[nodiscard]] const ConceptStore* concept_store() const noexcept {
+        return concept_store_ ? &*concept_store_ : nullptr;
+    }
+
+    /// @brief Q(t) = mean ||R^K_e - I||_F^2 over the concept store.
+    ///
+    /// THE ACCEPTANCE TEST FOR THE WHOLE CONSOLIDATION LOOP. Q = 0 is the
+    /// constant sheaf -- every concept means the same thing in every context,
+    /// i.e. nothing has been learned about the wiring. Q leaving zero is the
+    /// first evidence the engine has ever produced that it consolidates.
+    /// nullopt when no store exists yet, which is not the same as Q = 0.
+    [[nodiscard]] std::optional<double> store_Q() const;
+
+    /// @brief Edges crystallised by the most recent tick's i_!.
+    [[nodiscard]] int last_crystallised() const noexcept { return last_crystallised_; }
+
+    /// @brief nu for the most recent tick, or nullopt when NO check ran.
+    ///
+    /// This is gamma_nu's input, and it is the reason the consolidation loop
+    /// could not previously close: with no verdict there is no gamma, so
+    /// i_shriek is never called and Q(t) stays at zero.
+    [[nodiscard]] std::optional<Verdict> last_verdict() const noexcept {
+        return last_verdict_;
+    }
+
 private:
     CognitiveState& state_;
     std::shared_ptr<ReflectionEngine> reflection_engine_;
@@ -140,6 +196,12 @@ private:
     CognitiveMode mode_{CognitiveMode::UNKNOWN};
     std::unique_ptr<AssemblyLog> assembly_log_;
     std::uint64_t tick_count_ = 0;
+    std::optional<Verdict> last_verdict_;
+
+    // Created lazily: the store's dimension is fixed for its life and is only
+    // knowable once a concept with geometry has actually been retrieved.
+    std::optional<ConceptStore> concept_store_;
+    int last_crystallised_ = 0;
 };
 
 } // namespace core

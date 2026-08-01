@@ -62,6 +62,7 @@ set(SOURCES
     src/core/curvature.cpp
     src/core/instantiate.cpp
     src/core/two_complex.cpp
+    src/core/concept_store.cpp
     src/core/coning.cpp
     src/core/rank_k_stalk.cpp
     src/core/householder.cpp
@@ -163,6 +164,21 @@ target_link_libraries(mos_coning_tests PRIVATE mos_core)
 # Phase-2 items 5 & 6: the K/W adjunction (i^* i_! = id) and gamma(nu).
 add_executable(mos_two_complex_tests tests/test_two_complex.cpp)
 target_link_libraries(mos_two_complex_tests PRIVATE mos_core)
+
+# Phase 3 stage 0: what a tick publishes -- nu for gamma_nu, and the
+# co-activation record Construction 5 is fitted to. Both used to be discarded.
+add_executable(mos_tick_record_tests tests/test_tick_record.cpp)
+target_link_libraries(mos_tick_record_tests PRIVATE mos_core)
+
+# Phase 3 stage 3a: the CognitiveState <-> Complex2 bridge, and the even-parity
+# learning rule without which crystallise refuses and Q(t) never leaves zero.
+add_executable(mos_concept_store_tests tests/test_concept_store.cpp)
+target_link_libraries(mos_concept_store_tests PRIVATE mos_core)
+
+# Phase 3 stage 3b: the loop closed end-to-end through execute_dag. Q(t) leaving
+# zero is the first evidence the engine consolidates rather than merely runs.
+add_executable(mos_consolidation_tests tests/test_consolidation_loop.cpp)
+target_link_libraries(mos_consolidation_tests PRIVATE mos_core)
 
 # Phase-2 item 4: PPR instantiation. The ACL size-independence claim is measured.
 add_executable(mos_instantiate_tests tests/test_instantiate.cpp)

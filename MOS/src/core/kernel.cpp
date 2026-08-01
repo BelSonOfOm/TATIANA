@@ -88,6 +88,14 @@ void OSKernel::set_halt_condition(std::function<bool(const CognitiveState&)> con
     halt_condition_ = std::move(condition);
 }
 
+std::optional<double> OSKernel::store_Q() const {
+    // nullopt, not 0.0: "no store yet" and "a store that has learned nothing"
+    // are different states, and collapsing them would make an engine that never
+    // consolidated indistinguishable from one that never ran.
+    if (!concept_store_) return std::nullopt;
+    return const_cast<ConceptStore&>(*concept_store_).store().Q();
+}
+
 CognitiveState& OSKernel::get_state() noexcept {
     return state_;
 }
@@ -191,6 +199,15 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
     // data is impossible to recover later. The event is held open and closed at
     // step 5b once rho has been re-measured.
     ++tick_count_;
+
+    // THE TICK BOUNDARY. Both of these are per-tick accumulators written by
+    // operators during the run, so they must be reset here — before the run and
+    // after the previous tick has been closed — or tick t would inherit tick
+    // t-1's verdict and retrievals. Resetting after the run instead would race
+    // with reading them.
+    state_.clear_tick_verdict();
+    state_.clear_tick_activation();
+
     int assembly_handle = -1;
     Foliation planned;
     std::map<const OperadNode*, int> node_index;
@@ -288,6 +305,94 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
         }
     }
 
+    // 4c. THE CONSOLIDATION LOOP (Phase 3). The spine, closed:
+    //
+    //     retrieved set --> i^*  --> W --> learn R^W --> nu --> gamma --> i_!
+    //
+    // Every piece of this existed and was unit-tested; none of it was reachable
+    // from a tick, because gamma_nu takes a Verdict and no verdict was published.
+    // With VerifyOp routed (step 5b) the chain closes and Q(t) can leave zero.
+    //
+    // ORDER MATTERS: this runs AFTER the operators (they are what retrieves) and
+    // BEFORE E7 closes, so the number of crystallised edges reaches the record.
+    //
+    // The verdict is harvested HERE, not at 5b where it is written to E7. Read
+    // any later and `last_verdict_` would still hold the PREVIOUS tick's value
+    // at the moment gamma is computed, so this tick would crystallise on the
+    // last one's evidence -- silently, and only visibly wrong on the tick after
+    // a refutation.
+    last_verdict_ = state_.tick_verdict();
+    last_crystallised_ = 0;
+    {
+        const auto coactive = state_.tick_retrieved();
+        const auto geometry = state_.tick_geometry();
+
+        if (!coactive.empty() && !geometry.empty()) {
+            if (!concept_store_) {
+                // The dimension is fixed for the store's life, so it is taken
+                // from the first real geometry rather than guessed at construction.
+                concept_store_.emplace(
+                    static_cast<int>(geometry.begin()->second.size()));
+            }
+            try {
+                concept_store_->observe(coactive);
+                Store& K = concept_store_->store();
+
+                // i^*: instantiate the working complex over exactly what this
+                // tick touched. Downward closure is applied inside i_star.
+                Working W = i_star(K, std::vector<HodgeVertex>(coactive.begin(),
+                                                               coactive.end()));
+
+                // THE LEARNING. For each edge of W whose two concepts both
+                // carry geometry, R^W_e is the orthogonal map transporting u's
+                // stalk onto v's -- the sheaf-consistency condition the edge is
+                // supposed to satisfy. An edge is TOUCHED only when it was
+                // actually learned; untouched edges are extended by zero and
+                // stay bit-identical in the store.
+                int learned = 0;
+                for (const auto& e : W.complex.edges()) {
+                    const auto u = geometry.find(e.first);
+                    const auto v = geometry.find(e.second);
+                    if (u == geometry.end() || v == geometry.end()) continue;
+                    if (u->second.size() != v->second.size()) continue;
+                    try {
+                        W.restriction.insert_or_assign(
+                            e, align_map(u->second, v->second));
+                        W.touch(e);
+                        ++learned;
+                    } catch (const std::invalid_argument&) {
+                        // Degenerate geometry on this edge (zero vector, or a
+                        // dimension the store does not share). Skipping ONE edge
+                        // is right; failing the tick over it is not.
+                    }
+                }
+
+                // nu -> gamma. See KernelConfig::crystallise_unverified for the
+                // one judgement call here: what an unchecked tick is worth.
+                const Verdict nu =
+                    last_verdict_ ? *last_verdict_ : Verdict::Unverifiable;
+                const bool may_crystallise =
+                    last_verdict_.has_value() || config_.crystallise_unverified;
+                const double gamma =
+                    may_crystallise ? gamma_nu(nu, config_.gamma0, config_.gamma_eps)
+                                    : 0.0;
+
+                last_crystallised_ = i_shriek(K, W, gamma);
+                if (learned > 0) {
+                    std::cerr << "[OSKernel] consolidation: learned " << learned
+                              << " edge(s), gamma=" << gamma << " ("
+                              << (last_verdict_ ? to_string(nu) : "no oracle")
+                              << "), crystallised " << last_crystallised_
+                              << ", Q=" << K.Q() << "\n";
+                }
+            } catch (const std::exception& e) {
+                // Consolidation is not allowed to take the tick down. A store
+                // that failed to update is a lost session, not a lost answer.
+                std::cerr << "[OSKernel] consolidation failed: " << e.what() << "\n";
+            }
+        }
+    }
+
     // 5. Measure discord over the coarse complex K.
     // This is the real control signal: it asks whether the organs that just
     // cooperated on this reasoning act were working on semantically coherent
@@ -298,10 +403,13 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
 
     // 5b. E7 — CLOSE THE EVENT now that rho_after exists.
     //
-    // `verified` is left NULL on purpose. Construction 3 is explicit that
-    // coherence is not correctness, so inferring VERIFIED from a rho improvement
-    // would fabricate exactly the evidence the promotion gate is supposed to
-    // supply. Routing VerifyOp's real outcome here is owed, not faked.
+    // `verified` is STILL never inferred from rho — Construction 3 is explicit
+    // that coherence is not correctness, and guessing here would fabricate the
+    // promotion gate's own evidence. What changed is that it no longer has to be
+    // guessed: VerifyOp publishes its real outcome via CognitiveState, so this
+    // is the measured verdict or NULL when no oracle ran. Those two remain
+    // different, and NULL still means exactly "not checked".
+    // (last_verdict_ was harvested at 4c, where gamma needed it.)
     if (assembly_log_ && assembly_handle >= 0) {
         std::string note;
         // The record carries the PLANNED foliation because it is written before
@@ -332,9 +440,17 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
             std::cerr << "[OSKernel] E7 WARNING: " << note << "\n";
         }
 
+        std::optional<std::string> verified;
+        if (last_verdict_) verified = to_string(*last_verdict_);
+
         try {
+            // The co-activation record is attached before close() because
+            // close() flushes: anything set afterwards would never reach disk.
+            assembly_log_->set_activation(assembly_handle,
+                                          state_.tick_retrieved(),
+                                          state_.tick_grown());
             assembly_log_->close(assembly_handle, last_coherence_.rho,
-                                 std::nullopt, note);
+                                 verified, note);
         } catch (const std::exception& e) {
             std::cerr << "[OSKernel] E7 close failed: " << e.what() << "\n";
         }

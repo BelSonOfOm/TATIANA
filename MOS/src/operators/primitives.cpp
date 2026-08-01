@@ -74,6 +74,12 @@ bool SearchOp::apply(core::CognitiveState &state) {
         geometry[i] = static_cast<float>(concept->get_mu()(i));
       }
       state.inject_temporary_axiom(concept->get_name(), false, geometry, organ_);
+      // E7: THIS is the co-activation event Construction 5 is fitted to. One
+      // Wasserstein query returns a SET of stored concepts, and overlapping sets
+      // across ticks are exactly the structure a latent-cause model explains.
+      // Recorded here rather than inside inject_temporary_axiom because that
+      // method also serves hand-injected axioms, which are not retrievals.
+      state.note_retrieved(concept->get_name(), concept->get_mu());
     }
 
     // NEUROGENESIS: the query itself becomes a permanent concept vertex,
@@ -300,10 +306,18 @@ bool VerifyOp::apply(core::CognitiveState &state) {
   // SECURITY WHITELIST
   // For this MVP, we strictly only allow the python executable and basic flags.
   // If we detect any shell operators (&, |, ;, >, <, `), we instantly reject.
+  // EVERY SECURITY BLOCK BELOW IS **UNVERIFIABLE**, NOT REFUTED.
+  // The block is a fact about the COMMAND, not about the CLAIM: the oracle was
+  // never allowed to run, so nothing was learned about whether the mathematics
+  // holds. Recording these as Refuted would set gamma = 0 and, worse, would
+  // teach the store that a malformed verification command is evidence of a false
+  // claim. The severe obstruction penalty is a separate mechanism and is left
+  // exactly as it was -- it punishes the attempted break-out, which is right.
   if (command_.find_first_of("&|;><`") != std::string::npos) {
     std::cerr
         << "[VerifyOp] SECURITY BLOCK: Metacharacters detected in command: "
         << command_ << "\n";
+    state.note_verdict(core::Verdict::Unverifiable);
     state.get_section().set_obstruction(
         10000.0); // Severe penalty for trying to break out
     return true;
@@ -313,6 +327,7 @@ bool VerifyOp::apply(core::CognitiveState &state) {
   if (command_.find("python ") != 0 && command_.find("lean ") != 0) {
     std::cerr << "[VerifyOp] SECURITY BLOCK: Unapproved executable. Only "
                  "'python' and 'lean' are allowed.\n";
+    state.note_verdict(core::Verdict::Unverifiable);
     state.get_section().set_obstruction(10000.0);
     return true;
   }
@@ -322,6 +337,7 @@ bool VerifyOp::apply(core::CognitiveState &state) {
       command_.find(" -c ") != std::string::npos) {
     std::cerr << "[VerifyOp] SECURITY BLOCK: Inline code execution (-c) is "
                  "banned. Must use absolute file paths.\n";
+    state.note_verdict(core::Verdict::Unverifiable);
     state.get_section().set_obstruction(10000.0);
     return true;
   }
@@ -419,16 +435,23 @@ bool VerifyOp::apply(core::CognitiveState &state) {
   constexpr int VERIFY_REFUTED = 1;
   constexpr int VERIFY_UNVERIFIABLE = 2;
 
+  // The verdict is now PUBLISHED as well as acted on. Until this call existed
+  // the three-way distinction above changed the obstruction and was then thrown
+  // away, so gamma_nu -- which takes a Verdict, not a number -- had no input and
+  // i_shriek could never run. Same value fills E7's `verified` column.
   if (exit_code == VERIFY_VERIFIED) {
     std::cout << "[VerifyOp] VERIFIED. Obstruction cleared.\n";
     // Externally grounded: the state may crystallize.
+    state.note_verdict(core::Verdict::Verified);
     state.get_section().set_obstruction(0.0);
   } else if (exit_code == VERIFY_REFUTED) {
     std::cout << "[VerifyOp] REFUTED. Spiking global conflict measure.\n";
     // A genuine contradiction with external reality: force RESOLVE mode.
+    state.note_verdict(core::Verdict::Refuted);
     double current_conflict = state.calculate_conflict_score();
     state.get_section().set_obstruction(current_conflict + 1000.0);
   } else {
+    state.note_verdict(core::Verdict::Unverifiable);
     // UNVERIFIABLE (2) or any unexpected exit code. We learned nothing, so we
     // change nothing: leave the obstruction exactly as the topology computed it.
     std::cout << "[VerifyOp] UNVERIFIABLE (exit " << exit_code

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "mos/core/verdict.hpp"
 #include "mos/topology/complex.hpp"
 #include <Eigen/Sparse>
 #include <atomic>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <shared_mutex>
 #include <string>
@@ -237,6 +239,98 @@ public:
   /// @brief Get the thread-safe mutex for operad locking.
   std::shared_mutex &get_mutex() const { return math_mutex_; }
 
+  // ------------------------------------------------ the tick's verdict (nu) --
+  //
+  // VerifyOp already distinguishes VERIFIED / REFUTED / UNVERIFIABLE and acts on
+  // the difference, but it used to act ONLY on the obstruction and then discard
+  // which of the three it saw. gamma_nu takes a Verdict, so discarding it left
+  // the consolidation loop with no gamma and E7 with a NULL column.
+  //
+  // ATOMIC, NOT MUTEX-GUARDED, on purpose: operators run concurrently inside a
+  // foliation slice and several of them may verify. Taking math_mutex_ here
+  // would put a second lock inside apply(), where the operad's own locking
+  // discipline already lives, and invite a lock-order bug for one enum.
+
+  /// @brief Record a check's outcome. Combines with anything already seen this
+  /// tick via `combine` (weakest wins), so call order cannot change the result.
+  void note_verdict(Verdict v) noexcept {
+    int seen = tick_verdict_.load(std::memory_order_acquire);
+    int next;
+    do {
+      next = (seen < 0) ? static_cast<int>(v)
+                        : static_cast<int>(combine(static_cast<Verdict>(seen), v));
+      if (next == seen) return;
+    } while (!tick_verdict_.compare_exchange_weak(
+        seen, next, std::memory_order_acq_rel, std::memory_order_acquire));
+  }
+
+  /// @brief The tick's verdict, or nullopt when NO check ran.
+  ///
+  /// nullopt and Unverifiable are DIFFERENT and both are kept: "no oracle was
+  /// invoked" is not "the oracle was invoked and could not decide". E7 stores
+  /// the first as NULL and the second as the string, so the distinction survives
+  /// into the analysis instead of being flattened at the point of recording.
+  [[nodiscard]] std::optional<Verdict> tick_verdict() const noexcept {
+    const int v = tick_verdict_.load(std::memory_order_acquire);
+    if (v < 0) return std::nullopt;
+    return static_cast<Verdict>(v);
+  }
+
+  /// @brief Reset before a composite runs. The kernel owns the tick boundary.
+  void clear_tick_verdict() noexcept {
+    tick_verdict_.store(-1, std::memory_order_release);
+  }
+
+  // ------------------------------------------- the tick's activation set (E7) --
+  //
+  // What Construction 5 consumes is a T x N binary matrix of CO-ACTIVATION, and
+  // nothing in the engine produced one. NodeRecord::support looked like it might
+  // (it is a vector<int> of "vertices the operator touches") but every
+  // implementation returns a hard-coded constant -- {0}, {1}, {} -- because its
+  // only real job is deciding which operators commute in a foliation slice. It
+  // is a scheduling artefact and carries no concept identity at all.
+  //
+  // TWO POPULATIONS, RECORDED SEPARATELY, because they are different events and
+  // only one of them can support a cover model:
+  //
+  //   RETRIEVED -- KB concepts pulled in by SearchOp's Wasserstein query. A tick
+  //     retrieves a SET, and different ticks retrieve overlapping sets. This is
+  //     the genuine co-activation signal and the only one with the repeated
+  //     multi-concept structure a latent-cause model can be fitted to.
+  //
+  //   GROWN -- concepts neurogenesis added this tick. Each concept is grown
+  //     EXACTLY ONCE in its life, so as an activation record this is degenerate:
+  //     every column would fire in exactly one row and co-activation would be
+  //     indistinguishable from growth order.
+  //
+  // Recording both, separately, keeps the modelling choice open at analysis time
+  // rather than freezing it here; feeding `grown` to a cover model is a mistake
+  // available to whoever asks for it, not one baked into the instrument.
+
+  /// @brief Note that a stored concept was retrieved (co-activated) this tick.
+  ///
+  /// @param mu the concept's mean, carried alongside the name because the
+  ///        consolidation loop needs BOTH: the name identifies the vertex, and
+  ///        the geometry is what `align_map` learns the edge's restriction from.
+  ///        Optional -- a retrieval whose geometry is unavailable is still a
+  ///        real co-activation and still belongs in the assembly record; it just
+  ///        cannot contribute a learned edge.
+  void note_retrieved(const std::string &concept_name,
+                      const Eigen::VectorXd &mu = Eigen::VectorXd());
+
+  /// @brief Geometry of the concepts retrieved this tick, by name. Only those
+  /// whose mean was supplied appear.
+  [[nodiscard]] std::map<std::string, Eigen::VectorXd> tick_geometry() const;
+
+  /// @brief Concept names retrieved this tick, deduplicated, insertion-ordered.
+  [[nodiscard]] std::vector<std::string> tick_retrieved() const;
+
+  /// @brief Concept labels GROWN this tick. Recorded by grow_concept itself.
+  [[nodiscard]] std::vector<std::string> tick_grown() const;
+
+  /// @brief Reset both activation sets. The kernel owns the tick boundary.
+  void clear_tick_activation();
+
   // Raw un-locked internal access for callers who already own the lock
   [[nodiscard]] double calculate_conflict_score_internal() const;
   [[nodiscard]] Eigen::VectorXf get_current_state_vector_internal() const;
@@ -256,6 +350,20 @@ private:
   // the vectors themselves).
   std::map<std::string, std::vector<std::shared_ptr<const SemanticEmbedding>>>
       organ_concepts_;
+
+  // nu for this tick. -1 means NO check ran, which is not the same as
+  // UNVERIFIABLE; see tick_verdict(). Atomic because several operators inside
+  // one foliation slice may verify concurrently.
+  std::atomic<int> tick_verdict_{-1};
+
+  // E7's co-activation record for the current tick. Guarded by its own mutex
+  // rather than math_mutex_: note_retrieved is called from inside operator
+  // apply(), and reusing the topology lock there would nest two locks whose
+  // order nothing else in the engine establishes.
+  mutable std::mutex activation_mutex_;
+  std::vector<std::string> tick_retrieved_;
+  std::vector<std::string> tick_grown_;
+  std::map<std::string, Eigen::VectorXd> tick_geometry_;
 
   // Enforces homogeneous geometry spaces
   size_t embedding_dimension_{0};

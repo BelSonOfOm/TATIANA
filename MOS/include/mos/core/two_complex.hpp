@@ -67,14 +67,14 @@
 
 #include "mos/core/householder.hpp"
 #include "mos/core/hodge.hpp"
+#include "mos/core/verdict.hpp"
 
 namespace mos {
 namespace core {
 
-/// @brief The promotion verdict that sets the transfer rate.
-enum class Verdict { Verified, Unverifiable, Refuted };
-
-[[nodiscard]] const char* to_string(Verdict v) noexcept;
+// Verdict and to_string now live in verdict.hpp so that CognitiveState can
+// carry a verdict without inheriting Eigen through this header. Re-exported
+// here by inclusion: every existing include of two_complex.hpp still sees them.
 
 /// @brief gamma(nu): how much of the session's learning crystallises.
 ///

@@ -165,6 +165,19 @@ void AssemblyLog::close(int handle,
     flush(ev);
 }
 
+void AssemblyLog::set_activation(int handle,
+                                 std::vector<std::string> retrieved,
+                                 std::vector<std::string> grown) {
+    auto it = open_.find(handle);
+    if (it == open_.end()) {
+        throw std::invalid_argument(
+            "AssemblyLog::set_activation on unknown handle " +
+            std::to_string(handle));
+    }
+    it->second.retrieved = std::move(retrieved);
+    it->second.grown = std::move(grown);
+}
+
 void AssemblyLog::abandon(int handle, const std::string& note) {
     auto it = open_.find(handle);
     if (it == open_.end()) {
@@ -200,6 +213,12 @@ void AssemblyLog::flush(const AssemblyEvent& ev) {
     j["slices"] = ev.slices;
     j["tick"] = ev.tick;
     j["wall_time"] = ev.wall_time;
+    // Always emitted, even when empty. An absent key and an empty list would be
+    // indistinguishable to the reader, and "this tick retrieved nothing" is a
+    // real observation that a cover model needs -- it is a row of zeros, not a
+    // missing row.
+    j["retrieved"] = ev.retrieved;
+    j["grown"] = ev.grown;
 
     // Absent measurements serialise as null, never as 0.0.
     j["rho_before"] = ev.rho_before ? nlohmann::json(*ev.rho_before) : nlohmann::json(nullptr);

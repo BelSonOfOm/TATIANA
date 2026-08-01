@@ -59,6 +59,29 @@ struct AssemblyEvent {
     std::optional<double> rho_before;
     std::optional<double> rho_after;
     std::optional<std::string> verified;      ///< VERIFIED | REFUTED | UNVERIFIABLE
+
+    /// @brief Stored concepts RETRIEVED this tick -- the co-activation event.
+    ///
+    /// This is the assembly Construction 5 is fitted to, and until it existed
+    /// the log contained no assemblies at all. `NodeRecord::support` looks like
+    /// it should be this and is not: it is a foliation-scheduling constant
+    /// ({0}, {1}, {}) with no concept identity in it.
+    ///
+    /// Names, not indices, because the concept set GROWS. An index assigned at
+    /// tick 10 would mean something different at tick 900; a name does not. The
+    /// analysis side builds the index map once, over the whole accumulated log.
+    std::vector<std::string> retrieved;
+
+    /// @brief Concepts GROWN this tick (neurogenesis).
+    ///
+    /// Kept separate from `retrieved` and NOT interchangeable with it: a concept
+    /// is grown exactly once, so a co-activation matrix built from this field
+    /// has a single firing per column and measures growth order, not
+    /// co-activation. Recorded because it is the birth register -- which is
+    /// precisely what `cover.alive_mask` needs to stop scoring a concept's
+    /// silence before it existed.
+    std::vector<std::string> grown;
+
     bool closed = false;
     std::string note;
 
@@ -105,10 +128,21 @@ public:
     /// @param verified left empty when nothing actually verified the composite.
     ///        It is NOT inferred from rho: coherence is not correctness
     ///        (Construction 3), so guessing here would fabricate evidence.
+    ///        NULL therefore keeps its exact meaning -- "no oracle ran" -- and is
+    ///        distinct from the string "UNVERIFIABLE", which means one ran and
+    ///        could not decide.
     void close(int handle,
                std::optional<double> rho_after,
                std::optional<std::string> verified = std::nullopt,
                const std::string& extra_note = "");
+
+    /// @brief Attach this tick's co-activation record to an open event.
+    ///
+    /// Separate from record() because retrieval happens DURING the run, while
+    /// record() fires before it. Called once, between run and close.
+    void set_activation(int handle,
+                        std::vector<std::string> retrieved,
+                        std::vector<std::string> grown);
 
     /// @brief Flush an event whose outcome will never be known.
     void abandon(int handle, const std::string& note = "abandoned");

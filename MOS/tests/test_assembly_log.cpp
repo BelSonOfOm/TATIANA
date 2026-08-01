@@ -185,6 +185,68 @@ void test_close_writes_one_line_with_delta_rho() {
     std::remove(path.c_str());
 }
 
+void test_activation_and_verdict_reach_the_line() {
+    // The co-activation record is the whole reason Construction 5 can be fitted
+    // to this log at all, and `verified` is gamma_nu's input. Both are written
+    // by a different call than the rest of the event, so a wiring slip would
+    // leave every other field correct and these two silently empty.
+    const std::string path = temp_path("activation");
+    std::remove(path.c_str());
+    {
+        AssemblyLog log(path);
+        const int h = log.record({nr("SEARCH", {}, true)}, {}, {{0}}, 11, 0.5);
+        log.set_activation(h, {"manifold", "atlas", "chart"}, {"new_lemma"});
+        log.close(h, 0.4, std::string("UNVERIFIABLE"));
+    }
+    const auto lines = read_lines(path);
+    assert(lines.size() == 1);
+    const auto& j = lines[0];
+    assert(j["retrieved"].size() == 3);
+    assert(j["retrieved"][0] == "manifold");
+    assert(j["retrieved"][2] == "chart");
+    assert(j["grown"].size() == 1);
+    assert(j["grown"][0] == "new_lemma");
+    assert(j["verified"] == "UNVERIFIABLE");
+    std::cout << "  [ok] retrieved/grown/verified all reach the JSONL line\n";
+    std::remove(path.c_str());
+}
+
+void test_empty_activation_is_an_empty_list_not_a_missing_key() {
+    // "This tick retrieved nothing" is an observation -- a row of zeros in the
+    // assembly matrix. A missing key would be indistinguishable from a record
+    // written before the field existed, so the reader could not tell a genuine
+    // empty assembly from an unupgraded log.
+    const std::string path = temp_path("empty_activation");
+    std::remove(path.c_str());
+    {
+        AssemblyLog log(path);
+        const int h = log.record({nr("COMPUTE", {0}, false)}, {}, {{0}}, 3, 0.1);
+        log.close(h, 0.1);
+    }
+    const auto lines = read_lines(path);
+    assert(lines[0].contains("retrieved"));
+    assert(lines[0].contains("grown"));
+    assert(lines[0]["retrieved"].is_array() && lines[0]["retrieved"].empty());
+    assert(lines[0]["grown"].is_array() && lines[0]["grown"].empty());
+    assert(lines[0]["verified"].is_null());   // still never inferred
+    std::cout << "  [ok] empty activation is [] and present, not an absent key\n";
+    std::remove(path.c_str());
+}
+
+void test_set_activation_on_a_dead_handle_throws() {
+    const std::string path = temp_path("dead_handle");
+    std::remove(path.c_str());
+    AssemblyLog log(path);
+    const int h = log.record({nr("SEARCH", {}, true)}, {}, {{0}}, 1, std::nullopt);
+    log.close(h, std::nullopt);
+    bool threw = false;
+    try { log.set_activation(h, {"x"}, {}); }
+    catch (const std::invalid_argument&) { threw = true; }
+    assert(threw);   // silently dropping it would lose the tick's assembly
+    std::cout << "  [ok] set_activation after close throws rather than vanishing\n";
+    std::remove(path.c_str());
+}
+
 void test_missing_rho_stays_null_not_zero() {
     // "No measurement" must not become "no change". A 0.0 here would show up in
     // the promotion evidence as a composite that reliably did nothing.
@@ -350,6 +412,9 @@ int main() {
 
     std::cout << "=== AssemblyLog round-trip ===\n";
     test_close_writes_one_line_with_delta_rho();
+    test_activation_and_verdict_reach_the_line();
+    test_empty_activation_is_an_empty_list_not_a_missing_key();
+    test_set_activation_on_a_dead_handle_throws();
     test_missing_rho_stays_null_not_zero();
     test_abandon_records_the_unknown_outcome();
     test_appends_rather_than_truncates();

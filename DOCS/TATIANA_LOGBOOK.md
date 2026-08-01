@@ -2948,6 +2948,107 @@ home per Q9. **So FIX-17 was pure documentation lag, not a live defect.**
 isotropic traces of `−ln(0.95)·d ≈ 19.7` and `1.0·d = 384`, against a semantic budget of `4`.
 The shrinkage floor gives `0.88`.
 
+## 5aq. ⚠️ "PHASE 3" MEANT TWO DIFFERENT THINGS. RESOLVED (2026-08-01)
+
+Charbel asked *"what is phase 3?"* and the file gave **two incompatible answers**:
+
+| where | what it says |
+|---|---|
+| §5an, the Phase-2 close (2026-08-01) | *"NEXT IS PHASE 3, AND IT IS **COMPOSITION, NOT CONSTRUCTION**"* — wire the nine unit-tested items into a running tick |
+| §7 run sheet, `## PHASE 3 — TEST AND BENCHMARK` | E8–E14 mechanism validation · B1–B4 comparative · **T1** the three-arm main test |
+
+**The §7 numbering is STALE and is hereby superseded** — the handoff (§5al) already flagged that
+run sheet as written 2026-07-27 and out of date. **Phase 3 = COMPOSITION.** The test-and-benchmark
+block is real and still owed, but it is what comes *after* composition: it cannot start earlier,
+because **T1 measures the gap as a function of accumulated experience**, and there is no
+accumulated experience until the tick actually consolidates. Renamed in place to **PHASE 4 — TEST
+AND BENCHMARK** so the two cannot be confused again.
+
+**Third time this exact failure has been recorded** (F10's "CHOOSE THE CATEGORY", Q2b's stale 🔴,
+now this). **A superseded numbering is a stale NEXT line wearing a different hat.**
+
+## 5ap. ✅ PHASE 3 STAGES 0/3a/3b — THE LOOP IS CLOSED, AND Q(t) LEFT ZERO (2026-08-01)
+
+Phase 2 shipped nine items that were **unit-tested and unreachable**: none was called from
+`execute_dag`. Phase 3 is wiring, and the first three stages are in. **Suite 25/25, zero red.**
+
+### STAGE 0 — what a tick must publish but was discarding
+Two signals never left the tick: the **promotion verdict**, and the **activation record**.
+`Verdict` moved to its own header (`verdict.hpp`) because `CognitiveState` must carry one and had
+no other reason to know about Eigen. Small move, load-bearing consequence:
+> **`gamma_nu` takes a Verdict, not a number. No verdict ⇒ no γ ⇒ `i_!` is never called ⇒ nothing
+> crystallises ⇒ Q(t) is pinned at 0 — the constant sheaf, i.e. nothing learned.** One wire, three
+> consumers: γ, E7's `verified` column, and the operator-algebra promotion gate.
+
+Pinned by `test_tick_record.cpp`, and each assertion guards a failure that would rot **silently**:
+- **`combine` takes the WEAKEST verdict.** Taking the strongest would let one passing check launder
+  a refutation into the store — nothing crashes, the store just absorbs false wiring.
+- **No verdict ≠ Unverifiable.** `nullopt` means no oracle ran; the enum value means one ran and
+  could not decide. Collapsing them makes *"we never checked"* indistinguishable from *"we checked
+  and learned nothing"* in every downstream count.
+- **`retrieved` and `grown` are DIFFERENT SETS.** A cover fitted to `grown` is fitted to *growth
+  order*, since a concept is grown exactly once. The test asserts they can disagree so nobody can
+  alias one to the other and still pass.
+- **`clear_tick_activation` actually clears**, or tick *t* inherits *t−1* and the assembly matrix
+  accumulates instead of sampling.
+
+### STAGE 3a — the bridge, and a det = −1 trap that would have passed every test
+Operators act on `CognitiveState` (a `SimplicialComplex` + sheaf); every Phase-2 item is built on
+`hodge::Complex2`. **Two parallel representations of "the complex" with nothing joining them —
+which is exactly why nine finished items sat unreachable.**
+
+The join is cheap because **`HodgeVertex` IS `std::string` and concepts already have names**: no
+index map, no renumbering, and an identity that does not drift — a concept's name means the same
+thing at tick 900 as at tick 10, which an integer assigned on first sight would not.
+**Edges = concepts retrieved in the SAME tick**, the fine-level mirror of `CoarseComplex::co_activate`
+— and the *same* co-activation signal Construction 5 fits its latent causes to, so the store's
+wiring and the cover model come from **one** signal.
+
+> ### 🚨 THE FINDING: ONE REFLECTION IS THE WRONG PARITY, AND IT FAILS INVISIBLY
+> Aligning two unit vectors needs only **one** Householder reflection: with `w = (a−b)/‖a−b‖`,
+> `H_w a = b` exactly. But **`det(H_w) = −1`**, so that map lies in the *other component of O(d)*
+> from the identity the store starts at — and `crystallise` **correctly refuses** to interpolate
+> across the gap, because no continuous path joins them and any blend would be a jump, not a
+> transfer. **The learned map would never reach the store, Q(t) would stay 0, and every test would
+> still pass.** The alignment is therefore built as a product of **TWO** reflections, `det = +1`.
+
+**Deliberately absent: triangles.** `Complex2` supports them and `b₁` needs them, but nothing yet
+decides when three concepts form a 2-simplex rather than three edges, and guessing would move `b₁`
+— *the number the harmonic part exists to expose* — for a reason nobody could later reconstruct.
+**Edges only, until something earns the triangle.**
+
+### STAGE 3b — the loop closed through `execute_dag`, with the number that proves it
+`Q(t) = mean ‖R^K_e − I‖²_F` is the whole acceptance criterion. **Q = 0 is the constant sheaf:
+every concept means the same thing in every context, i.e. nothing learned.** Measured, on a real
+SQLite `KnowledgeBase` (a stub would have been testing the stub, since SearchOp's retrieval *is*
+the co-activation signal):
+
+| | |
+|---|---|
+| tick 1 — 15 edges learned, γ = 0.005 (no oracle) | **Q = 0.00049347** |
+| tick 2 — 10 further edges | **Q = 0.00147376** (rising) |
+| `crystallise_unverified = false` | **Q = 0 exactly** |
+| after a *verified* session, 3 edges | **Q = 0.0492466** |
+| the learned map itself | moved **0.221916 of 2.82843** at γ = 0.05 |
+
+**A refuted session leaves 𝕂 bit-identical**, and `i_!` moved **only the touched edge** — the rest
+bit-identical. So crystallisation is gated, local, and monotone in evidence.
+
+> **⇒ This is the first evidence the engine CONSOLIDATES rather than merely runs.** Q(t) leaving
+> zero is not a proxy for it; it is the definition.
+
+### ALSO LANDED: the cover instrument's alive-mask
+`cover.py` + `test_cover_mask.py`. **A mask bug is silent** — it does not crash, it shifts `θ`, and
+the shift *looks exactly like the finding it would be corrupting* ("organs stopped recruiting new
+concepts"). So the mask tests assert an all-ones mask reproduces the unmasked numbers **exactly**.
+
+### ⚠️ STILL OWED (stated, not buried)
+- **No triangles ⇒ `b₁` is structurally 0 in the fine store**, so the harmonic/growth-address half
+  of the machinery cannot fire there yet. Stage 3a says why guessing is worse.
+- **γ = 0.005 in the measured runs is the "no oracle" rate** — VerifyOp's real outcome still does
+  not reach the kernel, so the verified path is exercised only in the unit test, not in the loop.
+- Construction 5's **verdict about THIS corpus** still needs accumulated E7 records.
+
 ## 5ao. ✅ V7 RUN — τ_f IS NO LONGER A PLACEHOLDER, AND τ_f=1 WAS A 280× HAZARD (2026-08-01)
 
 `python/experiment_v7.py`. Charbel refused to let τ_f=1 be closed by declaration. It is now closed
@@ -3426,7 +3527,12 @@ actually returned rather than what we hoped.
 
 ---
 
-## PHASE 3 — TEST AND BENCHMARK
+## PHASE 4 — TEST AND BENCHMARK
+
+> **⚠️ RENUMBERED 2026-08-01 (§5aq). This was headed "PHASE 3" and collided with the real Phase 3,
+> which is COMPOSITION (§5an, §5ap).** It cannot run earlier than composition anyway: **T1 measures
+> the gap as a function of accumulated experience**, and there is no accumulated experience until
+> the tick consolidates — which it only began doing on 2026-08-01.
 
 Per `BUDGET_AND_TEST_PLAN.md`:
 - **Mechanism validation (all free):** E8 (Φ_∞ predicts residual) · E9 (PPR vs k-NN) ·

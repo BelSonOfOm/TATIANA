@@ -235,7 +235,57 @@ void CognitiveState::grow_concept(const std::string &label,
     organ_concepts_[organ].push_back(skill);
   }
 
+  // E7: neurogenesis is an activation event, recorded separately from retrieval
+  // because a concept is grown exactly once and retrieved many times. Taken
+  // under activation_mutex_ and not under the already-held math_mutex_, so the
+  // two locks are never nested in the other order anywhere.
+  {
+    std::lock_guard<std::mutex> alock(activation_mutex_);
+    tick_grown_.push_back(label);
+  }
+
   is_collapsed_ = false;
+}
+
+void CognitiveState::note_retrieved(const std::string &concept_name,
+                                    const Eigen::VectorXd &mu) {
+  if (concept_name.empty()) {
+    return; // an unnamed concept cannot be a column of the assembly matrix
+  }
+  std::lock_guard<std::mutex> lock(activation_mutex_);
+  // Deduplicated: two SearchOps in one tick retrieving the same concept is ONE
+  // co-activation, not two. The matrix Construction 5 consumes is binary, so a
+  // duplicate would not change x_tc anyway -- but it would silently inflate any
+  // count taken off this record later.
+  if (std::find(tick_retrieved_.begin(), tick_retrieved_.end(), concept_name) ==
+      tick_retrieved_.end()) {
+    tick_retrieved_.push_back(concept_name);
+  }
+  if (mu.size() > 0) {
+    tick_geometry_[concept_name] = mu;
+  }
+}
+
+std::map<std::string, Eigen::VectorXd> CognitiveState::tick_geometry() const {
+  std::lock_guard<std::mutex> lock(activation_mutex_);
+  return tick_geometry_;
+}
+
+std::vector<std::string> CognitiveState::tick_retrieved() const {
+  std::lock_guard<std::mutex> lock(activation_mutex_);
+  return tick_retrieved_;
+}
+
+std::vector<std::string> CognitiveState::tick_grown() const {
+  std::lock_guard<std::mutex> lock(activation_mutex_);
+  return tick_grown_;
+}
+
+void CognitiveState::clear_tick_activation() {
+  std::lock_guard<std::mutex> lock(activation_mutex_);
+  tick_retrieved_.clear();
+  tick_grown_.clear();
+  tick_geometry_.clear();
 }
 
 std::optional<Eigen::VectorXd>
