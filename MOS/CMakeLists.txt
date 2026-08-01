@@ -58,6 +58,7 @@ set(SOURCES
     src/core/cognitive_state.cpp
     src/core/coarse_complex.cpp
     src/core/edge_precision.cpp
+    src/core/hodge.cpp
     src/core/householder.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
@@ -139,6 +140,11 @@ target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 # python/check_signature_parity.py — if the two implementations drift, every
 # recurrence count is silently wrong while every other test still passes.
 # Phase-2 item 1: Householder restriction maps
+# Phase-2 item 2: Hodge split via LSQR. Expected values are hard-coded from
+# python/hodge.py so the two implementations cannot drift together.
+add_executable(mos_hodge_tests tests/test_hodge.cpp)
+target_link_libraries(mos_hodge_tests PRIVATE mos_core)
+
 add_executable(mos_householder_tests tests/test_householder.cpp)
 target_link_libraries(mos_householder_tests PRIVATE mos_core)
 
