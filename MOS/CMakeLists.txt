@@ -62,6 +62,7 @@ set(SOURCES
     src/core/curvature.cpp
     src/core/instantiate.cpp
     src/core/two_complex.cpp
+    src/core/coning.cpp
     src/core/householder.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
@@ -147,6 +148,11 @@ target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 # python/hodge.py so the two implementations cannot drift together.
 add_executable(mos_hodge_tests tests/test_hodge.cpp)
 target_link_libraries(mos_hodge_tests PRIVATE mos_core)
+
+# Phase-2 item 7: coning off cycles. Measures that it kills exactly one class,
+# and that the rejected chord alternative makes b1 WORSE.
+add_executable(mos_coning_tests tests/test_coning.cpp)
+target_link_libraries(mos_coning_tests PRIVATE mos_core)
 
 # Phase-2 items 5 & 6: the K/W adjunction (i^* i_! = id) and gamma(nu).
 add_executable(mos_two_complex_tests tests/test_two_complex.cpp)
