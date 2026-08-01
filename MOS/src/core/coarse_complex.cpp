@@ -190,6 +190,25 @@ void CoarseComplex::set_restriction(const ModuleId &u, const ModuleId &v,
   restriction_[make_key(u, v)] = {R_u, R_v};
 }
 
+void CoarseComplex::set_restriction_householder(const ModuleId &u,
+                                                const ModuleId &v,
+                                                const HouseholderMap &R_u,
+                                                const HouseholderMap &R_v) {
+  if (R_u.dim() != R_v.dim()) {
+    throw std::invalid_argument(
+        "set_restriction_householder: R_u and R_v must map into the SAME edge "
+        "stalk (equal dimensions).");
+  }
+  const CoarseEdge key = make_key(u, v);
+  restriction_h_.insert_or_assign(key, std::make_pair(R_u, R_v));
+}
+
+bool CoarseComplex::has_restriction(const ModuleId &u, const ModuleId &v) const {
+  const CoarseEdge key = make_key(u, v);
+  return restriction_.find(key) != restriction_.end() ||
+         restriction_h_.find(key) != restriction_h_.end();
+}
+
 void CoarseComplex::set_edge_precision(const ModuleId &u, const ModuleId &v,
                                        double pi_e) {
   if (!(pi_e > 0.0)) {
@@ -289,8 +308,12 @@ CoherenceReport CoarseComplex::report() const {
     const Eigen::VectorXd &xu = *stalks_.at(e.first);
     const Eigen::VectorXd &xv = *stalks_.at(e.second);
     Eigen::VectorXd eps;
+    auto hit = restriction_h_.find(e);
     auto rit = restriction_.find(e);
-    if (rit != restriction_.end()) {
+    if (hit != restriction_h_.end()) {
+      // Phase-2 item 1: O(m d) per endpoint, never forming R.
+      eps = hit->second.first.apply(xu) - hit->second.second.apply(xv);
+    } else if (rit != restriction_.end()) {
       eps = rit->second.first * xu - rit->second.second * xv;
     } else {
       eps = xu - xv;
@@ -354,9 +377,13 @@ CoherenceReport CoarseComplex::report() const {
   // non-identity maps ker L is not the per-component constants and there is no
   // n x n matrix carrying L's spectrum. We then report the split as unavailable
   // rather than compute something wrong -- rho itself stays exact either way.
+  // A Householder map counts here exactly as a dense one does: the split is
+  // exact only for IDENTITY restrictions, and orthogonality does not rescue it
+  // (ker L stops being the per-component constants either way).
   bool any_map = false;
   for (const auto &e : live) {
-    if (restriction_.find(e) != restriction_.end()) {
+    if (restriction_.find(e) != restriction_.end() ||
+        restriction_h_.find(e) != restriction_h_.end()) {
       any_map = true;
       break;
     }

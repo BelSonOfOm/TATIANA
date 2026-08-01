@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mos/core/householder.hpp"
+
 #include <Eigen/Dense>
 #include <map>
 #include <optional>
@@ -21,6 +23,7 @@ using CoarseEdge = std::pair<ModuleId, ModuleId>;
 ///
 /// `rho` is EMPTY when discord is genuinely undefined — not zero, not one.
 /// See CoarseComplex::report() for the two cases where that happens.
+/// (Householder maps are Phase-2 item 1's compact restriction representation.)
 struct CoherenceReport {
   std::optional<double> rho;        ///< normalised discord in [0,1]; empty = UNKNOWN
   std::optional<double> confidence; ///< 1 - rho; empty = UNKNOWN
@@ -154,6 +157,24 @@ public:
   void set_use_precision(bool on) noexcept { use_precision_ = on; }
   [[nodiscard]] bool use_precision() const noexcept { return use_precision_; }
 
+  /// @brief Set an orthogonal restriction pair for edge {u,v} in the COMPACT
+  /// Householder representation (Phase-2 item 1).
+  ///
+  /// Prefer this to the dense `set_restriction` overload: a dense pair costs
+  /// 2 * 1.15 MB per edge at d=384 and is what 5s found dead on arrival at
+  /// 2000 edges, while the Householder pair costs 2 * 12 KB and is EXACTLY
+  /// orthogonal rather than orthogonal-to-tolerance. Applied in O(m d).
+  ///
+  /// @throws std::invalid_argument if the two maps disagree in dimension --
+  ///         both must land in the SAME edge stalk.
+  void set_restriction_householder(const ModuleId &u, const ModuleId &v,
+                                   const HouseholderMap &R_u,
+                                   const HouseholderMap &R_v);
+
+  /// @brief True when edge {u,v} carries a non-identity restriction pair in
+  /// either representation.
+  [[nodiscard]] bool has_restriction(const ModuleId &u, const ModuleId &v) const;
+
   /// @brief Set the derived precision pi_e for one edge. See
   /// `core::edge_precision()`, which computes the whole map from stalk floors
   /// and reported confidences.
@@ -193,6 +214,10 @@ private:
   std::vector<std::string> mutation_log_;
   // (5p mechanism 1) per-edge restriction pair (R_u, R_v); absent => identity.
   std::map<CoarseEdge, std::pair<Eigen::MatrixXd, Eigen::MatrixXd>> restriction_;
+  // Phase-2 item 1. Compact orthogonal maps. Kept in a SEPARATE map from the
+  // dense ones rather than converted: converting would materialise the very
+  // d x d matrix the representation exists to avoid.
+  std::map<CoarseEdge, std::pair<HouseholderMap, HouseholderMap>> restriction_h_;
   // (5af) The DERIVED pi_e per edge. Deliberately separate from weights_: a
   // coupling strength and an inverse variance must not share storage, or the
   // type error this replaced can reappear by accident.

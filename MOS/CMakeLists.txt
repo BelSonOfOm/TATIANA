@@ -58,6 +58,7 @@ set(SOURCES
     src/core/cognitive_state.cpp
     src/core/coarse_complex.cpp
     src/core/edge_precision.cpp
+    src/core/householder.cpp
     src/core/plasticity.cpp
     src/core/semantic_skill.cpp
     src/core/thread_pool.cpp
@@ -137,6 +138,10 @@ target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 # E7 assembly recording. The signature cases here are shared with
 # python/check_signature_parity.py — if the two implementations drift, every
 # recurrence count is silently wrong while every other test still passes.
+# Phase-2 item 1: Householder restriction maps
+add_executable(mos_householder_tests tests/test_householder.cpp)
+target_link_libraries(mos_householder_tests PRIVATE mos_core)
+
 add_executable(mos_assembly_log_tests tests/test_assembly_log.cpp)
 target_link_libraries(mos_assembly_log_tests PRIVATE mos_core)
 # The end-to-end case builds a real FlatBuffers DAG, so it needs the generated
