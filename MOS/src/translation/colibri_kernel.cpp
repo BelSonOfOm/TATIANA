@@ -75,6 +75,9 @@ std::string ColibriKernel::http_post(const std::string &endpoint,
     throw ColibriException("WinHttpReceiveResponse failed.");
   }
 
+  // FIX-16. Read the body FIRST, then judge the status — a provider's error
+  // body is the most useful thing it ever sends, and discarding it was why
+  // every failure looked alike.
   std::string response;
   DWORD dwSize = 0;
   DWORD dwDownloaded = 0;
@@ -86,6 +89,26 @@ std::string ColibriKernel::http_post(const std::string &endpoint,
     WinHttpReadData(hRequest, (LPVOID)buffer.data(), dwSize, &dwDownloaded);
     response.append(buffer.data(), dwDownloaded);
   } while (dwSize > 0);
+
+  // FIX-16. This block did not exist: the status code was never queried, so a
+  // 401, a 429 and a 200 were indistinguishable to every caller. An error body
+  // then parsed into an empty thought and aborted somewhere far away with no
+  // indication of which failure had occurred.
+  DWORD status = 0;
+  DWORD status_size = sizeof(status);
+  if (!WinHttpQueryHeaders(hRequest,
+                           WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                           WINHTTP_HEADER_NAME_BY_INDEX, &status, &status_size,
+                           WINHTTP_NO_HEADER_INDEX)) {
+    // Could not read the status. Say so rather than assuming success.
+    throw ColibriHttpException(0, response,
+                               "WinHttpQueryHeaders could not read the status for " +
+                                   endpoint + ".");
+  }
+  if (status < 200 || status >= 300) {
+    throw ColibriHttpException(static_cast<int>(status), response,
+                               "POST " + endpoint + " was rejected.");
+  }
 
   return response;
 }
@@ -187,13 +210,13 @@ AgentThought ColibriKernel::generate_thought(const std::string &prompt) const {
   req["messages"] = nlohmann::json::array({message});
   std::string payload = req.dump();
 
-  std::string response;
-  try {
-    response = http_post(config_.completions_route, payload);
-  } catch (const std::exception &e) {
-    std::cerr << "[ColibriKernel] Engine routing failed: " << e.what() << "\n";
-    return thought;
-  }
+  // FIX-16. This used to catch, log, and return an EMPTY thought. That made an
+  // HTTP 404/401/429 indistinguishable from "the model replied with nothing" to
+  // every caller, which is the same failure this fix exists to remove, one level
+  // down. The one call site (ReasonOp, primitives.cpp) already catches
+  // std::exception and returns false with the message attached, so propagating
+  // loses nothing and gains the diagnosis.
+  const std::string response = http_post(config_.completions_route, payload);
 
   try {
     nlohmann::json j = nlohmann::json::parse(response);
@@ -252,11 +275,31 @@ AgentThought ColibriKernel::generate_thought(const std::string &prompt) const {
               << e.what() << "\n";
   }
 
-  // Validate empty latent mapping fallback
+  // FIX-16. This was `catch (...) { latent = {}; }` -- the third place in this
+  // file that turned a diagnosable failure into an indistinguishable empty
+  // value. An empty latent is a LEGITIMATE outcome here (see below), but it must
+  // be legitimate for a stated reason, not because we discarded the reason.
+  //
+  // ARCHITECTURALLY: the engine is not supposed to fetch embeddings at all.
+  // Geometry is computed LOCALLY in Python (bge-small, 384-d) and carried across
+  // the adjunction boundary as the FlatBuffers `geometry` field -- see
+  // OperatorFactory in kernel.cpp, "Operators use this instead of fetching
+  // embeddings remotely". A completions-only provider therefore leaves `latent`
+  // empty by design, and downstream that means the organ stays IDLE rather than
+  // being zero-filled, which is the honest behaviour.
   try {
     thought.latent = fetch_embedding(thought.reasoning_chain);
-  } catch (...) {
-    thought.latent = std::vector<double>();
+  } catch (const ColibriException &e) {
+    thought.latent.clear();
+    static bool warned = false;
+    if (!warned) {
+      std::cerr << "[ColibriKernel] NOTE: no embedding from this provider ("
+                << e.what()
+                << "). `latent` stays EMPTY. This is expected for a "
+                   "completions-only provider: concept geometry crosses the "
+                   "adjunction boundary from Python, not from the LLM.\n";
+      warned = true;
+    }
   }
   return thought;
 }

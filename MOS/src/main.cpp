@@ -35,10 +35,10 @@ void run_ipc_server() {
     
     // Initialize OS Kernel dependencies
     auto kb = std::make_shared<translation::KnowledgeBase>("mos_brain_ipc.db");
-    mos::translation::ColibriKernel::ColibriConfig config;
-    config.host = "api.groq.com";
-    config.port = 443;
-    config.model_name = "llama-3.1-8b-instant";
+    // FIX-16: was host/port/model set by hand while the OLLAMA routes stayed in
+    // place, so every completion 404'd and was parsed into an empty thought.
+    const auto config =
+        mos::translation::ColibriKernel::ColibriConfig::groq("llama-3.1-8b-instant");
     auto llm = std::make_shared<mos::translation::ColibriKernel>(config);
     
     core::CognitiveState state;
