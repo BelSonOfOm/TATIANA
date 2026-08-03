@@ -87,6 +87,59 @@ namespace core {
 ///         or faster transfer but a different one.
 [[nodiscard]] double gamma_nu(Verdict verdict, double gamma0 = 0.05, double eps = 0.1);
 
+/// @brief gamma for the FOURTH state: no oracle ran at all.
+///
+/// THE GAP THIS CLOSES. gamma_nu is a function on three verdicts, and the engine
+/// was applying it to four states by collapsing "no VerifyOp was in the DAG"
+/// (nullopt) onto Unverifiable. That is a partial function used as a total one,
+/// and it erases a distinction CognitiveState and E7 both take care to keep.
+///
+/// THE DERIVATION. "No test ran" is an ABSENCE of evidence, not a failed test,
+/// so the honest transfer rate is the rate we EXPECT a test would have licensed:
+///
+///     gamma(nothing) = E_P[ gamma(V) ]
+///                    = gamma0 * [ P(Verified) + eps * P(Unverifiable) ]
+///
+/// since gamma(Refuted) = 0 contributes nothing. P is estimated from the
+/// verdicts actually observed, shrunk toward a prior of strength `kappa` -- the
+/// same Beta/Dirichlet shrinkage Construction 5 uses for organ membership, and
+/// the same free-energy reasoning 5ag used for pi_e. The posterior mean gives
+///
+///     gamma(nothing) = gamma0 * [ (n_V + kappa*pi0_V) + eps*(n_U + kappa*pi0_U) ]
+///                             / (n_total + kappa)
+///
+/// DAY-ONE DEGRADATION. With the default prior pi0 = (V=0, U=1, R=0), n=0 gives
+/// exactly eps*gamma0 -- the value the engine used before this existed. So the
+/// old hand-set decision becomes the PRIOR, and evidence moves it. Exact when
+/// `kappa` is a power of two (the default is); otherwise within one ulp, because
+/// (eps*kappa)/kappa is only guaranteed exact for exact-power-of-two divisors.
+/// The test asserts the default path bit-exactly and the general path to 1e-15.
+///
+/// @param counts verdicts observed on ticks where an oracle DID run.
+/// @param gamma0,eps as in gamma_nu.
+/// @param kappa prior strength, in observations. THE ONE KNOB THIS INTRODUCES,
+///        stated rather than buried: it deletes the hand-set gamma(nothing) and
+///        replaces it with "how many real verdicts before data outvotes the
+///        prior". Should be set consistently with Construction 5's kappa.
+/// @param prior_verified,prior_unverifiable the prior verdict distribution. The
+///        remaining mass is prior_refuted and contributes 0, so it is implicit.
+///
+/// @warning THE ESTIMATE IS CONDITIONAL ON A CHECK HAVING HAPPENED. Ticks that
+///          ran VerifyOp may not resemble ticks that did not, so P is a
+///          conditional distribution being used as a marginal. This is a real
+///          selection bias, it is testable (compare tick features across the two
+///          populations), and it is still strictly better than a constant.
+///
+/// @throws std::invalid_argument unless 0 < gamma0 <= 1, 0 <= eps <= 1,
+///         kappa > 0 (kappa = 0 with no observations is 0/0), the priors are
+///         non-negative with sum <= 1, and no count is negative.
+[[nodiscard]] double gamma_no_verdict(const VerdictCounts& counts,
+                                      double gamma0 = 0.05,
+                                      double eps = 0.1,
+                                      double kappa = 8.0,
+                                      double prior_verified = 0.0,
+                                      double prior_unverifiable = 1.0);
+
 // ---------------------------------------------------------------------------
 
 /// @brief K: the crystallised store. Structure and wiring, no section.

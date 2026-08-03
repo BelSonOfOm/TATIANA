@@ -123,6 +123,37 @@ std::string canonical_signature(const std::vector<NodeRecord>& nodes,
 
 AssemblyLog::AssemblyLog(std::string path) : path_(std::move(path)) {}
 
+VerdictCounts AssemblyLog::scan_verdict_counts(const std::string& path) {
+    VerdictCounts counts;
+    if (path.empty()) return counts;
+
+    std::ifstream in(path);
+    if (!in) return counts;  // No log yet is not an error: it is day one.
+
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty()) continue;
+        // A truncated final line is the normal result of an interrupted run.
+        // Skipping it loses one verdict; throwing would refuse to start.
+        nlohmann::json j = nlohmann::json::parse(line, nullptr, /*allow_exceptions=*/false);
+        if (j.is_discarded() || !j.is_object()) continue;
+
+        const auto it = j.find("verified");
+        // NULL means NO ORACLE RAN. That is the population being extrapolated
+        // to, so it must not be counted as evidence about itself.
+        if (it == j.end() || it->is_null() || !it->is_string()) continue;
+
+        const std::string v = it->get<std::string>();
+        if (v == "VERIFIED")           ++counts.verified;
+        else if (v == "UNVERIFIABLE")  ++counts.unverifiable;
+        else if (v == "REFUTED")       ++counts.refuted;
+        // Any other string is a schema drift, not a verdict. Ignored rather
+        // than guessed at: mapping an unknown label onto one of the three would
+        // silently move gamma.
+    }
+    return counts;
+}
+
 int AssemblyLog::record(std::vector<NodeRecord> nodes,
                         std::vector<std::pair<int, int>> edges,
                         std::vector<std::vector<int>> slices,

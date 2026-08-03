@@ -306,6 +306,109 @@ void test_appends_rather_than_truncates() {
     std::remove(path.c_str());
 }
 
+// ------------------------------------------- replaying the verdict history --
+//
+// `gamma_no_verdict` estimates what an UNCHECKED tick is worth from the
+// verdicts actually observed. That estimate is only honest if the history
+// survives a restart, so the log -- append-only and previously never read back
+// -- has exactly one reader. Every assertion below guards a failure that would
+// be INVISIBLE: a scan that always returns zeros does not crash, it just pins
+// gamma to the prior forever and looks exactly like "the prior was right".
+
+void test_scan_counts_the_three_verdicts_and_skips_null() {
+    const std::string path = temp_path("verdict_scan");
+    std::remove(path.c_str());
+    {
+        AssemblyLog log(path);
+        auto write = [&](std::optional<std::string> v, std::uint64_t t) {
+            const int h = log.record({nr("VERIFY", {}, true)}, {}, {{0}}, t, 0.2);
+            log.close(h, 0.1, std::move(v));
+        };
+        write("VERIFIED", 0);
+        write("VERIFIED", 1);
+        write("REFUTED", 2);
+        write("UNVERIFIABLE", 3);
+        // NULL = no oracle ran. This is the population the estimator
+        // extrapolates TO, so counting it would condition on the very thing
+        // being estimated -- and would bias gamma toward whatever we assumed.
+        write(std::nullopt, 4);
+        write(std::nullopt, 5);
+    }
+    const auto c = AssemblyLog::scan_verdict_counts(path);
+    assert(c.verified == 2 && c.refuted == 1 && c.unverifiable == 1);
+    assert(c.total() == 4 && "the two NULL ticks must NOT be counted");
+    std::cout << "  [ok] scan counts V/R/U across a restart and skips NULL\n";
+    std::remove(path.c_str());
+}
+
+void test_scan_survives_a_missing_file_and_a_truncated_line() {
+    // No log yet is day one, not an error. Throwing here would make a fresh
+    // install unable to start.
+    const auto none = AssemblyLog::scan_verdict_counts(temp_path("does_not_exist"));
+    assert(none.total() == 0);
+    assert(AssemblyLog::scan_verdict_counts("").total() == 0);
+
+    // A truncated final line is the NORMAL result of an interrupted run --
+    // exactly what an accumulation run killed with Ctrl-C leaves behind.
+    // Losing one verdict is right; refusing to start is not.
+    const std::string path = temp_path("verdict_truncated");
+    std::remove(path.c_str());
+    {
+        AssemblyLog log(path);
+        const int h = log.record({nr("VERIFY", {}, true)}, {}, {{0}}, 0, 0.2);
+        log.close(h, 0.1, std::string("VERIFIED"));
+    }
+    {
+        std::ofstream out(path, std::ios::app);
+        out << "{\"verified\": \"VERI\n";              // truncated mid-value
+        out << "{\"verified\": \"SOMETHING_ELSE\"}\n";  // schema drift
+        out << "\n";                                    // blank
+    }
+    const auto c = AssemblyLog::scan_verdict_counts(path);
+    assert(c.total() == 1 && c.verified == 1 &&
+           "malformed lines are skipped; an unknown label is never guessed at");
+    std::cout << "  [ok] missing file, truncated line and unknown label all survive\n";
+    std::remove(path.c_str());
+}
+
+void test_kernel_seeds_gamma_from_the_log() {
+    // THE WIRE. Without this seeding the estimator resets to its prior on every
+    // process start, and "accumulates across sessions" is false while every
+    // unit test still passes.
+    const std::string path = temp_path("verdict_seed");
+    std::remove(path.c_str());
+    {
+        AssemblyLog log(path);
+        for (int i = 0; i < 24; ++i) {
+            const int h = log.record({nr("VERIFY", {}, true)}, {}, {{0}},
+                                     static_cast<std::uint64_t>(i), 0.2);
+            log.close(h, 0.1, std::string("VERIFIED"));
+        }
+    }
+
+    core::CognitiveState state;
+    core::KernelConfig cfg;
+    cfg.assembly_log_path = path;
+    core::OSKernel kernel(state, cfg);
+
+    assert(kernel.verdict_counts().verified == 24);
+    // 24 passes against kappa = 8 of prior: gamma should have moved most of the
+    // way from eps*gamma0 (0.005) toward gamma0 (0.05).
+    const double g = kernel.gamma_for_unchecked();
+    assert(g > 0.03 && g < 0.05 && "a history of passes must raise the unchecked rate");
+
+    // The hard opt-out still means EXACTLY zero. It is a policy, not an
+    // estimate, so no amount of good history may move it off 0.
+    core::KernelConfig strict = cfg;
+    strict.crystallise_unverified = false;
+    core::OSKernel strict_kernel(state, strict);
+    assert(strict_kernel.gamma_for_unchecked() == 0.0);
+
+    std::cout << "  [ok] kernel seeds from the log: gamma_unchecked 0.005 -> "
+              << g << ", and false still pins it to 0\n";
+    std::remove(path.c_str());
+}
+
 // ---------------------------------------------------------------------------
 // END-TO-END: does OSKernel::execute_dag actually record?
 //
@@ -418,6 +521,11 @@ int main() {
     test_missing_rho_stays_null_not_zero();
     test_abandon_records_the_unknown_outcome();
     test_appends_rather_than_truncates();
+
+    std::cout << "=== verdict history replay (gamma for the fourth state) ===\n";
+    test_scan_counts_the_three_verdicts_and_skips_null();
+    test_scan_survives_a_missing_file_and_a_truncated_line();
+    test_kernel_seeds_gamma_from_the_log();
 
     std::cout << "=== E7 wired into the tick ===\n";
     test_kernel_records_a_real_dag();

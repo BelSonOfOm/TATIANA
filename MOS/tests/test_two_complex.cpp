@@ -55,6 +55,97 @@ void test_gamma_of_nu() {
     std::cout << "  [ok] gamma: Verified=0.05, Unverifiable=0.005, Refuted=0 exactly\n";
 }
 
+// ------------------------------- gamma for the FOURTH state (no oracle) -----
+//
+// gamma_nu is defined on three verdicts and the engine was applying it to four
+// states, collapsing "no VerifyOp ran" onto Unverifiable. These tests pin the
+// derived replacement. Each guards a failure that would rot silently.
+
+void test_no_verdict_day_one_is_exactly_the_old_default() {
+    // THE REGRESSION THAT MATTERS. With no history and the default prior
+    // pi0 = (V=0, U=1, R=0), the estimator MUST return exactly what the engine
+    // returned before it existed. If this drifts, every measured Q(t) in the
+    // logbook is on a different footing than the ones taken after.
+    const VerdictCounts none;
+    assert(none.total() == 0);
+    assert(gamma_no_verdict(none, 0.05, 0.1) == 0.1 * 0.05 &&
+           "day-one degradation must be EXACT, not approximate");
+    std::cout << "  [ok] no history => exactly eps*gamma0; the old default is now the PRIOR\n";
+}
+
+void test_no_verdict_moves_with_evidence() {
+    // A history of passes should make an unchecked tick worth nearly a verified
+    // one; a history of refutations should make it worth nearly nothing. That
+    // is the whole content of the derivation, so it is asserted in both limits.
+    VerdictCounts good;
+    for (int i = 0; i < 4000; ++i) good.observe(Verdict::Verified);
+    const double g_good = gamma_no_verdict(good, 0.05, 0.1);
+    assert(g_good > 0.049 && g_good <= 0.05 && "all-verified history -> gamma0");
+
+    VerdictCounts bad;
+    for (int i = 0; i < 4000; ++i) bad.observe(Verdict::Refuted);
+    const double g_bad = gamma_no_verdict(bad, 0.05, 0.1);
+    assert(g_bad >= 0.0 && g_bad < 1e-4 && "all-refuted history -> 0");
+
+    // Monotone in the direction that matters, and refutations DILUTE rather
+    // than subtract -- gamma must never go negative however bad the history.
+    VerdictCounts c;
+    c.observe(Verdict::Verified);
+    const double before = gamma_no_verdict(c, 0.05, 0.1);
+    c.observe(Verdict::Refuted);
+    const double after = gamma_no_verdict(c, 0.05, 0.1);
+    assert(after < before && after >= 0.0 && "a refutation dilutes, never negates");
+    std::cout << "  [ok] evidence moves it: verified->gamma0, refuted->0, never negative\n";
+}
+
+void test_no_verdict_stays_in_range_and_kappa_recovers_the_constant() {
+    // Fuzz the bound. gamma(nothing) is a convex combination of gamma_nu's own
+    // values, so it can never leave [0, gamma0] -- if it does, i_shriek would be
+    // asked to transfer more than a VERIFIED session does, on no evidence.
+    for (int v = 0; v <= 40; v += 7) {
+        for (int u = 0; u <= 40; u += 7) {
+            for (int r = 0; r <= 40; r += 7) {
+                VerdictCounts c;
+                c.verified = v; c.unverifiable = u; c.refuted = r;
+                const double g = gamma_no_verdict(c, 0.05, 0.1, 8.0);
+                assert(g >= 0.0 && g <= 0.05 && "gamma(nothing) must lie in [0, gamma0]");
+            }
+        }
+    }
+
+    // A very strong prior must reproduce the OLD constant even against a
+    // contradicting history: kappa is exactly "how many real verdicts before the
+    // data outvotes the prior", so this is the knob behaving as advertised.
+    VerdictCounts c;
+    for (int i = 0; i < 10; ++i) c.observe(Verdict::Verified);
+    const double pinned = gamma_no_verdict(c, 0.05, 0.1, 1e9);
+    assert(std::fabs(pinned - 0.005) < 1e-6 && "large kappa recovers eps*gamma0");
+    std::cout << "  [ok] bounded in [0, gamma0] over 343 histories; kappa pins to the prior\n";
+}
+
+void test_no_verdict_refusals() {
+    const VerdictCounts none;
+    bool threw = false;
+    // kappa = 0 with no observations is 0/0. A zero-strength prior is not an
+    // uninformative prior, it is an undefined one, and returning NaN here would
+    // reach i_shriek and poison the store silently.
+    try { (void)gamma_no_verdict(none, 0.05, 0.1, 0.0); }
+    catch (const std::invalid_argument&) { threw = true; }
+    assert(threw && "kappa = 0 must be refused, not silently NaN");
+
+    threw = false;
+    try { (void)gamma_no_verdict(none, 0.05, 0.1, 8.0, 0.7, 0.7); }
+    catch (const std::invalid_argument&) { threw = true; }
+    assert(threw && "prior mass summing above 1 must be refused");
+
+    threw = false;
+    VerdictCounts bad; bad.verified = -1;
+    try { (void)gamma_no_verdict(bad, 0.05, 0.1); }
+    catch (const std::invalid_argument&) { threw = true; }
+    assert(threw && "negative counts must be refused");
+    std::cout << "  [ok] kappa=0, over-full prior and negative counts all refused\n";
+}
+
 // ------------------------------------------------------- the adjunction -----
 
 void test_i_star_is_downward_closed() {
@@ -276,6 +367,12 @@ void test_crystallise_refusals() {
 int main() {
     std::cout << "=== gamma(nu) (Phase-2 item 6) ===\n";
     test_gamma_of_nu();
+
+    std::cout << "=== gamma for the FOURTH state: no oracle ran ===\n";
+    test_no_verdict_day_one_is_exactly_the_old_default();
+    test_no_verdict_moves_with_evidence();
+    test_no_verdict_stays_in_range_and_kappa_recovers_the_constant();
+    test_no_verdict_refusals();
 
     std::cout << "=== the K/W adjunction (Phase-2 item 5) ===\n";
     test_i_star_is_downward_closed();

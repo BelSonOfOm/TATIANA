@@ -35,6 +35,45 @@ double gamma_nu(Verdict verdict, double gamma0, double eps) {
     }
 }
 
+double gamma_no_verdict(const VerdictCounts& counts, double gamma0, double eps,
+                        double kappa, double prior_verified,
+                        double prior_unverifiable) {
+    if (!(gamma0 > 0.0 && gamma0 <= 1.0)) {
+        throw std::invalid_argument(
+            "gamma0 must lie in (0,1]; got " + std::to_string(gamma0));
+    }
+    if (!(eps >= 0.0 && eps <= 1.0)) {
+        throw std::invalid_argument("eps must lie in [0,1]; got " + std::to_string(eps));
+    }
+    // Strictly positive: at kappa = 0 with no observations the estimator is 0/0.
+    // A zero-strength prior is not "no prior", it is an undefined one.
+    if (!(kappa > 0.0)) {
+        throw std::invalid_argument(
+            "kappa must be > 0; got " + std::to_string(kappa) +
+            ". kappa = 0 with no observations is 0/0, not an uninformative prior.");
+    }
+    if (!(prior_verified >= 0.0 && prior_unverifiable >= 0.0 &&
+          prior_verified + prior_unverifiable <= 1.0)) {
+        throw std::invalid_argument(
+            "prior_verified and prior_unverifiable must be non-negative and sum to "
+            "at most 1; the remainder is prior_refuted.");
+    }
+    if (counts.verified < 0 || counts.unverifiable < 0 || counts.refuted < 0) {
+        throw std::invalid_argument("verdict counts must be non-negative");
+    }
+
+    // gamma(Refuted) = 0, so refutations enter ONLY through the denominator --
+    // they dilute the rate rather than subtract from it. That is the correct
+    // behaviour: a history of refutations should make an unchecked tick worth
+    // LESS, and it does, without ever driving gamma negative.
+    const double num =
+        (static_cast<double>(counts.verified) + kappa * prior_verified) +
+        eps * (static_cast<double>(counts.unverifiable) + kappa * prior_unverifiable);
+    const double den = static_cast<double>(counts.total()) + kappa;
+
+    return gamma0 * (num / den);
+}
+
 // ------------------------------------------------------------------- Store --
 
 Store::Store(Complex2 cx, int d) : complex(std::move(cx)), d_(d) {

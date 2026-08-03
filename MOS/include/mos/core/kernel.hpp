@@ -70,7 +70,34 @@ struct KernelConfig {
     /// E7 records the two cases DIFFERENTLY regardless of this flag: NULL for
     /// "no oracle ran", the string "UNVERIFIABLE" for "one ran and could not
     /// decide". The distinction is never lost in the data, only in gamma.
+    ///
+    /// ⚠️ UPDATED: the `true` branch is NO LONGER a collapse onto Unverifiable.
+    /// It now calls `gamma_no_verdict`, which DERIVES the rate from the verdicts
+    /// actually observed (see below). The flag keeps its original meaning as the
+    /// hard opt-out -- `false` still means gamma = 0, only checked sessions move
+    /// the store -- but `true` is a measurement rather than a decision.
     bool crystallise_unverified = true;
+
+    /// @brief Prior strength for `gamma_no_verdict`, in observations.
+    ///
+    /// THE ONE KNOB THE DERIVATION INTRODUCES, stated rather than buried. It
+    /// deleted the hand-set gamma-for-no-oracle and replaced it with "how many
+    /// real verdicts before the data outvotes the prior". This is the same
+    /// object as Construction 5's membership kappa and should be set
+    /// consistently with it.
+    ///
+    /// Default 8: a power of two, so day-one degradation is bit-exact, and
+    /// modest enough that a first session of real verdicts already moves it.
+    double gamma_kappa = 8.0;
+
+    /// @brief The prior verdict distribution for `gamma_no_verdict`.
+    ///
+    /// Default (V=0, U=1) reproduces the OLD constant eps*gamma0 exactly at
+    /// n = 0, so the previous hand-set decision becomes the starting condition
+    /// rather than a permanent one. Remaining mass is prior_refuted, which
+    /// contributes 0 and is therefore implicit.
+    double gamma_prior_verified = 0.0;
+    double gamma_prior_unverifiable = 1.0;
 
     /// @brief Where E7 appends assembly events. Empty disables recording.
     ///
@@ -183,6 +210,21 @@ public:
         return last_verdict_;
     }
 
+    /// @brief Verdicts observed so far, seeded from the E7 log at construction
+    ///        and incremented live. The input to `gamma_no_verdict`.
+    ///
+    /// Seeded rather than started empty because the estimator is meant to
+    /// ACCUMULATE: resetting to the prior on every process start would make
+    /// "learns what an unchecked tick is worth" true only within one session.
+    [[nodiscard]] const VerdictCounts& verdict_counts() const noexcept {
+        return verdict_counts_;
+    }
+
+    /// @brief gamma the NEXT unchecked tick would use. Exposed for telemetry:
+    ///        this number moving is what "the prior is being outvoted" looks
+    ///        like, and it is otherwise invisible inside one tick's log line.
+    [[nodiscard]] double gamma_for_unchecked() const;
+
 private:
     CognitiveState& state_;
     std::shared_ptr<ReflectionEngine> reflection_engine_;
@@ -197,6 +239,7 @@ private:
     std::unique_ptr<AssemblyLog> assembly_log_;
     std::uint64_t tick_count_ = 0;
     std::optional<Verdict> last_verdict_;
+    VerdictCounts verdict_counts_;
 
     // Created lazily: the store's dimension is fixed for its life and is only
     // knowable once a concept with geometry has actually been retrieved.

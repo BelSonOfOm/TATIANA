@@ -40,5 +40,38 @@ enum class Verdict {
     return (static_cast<int>(a) < static_cast<int>(b)) ? a : b;
 }
 
+/// @brief How many times each verdict has been OBSERVED -- i.e. how often an
+///        oracle actually ran and returned each of the three.
+///
+/// WHAT THIS IS FOR. gamma_nu is defined on three verdicts, but most ticks are
+/// in a FOURTH state -- no VerifyOp was in the DAG, so no oracle ran and
+/// `last_verdict_` is nullopt. Collapsing that into Unverifiable is a decision,
+/// not a derivation (it was flagged as such in KernelConfig). These counters are
+/// what lets it become a derivation instead: "no test ran" is an ABSENCE of
+/// evidence, so the honest rate is the expected rate under the historical
+/// distribution of verdicts. See `gamma_no_verdict` in two_complex.hpp.
+///
+/// COUNTS ONLY TICKS WHERE AN ORACLE RAN. A tick with no VerifyOp contributes
+/// nothing here -- including it would be conditioning on the very thing being
+/// estimated. The distribution is therefore conditional on a check happening,
+/// which is a real limitation and is stated at the estimator.
+struct VerdictCounts {
+    long long verified = 0;
+    long long unverifiable = 0;
+    long long refuted = 0;
+
+    [[nodiscard]] constexpr long long total() const noexcept {
+        return verified + unverifiable + refuted;
+    }
+
+    constexpr void observe(Verdict v) noexcept {
+        switch (v) {
+            case Verdict::Verified:     ++verified; break;
+            case Verdict::Unverifiable: ++unverifiable; break;
+            case Verdict::Refuted:      ++refuted; break;
+        }
+    }
+};
+
 } // namespace core
 } // namespace mos

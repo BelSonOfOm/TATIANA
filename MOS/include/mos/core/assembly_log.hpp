@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+#include "mos/core/verdict.hpp"
+
 namespace mos {
 namespace core {
 
@@ -151,6 +153,25 @@ public:
     [[nodiscard]] std::size_t open_count() const noexcept { return open_.size(); }
 
     [[nodiscard]] const std::string& path() const noexcept { return path_; }
+
+    /// @brief Replay a log file and count the verdicts it records.
+    ///
+    /// WHY THIS EXISTS. `gamma_no_verdict` estimates what an unchecked tick is
+    /// worth from the verdicts actually seen -- and "actually seen" has to mean
+    /// across sessions, or the estimator resets to its prior every time the
+    /// process restarts and the word "accumulates" is a lie. The log is
+    /// append-only and was never read back; this is the only reader.
+    ///
+    /// Events with a NULL `verified` field are SKIPPED, not counted as anything.
+    /// They are the ticks where no oracle ran -- the very population the
+    /// estimator is extrapolating to -- so folding them in would condition on
+    /// the thing being estimated.
+    ///
+    /// A malformed or unreadable line is skipped rather than thrown on: a
+    /// truncated final line is the normal result of an interrupted run, and
+    /// refusing to start because of one is worse than counting one fewer
+    /// verdict. Returns zeroed counts when the file does not exist.
+    [[nodiscard]] static VerdictCounts scan_verdict_counts(const std::string& path);
 
 private:
     void flush(const AssemblyEvent& ev);

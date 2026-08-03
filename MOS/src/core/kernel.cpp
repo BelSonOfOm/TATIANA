@@ -69,7 +69,19 @@ OSKernel::OSKernel(CognitiveState& initial_state, const KernelConfig& config)
     // E7. An empty path is the explicit opt-out; anything else records.
     if (!config_.assembly_log_path.empty()) {
         assembly_log_ = std::make_unique<AssemblyLog>(config_.assembly_log_path);
+        // Seed the verdict history from the log so gamma_no_verdict ACCUMULATES
+        // across sessions. Without this the estimator would reset to its prior
+        // on every process start, and "learns what an unchecked tick is worth"
+        // would be true only within a single run.
+        verdict_counts_ = AssemblyLog::scan_verdict_counts(config_.assembly_log_path);
     }
+}
+
+double OSKernel::gamma_for_unchecked() const {
+    if (!config_.crystallise_unverified) return 0.0;
+    return gamma_no_verdict(verdict_counts_, config_.gamma0, config_.gamma_eps,
+                            config_.gamma_kappa, config_.gamma_prior_verified,
+                            config_.gamma_prior_unverifiable);
 }
 
 void OSKernel::set_reflection_engine(std::shared_ptr<ReflectionEngine> reflection_engine) {
@@ -322,6 +334,11 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
     // last one's evidence -- silently, and only visibly wrong on the tick after
     // a refutation.
     last_verdict_ = state_.tick_verdict();
+    // Count it BEFORE gamma is computed below, so this tick's own verdict is in
+    // the history the next unchecked tick extrapolates from. Only real verdicts
+    // are counted: a nullopt tick contributes nothing, because it is the
+    // population being extrapolated TO.
+    if (last_verdict_) verdict_counts_.observe(*last_verdict_);
     last_crystallised_ = 0;
     {
         const auto coactive = state_.tick_retrieved();
@@ -367,21 +384,26 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
                     }
                 }
 
-                // nu -> gamma. See KernelConfig::crystallise_unverified for the
-                // one judgement call here: what an unchecked tick is worth.
-                const Verdict nu =
-                    last_verdict_ ? *last_verdict_ : Verdict::Unverifiable;
-                const bool may_crystallise =
-                    last_verdict_.has_value() || config_.crystallise_unverified;
+                // nu -> gamma. THE FOURTH STATE IS NO LONGER COLLAPSED.
+                // gamma_nu is a function on three verdicts; "no VerifyOp was in
+                // the DAG" is a fourth state it says nothing about, and applying
+                // it there anyway was a partial function used as a total one.
+                // With a real verdict we use gamma_nu unchanged. Without one we
+                // use the DERIVED rate: what a check would have licensed, given
+                // every check this store has ever seen. `crystallise_unverified
+                // = false` still forces exactly 0 -- only checked sessions move
+                // the store -- because that is a policy, not an estimate.
                 const double gamma =
-                    may_crystallise ? gamma_nu(nu, config_.gamma0, config_.gamma_eps)
-                                    : 0.0;
+                    last_verdict_
+                        ? gamma_nu(*last_verdict_, config_.gamma0, config_.gamma_eps)
+                        : gamma_for_unchecked();
 
                 last_crystallised_ = i_shriek(K, W, gamma);
                 if (learned > 0) {
                     std::cerr << "[OSKernel] consolidation: learned " << learned
                               << " edge(s), gamma=" << gamma << " ("
-                              << (last_verdict_ ? to_string(nu) : "no oracle")
+                              << (last_verdict_ ? to_string(*last_verdict_)
+                                                : "no oracle")
                               << "), crystallised " << last_crystallised_
                               << ", Q=" << K.Q() << "\n";
                 }
