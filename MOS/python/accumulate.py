@@ -121,7 +121,12 @@ def verify_dag(payload: bytearray, query: str, expect_dim: int) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--tasks", required=True, help="file of task strings, one per line")
+    ap.add_argument("--tasks", help="file of task strings, one per line")
+    ap.add_argument("--tasks-npz", default=None,
+                    help="a queries.npz from colab_prepare_corpus.ipynb (texts, "
+                         "vectors). Uses the PRECOMPUTED geometry, so this "
+                         "machine never loads the embedding model -- the local "
+                         "cost drops to engine ticks, which are microseconds.")
     ap.add_argument("--ticks", type=int, required=True,
                     help="target TOTAL ticks in the log, not additional ones")
     ap.add_argument("--log", default=ASSEMBLY_LOG_PATH)
@@ -135,9 +140,26 @@ def main() -> int:
                          "engine is single-threaded per tick")
     args = ap.parse_args()
 
-    tasks = load_tasks(args.tasks)
+    if not args.tasks and not args.tasks_npz:
+        print("[accumulate] need --tasks or --tasks-npz", file=sys.stderr)
+        return 2
+
+    precomputed = None
+    if args.tasks_npz:
+        import numpy as np
+        data = np.load(args.tasks_npz, allow_pickle=True)
+        tasks = [str(t) for t in data["texts"]]
+        # Keyed by the exact query string, because that is what
+        # serialize_to_flatbuffer will look up when it asks for geometry.
+        precomputed = {t: [float(x) for x in v]
+                       for t, v in zip(tasks, data["vectors"])}
+        print(f"[accumulate] precomputed geometry: {len(precomputed)} queries "
+              f"at {data['vectors'].shape[1]}-d (no model loaded here)")
+    else:
+        tasks = load_tasks(args.tasks)
+
     if not tasks:
-        print(f"[accumulate] no usable tasks in {args.tasks}", file=sys.stderr)
+        print("[accumulate] no usable tasks", file=sys.stderr)
         return 2
 
     already = count_existing_ticks(args.log)
@@ -167,13 +189,37 @@ def main() -> int:
               f"{len(tasks)} than {needed}. Tier 0 on this would overstate its")
         print("[accumulate] confidence. Supply more distinct tasks.")
 
+    def attach_geometry(comm):
+        """Point the serialiser at precomputed vectors instead of the model.
+
+        serialize_to_flatbuffer calls self.get_embedding(payload_text), so
+        replacing that one method is the whole integration. A MISS RAISES rather
+        than falling back to embedding: a silent fallback would load the model
+        and re-embed on the very machine this exists to spare, and the run would
+        look identical while taking a thousand times longer.
+        """
+        if precomputed is None:
+            return
+        def lookup(text: str):
+            try:
+                return precomputed[text]
+            except KeyError:
+                raise KeyError(
+                    f"no precomputed geometry for {text[:60]!r}. The task file "
+                    "and the .npz must be the same stream.")
+        comm.get_embedding = lookup
+
     from communicator import Communicator  # deferred: loads the embedding model
 
     if args.dry_run:
         print("\n[accumulate] DRY RUN -- engine not started, log not written.\n")
         comm = Communicator.__new__(Communicator)   # no subprocess spawn
-        from embeddings import embed as embed_text, EMBED_DIM
-        comm.get_embedding = embed_text
+        if precomputed is not None:
+            attach_geometry(comm)
+            EMBED_DIM = len(next(iter(precomputed.values())))
+        else:
+            from embeddings import embed as embed_text, EMBED_DIM
+            comm.get_embedding = embed_text
         ok = 0
         t0 = time.time()
         for i, task in enumerate(tasks[:min(5, len(tasks))]):
@@ -190,11 +236,15 @@ def main() -> int:
         print(f"\n[accumulate] {ok}/{min(5, len(tasks))} sample tasks serialise cleanly.")
         print(f"[accumulate] ~{dt/max(ok,1):.3f}s per tick to build "
               f"=> ~{needed*dt/max(ok,1)/60:.1f} min of CPU for {needed} ticks.")
-        print("[accumulate] API calls this run: 0 (SEARCH-only; embeddings local).")
+        print("[accumulate] API calls this run: 0 (SEARCH-only).")
+        print("[accumulate] geometry: " + ("PRECOMPUTED -- no model on this machine."
+                                           if precomputed else
+                                           "embedded locally; --tasks-npz avoids that."))
         print("\n[accumulate] Dry run OK. Re-run without --dry-run to accumulate.")
         return 0
 
     comm = Communicator()
+    attach_geometry(comm)
     started = time.time()
     dispatched = 0
     try:
@@ -217,7 +267,9 @@ def main() -> int:
         manifest = {
             "written_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
             "git_commit": git_commit(),
-            "task_file": os.path.abspath(args.tasks),
+            "task_file": os.path.abspath(args.tasks) if args.tasks else None,
+            "tasks_npz": os.path.abspath(args.tasks_npz) if args.tasks_npz else None,
+            "geometry": "precomputed (Colab)" if precomputed else "embedded locally",
             "n_distinct_tasks": len(tasks),
             "tasks_cycled": len(tasks) < needed,
             "dag_shape": "SEARCH-only, one node, no LLM planning",

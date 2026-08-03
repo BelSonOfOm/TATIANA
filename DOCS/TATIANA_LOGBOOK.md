@@ -2213,7 +2213,11 @@ with `γ(e,ẽ)` the shared vertex. Setting `π = ν = τ = 1` returns `4 − de
 unit-weight formula is recovered exactly as the special case — day-one degradation, same
 discipline as everywhere else.
 
-### ⚠️ THE GAP THE DERIVATION EXPOSED — MOS has no 2-cochain inner product.
+### ~~⚠️ THE GAP THE DERIVATION EXPOSED — MOS has no 2-cochain inner product.~~
+### ✅ **CLOSED by §5ag/V7 (marker was stale until 2026-08-03; see §5ar).** Option (b) below is
+### what was built: `τ_f` = precision of the triangle circulation, the same derivation as `π_e` one
+### dimension up. `curvature.hpp:56` — *"tau_f: the 2-cochain weight on face f, derived (5ag)."*
+### **The residual that DOES stand: Forman's `w_α` prefactor placement (see HONEST LIMIT below).**
 `τ_f` has no existing referent. `hodge.py` builds δ¹ so the 2-cochain *space* exists, but its
 weighting is implicitly identity and was never chosen. Augmented Forman **needs** it. Two honest
 options, and this is a real modelling decision, not a default:
@@ -3077,8 +3081,13 @@ the shift *looks exactly like the finding it would be corrupting* ("organs stopp
 concepts"). So the mask tests assert an all-ones mask reproduces the unmasked numbers **exactly**.
 
 ### ⚠️ STILL OWED (stated, not buried)
-- **No triangles ⇒ `b₁` is structurally 0 in the fine store**, so the harmonic/growth-address half
-  of the machinery cannot fire there yet. Stage 3a says why guessing is worse.
+- ~~**No triangles ⇒ `b₁` is structurally 0 in the fine store**, so the harmonic/growth-address half
+  of the machinery cannot fire there yet.~~ **🚨 RETRACTED 2026-08-03 — BACKWARDS. See §5ar.**
+  With no 2-cells `δ¹ = 0`, so curl is trivial and harmonic = `(im δ⁰)^⊥` of dimension
+  `b₁ = E − V + b₀`: **no triangles MAXIMISES `b₁`, it does not zero it.** And since each assembly
+  is inserted as a clique, `b₁(K_n) = (n−1)(n−2)/2` — one 20-concept assembly contributes 171
+  artifactual cycles. **The address is not blocked, it is SWAMPED.** Stage 3a's caution about
+  guessing stands; its stated consequence does not.
 - **γ = 0.005 in the measured runs is the "no oracle" rate** — VerifyOp's real outcome still does
   not reach the kernel, so the verified path is exercised only in the unit test, not in the loop.
 - Construction 5's **verdict about THIS corpus** still needs accumulated E7 records.
@@ -3346,6 +3355,73 @@ blocked the entire consolidation loop, and nothing failed loudly while it did.**
 - **Power at the realistic weak effect size is still short.** At θ=0.12, calibrated power is 0.17 at
   T=700 and 0.75 at T=1500 (FP 0.12). Larger T measured separately.
 
+## 5ap. 🔬 THE CORPUS BLOCKER, AND A RETRIEVAL THRESHOLD THAT CANNOT WORK (2026-08-03)
+
+Phase 3 shipped a pipeline with nothing to run through it. Three findings, one self-inflicted.
+
+### ⚠️ 1. THE KNOWLEDGE BASE WAS EMPTY — AND EVERYTHING DOWNSTREAM WAS UNTESTABLE
+`mos_brain.db` held **one** concept, of **dimension 2** — a stale test artefact that the engine's
+fast dimension rejection silently skips. So `get_relevant_concepts` returned nothing, every tick's
+assembly was empty, Construction 5 had no matrix, and the consolidation loop had no edges. The
+retrieval half of the engine had never been exercised against real content. **This was the real
+Tier-0 blocker, not task supply** — and it is invisible from the test suite, which builds its own
+fixtures.
+
+### 🔴 2. THE RELEVANCE THRESHOLD IS A NEAR-DUPLICATE FILTER, NOT A RELEVANCE FILTER
+`SearchOp` sets `relevance_threshold = max(0.1, 1/dim)` and `derived_variance = ||q||`, and
+`KnowledgeBase` keeps a concept when **squared** Bures-Wasserstein ≤ that. Two consequences, both
+measured rather than argued:
+
+- `max(0.1, 1/dim)` = **0.1 for every dim > 10**. The `1/dim` branch is dead; the threshold does not
+  adapt to dimension at all despite looking like it does.
+- bge-small returns **unit** vectors, so `‖Δμ‖² = 2(1 − cos)` and `≤ 0.1` means **cos ≥ 0.95**.
+
+Measured on real embeddings: near-duplicate phrasings score `0.0245` ✓; genuinely related
+mathematics ("sheaf cohomology of a simplicial complex" vs "Hodge decomposition on graphs") scores
+`0.5214` ✗ — **rejected by 5×**. So retrieval admits paraphrases and nothing else. Almost every tick
+returns ≤1 concept, **which yields no co-activation pair at all**, and a 3000-tick run would produce
+a matrix Construction 5 cannot fit. `measure_retrieval.py` and cell 5 of the Colab notebook print
+the size distribution across ε so the threshold is set from data rather than left at a default that
+happens to be a duplicate filter.
+
+**A second coupling, load-bearing and easy to break:** the Bures epistemic term is
+`d·(√D₁ − √D₂)²` with `D₁ = ‖q‖ = 1`. A concept stored with the usual fresh floor
+`stalk_floor(384, n_eff=1) = O(1/d)` sits **≈346 away on variance alone**, so nothing is ever
+retrieved however well the means align. `ingest_corpus.py` therefore stores `D = 1.0` — not a tuning
+choice, the only value at which the semantic term decides relevance. Verified against
+`wasserstein_2_terms` (`semantic_skill.cpp:234`): at rank 0 the epistemic term reduces to that
+identity exactly.
+
+### 💥 3. A SELF-INFLICTED FAILURE WORTH RECORDING: THE INGEST MELTED THE MACHINE
+The first `ingest_corpus.py` embedded all 1126 chunks in **one** `embed_batch` call, held every
+vector in memory, and wrote to SQLite **once at the end**. fastembed/ONNX takes every core by
+default. It pegged the laptop for 10+ minutes, was killed, and left **zero rows** — the entire run
+lost. Three errors, all avoidable: no thread cap, no checkpointing, no progress output.
+**Lesson: a long job whose partial progress is worth nothing is a bug in the job.** Now capped to 2
+threads (set *before* import — ONNX reads those at session creation, so setting them afterwards does
+nothing), committed every 50 concepts, and resumable by content hash.
+
+### 🌐 THE CORPUS DECISION: arXiv, NOT THE PROJECT DOCS
+Embedding moved to Colab (`colab_prepare_corpus.ipynb`), and the corpus changed with it. `DOCS/` was
+rejected on two grounds: it would have to be **uploaded to Google**, and it is self-referential —
+a Tier-0 verdict from it describes TATIANA's own documents. arXiv abstracts across six deliberately
+**overlapping** categories (math.AT, math.DG, math-ph, quant-ph, math.PR, stat.ML) are public, and
+carry a property that matters:
+
+> **arXiv cross-listing IS real-world overlap.** A paper filed under both `math.AT` and `math.DG` is
+> literally one concept claimed by two topics. So the corpus plausibly *has* cover structure, which
+> makes a NEGATIVE Tier-0 result informative rather than merely underpowered.
+
+Six disjoint fields would have planted a partition and rigged the question. **Cross-listing is
+never shown to the model** — it is recorded for inspection only, not used as ground truth.
+
+**Cost, measured:** precomputing geometry on Colab drops the local build cost from **0.476 s/tick to
+0.001 s/tick** (476×). The engine tick itself was never the bottleneck; embedding was.
+
+**Stated limit, carried in the manifest:** queries are sentences drawn from the same abstracts that
+became concepts. That inflates *how much* is retrieved. It does not decide the *shape* of what is
+retrieved, which is what Tier 0 asks — but it belongs beside any verdict.
+
 ### 📋 NEXT, DEPENDENCY-ORDERED (supersedes every earlier "NEXT" in this file)
 
 > ## ✅ ALL FOUR PRE-PHASE-2 BLOCKERS CLOSED (2026-07-31, later same day). §5am has the detail.
@@ -3421,6 +3497,186 @@ notices disagreement. It does **not** yet grow, consolidate or restructure — a
 **LLM is the binding wall** — the quadratic judgement cost (n=7 ⇒ 21 calls ⇒ 47 events/day) makes
 batching, W-only judging and conflict-gating **mandatory, not optional**.
 
+## 5ar. 🔍 GAP AUDIT — γ(∅) DERIVED AND SHIPPED · GAP 5 DISSOLVED · CONE–BURES RE-BASED ·
+## TWO STALE MARKERS RETRACTED (2026-08-03)
+
+Charbel asked whether the mathematical theory is complete without a Construction 6. **It is not**,
+but the holes are small, local, and — the point of this section — **all closable with what is
+already here**. No new mathematics is required by any of them. Full audit below, then the three
+that got closed today. **Suite 25/25, zero errors.**
+
+### 📋 THE ROSTER — FOUR OPEN GAPS, NOT FIVE OR SIX
+The count drifted twice while auditing (once by miscounting a closed item as open, once by
+renumbering mid-explanation and promoting a *pending decision* to a *gap*). Recorded because it is
+the file's own recurring failure, and it happened again while writing about it.
+
+| # | gap | status after today |
+|---|---|---|
+| 1 | `b₁` swamped by clique artifacts | **open** — §5ap records it BACKWARDS, corrected below |
+| 2 | no criterion for when a 2-simplex exists | **open — same fix as #1** |
+| 3 | γ(ν) defined on 3 verdicts, applied to 4 states | ✅ **CLOSED TODAY** |
+| 4 | epoch length unmeasured (T13) | ✅ **DISSOLVED TODAY** |
+
+**Not gaps, and should not be counted as such:** the 2-cochain inner product (**closed** by τ_f,
+see below) · Cone–Bures (a pending decision, ruled today) · Forman's `w_α` prefactor placement
+(a caveat correctly scoped to publication, §5ac).
+
+### 🚨 CORRECTION TO §5ap — THE `b₁` CLAIM IS BACKWARDS
+§5ap line: *"No triangles ⇒ `b₁` is structurally 0 in the fine store, so the harmonic/growth-address
+half of the machinery cannot fire there yet."* **False, and inverted.**
+
+For a 1-dimensional complex `b₁ = E − V + b₀`. With no 2-cells `δ¹ = 0`, so the curl subspace is
+trivial and **harmonic = (im δ⁰)^⊥, of dimension exactly b₁**. No triangles does not zero `b₁` — it
+**maximises** it. §7's own formula has this right (`b₁ = E − V + b₀ − F`, so `F = 0` is the max), and
+`hodge.hpp:16` says it outright: *"harmonic: inconsistency around an UNFILLED cycle."*
+
+**And the consequence is worse than the one recorded.** `concept_store.cpp:142` inserts each tick's
+assembly as a **clique**, and `b₁(K_n) = (n−1)(n−2)/2` — a single 20-concept assembly contributes
+**171** independent cycles, every one an artifact of inserting a clique and refusing to fill it.
+> **The growth address at the fine level is not BLOCKED by `b₁ = 0`. It is SWAMPED by `b₁ ≫ 0` of
+> purely artifactual origin.** Wire `harmonic_support()` to the fine store today and it returns
+> confident addresses that are clique artifacts. **This is §5x's finding one level down.**
+
+**The fix closes gap #2 with the same rule, and it introduces no knob:** fill `{a,b,c}` exactly when
+all three co-fired in one assembly — *the edge rule, one dimension up*. Three facts line up:
+1. the 2-skeleton of a simplex is simply connected ⇒ **within-assembly cycles all die; no
+   tetrahedra needed**;
+2. `H₁` depends only on the 2-skeleton ⇒ `b₁(filled) = b₁(⋃ₜ Δ(Aₜ))`;
+3. `{Δ(Aₜ)}` is a **good cover** — simplices are contractible and `⋂_{t∈S} Δ(Aₜ) = Δ(⋂_S Aₜ)` is a
+   simplex or empty — so the **nerve lemma applies with its hypotheses verified exactly**, unlike
+   Construction 4's caveat (ii). Hence `⋃ₜ Δ(Aₜ) ≃ N({Aₜ})`.
+
+> ⇒ **`b₁`(fine complex) = `b₁`(assembly nerve).** Surviving cycles are CROSS-assembly — genuine
+> holes. And the fine store and Construction 5 stop measuring different objects.
+
+**⚠️ TWO COSTS, STATED BEFORE ANYONE BUILDS IT.** (i) triangle count is `Σₜ C(|Aₜ|,3)`: ~1.7M at
+1500 ticks × |A|=20 (≈20 MB, fine), but ~29M at |A|=50 (≈350 MB, not fine) — **decide against the
+§5s cell budget first**, or enumerate from the assembly log instead of storing. (ii) **It creates
+exactly the configuration V7 flagged as untested**: *"E5's complex has exactly ONE filled triangle…
+several triangles SHARING EDGES could couple their τ_f's; nothing here tests that."* Filling
+assembly triangles produces massively edge-sharing triangles. **A V7 follow-up on coupled τ_f is a
+precondition, not a nicety.**
+
+### ⚠️ STALE MARKER RETRACTED — §5ac's 2-cochain gap was closed by τ_f and never marked
+§5ac (2026-07-30) raised *"MOS has no 2-cochain inner product… τ_f has no existing referent"* and
+offered (a) `τ_f ≡ 1` declared, or (b) derive it from the 3-way residual, recommending (b).
+**§5ag/V7 did exactly (b)** — τ_f = precision of the triangle circulation, the same derivation as
+π_e one dimension up — and `curvature.hpp:56` now says so in as many words: *"tau_f: the 2-cochain
+weight on face f, derived (logbook 5ag)."* **The ⚠️ at §5ac is stale. The gap is closed.**
+**Fourth occurrence** of this exact failure (F10, Q2b, the Phase-3 numbering, now this). The
+*residual* — Forman's `w_α` prefactor placement, taken from literature and not re-derived — stands,
+correctly scoped by §5ac to "before any published claim rests on `F_MOS`".
+
+### ✅ GAP 3 CLOSED — γ(∅) IS DERIVED, NOT DECIDED. SHIPPED.
+`gamma_nu` is a function on **three** verdicts. `kernel.cpp` was applying it to **four** states via
+`nu = last_verdict_ ? *last_verdict_ : Verdict::Unverifiable` — a partial function used as a total
+one, erasing a distinction `CognitiveState` and E7 both take care to keep. §5ao flagged it as *"a
+DECISION, not a derivation"* and asked for a ruling. **Charbel ruled: derive it.**
+
+**The derivation.** "No test ran" is an *absence* of evidence, not a failed test, so the honest rate
+is what a test would have licensed. Since `γ(Refuted) = 0` contributes nothing:
+
+> `γ(∅) = E_P[γ(V)] = γ₀·[ P(V) + ε·P(U) ]`
+
+with `P` estimated from verdicts actually observed and shrunk toward a prior of strength `κ` — the
+**same Beta shrinkage Construction 5 uses for organ membership**, the third use of that idiom:
+
+> `γ(∅) = γ₀ · [ (n_V + κπ⁰_V) + ε(n_U + κπ⁰_U) ] / (n_total + κ)`
+
+**Day-one degradation is EXACT.** With `π⁰ = (V=0, U=1, R=0)` and `n=0` this returns precisely
+`ε·γ₀` — the old value. **The hand-set decision becomes the PRIOR, and evidence moves it.** Same
+pattern as τ_f → 1 at unit π. (Bit-exact for power-of-two `κ`; the default is 8. Stated, not hidden.)
+
+**Measured, wired end to end:** 24 VERIFIED in the log ⇒ `γ(∅)` moves **0.005 → 0.03875** of
+`γ₀ = 0.05`, matching `0.05·[24/32 + 0.1·8/32]` exactly.
+
+| what shipped | where |
+|---|---|
+| `VerdictCounts` (counts, `observe`, `total`) | `verdict.hpp` — no Eigen, so `CognitiveState` can hold it |
+| `gamma_no_verdict(counts, γ₀, ε, κ, π⁰)` | `two_complex.{hpp,cpp}`, beside `gamma_nu` |
+| `AssemblyLog::scan_verdict_counts(path)` | `assembly_log.{hpp,cpp}` — **the log's only reader** |
+| kernel seeds from the log, observes live, uses the derived rate | `kernel.{hpp,cpp}` |
+| 4 estimator tests + 3 replay/wiring tests | `test_two_complex.cpp`, `test_assembly_log.cpp` |
+
+**🚨 THE KNOB THIS INTRODUCES, STATED — the §5t pattern, not hidden.** It deletes the hand-set
+`γ(∅)` and introduces `κ` (prior strength, in observations). That is a *better* knob — it has a
+stated meaning ("how many real verdicts before data outvotes the prior"), a derived day-one value,
+and it is **the same object as Construction 5's κ, so the two should be set together** — but it is a
+knob and pretending otherwise would be the exact self-deception §0.8 exists to prevent.
+
+**⚠️ THE LIMITATION, STATED NOT BURIED: the estimate is CONDITIONAL ON A CHECK HAVING HAPPENED.**
+Ticks that ran VerifyOp may not resemble ticks that did not, so `P` is a conditional distribution
+used as a marginal. This is real selection bias. It is **testable** (compare tick features across
+the two populations) and still strictly better than a constant. **Do not quote `γ(∅)` as unbiased.**
+
+**Design decisions worth not re-litigating:**
+- **NULL is skipped by the scan, never counted.** NULL ticks are the population being extrapolated
+  *to*; folding them in conditions on the thing being estimated.
+- **`crystallise_unverified = false` still pins γ to EXACTLY 0.** That is a policy, not an estimate,
+  so no amount of good history may move it.
+- **Refutations dilute, never negate.** They enter only through the denominator, so `γ(∅)` stays in
+  `[0, γ₀]` — asserted over 343 histories. Leaving that range would mean transferring more on **no
+  evidence** than a VERIFIED session does.
+- **`κ = 0` throws.** A zero-strength prior with no observations is `0/0`, not an uninformative
+  prior, and a NaN would reach `i_shriek` and poison the store silently.
+- **A truncated final line is skipped, not thrown on** — it is the normal residue of an interrupted
+  accumulation run, and refusing to start over one lost verdict is worse than losing it.
+
+### ✅ GAP 4 DISSOLVED — the epoch fix has no subject
+**I said measuring T13 would be "free, a byproduct of the accumulation run". That was wrong.**
+`cover.py`'s entire API is `assemblies_to_matrix · alive_mask · NoisyOr · Mixture · fit_noisy_or ·
+fit_mixture · block_split · compare_model_classes · calibrated_compare · free_energy · sweep_K ·
+interior_optimum · overlap_fraction · membership_prior · generate_* · permuted_null`.
+
+> **There are no structural ops. No `split`, no `merge`, no `birth`, no `decay`. The cover is a
+> BATCH EM FIT, not a grown object.** So A4-1's zigzag concerns operations that do not exist, and
+> T13 counts ticks between events nothing emits. **Epoch length is not unmeasured — it is
+> UNDEFINED**, and no accumulation run will produce it.
+
+**It dissolves rather than closes**, on a decision already taken: *"(τ,t) is a bi-filtration and we
+are not going there. Use the τ-barcode at fixed t; read time as a SEQUENCE of barcodes."* If PH
+never runs along time, epochs never matter. τ is monotone by Construction 5's proof, so the primary
+persistence claim never depended on the time axis. **Third dissolution in the project's history
+(F10, Q8, now this).**
+> **🔓 RE-OPEN TRIGGER, so this is not a permanent burial: the day typed structural ops land on the
+> cover, T13 becomes live again.**
+
+**⚠️ AND THE FINDING UNDERNEATH IT.** `membership_prior(n_ci, m_i, pi0, kappa)` exists — the
+accumulating sufficient statistics are there — but **nothing converts accumulation into structure
+change.** The cover currently **accumulates without restructuring**, which is verbatim T11's stated
+failure mode: *"it is the hand-set list with extra steps."* That is a Tier-3 concern correctly gated
+behind Tier 0, so it is not wrong — **but it must be written down before someone reads
+`membership_prior` and concludes the cover grows.**
+
+### ✅ CONE–BURES — THE RE-BASE IS ACCEPTED (Charbel, 2026-08-03)
+Pending since 2026-07-31. **Ruled: accept the re-base.**
+- **KEEP** Cone–Bures as a metric. Everything that earned it a place under A17 survives: genuine
+  metric (20k triples, zero violation), bounded (kills the E4 runaway), derived length scale,
+  deletes a hand-set threshold.
+- **DROP** the §5z closeness claim — *"tracks true HK to under 1% / ~87% merge agreement"*. It does
+  **not** survive real text (V6: σ_dir/δ = 0.32, agreement ~62%), and three rescues failed (D̃,
+  π_v v2, organ redefinition bounded at −23% with a worsening tail).
+- **MONITOR, NEVER CLAIM.** σ_dir/δ goes in telemetry as an observable.
+- **Not to be re-litigated:** the damage was always smaller than it looked — `coherence.py` has
+  **zero** Bures references. V6 falsified a *proposed upgrade*, not anything wired into the engine.
+
+### 📋 WHAT THIS SECTION DOES *NOT* CLAIM
+- **γ(∅) rising is not correctness.** It says the store transfers more on unchecked ticks because
+  checked ticks have been passing. Coherence ≠ correctness still stands (Construction 3).
+- **No accumulation run has been executed**, so the live `VerdictCounts` is empty and γ(∅) sits at
+  its prior. The estimator is wired and tested; it has no history to learn from yet.
+- **The b₁ fix is NOT implemented** — only diagnosed, with its two costs and its V7 precondition.
+
+### 📋 NEXT (unchanged in order, updated in content)
+1. **Run the accumulation.** `python accumulate.py --tasks <file> --ticks 1500` — zero API calls,
+   ~12 min CPU. Now also supplies γ(∅)'s first real history. **Needs ≥1500 DISTINCT tasks.**
+2. **Run Tier 0 with `calibrated_compare`**, never `compare_model_classes`.
+3. ~~**Rule on `crystallise_unverified`**~~ — **DONE, derived (above).**
+4. **Renumber the two stale "Phase 3"s.**
+5. **Put PPR/sweep-cut in front of `i_star`.**
+6. **⭐ NEW — decide the b₁ fix**: fill within-assembly triangles, after costing `Σₜ C(|Aₜ|,3)`
+   against §5s and running the V7 coupled-τ_f follow-up.
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
@@ -3472,6 +3728,26 @@ batching, W-only judging and conflict-gating **mandatory, not optional**.
 
 ### Session log
 
+- **2026-08-03** — **Gap audit** on Charbel's question *"is the theory complete?"* Answer: **no, but
+  the four remaining holes need no new mathematics.** Closed three things and corrected two.
+  **γ(∅) DERIVED AND SHIPPED** — `gamma_nu` was a function on three verdicts being applied to four
+  states; it now estimates what an unchecked tick is worth from the verdicts actually observed,
+  `γ₀·[(n_V+κπ⁰_V)+ε(n_U+κπ⁰_U)]/(n+κ)`, shrunk by the same Beta prior Construction 5 uses, with
+  **exact day-one degradation** to the old `ε·γ₀` (measured: 24 passes move it 0.005 → 0.03875).
+  Persisted across sessions by `AssemblyLog::scan_verdict_counts`, the append-only log's first
+  reader. Stated openly: it introduces `κ` and the estimate is **conditional on a check having
+  happened** (selection bias, testable, not unbiased). **GAP 5 DISSOLVED** — and I had costed it
+  wrong: `cover.py` has **no structural ops at all**, so epoch length is *undefined*, not
+  unmeasured, and A4-1's zigzag concerns operations that do not exist; it dissolves on the standing
+  τ-axis-only decision, with a re-open trigger. Underneath it: the cover **accumulates without
+  restructuring** — T11's failure mode verbatim. **CONE–BURES RE-BASE ACCEPTED** by Charbel: keep
+  the metric, drop the §5z closeness claim, monitor σ_dir/δ rather than claim it. **Two stale
+  markers retracted:** §5ac's 2-cochain gap was closed by τ_f back on 07-31 (fourth occurrence of
+  that failure), and **§5ap's `b₁` claim is BACKWARDS** — no triangles *maximises* `b₁`, and since
+  assemblies are inserted as cliques the growth address is **swamped by artifacts, not blocked**;
+  the fix (fill within-assembly triangles) also closes the 2-simplex gap and makes
+  `b₁`(fine) = `b₁`(assembly nerve) by a nerve lemma whose hypotheses are met *exactly*. Suite
+  **25/25, zero errors**. See §5ar.
 - **2026-07-31 (later)** — Implemented **D̃** (`merge_score.py`) and **caught that my own
   recommendation was a category error**: thresholding D̃ is VACUOUS (D is bounded by w₀+w₁ and
   D̃ ≤ D, so the test always passes; max D̃² = 1.7987 vs bound 2.0 over 3000 pairs). *Multiplying a

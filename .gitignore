@@ -30,3 +30,8 @@ Thumbs.db
 
 # shell note containing a live API key - never commit
 DOCS/cd CUserscdargDesktopTATIANAMOS.txt
+
+# local scratch: backup blobs and the Colab staging copy (duplicates of MOS/python)
+MOS/*.db.bak
+colab_upload/
+MOS/python/tasks.txt
