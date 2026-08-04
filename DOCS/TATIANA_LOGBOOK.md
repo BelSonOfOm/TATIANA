@@ -3674,8 +3674,248 @@ Pending since 2026-07-31. **Ruled: accept the re-base.**
 3. ~~**Rule on `crystallise_unverified`**~~ — **DONE, derived (above).**
 4. **Renumber the two stale "Phase 3"s.**
 5. **Put PPR/sweep-cut in front of `i_star`.**
-6. **⭐ NEW — decide the b₁ fix**: fill within-assembly triangles, after costing `Σₜ C(|Aₜ|,3)`
-   against §5s and running the V7 coupled-τ_f follow-up.
+6. ~~**⭐ NEW — decide the b₁ fix**~~ — **DONE 2026-08-03, see §5as.** Both preconditions run;
+   cap derived at 30; τ_f coupling discharged. **Two follow-ups it created:** re-calibrate
+   `κ_hi`/`κ_lo` after the first accumulation (F_MOS scale moved), and read
+   `widest_assembly_seen()` on that run to find out whether the cap ever fires.
+
+## 5as. ✅ GAPS 1+3 CLOSED — THE TRIANGLE RULE, ITS TWO PRECONDITIONS DISCHARGED,
+## AND A TEST THAT COULD NOT FAIL (2026-08-03)
+
+§5ar diagnosed that §5ap's *"no triangles ⇒ b₁ = 0"* is backwards and that the growth address is
+**swamped by clique artifacts, not blocked**. Both gaps it left open — the `b₁` contamination and
+the missing 2-simplex criterion — close with **one rule and no new constant**. Both preconditions
+§5ar attached were run first, and **one of them changed the design.** Suite **25/25, zero red**.
+
+### ★ THE RULE — the edge rule, one dimension up
+> **A 2-simplex `{a,b,c}` is recorded exactly when its three concepts co-fired in ONE assembly.**
+
+Same signal as the edges (`concept_store.cpp` already inserts each assembly as a clique), same
+signal Construction 5 fits its latent causes to. **No threshold, no new knob.** Three facts make it
+the right rule and not merely a cheap one:
+1. **The 2-skeleton of a simplex is simply connected** ⇒ every WITHIN-assembly cycle dies.
+   **No tetrahedra are needed** — a real cost saving, not an approximation.
+2. **`H₁` depends only on the 2-skeleton** ⇒ `b₁(filled) = b₁(⋃ₜ Δ(Aₜ))`.
+3. **`{Δ(Aₜ)}` is a GOOD COVER** — simplices are contractible and `⋂_{t∈S}Δ(Aₜ) = Δ(⋂_S Aₜ)` is a
+   simplex or empty — so the **nerve lemma applies with its hypotheses verified EXACTLY.** Unlike
+   Construction 4's caveat (ii), nothing is borrowed here.
+
+> ⇒ **`b₁`(fine complex) = `b₁`(assembly nerve).** The store and Construction 5 stop measuring
+> different objects. Surviving cycles are CROSS-assembly — holes no single assembly covers.
+
+**MEASURED, not cited** (`test_concept_store.cpp`, b₁ from RANKS):
+
+| | n=3 | n=5 | n=7 | n=10 | 3-assembly necklace |
+|---|---|---|---|---|---|
+| b₁ unfilled (artifacts) | 1 | 6 | 15 | 36 | — |
+| **b₁ filled** | **0** | **0** | **0** | **0** | **1** ← the real hole SURVIVES |
+
+### ✅ P1 — COST. The cap is MANDATORY, and it is derived
+`python/validate_triangles.py`. Triangles grow as `C(n,3)` while edges grow as `C(n,2)`, so their
+ratio is `(n−2)/3` — **linear in assembly size, with no n beyond which the count stops mattering.**
+
+| assembly n | triangles/tick | at 1500 ticks | store |
+|---|---|---|---|
+| 20 | 1,140 | 1.7 M | 82–164 MB ✅ |
+| **30** | **4,060** | **6.1 M** | **292–585 MB ✅ (the cap)** |
+| 50 | 19,600 | 29.4 M | 1.4–2.8 GB ❌ |
+| 1000 | 166,167,000 | 249 G | ❌❌ |
+
+**`max_assembly_for_triangles = 30`** is the largest that fits a tenth of the 5.9 GB machine —
+**derived from the budget, not picked.**
+
+> 🚨 **AND THE CAP IS NOT PRUDENCE, IT IS NECESSARY.** `KnowledgeBase::get_relevant_concepts(mu, D,
+> epsilon)` is a **threshold scan with NO LIMIT** — `while (sqlite3_step(stmt) == SQLITE_ROW)` over
+> the whole store. **|A| is bounded by the relevance threshold and the corpus size, not by any
+> constant.** One wide tick at |A|=1000 would want 166 million triangles.
+
+**The cap is COUNTED, never silent** (`skipped_wide_assemblies()`, `widest_assembly_seen()`). A
+skipped assembly keeps its edges but not its 2-cells, so its `(n−1)(n−2)/2` cycles survive as
+harmonic mass **indistinguishable from a real hole** — the exact artifact the rule removes
+elsewhere. A nonzero counter means **b₁ is contaminated and the reader must know.** Pinned by test:
+cap=4 on an 8-assembly ⇒ 0 triangles, 28 edges, skip count 1, and b₁ = 21 = (8−1)(8−2)/2.
+
+### ✅ P2 — COUPLED τ_f. V7's stated limit, discharged
+V7: *"E5's complex has exactly ONE filled triangle… several triangles SHARING EDGES could couple
+their τ_f's; nothing here tests that."* The rule makes that configuration the normal one.
+
+Measured on a **necklace of 4 filled assemblies** (V=24, E=84, F=140, **5 cofaces per edge**,
+140 distinct τ_f where V7 had 1), π_e spanning V7's measured range:
+
+| | |
+|---|---|
+| corr(τ_f, τ_f′) over 840 **edge-sharing** pairs | **+0.29 — the coupling is REAL** |
+| W₂=I vs W₂=diag(τ_f), worst fraction Δ | 2.11e-15 |
+| **the harmonic vector (the growth address)** | **1.67e-14** |
+| positive control (perturb W₁) | **2.84e-02** ← the harness CAN detect movement |
+
+**⇒ DISCHARGED.** V7's analytic argument (W₂ invertible ⇒ image unchanged) never depended on the
+triangle count, and it survives the coupling.
+
+> ### 🚨 THE TEST COULD NOT FAIL, AND THE POSITIVE CONTROL IS THE ONLY REASON WE KNOW
+> The first version ran on a **filled K₇** — the obvious "many shared edges" object. But a filled
+> clique is **contractible**, so `b₁ = 0` and the harmonic space is **identically zero**. It was
+> asking whether W₂ moves a vector that is always the zero vector. **Unfailable, therefore
+> worthless** — and it would have printed a confident 1e-15 PASS. The control returned **1.5e-29**
+> instead of something large, which is what exposed it. Rebuilt on a **necklace**, which has the
+> edge-sharing AND a real `b₁ = 1`.
+> **This is §5v's lesson recurring: always compute what the statistic does when the effect is
+> ABSENT, before reading it when the effect is present.** Third time.
+
+> ### 🚨 A SECOND TRAP, WORTH RECORDING — the Euler count is WRONG once triangles share edges
+> `b₁ = E − V + b₀ − F` assumes δ¹ has full row rank. **A filled K₇ has F = 35 but rank(δ¹) = 15,
+> and the Euler expression returns −20** — a negative Betti number, i.e. a broken instrument rather
+> than a broken complex. **Both the C++ test and the Python validator compute b₁ from RANKS**
+> (`E − rank δ¹ − rank δ⁰`). Anyone reusing §7's E5 formula on the fine store will hit this.
+
+### ⚠️ THE CONSEQUENCE NOBODY ASKED FOR — F_MOS's scale moves, so κ's thresholds are STALE
+`F_MOS`'s coface term is `π_e²·Σ_{f>e} 1/τ_f`, and that sum now has `n−2` terms instead of 1:
+
+| cofaces/edge | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|
+| F_MOS(e) | 300 | 600 | 900 | 1200 | 1500 | 1800 |
+
+**Exactly linear.** This is not a bug — it is the curvature of a genuinely denser complex — but
+**any `κ_hi`/`κ_lo` calibrated when every edge had one coface is now wrong**, and §5t's rule (take a
+quantile of the observed distribution) must be re-run after the first accumulation.
+
+### 🧱 WHAT SHIPPED
+- `concept_store.{hpp,cpp}` — triangle recording, sorted keys (a triple has ONE key however
+  retrieval ordered it), the derived cap, and the skip/width counters.
+- `python/validate_triangles.py` — both preconditions, with the positive control.
+- 4 tests in `test_concept_store.cpp`, including the b₁ table above and the cap contract.
+- The stale rationale in `concept_store.hpp` (*"no triangles… until something earns the triangle"*)
+  **replaced in place** with why the premise was backwards.
+
+### 📋 WHAT THIS DOES *NOT* CLAIM
+- **`b₁ > 0` is not a growth address yet.** It says a cross-assembly hole exists. Nothing yet reads
+  `harmonic_support()` in the tick, and §5x's warning stands: at `b₁ = 1` the address carries zero
+  bits. **E5b at b₁ ≥ 2 is still owed.**
+- **Not measured on a real corpus.** Every number above is from constructed complexes; no
+  accumulation run has happened, so the true `|Aₜ|` distribution — and therefore whether the cap
+  ever fires — is **unknown**. `widest_assembly_seen()` exists to answer that on the first run.
+- **The cap is a real loss when it fires.** Wide ticks keep their artifacts by design.
+
+## 5at. 🛑 HANDOFF (2026-08-03) — THE CORPUS EXISTS, RETRIEVAL PRODUCES ZERO PAIRS,
+## AND COLAB IS THE WRONG TOOL FOR WHAT'S LEFT
+
+Charbel: *"Colab is giving me a hard time... log everything so I can start a new chat... mention
+alternatives to Colab."* Written as a cold-start brief — read this section alone and know exactly
+where things stand.
+
+### ✅ WHAT IS DONE AND WORKING
+- **Corpus built and embedded, on real data, numbers in hand:** 1115 arXiv abstracts across six
+  deliberately overlapping categories (math.AT, math.DG, math-ph, quant-ph, math.PR, stat.ML),
+  **74% cross-listed** — real overlap structure, not planted. 3000 distinct query sentences, no
+  cycling. `bge-small`, 384-d, unit-norm confirmed (`norms in [1.0000, 1.0000]`).
+- **`gamma_no_verdict` shipped and tested** — the fourth verdict state (no oracle ran) is now a
+  derivation, not a hand-set collapse onto Unverifiable. Suite 25/25.
+- **The triangle rule shipped and tested** — see §5as immediately below this one. Independent of
+  the corpus work; not blocked by anything in this section.
+- **Three commits pushed** to `fix-11-13-and-curvature-decisions` (public repo,
+  `BelSonOfOm/TATIANA`): `189fe25` (γ(∅)), `b719485` (corpus pipeline + the threshold finding
+  below), `419de88` (Colab clone cell pointed at this branch, not `main`).
+
+### 🔴 THE BLOCKER — MEASURED ON THE REAL CORPUS, NOT HYPOTHETICAL
+`SearchOp`'s retrieval rule (`relevance_threshold = max(0.1, 1/dim)` against **squared**
+Bures–Wasserstein) produces **zero usable co-activation** on real embeddings:
+
+| ε | cos ≥ | mean concepts/tick | % ticks with a pair | % ticks empty |
+|---|---|---|---|---|
+| **0.10 (engine default)** | **0.95** | **0.07** | **0.0%** | **93.4%** |
+| 0.20 | 0.90 | 0.28 | 0.2% | 71.8% |
+| 0.30 | 0.85 | 0.63 | 8.1% | 50.5% |
+| 0.40 | 0.80 | 6.34 | 48.0% | 31.8% |
+| 0.50 | 0.75 | 58.75 | 70.9% | 21.0% |
+| 0.60 | 0.70 | 193.98 | 82.6% | 12.2% |
+| 0.80 | 0.60 | 627.44 | 97.0% | 1.8% |
+
+**At the engine's own default: not "too sparse" — literally zero ticks retrieve a pair.**
+Construction 5 has no matrix; `ConceptStore` gets no edges; `Q(t)` cannot move.
+
+**Why no single threshold fixes it — embedding anisotropy, not a tuning miss.** Mean/tick jumps
+**6.3 → 194** between cos 0.80 and cos 0.70. Every pair of unrelated English sentences under
+`bge-small` scores cos ≈ 0.6–0.8 regardless of topic — a large common-mode offset that swamps the
+topical signal. An absolute-distance threshold is measuring mostly the offset: below the band it
+returns nothing, above it it returns a sixth of the corpus. No ε sits in a stable, well-behaved
+middle, because there isn't one.
+
+### 📐 THREE FIXES ON THE TABLE — NOT YET DECIDED, NOT YET MEASURED AGAINST EACH OTHER
+**A. Fix ε = 0.40 and accept the skew.** Mean 6.3/tick, 48% of ticks usable (~1440 of 3000) — inside
+   the calibrated test's power=0.75 range at T=1500. Cheapest: no new code, just a config change.
+   **Weakness:** median is 1, not 6 — a handful of dense ticks would dominate the fit while half the
+   ticks contribute nothing.
+**B. k-NN retrieval instead of an ε-ball.** Top-k regardless of absolute distance; standard in RAG,
+   robust to anisotropy by construction. **Real interaction to resolve, not just an implementation
+   detail:** fixed k means fixed row sums, while `calibrated_compare`'s bootstrap null simulates
+   *variable*-size rows from a fitted mixture. That size-distribution mismatch could inflate the
+   apparent cover signal for reasons having nothing to do with latent structure. Fixable (sample k
+   per tick, or use k as a cap not a fixed count) but has to be handled, not ignored.
+**C. Centre and renormalise the embeddings** (subtract the corpus mean, project back to the unit
+   sphere — "all-but-the-top"). Kills the common-mode offset at the source, most mathematically
+   principled of the three. **Most invasive:** changes the geometry the WHOLE engine reads off —
+   Bures distances, `π_v` fusion, every stalk position — not just retrieval.
+
+**My prior going in, stated so it can be checked rather than deferred to authority: B or C over A.**
+A's median of 1 means roughly half the accumulation is wasted before Tier 0 ever sees it. Untested.
+
+### 📁 EXACT FILE STATE — WHAT EXISTS WHERE, RIGHT NOW
+- **On Colab:** `concepts.npz` (2.01 MB), `queries.npz` (4.33 MB), `corpus_manifest.json` — all
+  generated successfully, per the session's own reported cell output.
+- **Locally: NONE of the three exist anywhere on disk.** Checked `MOS/python/` and `~/Downloads`
+  directly — empty. **The browser download step is the last confirmed-working point; whether it
+  completed is unknown.**
+- **`mos_brain.db` still holds its one stale dim-2 concept.** No ingest has run.
+- **No accumulation has run. No Tier 0 has run.** Nothing downstream of the threshold decision has
+  been attempted, because the threshold decision was still open when Colab started failing.
+- **What broke in Colab is NOT CAPTURED.** Charbel reported friction but not an error message,
+  traceback, or which cell. **The next thread's first move must be getting that detail** — do not
+  guess a Colab failure mode and build a fix for it; ask what actually happened (disconnect?
+  timeout? runtime crash? quota?).
+
+### 🌐 ALTERNATIVES TO COLAB, FOR THE NEXT THREAD TO WEIGH
+Every problem this session hit — files "not found," missing dependencies on upload, browser
+downloads landing nowhere — was friction from **hand-carrying files across two separate
+environments** (Colab's browser sandbox and the local machine), not from the compute itself. That
+should weight the comparison:
+
+1. **GitHub Codespaces.** Free tier ~60 CPU-hours/month. A real Linux VM with the actual repo
+   already checked out — no notebook cells, no npz hand-off, no browser-download step at all. Since
+   the corpus is fetched from arXiv over the network (not from `DOCS/`), the exact same fetch+embed
+   logic runs there unchanged; the file explorer's download is a single click, not Colab's
+   multi-file dance. **Probably the strongest alternative given what actually broke this session** —
+   it removes the failure surface, not just relocates it. Does NOT solve running `mos.exe` itself
+   (still Windows-compiled), same as Colab.
+2. **Local, throttled, overnight.** `ingest_corpus.py`'s local path already got the fix from
+   the earlier machine-meltdown incident — 2-thread cap set before ONNX import, commits every 50
+   concepts, resumable by content hash. No new infrastructure, zero upload/download friction, only
+   cost is wall-clock time while asleep. The corpus would need to be arXiv abstracts fetched by a
+   local script rather than DOCS/, to keep the privacy property Colab was chosen for.
+3. **Kaggle Notebooks.** Free CPU, ~30h/week quota, similar shape to Colab. Worth trying only if
+   Codespaces turns out to have its own friction — otherwise it inherits the same "notebook + manual
+   file hand-off" pattern that caused the problems here.
+
+### ⚠️ A PROBLEM THIS SESSION MADE WORSE, FLAGGED HONESTLY
+§5aq (below) already diagnosed **duplicate section numbers** as a hazard and named it explicitly:
+*"a superseded NEXT line is worse than no line."* This session's own commits (`b719485`) added a
+**second** `§5ao` and a **second** `§5ap` without noticing the first pair — `§5an`, `§5ao`, `§5ap`
+now each occur **twice** in this file (verify: `grep -n "^## 5a[nop]\."`). **Not fixed here** —
+renumbering under time pressure during an urgent handoff risks a third collision. Still owed, and
+now slightly worse than when §5aq first raised it.
+
+### 📋 NEXT, DEPENDENCY-ORDERED (supersedes every earlier NEXT line in this file, including the
+### stale one above 5ar that still lists "renumber the two stale Phase 3s" as item 4 — it's three now)
+1. **Get the actual Colab error before doing anything else.** Screenshot, error text, or "which
+   cell" — not a guess.
+2. **Confirm whether `concepts.npz`/`queries.npz`/`corpus_manifest.json` exist anywhere** (Colab's
+   `/content/`, Drive if mounted, Downloads, browser download history). If genuinely lost, the
+   arXiv fetch + embed is cheap to redo (~5 min) wherever it runs next.
+3. **Decide A vs B vs C on the retrieval threshold** — ideally by measuring, not arguing further.
+   All three are cheap to prototype against the already-fetched corpus once the files are in hand.
+4. **Pick where corpus-prep + Tier-0-fitting run next** — Codespaces, throttled-local, or retry
+   Colab once the actual failure is known.
+5. Then: ingest → accumulate (local only, needs `mos.exe`) → `run_tier0.py` with
+   `calibrated_compare`, reading `retrieved` not `grown`.
 
 ## 6. Failures & dead ends (so we don't repeat them)
 
@@ -3728,6 +3968,34 @@ Pending since 2026-07-31. **Ruled: accept the re-base.**
 
 ### Session log
 
+- **2026-08-03 (latest, handoff)** — **Corpus built (1115 arXiv abstracts, 74% cross-listed; 3000
+  tasks), but retrieval as shipped produces ZERO co-activation pairs at the engine's own default
+  threshold** (measured on the real corpus: 0.0% of ticks, 93.4% empty) — an embedding-anisotropy
+  problem (mean/tick jumps 6.3→194 between cos 0.80 and 0.70), not a tuning miss. Three fixes on
+  the table (fixed ε=0.40 / k-NN / centre-and-renormalise), none yet decided or measured against
+  each other. Colab then became unreliable mid-session with the specific failure UNCAPTURED — next
+  thread's first move is getting that detail, not guessing it. concepts.npz/queries.npz reported
+  generated on Colab but confirmed ABSENT locally (Downloads and MOS/python/ both checked, empty).
+  Alternatives to Colab logged (GitHub Codespaces recommended first, since this session's actual
+  failures were all file hand-off friction between two environments, not compute). Also: this
+  session's own commits added a SECOND §5ao and §5ap without noticing the first pair — §5an/ao/ap
+  each now appear twice, worse than when §5aq first flagged duplicate numbering. Full brief: §5at.
+- **2026-08-03 (later)** — **GAPS 1+3 CLOSED — the triangle rule.** A 2-simplex is recorded exactly
+  when its three concepts co-fired in one assembly: the edge rule one dimension up, **no new
+  constant**. Measured: filled cliques go from `b₁ = (n−1)(n−2)/2` to **0** at n=3,5,7,10, while a
+  3-assembly necklace keeps **b₁ = 1** — the cross-assembly hole survives, exactly as the nerve
+  lemma predicts. Both of §5ar's preconditions run first, and **both paid**: (P1) the cap is
+  MANDATORY, not prudent, because `get_relevant_concepts` is an unlimited threshold scan — |A| is
+  bounded by the corpus, not a constant, and one tick at |A|=1000 wants 166M triangles; cap **derived
+  at 30** from the 5.9 GB budget, and **counted rather than silent** because a skipped assembly
+  keeps its artifacts. (P2) V7's untested coupled-τ_f configuration is **discharged** (corr +0.29
+  over 840 edge-sharing pairs, split moves 1.7e-14). **Two traps caught, both worth remembering:**
+  my first P2 test ran on a filled K₇, which is **contractible**, so it asked whether W₂ moves a
+  vector that is identically zero — **unfailable, and only the positive control (1.5e-29 instead of
+  large) exposed it**, §5v's lesson a third time; and `b₁ = E−V+b₀−F` is **wrong** once triangles
+  share edges (filled K₇: F=35, rank δ¹=15, Euler returns **−20**), so both the C++ and Python
+  paths compute b₁ from ranks. **Uninvited consequence: F_MOS scales linearly with cofaces/edge,
+  so every κ_hi/κ_lo calibrated at one coface is now stale.** Suite 25/25. See §5as.
 - **2026-08-03** — **Gap audit** on Charbel's question *"is the theory complete?"* Answer: **no, but
   the four remaining holes need no new mathematics.** Closed three things and corrected two.
   **γ(∅) DERIVED AND SHIPPED** — `gamma_nu` was a function on three verdicts being applied to four
