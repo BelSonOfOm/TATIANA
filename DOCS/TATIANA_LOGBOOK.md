@@ -3917,6 +3917,217 @@ now slightly worse than when §5aq first raised it.
 5. Then: ingest → accumulate (local only, needs `mos.exe`) → `run_tier0.py` with
    `calibrated_compare`, reading `retrieved` not `grown`.
 
+## 5au. ✅ THE RETRIEVAL BLOCKER IS CLOSED — BY LABELS, AND THEY OVERTURNED THE PLAN (2026-08-04)
+
+§5at left A/B/C undecided because relatedness had **one** hand-checked label. Built
+`extract_refs.py` (a paper's own `\label`/`\ref` graph IS a relatedness label) → **71 papers, 2468
+blocks, 2266 ground-truth positives**, no hand-annotation, no LLM budget. Then
+`measure_reference_recall.py` ranked every candidate rule against them. Full detail:
+`DOCS/THE_RETRIEVAL_PROBLEM.md` §10.
+
+**MEASURED, and it inverted my own recommendation:**
+- Pedestal `‖μ̄‖² = 0.671` (I had INFERRED 0.60 — right phenomenon, 12% low). Separation `z = 1.92`
+  (I had INFERRED 1.3–1.5 — **the signal is better than feared**).
+- The engine's `ε = 0.10` admits **0.31%** of true dependencies. Blocker reproduced on labelled data.
+- **The pedestal was never a ranking problem, only a thresholding problem.** For fixed `q`, `‖μ̄‖²`
+  and `⟨μ̄,r_q⟩` are constant in `k` and cannot affect rank order. So centering/ABTT is worth
+  **+4.3 points** while abandoning the absolute threshold is worth **0.3% → 44.2%, ~140×.**
+  **The whole A-vs-B-vs-C argument was about a 4-point effect.**
+- At equal width (~25): rank-based **46.6%** vs ε-ball **37.5%**, and rank kills the variance
+  (no empty ticks, no over-cap ticks).
+- **R1 (diffusion / the "heat map" metric) REFUTED** — 12 configs (α×t), none beats raw, monotone
+  degradation in `t`. Mechanism: a near-constant kernel ⇒ near-uniform walk ⇒ diffusion distance
+  dominated by the stationary distribution. **It amplifies hubness rather than removing it**;
+  Coifman–Lafon's α-normalisation corrects sampling *density*, not a rank-1 ambient offset.
+- My own two-stage coarse→fine idea **did not pay** (48.4 vs 47.9).
+
+**DECISION: top-`k` retrieval, `k = 24`, on `abtt-10` vectors.** `k` is **derived, not chosen** —
+§5as budgeted 6.1M triangles and `C(24,3)×3000 = 6.07M`. This **deletes ε** *and* **deletes
+`max_assembly_for_triangles` as a separate knob**: retrieval width IS the cap, so no assembly is
+ever skipped and **b₁ is uncontaminated by construction** rather than by a warning counter. Two
+hand-set constants collapse into one number from the memory budget (A17 satisfied).
+
+**R3 (max-entropy null) is PROMOTED from option to prerequisite.** Top-`k` gives every row of the
+co-activation matrix **exactly** `k` ones, and `cover.py:479`'s `_simulate_mixture` provably cannot
+generate constant row sums. **The retrieval decision breaks the existing null**, so the fixed-margin
+max-entropy ensemble is now blocking for any Tier-0 verdict. **R2 (Fisher local metric) DEFERRED** —
+every local/spectral competitor measured moves recall by at most ±4 points, and `Σ_q` is estimated
+from the already-wrong neighbourhood it is meant to rescue; it survives only as a *theory* bet on
+context-dependence, to be judged by what it does to the cover, not by recall.
+
+**⚠️ Limits:** measured on blocks-within-papers, **not** the 1115-abstract corpus — qualitative
+findings transfer, recall figures do not. 100% of ref-edges are within-paper. `bge-small` is now
+quantified as adequate-but-mediocre; a better embedder is the largest unpulled lever.
+
+**Lesson (the same one as §5v, a fourth time):** the argument ran for three sessions on one data
+point. The measurement took two hours and reversed the conclusion. **Build the labelled set first.**
+
+---
+
+## 5av. 🚨 THE OLD NULL PRODUCES A FALSE POSITIVE — MEASURED, NOT ARGUED (2026-08-04)
+
+Tier 0 was run twice on **identical data** (3000 ticks × 1074 concepts, top-24 retrieval, K=6,
+B=99), changing **only the null**:
+
+| null | median | excess | p | verdict |
+|---|---|---|---|---|
+| **legacy** (free margins, independent Bernoulli) | −2.1538 | **+0.2329** | **0.0200** | **COVER** |
+| **margin-matched** (R3, fixed row sums) | −1.9275 | +0.0065 | 0.4500 | no evidence |
+
+Observed margin −1.9210 in both. **The verdict flips from a significant positive to nothing.**
+
+**Mechanism.** Real rows have **exactly** 24 ones (sd 0.00); the legacy null emits Binomial row
+sums (sd 3.08). On null data the mixture can spend components capturing row-size variation — an
+advantage it does not have on real fixed-width data — so the null distribution shifts down and the
+observed value looks anomalously high. Textbook **Type I error inflation**, and exactly what
+Gotelli's survey of ecological null models reports: *"the three models that maintain fixed row sums
+are invulnerable to Type I errors."* See `DOCS/PRIOR_ART_AND_THE_REPLAN.md` §1.
+
+> 🚨 **HAD TIER 0 RUN AS PLANNED IN §5at, IT WOULD HAVE RETURNED `COVER at K=6, p=0.0200` AND WE
+> WOULD HAVE BELIEVED IT.** R3 was promoted from "option" to "prerequisite" on a logical argument
+> (top-k forces constant row sums, `_simulate_mixture` cannot produce them). That argument is now
+> **measured**, and it caught a false positive worth the whole thread.
+
+**⚠️ NEITHER VERDICT IS ABOUT MOS.** Both ran on the single-centre-tick protocol, where each tick is
+a top-k ball around ONE query point — one cause by construction. That fixes the answer to
+"partition" before any data is seen (the Modifiable Areal Unit Problem; §5aw below). **Two
+independent bugs: a broken null, now fixed and demonstrated; a broken protocol, diagnosed and open.**
+
+## 5aw. THE TICK WAS THE BUG, AND THE INSTRUMENT WAS BLIND (2026-08-04)
+
+**Prior art searched** (`DOCS/PRIOR_ART_AND_THE_REPLAN.md`): our problems are all named elsewhere —
+ecology's fixed-margin null debate (Connor–Simberloff, curveball), geography's **MAUP** (the tick is
+the areal unit; results "vary artifactually with chosen aggregations"), **IBP vs DP mixture** (our
+cover-vs-partition test, and it infers K so our guessed K=6 is removable), OSLOM, and TDA's
+**Lattice Effect** — the documented name for §4.3's "the nerve captures the geometry of the cover
+itself." **Cover detection is not novel; MOS's contribution is the sheaf over it, the growth law,
+and the accumulating engine — infrastructure should be borrowed, not invented.**
+
+**Phase A shipped:** `curveball_randomize` in `cover.py` (row AND column sums exact, 25.1% of cells
+moved), pinned by test. Documented that it does **not** repair `_simulate_mixture_margin`'s sampling
+bias — that needs conditional-Bernoulli draws; measured deviation stays 0.985. **A2 (EM convergence
+measurement) still owed.**
+
+**Phase B — the concept-side reframe.** A cover is overlapping patches, and *overlapping* means an
+ELEMENT lies in two patches. So ask per concept, not per tick: collect every tick a concept fired
+in, and test whether those neighbourhoods split. **Multi-cause structure lives ACROSS ticks, not
+within one — so the broken single-centre ticks are adequate for this question.**
+Result: **AUC 0.514–0.550 against cross-listing labels, inside the noise floor** (geometric null
+scores 0.523–0.529 on meaningless labels; 1 SE ≈ 0.029 at 115 positives). **No signal.**
+
+> ★ **THE POSITIVE CONTROL IS WHAT MADE THAT READABLE, AND IT NEARLY DIDN'T RUN.** Planted
+> two-cluster data scored **0.0209 against a one-blob null of 0.0199** — the first Phase-B run was
+> measuring *nothing*, because 67 points in 384-d have concentrated distances so every 2-means split
+> scores alike. Per-concept PCA restores power, but only above ~40% of neighbourhood radius.
+> **Without the control, "AUC 0.50, no cover structure" would have been reported as a finding — a
+> second protocol artifact, one step after diagnosing the first.** §5v's lesson, fifth occurrence.
+
+**Most likely cause of the null result, and it is a labelling problem:** `\ref` labels worked (2266
+positives, decisive) because they are **semantic** — an author asserting a dependency. **arXiv
+cross-listing is administrative**; a math.DG/math.AP filing need not bridge anything. Next test
+should use the `\ref` block corpus, where a block cited from two distant sections is a genuine
+bridging element. Not distinguishable yet from the instrument's 40% floor or from real absence.
+
+---
+
+## 5ax. PHASE B AGAINST SEMANTIC LABELS — SECOND NULL, AND THE REASON IS MEASURABLE (2026-08-04)
+
+§5aw blamed the null result on the label (arXiv cross-listing is administrative, not semantic). So
+Phase B was rerun against a **structural** label built from the `\ref` graph — non-circular by
+construction, since it is computed from **character offsets in the LaTeX source** and never touches
+the embeddings:
+
+```
+citer_span(v) = (max_pos(citers) − min_pos(citers)) / doclen
+```
+"a lemma invoked in §2 and again in §9 serves two parts of the argument."
+538 blocks with ≥2 citers, 212 labelled bridging.
+
+| | bimodality AUC | separation AUC | spearman vs span |
+|---|---|---|---|
+| real | **0.4932** | 0.5210 | −0.005 / +0.045 |
+| geometric null | 0.5171 | 0.5181 | +0.057 / +0.023 |
+
+**The real AUCs sit at or below the geometric null's. Zero signal, second labelled attempt.**
+
+**⚠️ A confound I introduced and caught mid-run.** The raw span is predicted by **in-degree alone at
+AUC 0.748** — the range of *n* points widens with *n* whether or not anything bridges. Dividing by
+the expected range `(n−1)/(n+1)` cut it to 0.636. The score's AUC did not move, so the conclusion
+stands, but as first written the label was measuring popularity.
+
+**★ WHY IT FAILED, AND THE NUMBER WAS ALREADY IN HAND.** The label is **logical/argumentative** ("this
+lemma is invoked over there"); the score is **similarity-geometric** ("this block's neighbourhoods
+split"). A lemma can be invoked from §9 without resembling §9's prose. `THE_RETRIEVAL_PROBLEM.md`
+§10 already measured the disagreement: **recall@30 = 44–48%**, i.e. more than half of cited blocks
+never appear in their citer's top-30 neighbourhood. Validating a neighbourhood statistic with
+citation labels was therefore expected to fail at roughly the observed rate. **That number was
+measured days earlier and not connected before the run.**
+
+**Not nothing:** real neighbourhoods score bimodality **0.445** vs the geometric null's **0.397**,
+against a positive control where a clean 4σ split scores 0.631 and structure-free scores 0.357. Real
+data carries ~a quarter of a clean split's structure — but it is **not concentrated in the blocks
+either label calls bridging**. It reads as generic topic clustering, not specific multi-context
+concepts.
+
+### 🛑 THE PATTERN, STATED BECAUSE IT IS THE REAL FINDING OF THE DAY
+**Three design mismatches in a row, each caught only by a control, none by the headline number:**
+1. **single-centre ticks** — one cause by construction, answer baked in before data (MAUP);
+2. **blind instrument + administrative label** — planted clusters scored 0.0209 vs a 0.0199 null;
+3. **citation label vs similarity score** — different relations, disagreement already quantified.
+
+Every measurement so far has described **our setup**, not the data. That is not bad luck: it is what
+happens when an experiment is built before deciding precisely **what observation would distinguish a
+cover from a partition in MOS.** **Next action is that definition, not another score.**
+
+**Standing rule earned today: no measurement is reportable without a positive control.** It caught
+items 2 and 3, and in both cases the artifact looked exactly like a result.
+
+---
+
+## 5ay. 🔧 SELF-AUDIT — THREE CLAIMS WEAKENED, AND AN EPISTEMIC-STATUS CONVENTION (2026-08-04)
+
+Charbel reviewed the write-ups and identified over-reliance on a thin evidence base. On audit he was
+**too generous**; three claims in §5au–§5ax were overstated and are corrected here. All three
+corrections **weaken** conclusions written earlier the same day.
+
+**C1 — the effective sample size is ~71, not 2266.** Every `\ref` label comes from one of 71 papers,
+and blocks inside a paper share topic, author and overlapping neighbourhoods. Confidence intervals
+computed from label counts are **too narrow**. Consequence: Phase B's AUC floor is nearer **±0.04**
+than the ±0.029 quoted in §5aw, so the most suggestive figure (0.5495) is ~1.2 SE, not 1.75. **The
+negatives are weaker than reported; the instrument had less power than claimed.** Future
+significance claims must cluster by paper.
+
+**C2 — `abtt-10` was argmax on a flat sweep.** abtt-1 → 48.3%, abtt-5 → 48.3%, abtt-10 → 48.5% are
+indistinguishable under C1. §5au reported 10 as "best" and the decision adopted it on that basis.
+Correct reading: removing the mean plus a *small* number of principal directions is worth ~+4 points
+**[MEASURED]**; `r = 1` **[ENGINEERING CHOICE]**, for simplicity. **This is precisely the error §5aj
+identified in the k-sweep — reading an optimum off a flat curve — repeated in a document that cites
+§5aj.**
+
+**C3 — `k = 24` is an ENGINEERING CHOICE, not "derived".** §5au and §5aw both said "derived, not
+chosen." Three faults: §5as's 6.1M triangle budget is itself an unmeasured flop/memory estimate
+(the logbook's own standing reminder covers this); recall rises monotonically in `k` (35.5% at k=10
+→ 53.4% at k=50), so 24 is where a cost constraint bites, not where quality peaks; and two
+independent constraints landing on the same number is exactly the tidiness motivated reasoning
+produces. **[OPEN HYPOTHESIS]** that retrieval width should equal the topology budget — testing it
+means varying `k` against `b₁`, never run.
+
+**⭐ THE CONVENTION, NOW STANDING.** Every load-bearing claim in `THE_RETRIEVAL_PROBLEM.md`,
+`THE_COVER_QUESTION.md` and this logbook carries one of:
+`[MEASURED]` · `[DERIVED]` · `[INFERRED]` · `[ENGINEERING CHOICE]` · `[OPEN HYPOTHESIS]` ·
+`[SPECULATION]`.
+
+**Why it earns its place (A17):** the failure mode this week was never bad statistics — it was
+**good numbers attached to conclusions they do not support**. C2 and C3 are both that failure, and
+both were invisible until the claim and its evidence were forced next to each other. The tag makes
+that adjacency mandatory rather than optional.
+
+**What survives all three corrections:** rank-based retrieval over the ε-ball (0.31% → 46.6%,
+**[MEASURED]**, large), and the fixed-margin null catching a false positive (p = 0.02 → 0.45,
+**[MEASURED]**, direct). Those are the two results to keep if everything else here is wrong.
+
+---
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the

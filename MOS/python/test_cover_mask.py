@@ -112,12 +112,64 @@ def test_calibrated_p_value_bounds():
           f"excess={res.excess_over_null:+.4f}")
 
 
+def test_margin_null_recovers_column_margins():
+    """The margin-matched null must (a) reproduce the observed row sizes EXACTLY,
+    and (b) still place mass on concepts in proportion to the fitted emission
+    weights. (b) is the part that is approximate: Gumbel-top-k is successive
+    weighted sampling without replacement, not the exact conditional-Bernoulli
+    max-entropy law, so this pins how close it actually is instead of assuming."""
+    from cover import Mixture, _simulate_mixture, _simulate_mixture_margin
+    rng = np.random.default_rng(0)
+    N, K, T = 60, 3, 4000
+    mix = Mixture(p=np.clip(rng.random((N, K)) * 0.4, 0.01, 0.99),
+                  w=np.array([0.5, 0.3, 0.2]))
+
+    Xk = _simulate_mixture_margin(mix, T, rng, np.array([24]))
+    assert (Xk.sum(axis=1) == 24).all(), "fixed-k rows must all have exactly k ones"
+
+    target = mix.p @ mix.w
+    target = target / target.sum()
+    got = Xk.sum(axis=0) / Xk.sum()
+    corr = float(np.corrcoef(target, got)[0, 1])
+    assert corr > 0.95, f"column margins drifted: corr {corr:.3f}"
+
+    Xv = _simulate_mixture_margin(mix, T, rng, np.array([5, 10, 20, 40]))
+    assert set(np.unique(Xv.sum(axis=1)).astype(int)) <= {5, 10, 20, 40}
+
+    # The whole point: the legacy null CANNOT produce constant row sums.
+    sd_legacy = float(_simulate_mixture(mix, T, rng).sum(axis=1).std())
+    assert sd_legacy > 1.0 and Xk.sum(axis=1).std() == 0.0
+    print(f"  margin null: rows exact, column-margin corr {corr:.4f}; "
+          f"legacy row-sum sd {sd_legacy:.2f} vs matched 0.00")
+
+
+def test_curveball_preserves_both_margins():
+    """Curveball must hold row AND column sums exactly, while actually moving the
+    matrix. A randomiser that preserves the margins by not changing anything is
+    the failure mode worth pinning."""
+    from cover import curveball_randomize
+    rng = np.random.default_rng(3)
+    T, N, k = 300, 80, 12
+    X = np.zeros((T, N))
+    for t in range(T):                       # fixed-k rows, as top-k retrieval gives
+        X[t, rng.choice(N, size=k, replace=False)] = 1.0
+
+    Y = curveball_randomize(X, rng=rng)
+    assert np.array_equal(X.sum(axis=1), Y.sum(axis=1)), "row sums must be exact"
+    assert np.array_equal(X.sum(axis=0), Y.sum(axis=0)), "column sums must be exact"
+    moved = float(np.mean(X != Y))
+    assert moved > 0.05, f"barely randomised: only {moved:.3f} of cells changed"
+    print(f"  curveball: row+column sums exact, {100*moved:.1f}% of cells moved")
+
+
 if __name__ == "__main__":
     for fn in (test_all_alive_mask_is_a_no_op,
                test_dead_concept_contributes_nothing,
                test_alive_mask_shape_and_validation,
                test_mask_removes_the_late_birth_bias,
-               test_calibrated_p_value_bounds):
+               test_calibrated_p_value_bounds,
+               test_margin_null_recovers_column_margins,
+               test_curveball_preserves_both_margins):
         print(fn.__name__)
         fn()
     print("\nall mask/calibration tests passed")

@@ -35,3 +35,6 @@ DOCS/cd CUserscdargDesktopTATIANAMOS.txt
 MOS/*.db.bak
 colab_upload/
 MOS/python/tasks.txt
+
+# arXiv LaTeX source cache (52MB, regenerable by extract_refs.py)
+MOS/python/.arxiv_src_cache/
