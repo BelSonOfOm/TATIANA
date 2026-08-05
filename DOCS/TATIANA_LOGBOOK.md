@@ -4128,6 +4128,71 @@ that adjacency mandatory rather than optional.
 
 ---
 
+## 5az. 🏁 TIER 0 CLOSED — INCONCLUSIVE, WITH EVERY FAILURE UNDERSTOOD (2026-08-05)
+
+Attempt 4 ran the operational reframe Charbel specified: not "is the topology a cover?" but
+**"what observation would force us to believe overlap is NECESSARY?"** — measured as a per-concept
+**transitivity deficit** (open triangles) against the fixed-margin `curveball` null. He supplied the
+essential caution, which the design honours: an open triangle is **not** evidence of a cover, since
+co-activation is sampled and A–B, B–C, no A–C can arise with perfectly transitive latent structure;
+only **excess relative to a margin-preserving null** licenses any claim.
+
+**Controls were run BEFORE the corpus, per the standing rule. The result is a verdict on the
+instrument:**
+
+| setting | synth partition | synth cover | geometric balls | real corpus |
+|---|---|---|---|---|
+| `w=1` | z −175, tail 0 ✅ | **+9.24 sd, recovers 60/60 planted bridges ✅** | **100% z>2 ❌** | 99.6% z>2 |
+| `w=3` | z −130 ✅ | **−1.81 sd ❌ INVERTED** | z −1.0 ✅ | 91.8% z>2 |
+| `w=5` | z −55 ✅ | **−7.13 sd ❌ INVERTED** | z −2.9 ✅ | 94.0% z>2 |
+| `top-m=30` | z −29 ✅ | **−6.25 sd ❌ INVERTED** | z −4.7 ✅ | 87.8% z>2 |
+
+**There is NO parameterisation where the cover control and the geometric control both pass.** At
+`w=1` the statistic recovers planted bridges exactly — and calls a structureless Gaussian cloud a
+cover for 100% of its concepts. Wherever the geometric control is clean, **planted bridges score on
+the wrong side.** `min_weight` is a frequency filter and bridges have higher frequency; the
+degree-controlled fix (`top-m`) repaired the geometric control but not the inversion.
+
+> **★ THE METHODOLOGICAL WIN: this artifact was caught BEFORE interpretation, not after.** The real
+> column shows 87.8% of concepts at z>2 against a geometric control at 0.1%. Without the cover
+> control that would have been reported as a decisive positive. It is the fourth artifact this week
+> and the first one that never reached a conclusion.
+
+**[MEASURED] and unexplained, worth keeping:** the corpus has a large transitivity deficit that is
+reproduced by *neither* the margin-preserving null *nor* ball geometry. **[SPECULATION]** its shape
+(near-universal rather than a minority of concepts) looks more like a continuum than K discrete
+patches — but the instrument that produced it fails its own control, so this is a hunch, not a
+finding.
+
+### 🏁 TIER 0: FOUR ATTEMPTS, ALL INCONCLUSIVE, EACH FAILURE DIAGNOSED
+| # | instrument | outcome | cause |
+|---|---|---|---|
+| 1 | global likelihood margin (noisy-OR vs mixture) | inconclusive | single-centre ticks ⇒ single-cause by construction (MAUP); **and the null manufactured a false positive** |
+| 2 | per-concept bimodality × arXiv cross-listing | inconclusive | instrument blind below ~40% separation; label administrative |
+| 3 | per-concept bimodality × citation span | inconclusive | construct mismatch — logical vs geometric relation; recall@30 = 44–48% already quantified it |
+| 4 | transitivity deficit × curveball null | **instrument refuted** | no setting passes both controls |
+
+**ESTABLISHED [MEASURED]:** retrieval was broken (0.31% → 46.6%) and is fixed; the legacy null
+manufactured a cover at p = 0.02 and is fixed; the corpus carries a real, unexplained transitivity
+deficit.
+**NOT ESTABLISHED:** anything about whether MOS's memory has a cover. **Four failures to reject the
+partition are not evidence that the partition is true.**
+
+**ACCEPTANCE CRITERION FOR ANY FUTURE TIER-0 INSTRUMENT, earned the hard way:** it must pass a
+synthetic partition, a synthetic cover **with planted bridges recovered in the right direction**,
+and a structure-free geometric control — **at one shared parameter setting** — before it is pointed
+at the corpus. None of the four met it.
+
+### ➡️ AND THE BOTTLENECK IS NO LONGER THE STATISTIC
+Charbel's call, and it is right: every attempt has asked *"given these retrieval events, what shape
+do they have?"* when the question a brain model owes is *"why did these retrieval events happen?"*
+**MOS has no generative model of cognition.** The retrieval work's real result is that **the geometry
+of a static embedding is not a sufficient foundation for a cognitive architecture** — which locates
+the next layer precisely: not in a better similarity metric, but in the rules that generate thought
+over time. See `DOCS/THE_GENERATIVE_THOUGHT_MODEL.md`.
+
+---
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
