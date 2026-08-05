@@ -4193,6 +4193,97 @@ over time. See `DOCS/THE_GENERATIVE_THOUGHT_MODEL.md`.
 
 ---
 
+## 5ba. 🛑 CHAPTER CLOSE — COLD-START HANDOFF FOR THE GENERATIVE PHASE (2026-08-05)
+
+**Read this section alone and know exactly where the project stands.** The retrieval-and-Tier-0
+chapter is closed. The next chapter builds a generative model of cognition. Written as a brief for a
+new conversation with no memory of this one.
+
+### 📍 REPO STATE
+Branch `fix-11-13-and-curvature-decisions`, public repo `BelSonOfOm/TATIANA`. Three commits close
+this chapter:
+- `a8a608a` — retrieval fix + labelled evaluation + the false-positive null
+- `7781e1a` — Tier 0 closed, four instruments, the calibration battery
+- `5b9823d` — the generative-phase workflow
+
+**Uncommitted and NOT ours** (pre-existing, left alone): `concept_store.hpp/.cpp`,
+`test_concept_store.cpp`, `mos_brain.db`, deleted `DOCS/*.pdf`, and untracked
+`simulate_retrieval.py` / `validate_triangles.py`. **`simulate_retrieval.py` is referenced by the
+docs and is still untracked — decide whether it goes in.**
+
+### ✅ SETTLED — [MEASURED], survives every caveat
+| finding | number |
+|---|---|
+| the engine's `ε = 0.10` was a near-duplicate filter | admits **0.31%** of true dependencies |
+| rank-based retrieval beats it at the same width | **46.6%** vs 37.5% |
+| the embedding pedestal is real and large | `‖μ̄‖² = 0.671`, unrelated pairs cos ≈ 0.669 |
+| semantic signal is real but mediocre | `z = 1.92`; recall@30 ≈ 44–48% |
+| **the legacy null manufactured a cover** | p = **0.0200** → p = **0.4500** on identical data |
+| diffusion/heat-kernel retrieval | refuted, 12 configurations, none beats raw |
+| citation and similarity are different relations | they agree only ~47% |
+
+### ❌ REFUTED / CORRECTED
+- **R1 (diffusion metric)** — dead.
+- **R2 (Fisher local metric)** — deferred; bootstrapping flaw stands (`Σ_q` is estimated from the
+  neighbourhood it is meant to fix).
+- **`abtt-10` "best"** — argmax on a flat sweep; `r = 1` is equivalent. **[ENGINEERING CHOICE]**
+- **`k = 24` "derived"** — **[ENGINEERING CHOICE]**, not derived; its budget input is unmeasured.
+- **Noise floors** — computed assuming independence; effective *n* is ~71 papers, not 2266 labels,
+  so every quoted interval was too narrow and the negatives are **weaker** than reported.
+
+### 🔓 OPEN — and these are the questions for the next chat
+1. **What is the input stream?** A brain model needs something to think *about*. `\ref` chains?
+   paper sequences? task streams? **UNDECIDED, and it will shape everything downstream exactly the
+   way the tick definition silently determined four Tier-0 results.** Decide it deliberately.
+2. **Directed edges.** Temporal succession is asymmetric, so `W` becomes non-symmetric and the
+   existing cohomology changes meaning. Real theoretical work.
+3. **Whether the 𝕂/W sheaf adjunction is a new formalisation of CLS** (§4.3 of the workflow) — if
+   so, that is the paper, not "we invented a two-store memory."
+4. **The unexplained transitivity deficit** — real, not margin-explained, not geometry-explained,
+   currently uninterpretable. **[SPECULATION]** it looks like a continuum rather than K patches.
+5. **Whether `bge-small` is adequate** — never compared against a stronger embedder.
+6. **A2 (EM convergence measurement)** and **exact conditional-Bernoulli sampling** — both still owed.
+
+### 🧰 BUILT AND WORKING
+`build_corpus.py` (local corpus, Colab dead) · `extract_refs.py` (2266 free semantic labels) ·
+`make_assemblies.py` (top-k + abtt + geometric null) · `measure_reference_recall.py` ·
+`measure_multicontext.py` / `_refs.py` · `tier0_parallel.py` · `measure_open_triangles.py`
+(refuted as an instrument, **reusable as the calibration harness**) · `cover.py` gains
+`_simulate_mixture_margin` and `curveball_randomize`, both tested.
+
+### 📏 THE DISCIPLINE, PAID FOR IN FULL THIS CHAPTER
+1. **No measurement without a positive control.** Four artifacts caught; the fourth before it became
+   a result.
+2. **Any cover instrument must pass synthetic partition + synthetic cover (bridges in the RIGHT
+   direction) + structure-free geometric — at ONE shared setting** — before touching real data.
+3. **Every claim carries an epistemic-status tag** (`[MEASURED]`…`[SPECULATION]`).
+4. **Effective sample size, not label count.**
+5. **Never read an optimum off a flat sweep.** Done twice; the second time in a document citing the
+   first.
+6. **Time one complete unit of work before extrapolating.** A 15-minute estimate became 90 by
+   multiplying two draws.
+7. **Checkpoint long jobs.** A job whose partial progress is worth nothing is a bug in the job.
+8. **Prior art before implementation.**
+
+### ➡️ FIRST ACTIONS IN THE NEXT CHAT
+1. Read `DOCS/WHY_A_MODEL_OF_COGNITION.md` (the case) then
+   `DOCS/THE_GENERATIVE_THOUGHT_MODEL.md` (the workflow).
+2. **Build the lag-CRP test harness BEFORE the simulator** (§12 of the workflow). It is the gate
+   that decides viability, and building the test first makes it impossible to tune the model to the
+   test without noticing.
+3. Then G0's skeleton on a synthetic graph with planted structure. **Gate: it must recover a
+   structure it was given.**
+4. Answer open question 1 (the input stream) before G4.
+
+### ⚠️ THE ONE THING THE NEXT CHAT MUST NOT FORGET
+**A simulator produces the topology its rules imply.** The inversion from "assume a cover, test it"
+to "simulate cognition, observe topology" is stronger — and is also Attempt 1's failure at ten times
+the scale, harder to catch because a simulator is complicated enough to hide its own assumptions.
+**No topology claim before the behavioural battery passes.** That rule is the whole reason the
+workflow has the shape it does.
+
+---
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the
