@@ -1,0 +1,443 @@
+{
+  "verdict": "PASS",
+  "note": "gold verified, near-misses caught, decoys held below every real citation at one shared setting (separation gap 0.336)",
+  "separation": {
+    "min_gold": 1.0,
+    "max_decoy": 0.6643,
+    "gap": 0.3357,
+    "separated": true
+  },
+  "config_hash": "d84c69a740a7b4cd",
+  "config": {
+    "tau_verified": 0.72,
+    "tau_partial": 0.5,
+    "min_author_recall": 0.99,
+    "margin": 0.08,
+    "w_author": 0.55,
+    "w_title": 0.3,
+    "w_year": 0.15,
+    "fuzzy_surname": 0.85
+  },
+  "providers": [
+    "openalex",
+    "crossref"
+  ],
+  "by_class": {
+    "gold": {
+      "n": 12,
+      "pass": 12,
+      "rate": 1.0
+    },
+    "nearmiss": {
+      "n": 4,
+      "pass": 4,
+      "rate": 1.0
+    },
+    "decoy": {
+      "n": 6,
+      "pass": 6,
+      "rate": 1.0
+    }
+  },
+  "timestamp": "2026-08-07T07:17:02Z",
+  "rows": [
+    {
+      "class": "gold",
+      "cid": "howard-tcm",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.162",
+      "best_title": "A Distributed Representation of Temporal Context",
+      "best_doi": "10.1006/jmps.2001.1388",
+      "best_year": 2002,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "polyn-cmr",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.096",
+      "best_title": "A context maintenance and retrieval model of organizational processes in free recall.",
+      "best_doi": "10.1037/a0014420",
+      "best_year": 2009,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "raaijmakers-sam",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.364 (2 duplicate record(s) skipped)",
+      "best_title": "Search of associative memory.",
+      "best_doi": "10.1037/0033-295x.88.2.93",
+      "best_year": 1981,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "mcclelland-cls",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.467 (1 duplicate record(s) skipped)",
+      "best_title": "Why there are complementary learning systems in the hippocampus and neocortex: Insights from the successes and failures of connectionist models of learning and memory.",
+      "best_doi": "10.1037/0033-295x.102.3.419",
+      "best_year": 1995,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "dayan-sr",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.247",
+      "best_title": "Improving Generalization for Temporal Difference Learning: The Successor Representation",
+      "best_doi": "10.1162/neco.1993.5.4.613",
+      "best_year": 1993,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "stachenfeld-hippo",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.355 (2 duplicate record(s) skipped)",
+      "best_title": "The hippocampus as a predictive map",
+      "best_doi": "10.1038/nn.4650",
+      "best_year": 2017,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "bousfield-clustering",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.140 (1 duplicate record(s) skipped)",
+      "best_title": "The Occurrence of Clustering in the Recall of Randomly Arranged Associates",
+      "best_doi": "10.1080/00221309.1953.9710088",
+      "best_year": 1953,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "murdock-serialpos",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.150",
+      "best_title": "The serial position effect of free recall.",
+      "best_doi": "10.1037/h0045106",
+      "best_year": 1962,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "anderson-fan",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.121",
+      "best_title": "Retrieval of propositional information from long-term memory",
+      "best_doi": "10.1016/0010-0285(74)90021-8",
+      "best_year": 1974,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "friston-freeenergy",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.083",
+      "best_title": "The free-energy principle: a unified brain theory?",
+      "best_doi": "10.1038/nrn2787",
+      "best_year": 2010,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "hopfield-nets",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.278 (3 duplicate record(s) skipped)",
+      "best_title": "Neural networks and physical systems with emergent collective computational abilities.",
+      "best_doi": "10.1073/pnas.79.8.2554",
+      "best_year": 1982,
+      "errored": false
+    },
+    {
+      "class": "gold",
+      "cid": "cepeda-spacing",
+      "expected": [
+        "VERIFIED"
+      ],
+      "got": "VERIFIED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.338",
+      "best_title": "Distributed practice in verbal recall tasks: A review and quantitative synthesis.",
+      "best_doi": "10.1037/0033-2909.132.3.354",
+      "best_year": 2006,
+      "errored": false
+    },
+    {
+      "class": "nearmiss",
+      "cid": "nm-tcm-wrongyear",
+      "expected": [
+        "AMBIGUOUS",
+        "PARTIAL",
+        "UNRESOLVED",
+        "VERIFIED_CORRECTED"
+      ],
+      "got": "VERIFIED_CORRECTED",
+      "pass": true,
+      "score": 0.85,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 0.850, margin 0.140; prose disagrees with record in year",
+      "best_title": "A Distributed Representation of Temporal Context",
+      "best_doi": "10.1006/jmps.2001.1388",
+      "best_year": 2002,
+      "errored": false
+    },
+    {
+      "class": "nearmiss",
+      "cid": "nm-cmr-dropauthor",
+      "expected": [
+        "AMBIGUOUS",
+        "PARTIAL",
+        "UNRESOLVED",
+        "VERIFIED_CORRECTED"
+      ],
+      "got": "VERIFIED_CORRECTED",
+      "pass": true,
+      "score": 1.0,
+      "author_recall": 1.0,
+      "title_sim": 1.0,
+      "reason": "score 1.000, margin 0.154; prose disagrees with record in authors_omitted",
+      "best_title": "A context maintenance and retrieval model of organizational processes in free recall.",
+      "best_doi": "10.1037/a0014420",
+      "best_year": 2009,
+      "errored": false
+    },
+    {
+      "class": "nearmiss",
+      "cid": "nm-sr-wrongfirst",
+      "expected": [
+        "AMBIGUOUS",
+        "PARTIAL",
+        "UNRESOLVED",
+        "VERIFIED_CORRECTED"
+      ],
+      "got": "AMBIGUOUS",
+      "pass": true,
+      "score": 0.7971,
+      "author_recall": 1.0,
+      "title_sim": 0.8235,
+      "reason": "margin 0.055 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'The successor representation in human reinforcement learning' (2016, doi:10.1101/083824)",
+      "best_title": "The Successor Representation and Temporal Context",
+      "best_doi": "10.1162/neco_a_00282",
+      "best_year": 2012,
+      "errored": false
+    },
+    {
+      "class": "nearmiss",
+      "cid": "nm-cls-merged",
+      "expected": [
+        "AMBIGUOUS",
+        "PARTIAL",
+        "UNRESOLVED",
+        "VERIFIED_CORRECTED"
+      ],
+      "got": "AMBIGUOUS",
+      "pass": true,
+      "score": 0.7286,
+      "author_recall": 1.0,
+      "title_sim": 0.3953,
+      "reason": "margin 0.004 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'Why there are complementary learning systems in the hippocampus and ne' (1995, doi:10.1037/0033-295x.102.3.419)",
+      "best_title": "On Learning the Past Tenses of English Verbs",
+      "best_doi": "10.7551/mitpress/5782.003.0031",
+      "best_year": 1993,
+      "errored": false
+    },
+    {
+      "class": "decoy",
+      "cid": "dc-sheaf-retrieval",
+      "expected": [
+        "PARTIAL",
+        "UNRESOLVED"
+      ],
+      "got": "UNRESOLVED",
+      "pass": true,
+      "score": 0.2875,
+      "author_recall": 0.0,
+      "title_sim": 0.5333,
+      "reason": "best score 0.287 below tau_partial 0.50",
+      "best_title": null,
+      "best_doi": null,
+      "best_year": null,
+      "errored": false
+    },
+    {
+      "class": "decoy",
+      "cid": "dc-lagcrp-sheaf",
+      "expected": [
+        "PARTIAL",
+        "UNRESOLVED"
+      ],
+      "got": "UNRESOLVED",
+      "pass": true,
+      "score": 0.2804,
+      "author_recall": 0.0,
+      "title_sim": 0.5098,
+      "reason": "best score 0.280 below tau_partial 0.50",
+      "best_title": null,
+      "best_doi": null,
+      "best_year": null,
+      "errored": false
+    },
+    {
+      "class": "decoy",
+      "cid": "dc-fatigue-assembly",
+      "expected": [
+        "PARTIAL",
+        "UNRESOLVED"
+      ],
+      "got": "UNRESOLVED",
+      "pass": true,
+      "score": 0.3055,
+      "author_recall": 0.3333,
+      "title_sim": 0.4072,
+      "reason": "best score 0.305 below tau_partial 0.50",
+      "best_title": null,
+      "best_doi": null,
+      "best_year": null,
+      "errored": false
+    },
+    {
+      "class": "decoy",
+      "cid": "dc-curveball-cognition",
+      "expected": [
+        "PARTIAL",
+        "UNRESOLVED"
+      ],
+      "got": "PARTIAL",
+      "pass": true,
+      "score": 0.6643,
+      "author_recall": 1.0,
+      "title_sim": 0.381,
+      "reason": "score 0.664 in [0.50, 0.72) -- plausible but not confirmed",
+      "best_title": "ggm: Graphical Markov Models with Mixed Graphs",
+      "best_doi": "10.32614/cran.package.ggm",
+      "best_year": 2003,
+      "errored": false
+    },
+    {
+      "class": "decoy",
+      "cid": "dc-kwta-cover",
+      "expected": [
+        "PARTIAL",
+        "UNRESOLVED"
+      ],
+      "got": "UNRESOLVED",
+      "pass": true,
+      "score": 0.3015,
+      "author_recall": 0.0,
+      "title_sim": 0.5051,
+      "reason": "best score 0.301 below tau_partial 0.50",
+      "best_title": null,
+      "best_doi": null,
+      "best_year": null,
+      "errored": false
+    },
+    {
+      "class": "decoy",
+      "cid": "dc-tcm-sheaf-adjunction",
+      "expected": [
+        "PARTIAL",
+        "UNRESOLVED"
+      ],
+      "got": "UNRESOLVED",
+      "pass": true,
+      "score": 0.1761,
+      "author_recall": 0.0,
+      "title_sim": 0.5872,
+      "reason": "best score 0.176 below tau_partial 0.50",
+      "best_title": null,
+      "best_doi": null,
+      "best_year": null,
+      "errored": false
+    }
+  ],
+  "n_rows": 22,
+  "promotion": {
+    "promoted": 12,
+    "path": "C:\\Users\\cdarg\\Desktop\\TATIANA\\PRECILLA\\precilla\\cite\\fixtures.json",
+    "note": "promotion requires --verbose rows to be present"
+  }
+}

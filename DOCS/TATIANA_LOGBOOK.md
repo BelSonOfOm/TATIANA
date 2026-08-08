@@ -4284,6 +4284,282 @@ workflow has the shape it does.
 
 ---
 
+## 5bb. 🧭 THE SHEAF BECOMES LOAD-BEARING — AND FOUR THINGS ALREADY BUILT THAT WE RE-DERIVED (2026-08-08)
+
+**Session character: no code written, one measurement spec produced, three literature gates run,
+and four discoveries that the codebase already contained what was being designed.** Charbel opened
+by setting a standing rule for this phase: *nothing is implemented until he demonstrably understands
+it, and claiming to understand is not sufficient — it must be tested.* That rule was applied and
+it caught a real gap (see "The gate that fired", below).
+
+### 🔀 THE FORK, RESOLVED
+`THE_GENERATIVE_THOUGHT_MODEL.md` left open whether the sheaf is load-bearing or decorative.
+`PRECILLA/draft.md` answered it by **default** — it classified the sheaf as "AUXILIARY, for
+topological reading", which is the decorative branch, without flagging that a choice had been made.
+
+**Decided: LOAD-BEARING.** The activation is a 0-cochain, the spreading operator is built from the
+sheaf Laplacian, `ρ` constrains the dynamics rather than describing them afterwards. The draft's
+classification is retracted.
+
+### 🧮 THE DUALITY — `J ↔ (C, F, η)` up to gauge
+**[DERIVED]** The coupling matrix is not primitive; it is read off from `M = (C, F, s)`:
+
+```
+    J  =  (D − L_F)   +   η
+          symmetric      antisymmetric
+          = the sheaf    = a 1-cochain
+```
+
+- sparsity pattern ← 1-skeleton of `C`; symmetric part ← restriction maps; antisymmetric part ← `η`.
+- The transport reading: the only canonical route `v → u` is push into the edge stalk, pull back —
+  `F_{u⊴e}* F_{v⊴e}`, which IS the off-diagonal block of `L_F`.
+- **Varying stalk dimension is native.** So is non-flatness (nontrivial holonomy round cycles).
+- **The diagonal stops being free** — determined by the same restriction maps. One hand-set decision
+  deleted, A17 satisfied without argument.
+- **Gauge:** `J` fixes `F` only up to `∏_e O(d_e)`. **`Π_{O(d)}` in the consolidation formula is
+  exactly a gauge fixing** — written months earlier for an unrelated reason.
+- `s` is not part of `J`. `J` is structure, `a` is what it acts on, `s` is `a` when coherent.
+
+### ☠️ PERFECT COHERENCE IS DEATH — `ρ` IS A LYAPUNOV FUNCTION
+**[DERIVED]** `L_F = δ*δ` ⇒ self-adjoint and PSD ⇒ under `ȧ = −L_F a`, `dV/dt = −‖L_F a‖² ≤ 0` for
+`V = ½‖δa‖²`. So `a(t) → P_{H⁰}a(0)` exponentially at the sheaf spectral gap. **Fatal four ways:**
+the thought freezes; cue↦thought becomes a linear projection (Stage 1 with extra steps); generically
+`H⁰ = 0` so `a → 0`; and a fixed point has no transitions, so the lag-CRP is *undefined*, not failed.
+
+**A thought is `a* = L_F⁺(q − φ)`** — the least-incoherent state compatible with the drive. Never a
+section, always an approximation to one.
+
+**Only `φ` (fatigue) can prevent the collapse.** `σ` makes it worse (Banach contraction ⇒ unique
+globally attracting fixed point); `λ` is a rank-one uniform shift that moves the fixed point without
+removing it; `x_t` is disqualified (the model must run with empty input); `c` freezes when `A` does.
+**This upgrades the fatigue ablation from a guess to a theorem.**
+
+⚠️ **Honest limit.** Linearising the fast/slow pair on an `L_F`-eigenmode gives trace `< 0` and
+determinant `> 0` — **a stable spiral. Linear fatigue buys damped oscillation, not a limit cycle.**
+Sustained motion requires slow `J` learning (already present), noise (added, below), or a nonlinear
+limit cycle (**[OPEN HYPOTHESIS]** — a finding to look for, never to design in).
+
+**New observable:** `ρ(t)` should be a **sawtooth** — falling as the thought coheres, jumping when
+fatigue ejects it. If it decays monotonically to a floor, the model is dead and one plot shows it.
+
+### ✅ THE THREE OPEN ITEMS, ALL CLOSED
+1. **Primacy** — `[SEARCHED]` start-list context reinstatement, not rehearsal, not a learning-rate
+   gradient. The CMR literature already ran that comparison. **Costs one parameter and NO new state
+   variable.** What was called "blocks G1, needs a design session" was one search.
+2. **Noise** — **[DERIVED]** `τ² = 1/π_e`. Precision *is* inverse variance; `π_e` already exists and
+   commit `2f6d64b` already established it as a genuine inverse variance rather than a score.
+   `[SEARCHED]` — this is exactly active inference's construction (precision = inverse temperature
+   in the softmax). **Claim no novelty.** And a noisy threshold unit IS a sigmoid unit, so fixing `τ`
+   also fixes the gain — **a hidden hand-set constant inside the bare symbol `σ`.**
+   ⚠️ Exact for **probit**, off by ≈1.6 for logistic. **Probit chosen.**
+   → Revised ledger: **three knobs deleted (`k`, the leak, the gain), zero added.** The earlier
+   "two deleted, one added" was wrong in our favour and is retracted.
+3. **Input stream** — decided. **G0** synthetic planted structures · **G1** standard word lists ·
+   **G4** `\ref` dependency chains. Rejected: random walks on the concept graph (circular by
+   construction) and paper-reading order (no authored structure).
+   ⚠️ **The guard that makes it non-circular:** Spec A's subset is never G4's input (50/50 split),
+   and **the shuffle comparison is the experiment, not a control** — run citation order vs shuffled
+   order and report what *differs*. What survives shuffling is dynamics; what doesn't is input.
+
+### 📚 LITERATURE GATE PROTOCOL — ADOPTED
+Rule 9 was written down and under-applied; tagging a claim ⚠️ *unsearched* flags a risk without
+discharging it. Operational form: **at each gate, before building, one specific question, 2–4
+searches batched, stop when either a standard answer exists or none does, record the verdict.**
+
+**First round, 2026-08-08 — three searches, three changes to the spec:**
+- **Primacy** → mechanism adopted (above).
+- **Directed cohomology** → **the Alexandrov proposal is RETRACTED.** Sheaves on a preorder are
+  constant on each strongly connected component, and a dense recurrent `J` is one giant SCC, so its
+  cohomology is trivial *by construction*. Replaced by **GLMY path homology** (arXiv:1207.2834),
+  which has persistent versions (arXiv:1701.00565) and — decisively — **an efficient algorithm for
+  1-dimensional persistent path homology** (SoCG 2020), exactly the dimension the growth address
+  lives in. Reachability homology (IMRN 2025) addresses the reachability question directly.
+- **Precision→noise** → confirmed standard, novelty disclaimed.
+
+**Second round, same day — concept formation:** DreamCoder (Roy. Soc. 2023), predicate invention in
+ILP, chunking-as-compression/MDL. See "the growth law needs a cost side", below.
+
+### 🔍 FOUR THINGS THE CODEBASE ALREADY CONTAINED
+This session re-derived work that exists. **Recording it as a process failure, not a footnote: the
+code was not read before the design was written.**
+
+1. **`concept_store.hpp` already contains the growth-address story AND a fix we did not know about.**
+   Its header: with no 2-cells `δ₁ = 0`, so harmonic `= (im δ₀)^⊥` of dimension `b₁ = E − V + b₀`;
+   and since `observe` inserts each assembly as a **clique**, one assembly of size `n` contributes
+   `(n−1)(n−2)/2` cycles alone — **171 for a 20-concept tick.**
+   > **"The growth address was never blocked. It was SWAMPED, by artifacts of inserting cliques and
+   > refusing to fill them."**
+   The fix: a 2-simplex is recorded exactly when its three concepts co-fired in ONE assembly — the
+   edge rule one dimension up, no new constant. Justified by the **nerve lemma with hypotheses
+   verified exactly** (assembly simplices are contractible and their intersections are simplices),
+   giving `b₁(fine complex) = b₁(assembly nerve)`. Validated in `validate_triangles.py`.
+   **Consequence for Spec A:** the store's triangle rule is *co-firing*, NOT the clique complex.
+   The clique complex remains right for the **citation** graph (no assemblies there, so no
+   co-firing rule is available) — but the two graphs use different rules and the spec must say why.
+   There is also a **cap** (`max_assembly_for_triangles_ = 30`, derived from the 5.9 GB budget) and
+   `skipped_wide_assemblies()` is exposed **because a skipped assembly's cycles look exactly like a
+   structural hole**. MUST be read before interpreting `b₁`.
+2. **`HodgeSplit::harmonic_support` exists in `src/core/hodge.cpp:287`.** The harmonic extraction is
+   already in C++.
+3. **`cone_bures.py` exists** — the HK/WFR cone metric with `δ` = *"the distance beyond which two
+   concepts stop being one thing that moved and become two different things"*. The concept-identity
+   operator. Plus commit `8a4529e`, "coning off cycles, with the chord comparison measured."
+   So **the where** (harmonic class) and **the how to attach** (cone) both exist.
+4. **The Stage-1 retrieval fix never reached the engine.** `src/operators/primitives.cpp:58` still
+   computes a *threshold* and calls `get_relevant_concepts(..., relevance_threshold)`, and
+   `concept_store.hpp:138` confirms it is *"a THRESHOLD SCAN WITH NO LIMIT over the whole store."*
+   **This is the measured 0.31%-of-true-dependencies bug, still live in the C++ engine.** See §7.
+
+### 🧬 CONCEPT FORMATION — WHAT THE GROWTH LAW STILL LACKS
+Charbel asked whether concepts "reproduce and evolve like bacteria to humans", with a DNA-like
+structure permitting mutation.
+
+**Position taken, and it is a substantive one:** variation-and-selection needs randomness *because
+it has no address*. Natural selection cannot inspect an organism and say "you need a wing here."
+**MOS computes an address.** Adding random mutation would discard the architecture's main asset.
+Memetics specifically is a metaphor with little predictive content and is not a foundation.
+
+But the *structural* half is sound, and MOS already has it: the inheritable content is the **stalk**
+plus the **attachment**, and the genetic operators are `bind` / `collapse` / `cone`, already in `𝔇`.
+**Directed surgery, not random mutation.**
+
+**⚠️ THE REAL GAP THE LITERATURE EXPOSES.** `[SEARCHED]` DreamCoder, predicate invention and
+chunking **all use compression (MDL) as the criterion**; we use "kill an obstruction". Coning a
+cycle of length `k` **costs** 1 vertex + `k` edges + `k` triangles + a stalk, and **buys** `b₁ − 1`.
+
+> **Our growth law has no cost side.** Applied literally it fills every hole — and the store's own
+> header already warns `b₁` gets swamped. A criterion with no cost over-generates concepts.
+
+**Proposed law, strictly better than the current one:** *attach a concept over a cycle that RECURS,
+and only when the recurrence pays for the attachment.* This is DreamCoder's rule (it extracts
+**common** sub-expressions, not any sub-expression). It also answers a question we had not asked —
+which of several holes to fill first — and **deletes that decision rather than handing it to a
+human. A17.**
+
+**[OPEN HYPOTHESIS]** whether obstruction-killing *is* compression. Plausible (fewer independent
+cycles ⇒ shorter description) but unproven, and the cost side suggests they come apart. **If true we
+inherit forty years of MDL results; if false we must say which criterion we use and why.**
+
+### 🎯 THE GATE THAT FIRED
+Charbel's rule was applied to three questions on the new formalism. Two were answered by quoting the
+explanation back verbatim — **retrieval, not understanding** — and were rejected. The third
+("what does a zero growth address mean about concepts?") was re-taught in plain language with a
+three-exercise worksheet (a rankable triangle; an unrankable *filled* triangle; an unrankable
+*unfilled* 4-cycle) and **he then produced the right answer independently: "add a new concept in the
+middle connecting all four" — which is the cone.**
+
+**The rule works. Keep it.** Also recorded: two explicit complaints that the explanations were
+over-technical and *"clouding everything with technicalities"*. The correction that landed was
+plain-language-first, math-second, with a worked example before any symbol.
+
+### ❌ CORRECTIONS TO `PRECILLA/draft.md`
+| # | correction |
+|---|---|
+| 1 | **Type error.** `q_t = αx_t + βc_{t−1} + γ_g g_t` is added to `Ja ∈ ℝ^N`, but `c ∈ ℝ^d`. Requires `V ∈ ℝ^{N×384}`: `q_t = αx_t + βVc_{t−1} + γ_g Vg_t`. **Forces `d = 384`**, not the claimed `d ≈ 100` |
+| 2 | **`W` → `J`.** The draft overwrote the symbol for the working complex. Also colliding: `d`, `γ`, `ρ` (**vs the coherence functional**), `φ` |
+| 3 | **No noise anywhere**, yet §6 computes recall *probabilities* and silently introduces a Luce rule absent from §3 |
+| 4 | **D6 is wrong by one nonlinearity.** `P ∝ exp(a_j)` with `a_j = σ(h_j)` gives a ratio capped at `e ≈ 2.72` regardless of `w₃`. Needs softmax on the **pre-activation** |
+| 5 | **D7 is a category error.** Precision-weighting fuses several noisy estimates of ONE latent; `x_t`, `c`, `g` are different quantities in different spaces being *composed*, not fused |
+| 6 | **§10.2 is wrong.** Uniqueness of the assembly-size fixed point is two lines: `f` is strictly decreasing, `g = f − k` strictly decreasing with `g(0) > 0 > g(N)`. Exactly one root. The *real* problem is that `μ, σ_h` depend on `k`, so the equation **is not closed** — closing it gives `√k(λ − m) = s·Φ⁻¹(1 − k/N)`, i.e. what controls width is the **excess inhibition `λ − m`**, with `k* ∼ (λ−m)^{-2}` |
+| 7 | **§7.8's "not fitted" is self-deception.** An upper-triangular SR was installed and forward asymmetry derived from it. **The asymmetry was inserted.** G1 criterion replaced: (a) `γ`, `ρ` learned from the input stream never fitted to the CRP, (b) magnitude in the human 1.5–2× range, (c) long-range and across-list contiguity, which an upper-triangular `M₃` does **not** install |
+| 8 | **§7.1's defence may be void.** `M₁` and `M₄` are collinear by construction (PMI is computed from co-activation, which is driven by semantic similarity), so `w₁` may not be **identifiable** and cannot be "read off". **Report the 5×5 Gram matrix and its condition number BEFORE learning anything** |
+| 9 | **§7.5 Alexandrov** — retracted, see above |
+
+### 📄 ARTEFACT
+`DOCS/SPEC_GROWTH_ADDRESS_AND_DYNAMICS.md` — Spec A (the growth-address measurement, no simulator,
+runs on existing data, five controls with numeric pass criteria) and Spec B (the dynamics, with
+every decision stated). **Pre-registered before any run: clique complex on the citation graph, raw
+count difference `η(i→j) = #(i cites j) − #(j cites i)`, 50/50 split, probit.**
+
+### 🔓 STILL OPEN AFTER THIS SESSION
+1. **[OPEN HYPOTHESIS]** Does the sigmoid support a sustained limit cycle, or are noise and slow
+   learning the only sources of ongoing motion?
+2. **[OPEN]** **Cover/partition is not well-posed as stated.** "Do the supports of a basis of `H⁰`
+   overlap?" is basis-dependent. Krull–Schmidt makes the indecomposable decomposition canonical
+   (cellular sheaves on a finite complex are modules over a finite-dimensional algebra), so
+   *partition ⟺ indecomposable summands have disjoint supports* is rigorous — but computing it is
+   potentially wild-quiver-hard, and the practical proxy (small-eigenvalue eigenvectors of `L_F`)
+   reintroduces the basis problem. **Real gap.**
+3. **[OPEN HYPOTHESIS]** Is obstruction-killing the same as MDL compression?
+4. **[OPEN]** What rule sets a newly-coned concept's **stalk**? Barycentre — in which geometry?
+5. **[OPEN]** A new concept needs a **label**, which is not derivable from a cycle. The one place an
+   LLM is genuinely required and real novelty enters rather than being computed.
+6. **[OPEN]** Growth is **sequential** — filling one hole changes the others. Order matters.
+7. **[UNVERIFIED]** Is every symmetric matrix realisable as `D − L_F`? Freedom exists at rank 1;
+   higher-rank stalks unchecked.
+8. Carried from §5ba: `bge-small` never compared against a stronger embedder; A2 (EM convergence);
+   exact conditional-Bernoulli sampling.
+
+---
+
+## 7. 🚀 THE ROAD TO A FIRST PROTOTYPE (written 2026-08-08)
+
+**The single most important observation in this section: there are TWO tracks and they are
+separable. Conflating them has been costing time.**
+
+| | Track A — MOS as a working research tool | Track B — MOS as a model of cognition |
+|---|---|---|
+| serves | goal 1 (a free tool for the masters) | goals 2–3 (thesis, the science) |
+| needs the generative model? | **NO** | yes, it *is* the generative model |
+| status | plumbing mostly built, **one measured bug live** | design complete, nothing built |
+| distance to a demo | **short** | months |
+
+**A prototype of MOS solving a problem does not require the generative cognitive model.** It
+requires the plumbing to be finished and one already-measured bug to be fixed.
+
+### ✅ DONE AND VERIFIED ON DISK
+- `MOS/build/Debug/mos.exe` builds (2026-08-03).
+- `CognitiveState` `M = (C,F,s)` dual-track; `OSKernel` executing FlatBuffer Operad DAGs over stdin
+  IPC with CRC32; `Operad` foliating DAGs into commuting slices via a ThreadPool.
+- `ConceptStore` = **𝕂 over concepts** — the growing co-activation graph plus its sheaf, keyed by
+  name so identity does not drift as the store grows. Edges = co-retrieval in one tick; triangles =
+  co-firing in one assembly; cap at 30 with skipped-count exposed.
+- `Complex2` / `HodgeSplit` including `harmonic_support`. Householder restriction maps, matrix-free
+  LSQR, rank-`k` SPD stalks.
+- The consolidation loop is closed (`test_consolidation_loop.cpp`), `Q(t)` instrumented.
+- `SemanticEmbedding` with Woodbury low-rank and genuine Bures–Wasserstein; `cone_bures.py`.
+- Python organ layer, all migrated to `ModuleVertex`; `coherence.py` (authoritative `ρ`);
+  `precision.py`; `router.py` (tiered Groq, 8B triage → 70B reasoning, both free).
+- Stage-1 measurement suite and the calibration harness.
+
+### 🔴 BLOCKING A PROTOTYPE — in priority order
+
+**P0 — Port the retrieval fix into the C++ engine.** `src/operators/primitives.cpp:58` still computes
+a relevance *threshold*; `concept_store.hpp:138` confirms it is a threshold scan with no limit.
+**[MEASURED]** that scheme admits **0.31%** of true dependencies; rank-based at the same width gets
+**46.6%**. This is the largest single defect in the system, it is already diagnosed, and the fix is
+known. **Everything downstream of retrieval is currently being fed near-noise.**
+*Side benefit:* a rank rule bounds `|A|`, which is exactly what `max_assembly_for_triangles`
+currently has to defend against.
+
+**P1 — `support` name→vertex-id resolution.** `π` is currently told to emit `support: []`, so DAG
+nodes cannot name the concepts they act on. Without it the operad cannot be pointed at anything
+specific.
+
+**P2 — Hook `VerifyOp` to a real checker.** `VerifyOp` exists and returns a three-valued verdict `ν`
+that gates consolidation via `γ(ν)`, but it is not connected to a prover or a sandbox. Until it is,
+**`γ(ν)` is gated on an unearned judgement** and the crystallised store can absorb errors.
+
+**P3 — Confirm `Q(t)` moves.** Commit `1e7fc88` closed the loop with *"Q(t) left zero"*. Consolidation
+that never accumulates is consolidation in name only. One run with the fixed retrieval should be
+enough to tell.
+
+**P4 — One end-to-end demo on a real question.** The reference problem is on record: eigenvalues of
+the Hodge–Laplacian on differential forms of `ℂℙ³`. Ingest → retrieve → reason → verify → respond,
+with the assembly log and `ρ(t)` recorded.
+
+### 🟡 NOT BLOCKING, BUT NEXT
+- Gram matrix of the five `M_k` (minutes; can invalidate the draft's central defence).
+- Spec A controls 1–4, then the null, then the real run.
+- `semantic_skill.cpp` fused-covariance exactness, still unverified.
+
+### 📊 THE TEST THAT COUNTS, UNCHANGED
+**T1 — three arms, SAME LLM: bare | plain-RAG | MOS.** Primary measure is the **gap as a function of
+accumulated experience — a derivative, not a level.** Not valid: MOS vs a frontier model
+single-shot; unequal call budgets; `Δρ` as an outcome (coherence ≠ correctness); `κ` capacity.
+
+---
+
 ## 6. Failures & dead ends (so we don't repeat them)
 
 - ❌ **2026-07-27 — FCA / Formal Concept Analysis as the memory substrate.** Proposed to make the

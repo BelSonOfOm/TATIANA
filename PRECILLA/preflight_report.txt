@@ -1,0 +1,6 @@
+PRECILLA PREFLIGHT 2026-08-07T07:17:31Z
+doctor    : OK -- 3/3 providers reachable and parsing. Run `precilla cite calibrate --verbose` next.
+calibrate : PASS
+by_class  : {'gold': '12/12', 'nearmiss': '4/4', 'decoy': '6/6'}
+cite      : {'AMBIGUOUS': 8, 'VERIFIED': 4, 'PARTIAL': 1}
+dryrun    : None tok -> $None (None)

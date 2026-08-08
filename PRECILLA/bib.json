@@ -1,0 +1,1540 @@
+{
+  "command": "cite.verify",
+  "calibrated": true,
+  "calibration_note": "calibrated 2026-08-07T07:17:02Z",
+  "n": 13,
+  "summary": {
+    "AMBIGUOUS": 8,
+    "VERIFIED": 4,
+    "PARTIAL": 1
+  },
+  "results": [
+    {
+      "cid": "howardnd-temporal-context-model",
+      "raw": "**TCM, Temporal Context Model** (Howard & Kahana)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.000 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'A temporal context model of episodic memory' (2001, doi:10.1037/e537102012-593)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Howard",
+            "Kahana"
+          ],
+          "record": [
+            "Marc W. Howard",
+            "Michael J. Kahana",
+            "Arthur Wingfield"
+          ]
+        }
+      ],
+      "n_works": 15,
+      "errors": [],
+      "best": {
+        "key": "https://openalex.org/W2073391590",
+        "title": "Aging and contextual binding: Modeling recency and lag recency effects with the temporal context model",
+        "authors": [
+          "Marc W. Howard",
+          "Michael J. Kahana",
+          "Arthur Wingfield"
+        ],
+        "year": 2006,
+        "venue": "Psychonomic Bulletin & Review",
+        "doi": "10.3758/bf03193867",
+        "url": "https://openalex.org/W2073391590",
+        "cited_by": 101,
+        "provider": "openalex"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "https://openalex.org/W2073391590",
+            "title": "Aging and contextual binding: Modeling recency and lag recency effects with the temporal context model",
+            "authors": [
+              "Marc W. Howard",
+              "Michael J. Kahana",
+              "Arthur Wingfield"
+            ],
+            "year": 2006,
+            "venue": "Psychonomic Bulletin & Review",
+            "doi": "10.3758/bf03193867",
+            "url": "https://openalex.org/W2073391590",
+            "cited_by": 101,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/e537102012-593",
+            "title": "A temporal context model of episodic memory",
+            "authors": [
+              "Michael J. kahana",
+              "Marc Howard"
+            ],
+            "year": 2001,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e537102012-593",
+            "url": "https://doi.org/10.1037/e537102012-593",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1006/jmps.2001.1388",
+            "title": "A Distributed Representation of Temporal Context",
+            "authors": [
+              "Marc W. Howard",
+              "Michael J. Kahana"
+            ],
+            "year": 2002,
+            "venue": "Journal of Mathematical Psychology",
+            "doi": "10.1006/jmps.2001.1388",
+            "url": "https://doi.org/10.1006/jmps.2001.1388",
+            "cited_by": 875,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "polynnd-context-maintenance-and-",
+      "raw": "**CMR, Context Maintenance and Retrieval** (Polyn, Norman & Kahana)",
+      "status": "VERIFIED",
+      "reason": "score 0.925, margin 0.154",
+      "discrepancies": [],
+      "n_works": 15,
+      "errors": [],
+      "best": {
+        "key": "10.1037/a0014420",
+        "title": "A context maintenance and retrieval model of organizational processes in free recall.",
+        "authors": [
+          "Sean M. Polyn",
+          "Kenneth A. Norman",
+          "Michael J. Kahana"
+        ],
+        "year": 2009,
+        "venue": "Psychological Review",
+        "doi": "10.1037/a0014420",
+        "url": "https://doi.org/10.1037/a0014420",
+        "cited_by": 558,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1037/a0014420",
+            "title": "A context maintenance and retrieval model of organizational processes in free recall.",
+            "authors": [
+              "Sean M. Polyn",
+              "Kenneth A. Norman",
+              "Michael J. Kahana"
+            ],
+            "year": 2009,
+            "venue": "Psychological Review",
+            "doi": "10.1037/a0014420",
+            "url": "https://doi.org/10.1037/a0014420",
+            "cited_by": 558,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/e527342012-143",
+            "title": "The Interaction of Task Context and Temporal Context in Free Recall",
+            "authors": [
+              "Sean M. Polyn",
+              "Kenneth A. Norman",
+              "Michael J. Kahana"
+            ],
+            "year": 2007,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e527342012-143",
+            "url": "https://doi.org/10.1037/e527342012-143",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7709,
+            "author_recall": 1.0,
+            "title_sim": 0.4865,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2137146301",
+            "title": "Task context and organization in free recall",
+            "authors": [
+              "Sean M. Polyn",
+              "Kenneth A. Norman",
+              "Michael J. Kahana"
+            ],
+            "year": 2009,
+            "venue": "Neuropsychologia",
+            "doi": "10.1016/j.neuropsychologia.2009.02.013",
+            "url": "https://openalex.org/W2137146301",
+            "cited_by": 103,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.7705,
+            "author_recall": 1.0,
+            "title_sim": 0.4848,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "raaijmakersnd-search-of-associative-me",
+      "raw": "**SAM, Search of Associative Memory** (Raaijmakers & Shiffrin)",
+      "status": "VERIFIED",
+      "reason": "score 0.925, margin 0.214 (2 duplicate record(s) skipped)",
+      "discrepancies": [],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "10.1037/0033-295x.88.2.93",
+        "title": "Search of associative memory.",
+        "authors": [
+          "Jeroen G. Raaijmakers",
+          "Richard M. Shiffrin"
+        ],
+        "year": 1981,
+        "venue": "Psychological Review",
+        "doi": "10.1037/0033-295x.88.2.93",
+        "url": "https://doi.org/10.1037/0033-295x.88.2.93",
+        "cited_by": 936,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1037/0033-295x.88.2.93",
+            "title": "Search of associative memory.",
+            "authors": [
+              "Jeroen G. Raaijmakers",
+              "Richard M. Shiffrin"
+            ],
+            "year": 1981,
+            "venue": "Psychological Review",
+            "doi": "10.1037/0033-295x.88.2.93",
+            "url": "https://doi.org/10.1037/0033-295x.88.2.93",
+            "cited_by": 936,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1016/s0079-7421(08)60162-0",
+            "title": "SAM: A Theory of Probabilistic Search of Associative Memory",
+            "authors": [
+              "Jeroen G.W. Raaijmakers",
+              "Richard M. Shiffrin"
+            ],
+            "year": 1980,
+            "venue": "Psychology of Learning and Motivation",
+            "doi": "10.1016/s0079-7421(08)60162-0",
+            "url": "https://doi.org/10.1016/s0079-7421(08)60162-0",
+            "cited_by": 97,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1002/0471214426.pas0202",
+            "title": "Models of Memory",
+            "authors": [
+              "Jeroen G. W. Raaijmakers",
+              "Richard M. Shiffrin"
+            ],
+            "year": 2002,
+            "venue": "Stevens' Handbook of Experimental Psychology",
+            "doi": "10.1002/0471214426.pas0202",
+            "url": "https://doi.org/10.1002/0471214426.pas0202",
+            "cited_by": 9,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7411,
+            "author_recall": 1.0,
+            "title_sim": 0.3871,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "andersonnd-act-r-declarative-memory",
+      "raw": "**ACT-R declarative memory** (Anderson)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.048 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'An Integrated Theory of the Mind.' (2004, doi:10.1037/0033-295x.111.4.1036)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Anderson"
+          ],
+          "record": [
+            "John R. Anderson",
+            "Dan Bothell",
+            "Christian Lebière",
+            "Michael Matessa"
+          ]
+        }
+      ],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "https://openalex.org/W2102162397",
+        "title": "An Integrated Theory of List Memory",
+        "authors": [
+          "John R. Anderson",
+          "Dan Bothell",
+          "Christian Lebière",
+          "Michael Matessa"
+        ],
+        "year": 1998,
+        "venue": "Journal of Memory and Language",
+        "doi": "10.1006/jmla.1997.2553",
+        "url": "https://openalex.org/W2102162397",
+        "cited_by": 409,
+        "provider": "openalex"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "https://openalex.org/W2102162397",
+            "title": "An Integrated Theory of List Memory",
+            "authors": [
+              "John R. Anderson",
+              "Dan Bothell",
+              "Christian Lebière",
+              "Michael Matessa"
+            ],
+            "year": 1998,
+            "venue": "Journal of Memory and Language",
+            "doi": "10.1006/jmla.1997.2553",
+            "url": "https://openalex.org/W2102162397",
+            "cited_by": 409,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.8023,
+            "author_recall": 1.0,
+            "title_sim": 0.5909,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2136518234",
+            "title": "An Integrated Theory of the Mind.",
+            "authors": [
+              "John R. Anderson",
+              "Daniel Bothell",
+              "Michael D. Byrne",
+              "Scott Douglass",
+              "Christian Lebière",
+              "Yulin Qin"
+            ],
+            "year": 2004,
+            "venue": "Psychological Review",
+            "doi": "10.1037/0033-295x.111.4.1036",
+            "url": "https://openalex.org/W2136518234",
+            "cited_by": 2961,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.7547,
+            "author_recall": 1.0,
+            "title_sim": 0.4324,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2139099630",
+            "title": "Working Memory: Activation Limitations on Retrieval",
+            "authors": [
+              "John R. Anderson",
+              "Lynne M. Reder",
+              "Christian Lebière"
+            ],
+            "year": 1996,
+            "venue": "Cognitive Psychology",
+            "doi": "10.1006/cogp.1996.0007",
+            "url": "https://openalex.org/W2139099630",
+            "cited_by": 355,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.738,
+            "author_recall": 1.0,
+            "title_sim": 0.3768,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "mcclellandnd-complementary-learning-s",
+      "raw": "**Complementary Learning Systems** (McClelland, McNaughton & O'Reilly)",
+      "status": "VERIFIED",
+      "reason": "score 0.925, margin 0.183 (1 duplicate record(s) skipped)",
+      "discrepancies": [],
+      "n_works": 15,
+      "errors": [],
+      "best": {
+        "key": "10.7551/mitpress/1888.003.0023",
+        "title": "Why There Are Complementary Learning Systems in the Hippocampus and Neocortex: Insights from the Successes and Failures of Connectionist Models of Learning and Memory",
+        "authors": [
+          "James L. McClelland",
+          "Bruce L. McNaughton",
+          "Randall C. O'Reilly"
+        ],
+        "year": 2002,
+        "venue": "Cognitive Modeling",
+        "doi": "10.7551/mitpress/1888.003.0023",
+        "url": "https://doi.org/10.7551/mitpress/1888.003.0023",
+        "cited_by": 2,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.7551/mitpress/1888.003.0023",
+            "title": "Why There Are Complementary Learning Systems in the Hippocampus and Neocortex: Insights from the Successes and Failures of Connectionist Models of Learning and Memory",
+            "authors": [
+              "James L. McClelland",
+              "Bruce L. McNaughton",
+              "Randall C. O'Reilly"
+            ],
+            "year": 2002,
+            "venue": "Cognitive Modeling",
+            "doi": "10.7551/mitpress/1888.003.0023",
+            "url": "https://doi.org/10.7551/mitpress/1888.003.0023",
+            "cited_by": 2,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/0033-295x.102.3.419",
+            "title": "Why there are complementary learning systems in the hippocampus and neocortex: Insights from the successes and failures of connectionist models of learning and memory.",
+            "authors": [
+              "James L. McClelland",
+              "Bruce L. McNaughton",
+              "Randall C. O'Reilly"
+            ],
+            "year": 1995,
+            "venue": "Psychological Review",
+            "doi": "10.1037/0033-295x.102.3.419",
+            "url": "https://doi.org/10.1037/0033-295x.102.3.419",
+            "cited_by": 3957,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1098/rstb.2019.0637",
+            "title": "Integration of new information in memory: new insights from a complementary learning systems perspective",
+            "authors": [
+              "James L. McClelland",
+              "Bruce L. McNaughton",
+              "Andrew K. Lampinen"
+            ],
+            "year": 2020,
+            "venue": "Philosophical Transactions of the Royal Society B: Biological Sciences",
+            "doi": "10.1098/rstb.2019.0637",
+            "url": "https://doi.org/10.1098/rstb.2019.0637",
+            "cited_by": 96,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7417,
+            "author_recall": 0.6667,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "dayannd-successor-representation",
+      "raw": "**Successor Representation** (Dayan; Stachenfeld, Botvinick & Gershman)",
+      "status": "VERIFIED",
+      "reason": "score 0.925, margin 0.683",
+      "discrepancies": [],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "10.1162/neco.1993.5.4.613",
+        "title": "Improving Generalization for Temporal Difference Learning: The Successor Representation",
+        "authors": [
+          "Peter Dayan"
+        ],
+        "year": 1993,
+        "venue": "Neural Computation",
+        "doi": "10.1162/neco.1993.5.4.613",
+        "url": "https://doi.org/10.1162/neco.1993.5.4.613",
+        "cited_by": 522,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1162/neco.1993.5.4.613",
+            "title": "Improving Generalization for Temporal Difference Learning: The Successor Representation",
+            "authors": [
+              "Peter Dayan"
+            ],
+            "year": 1993,
+            "venue": "Neural Computation",
+            "doi": "10.1162/neco.1993.5.4.613",
+            "url": "https://doi.org/10.1162/neco.1993.5.4.613",
+            "cited_by": 522,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2417089653",
+            "title": "Deep Successor Reinforcement Learning",
+            "authors": [
+              "Tejas D. Kulkarni",
+              "Ardavan Saeedi",
+              "Simanta Gautam",
+              "Samuel J. Gershman"
+            ],
+            "year": 2016,
+            "venue": "arXiv (Cornell University)",
+            "doi": "10.48550/arxiv.1606.02396",
+            "url": "https://openalex.org/W2417089653",
+            "cited_by": 97,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.2422,
+            "author_recall": 0.0,
+            "title_sim": 0.5574,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2076546217",
+            "title": "The Successor Representation and Temporal Context",
+            "authors": [
+              "Samuel J. Gershman",
+              "Christopher D. Moore",
+              "Michael T. Todd",
+              "Kenneth A. Norman",
+              "Per B. Sederberg"
+            ],
+            "year": 2012,
+            "venue": "Neural Computation",
+            "doi": "10.1162/neco_a_00282",
+            "url": "https://openalex.org/W2076546217",
+            "cited_by": 136,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.2063,
+            "author_recall": 0.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "stachenfeldnd-successor-representation",
+      "raw": "**Successor Representation** (Dayan; Stachenfeld, Botvinick & Gershman)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.000 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'The successor representation in human reinforcement learning' (2016, doi:10.1101/083824)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Stachenfeld",
+            "Botvinick",
+            "Gershman"
+          ],
+          "record": [
+            "Daniel C. McNamee",
+            "Kimberly L. Stachenfeld",
+            "Matthew M. Botvinick",
+            "Samuel J. Gershman"
+          ]
+        }
+      ],
+      "n_works": 14,
+      "errors": [],
+      "best": {
+        "key": "10.3390/e24121791",
+        "title": "Compositional Sequence Generation in the Entorhinal–Hippocampal System",
+        "authors": [
+          "Daniel C. McNamee",
+          "Kimberly L. Stachenfeld",
+          "Matthew M. Botvinick",
+          "Samuel J. Gershman"
+        ],
+        "year": 2022,
+        "venue": "Entropy",
+        "doi": "10.3390/e24121791",
+        "url": "https://doi.org/10.3390/e24121791",
+        "cited_by": 9,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.3390/e24121791",
+            "title": "Compositional Sequence Generation in the Entorhinal–Hippocampal System",
+            "authors": [
+              "Daniel C. McNamee",
+              "Kimberly L. Stachenfeld",
+              "Matthew M. Botvinick",
+              "Samuel J. Gershman"
+            ],
+            "year": 2022,
+            "venue": "Entropy",
+            "doi": "10.3390/e24121791",
+            "url": "https://doi.org/10.3390/e24121791",
+            "cited_by": 9,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7422,
+            "author_recall": 1.0,
+            "title_sim": 0.3908,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2541707354",
+            "title": "The successor representation in human reinforcement learning",
+            "authors": [
+              "Ida Momennejad",
+              "EM Russek",
+              "JH Cheong",
+              "MM Botvinick",
+              "Nathaniel D. Daw",
+              "Samuel J. Gershman"
+            ],
+            "year": 2016,
+            "venue": "bioRxiv (Cold Spring Harbor Laboratory)",
+            "doi": "10.1101/083824",
+            "url": "https://openalex.org/W2541707354",
+            "cited_by": 69,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.7417,
+            "author_recall": 0.6667,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W3196427539",
+            "title": "Neural evidence for the successor representation in choice evaluation",
+            "authors": [
+              "Evan M. Russek",
+              "Ida Momennejad",
+              "Matthew Botvinick",
+              "Samuel J. Gershman",
+              "Nathaniel D. Daw"
+            ],
+            "year": 2021,
+            "venue": "bioRxiv (Cold Spring Harbor Laboratory)",
+            "doi": "10.1101/2021.08.29.458114",
+            "url": "https://openalex.org/W3196427539",
+            "cited_by": 37,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.7417,
+            "author_recall": 0.6667,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "fristonnd-predictive-coding-free-e",
+      "raw": "**Predictive coding / free energy** (Friston)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.000 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'Predictive coding under the free-energy principle' (2009, doi:10.1098/rstb.2008.0300)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Friston"
+          ],
+          "record": [
+            "Karl J. Friston",
+            "Stefan Kiebel"
+          ]
+        }
+      ],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "10.1093/acprof:oso/9780195395518.003.0076",
+        "title": "Predictive Coding: A Free-Energy Formulation",
+        "authors": [
+          "Karl J. Friston",
+          "Stefan Kiebel"
+        ],
+        "year": 2011,
+        "venue": "Predictions in the Brain",
+        "doi": "10.1093/acprof:oso/9780195395518.003.0076",
+        "url": "https://doi.org/10.1093/acprof:oso/9780195395518.003.0076",
+        "cited_by": 4,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1093/acprof:oso/9780195395518.003.0076",
+            "title": "Predictive Coding: A Free-Energy Formulation",
+            "authors": [
+              "Karl J. Friston",
+              "Stefan Kiebel"
+            ],
+            "year": 2011,
+            "venue": "Predictions in the Brain",
+            "doi": "10.1093/acprof:oso/9780195395518.003.0076",
+            "url": "https://doi.org/10.1093/acprof:oso/9780195395518.003.0076",
+            "cited_by": 4,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1098/rstb.2008.0300",
+            "title": "Predictive coding under the free-energy principle",
+            "authors": [
+              "Karl Friston",
+              "Stefan Kiebel"
+            ],
+            "year": 2009,
+            "venue": "Philosophical Transactions of the Royal Society B: Biological Sciences",
+            "doi": "10.1098/rstb.2008.0300",
+            "url": "https://doi.org/10.1098/rstb.2008.0300",
+            "cited_by": 1338,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.925,
+            "author_recall": 1.0,
+            "title_sim": 1.0,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1038/s41593-018-0200-7",
+            "title": "Does predictive coding have a future?",
+            "authors": [
+              "Karl Friston"
+            ],
+            "year": 2018,
+            "venue": "Nature Neuroscience",
+            "doi": "10.1038/s41593-018-0200-7",
+            "url": "https://doi.org/10.1038/s41593-018-0200-7",
+            "cited_by": 350,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.8536,
+            "author_recall": 1.0,
+            "title_sim": 0.7619,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": true,
+              "used_topic_hint": false,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "bousfieldnd-semantic-clustering",
+      "raw": "Bousfield (semantic clustering)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.046 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'Indoor Radio Dot Placement Optimization using UE Positioning and K-Mea' (2024, doi:10.22215/etd/2024-16222)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Bousfield"
+          ],
+          "record": [
+            "Weston A. Bousfield",
+            "David A. Wicklund"
+          ]
+        }
+      ],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "10.3758/bf03336366",
+        "title": "Rhyme as a determinant of clustering",
+        "authors": [
+          "Weston A. Bousfield",
+          "David A. Wicklund"
+        ],
+        "year": 1969,
+        "venue": "Psychonomic Science",
+        "doi": "10.3758/bf03336366",
+        "url": "https://doi.org/10.3758/bf03336366",
+        "cited_by": 12,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.3758/bf03336366",
+            "title": "Rhyme as a determinant of clustering",
+            "authors": [
+              "Weston A. Bousfield",
+              "David A. Wicklund"
+            ],
+            "year": 1969,
+            "venue": "Psychonomic Science",
+            "doi": "10.3758/bf03336366",
+            "url": "https://doi.org/10.3758/bf03336366",
+            "cited_by": 12,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7986,
+            "author_recall": 1.0,
+            "title_sim": 0.5787,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.22215/etd/2024-16222",
+            "title": "Indoor Radio Dot Placement Optimization using UE Positioning and K-Means Clustering",
+            "authors": [
+              "John Liu Bousfield"
+            ],
+            "year": 2024,
+            "venue": "",
+            "doi": "10.22215/etd/2024-16222",
+            "url": "https://doi.org/10.22215/etd/2024-16222",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7525,
+            "author_recall": 1.0,
+            "title_sim": 0.425,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.2466/pr0.1966.19.3.935",
+            "title": "Measurement of Clustering and of Sequential Constancies in Repeated Free Recall",
+            "authors": [
+              "A. K. Bousfield",
+              "W. A. Bousfield"
+            ],
+            "year": 1966,
+            "venue": "Psychological Reports",
+            "doi": "10.2466/pr0.1966.19.3.935",
+            "url": "https://doi.org/10.2466/pr0.1966.19.3.935",
+            "cited_by": 240,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7525,
+            "author_recall": 1.0,
+            "title_sim": 0.425,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "murdocknd-serial-position",
+      "raw": "Murdock (serial position)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.000 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'The serial position effect of free recall.' (1962, doi:10.1037/h0045106)",
+      "discrepancies": [],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "10.1037/10394-008",
+        "title": "Analysis of the serial position curve.",
+        "authors": [
+          "Bennet Murdock"
+        ],
+        "year": 2004,
+        "venue": "The nature of remembering: Essays in honor of Robert G. Crowder.",
+        "doi": "10.1037/10394-008",
+        "url": "https://doi.org/10.1037/10394-008",
+        "cited_by": 3,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1037/10394-008",
+            "title": "Analysis of the serial position curve.",
+            "authors": [
+              "Bennet Murdock"
+            ],
+            "year": 2004,
+            "venue": "The nature of remembering: Essays in honor of Robert G. Crowder.",
+            "doi": "10.1037/10394-008",
+            "url": "https://doi.org/10.1037/10394-008",
+            "cited_by": 3,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.88,
+            "author_recall": 1.0,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/h0045106",
+            "title": "The serial position effect of free recall.",
+            "authors": [
+              "Bennet B. Murdock"
+            ],
+            "year": 1962,
+            "venue": "Journal of Experimental Psychology",
+            "doi": "10.1037/h0045106",
+            "url": "https://doi.org/10.1037/h0045106",
+            "cited_by": 1160,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.88,
+            "author_recall": 1.0,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1016/s0022-5371(77)80046-7",
+            "title": "Effect of presentation time on nominal and functional serial-position curves of free recall",
+            "authors": [
+              "Delbert A. Brodie",
+              "Bennet B. Murdock"
+            ],
+            "year": 1977,
+            "venue": "Journal of Verbal Learning and Verbal Behavior",
+            "doi": "10.1016/s0022-5371(77)80046-7",
+            "url": "https://doi.org/10.1016/s0022-5371(77)80046-7",
+            "cited_by": 54,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.88,
+            "author_recall": 1.0,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "kahanand-lag-crp",
+      "raw": "Kahana (lag-CRP)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.000 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'Aging and contextual binding: Modeling recency and lag recency effects' (2006, doi:10.3758/bf03193867)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Kahana"
+          ],
+          "record": [
+            "Michael J. Kahana",
+            "Marc W. Howard"
+          ]
+        }
+      ],
+      "n_works": 13,
+      "errors": [],
+      "best": {
+        "key": "https://openalex.org/W1999678038",
+        "title": "Spacing and lag effects in free recall of pure lists",
+        "authors": [
+          "Michael J. Kahana",
+          "Marc W. Howard"
+        ],
+        "year": 2005,
+        "venue": "Psychonomic Bulletin & Review",
+        "doi": "10.3758/bf03196362",
+        "url": "https://openalex.org/W1999678038",
+        "cited_by": 96,
+        "provider": "openalex"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "https://openalex.org/W1999678038",
+            "title": "Spacing and lag effects in free recall of pure lists",
+            "authors": [
+              "Michael J. Kahana",
+              "Marc W. Howard"
+            ],
+            "year": 2005,
+            "venue": "Psychonomic Bulletin & Review",
+            "doi": "10.3758/bf03196362",
+            "url": "https://openalex.org/W1999678038",
+            "cited_by": 96,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.7525,
+            "author_recall": 1.0,
+            "title_sim": 0.425,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "https://openalex.org/W2073391590",
+            "title": "Aging and contextual binding: Modeling recency and lag recency effects with the temporal context model",
+            "authors": [
+              "Marc W. Howard",
+              "Michael J. Kahana",
+              "Arthur Wingfield"
+            ],
+            "year": 2006,
+            "venue": "Psychonomic Bulletin & Review",
+            "doi": "10.3758/bf03193867",
+            "url": "https://openalex.org/W2073391590",
+            "cited_by": 101,
+            "provider": "openalex"
+          },
+          "score": {
+            "total": 0.7525,
+            "author_recall": 1.0,
+            "title_sim": 0.425,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/e520562012-507",
+            "title": "Encoding variability revisited in the spacing and lag effects of free recall",
+            "authors": [
+              "Lynn J. Lohnas",
+              "Sean M. Polyn",
+              "Michael J. Kahana"
+            ],
+            "year": 2009,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e520562012-507",
+            "url": "https://doi.org/10.1037/e520562012-507",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.7525,
+            "author_recall": 1.0,
+            "title_sim": 0.425,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "ebbinghausnd-spacing",
+      "raw": "Ebbinghaus/Cepeda (spacing)",
+      "status": "PARTIAL",
+      "reason": "score 0.605 in [0.50, 0.72) -- plausible but not confirmed",
+      "discrepancies": [
+        {
+          "field": "authors_not_on_record",
+          "cited": [
+            "Ebbinghaus"
+          ],
+          "record": [
+            "Harold E. Pashler",
+            "Nicholas Cepeda",
+            "Doug Rohrer",
+            "John Wixted"
+          ]
+        },
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Ebbinghaus",
+            "Cepeda"
+          ],
+          "record": [
+            "Harold E. Pashler",
+            "Nicholas Cepeda",
+            "Doug Rohrer",
+            "John Wixted"
+          ]
+        }
+      ],
+      "n_works": 16,
+      "errors": [],
+      "best": {
+        "key": "10.1037/e537052012-224",
+        "title": "The Spacing Effect: Useful or Just Interesting?",
+        "authors": [
+          "Harold E. Pashler",
+          "Nicholas Cepeda",
+          "Doug Rohrer",
+          "John Wixted"
+        ],
+        "year": 2004,
+        "venue": "PsycEXTRA Dataset",
+        "doi": "10.1037/e537052012-224",
+        "url": "https://doi.org/10.1037/e537052012-224",
+        "cited_by": 0,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1037/e537052012-224",
+            "title": "The Spacing Effect: Useful or Just Interesting?",
+            "authors": [
+              "Harold E. Pashler",
+              "Nicholas Cepeda",
+              "Doug Rohrer",
+              "John Wixted"
+            ],
+            "year": 2004,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e537052012-224",
+            "url": "https://doi.org/10.1037/e537052012-224",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.605,
+            "author_recall": 0.5,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/e520592012-842",
+            "title": "Extending the spacing effect beyond fact learning in a mock classroom setting",
+            "authors": [
+              "Irina V. Kapler",
+              "Tina Weston",
+              "Nicholas J. Cepeda"
+            ],
+            "year": 2010,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e520592012-842",
+            "url": "https://doi.org/10.1037/e520592012-842",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.605,
+            "author_recall": 0.5,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/e520562012-290",
+            "title": "Predicting the optimal spacing of study: A multiscale context model",
+            "authors": [
+              "Michael C. Mozer",
+              "Hal Pashler",
+              "Nicholas J. Cepeda",
+              "Robert Lindsey"
+            ],
+            "year": 2009,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e520562012-290",
+            "url": "https://doi.org/10.1037/e520562012-290",
+            "cited_by": 10,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.605,
+            "author_recall": 0.5,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "cid": "wickensnd-release-from-pi",
+      "raw": "Wickens (release from PI)",
+      "status": "AMBIGUOUS",
+      "reason": "margin 0.000 < 0.08 -- two DIFFERENT records fit equally well -- rival: 'Release from PI and the physical aspects of words' (1974, doi:10.3758/bf03333478)",
+      "discrepancies": [
+        {
+          "field": "authors_omitted",
+          "cited": [
+            "Wickens"
+          ],
+          "record": [
+            "Delos D. Wickens",
+            "P. William Shearer"
+          ]
+        }
+      ],
+      "n_works": 15,
+      "errors": [],
+      "best": {
+        "key": "10.1037/e665992011-057",
+        "title": "Selective Attention in Dichotic Listening, Using the Release from PI Paradigm",
+        "authors": [
+          "Delos D. Wickens",
+          "P. William Shearer"
+        ],
+        "year": 1973,
+        "venue": "PsycEXTRA Dataset",
+        "doi": "10.1037/e665992011-057",
+        "url": "https://doi.org/10.1037/e665992011-057",
+        "cited_by": 0,
+        "provider": "crossref"
+      },
+      "top": [
+        {
+          "work": {
+            "key": "10.1037/e665992011-057",
+            "title": "Selective Attention in Dichotic Listening, Using the Release from PI Paradigm",
+            "authors": [
+              "Delos D. Wickens",
+              "P. William Shearer"
+            ],
+            "year": 1973,
+            "venue": "PsycEXTRA Dataset",
+            "doi": "10.1037/e665992011-057",
+            "url": "https://doi.org/10.1037/e665992011-057",
+            "cited_by": 0,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.88,
+            "author_recall": 1.0,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.3758/bf03333478",
+            "title": "Release from PI and the physical aspects of words",
+            "authors": [
+              "Roger B. Baldwin",
+              "Delos D. Wickens"
+            ],
+            "year": 1974,
+            "venue": "Bulletin of the Psychonomic Society",
+            "doi": "10.3758/bf03333478",
+            "url": "https://doi.org/10.3758/bf03333478",
+            "cited_by": 2,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.88,
+            "author_recall": 1.0,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        },
+        {
+          "work": {
+            "key": "10.1037/h0029991",
+            "title": "Temporal gradient of release from proactive inhibition.",
+            "authors": [
+              "J. Peter Kincaid",
+              "Delos D. Wickens"
+            ],
+            "year": 1970,
+            "venue": "Journal of Experimental Psychology",
+            "doi": "10.1037/h0029991",
+            "url": "https://doi.org/10.1037/h0029991",
+            "cited_by": 35,
+            "provider": "crossref"
+          },
+          "score": {
+            "total": 0.88,
+            "author_recall": 1.0,
+            "title_sim": 0.85,
+            "year_sim": 0.5,
+            "detail": {
+              "used_title_hint": false,
+              "used_topic_hint": true,
+              "fuzzy_surnames": []
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "bibtex": "@article{polynnd-context-maintenance-and-,\n  author = {Sean M. Polyn and Kenneth A. Norman and Michael J. Kahana},\n  title = {A context maintenance and retrieval model of organizational processes in free recall.},\n  year = {2009},\n  journal = {Psychological Review},\n  doi = {10.1037/a0014420},\n  url = {https://doi.org/10.1037/a0014420}\n}\n\n@article{raaijmakersnd-search-of-associative-me,\n  author = {Jeroen G. Raaijmakers and Richard M. Shiffrin},\n  title = {Search of associative memory.},\n  year = {1981},\n  journal = {Psychological Review},\n  doi = {10.1037/0033-295x.88.2.93},\n  url = {https://doi.org/10.1037/0033-295x.88.2.93}\n}\n\n@article{mcclellandnd-complementary-learning-s,\n  author = {James L. McClelland and Bruce L. McNaughton and Randall C. O'Reilly},\n  title = {Why There Are Complementary Learning Systems in the Hippocampus and Neocortex: Insights from the Successes and Failures of Connectionist Models of Learning and Memory},\n  year = {2002},\n  journal = {Cognitive Modeling},\n  doi = {10.7551/mitpress/1888.003.0023},\n  url = {https://doi.org/10.7551/mitpress/1888.003.0023}\n}\n\n@article{dayannd-successor-representation,\n  author = {Peter Dayan},\n  title = {Improving Generalization for Temporal Difference Learning: The Successor Representation},\n  year = {1993},\n  journal = {Neural Computation},\n  doi = {10.1162/neco.1993.5.4.613},\n  url = {https://doi.org/10.1162/neco.1993.5.4.613}\n}"
+}

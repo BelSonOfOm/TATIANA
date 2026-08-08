@@ -38,3 +38,6 @@ MOS/python/tasks.txt
 
 # arXiv LaTeX source cache (52MB, regenerable by extract_refs.py)
 MOS/python/.arxiv_src_cache/
+
+# Windows shortcuts
+*.lnk

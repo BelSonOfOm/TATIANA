@@ -227,6 +227,129 @@ void test_antipodal_pair_is_handled() {
     std::cout << "  the antipodal case rotates rather than picking a direction by accident\n";
 }
 
+// --------------------------------------------------- triangles and b1 ------
+//
+// The number this whole change exists to move. With no 2-cells delta1 = 0, so
+// curl is trivial and EVERY cycle reads as harmonic -- and since observe()
+// inserts each assembly as a clique, one n-concept tick contributes
+// (n-1)(n-2)/2 cycles that are pure artifacts of not filling it. These tests
+// assert the artifacts are gone and that a REAL cross-assembly hole survives.
+
+/// b1 = dim ker(delta1) - dim im(delta0) = E - rank(delta1) - rank(delta0).
+///
+/// From RANKS, not from the Euler count E - V + b0 - F: that expression is only
+/// valid when delta1 has full row rank, which fails badly once triangles share
+/// edges. A filled K_7 has F = 35 but rank(delta1) = 15, and the Euler form
+/// returns -20 -- a "negative Betti number", i.e. a wrong instrument rather
+/// than a wrong complex.
+int betti1(const Complex2& cx) {
+    const int E = cx.num_edges();
+    if (E == 0) return 0;
+
+    Eigen::MatrixXd d0(E, cx.num_vertices());
+    for (int j = 0; j < cx.num_vertices(); ++j) {
+        Eigen::VectorXd basis = Eigen::VectorXd::Zero(cx.num_vertices());
+        basis(j) = 1.0;
+        d0.col(j) = cx.apply_delta0(basis);
+    }
+    const int r0 = static_cast<int>(
+        Eigen::FullPivLU<Eigen::MatrixXd>(d0).setThreshold(1e-9).rank());
+
+    int r1 = 0;
+    if (cx.num_triangles() > 0) {
+        const Eigen::MatrixXd d1 = cx.dense_delta1_for_rank();
+        r1 = static_cast<int>(
+            Eigen::FullPivLU<Eigen::MatrixXd>(d1).setThreshold(1e-9).rank());
+    }
+    return E - r1 - r0;
+}
+
+std::vector<std::string> concepts(const std::string& tag, int n) {
+    std::vector<std::string> v;
+    for (int i = 0; i < n; ++i) v.push_back(tag + std::to_string(i));
+    return v;
+}
+
+void test_a_triple_becomes_a_2_simplex() {
+    ConceptStore cs(4);
+    cs.observe({"a", "b", "c"});
+    assert(cs.num_triangles() == 1 && "one assembly of 3 is one 2-simplex");
+    assert(cs.num_edges() == 3);
+
+    ConceptStore cs4(4);
+    cs4.observe(concepts("x", 4));
+    assert(cs4.num_triangles() == 4 && "C(4,3) = 4");
+    assert(cs4.num_edges() == 6 && "C(4,2) = 6");
+
+    // Order-independence. Retrieval order is preserved for vertex-insertion
+    // stability, so without the sort the SAME triple would land under up to six
+    // distinct keys and the triangle count would silently inflate.
+    ConceptStore perm(4);
+    perm.observe({"c", "a", "b"});
+    perm.observe({"b", "c", "a"});
+    perm.observe({"a", "b", "c"});
+    assert(perm.num_triangles() == 1 && "a triple has ONE key however ordered");
+    std::cout << "  a co-fired triple is one 2-simplex, whatever the order\n";
+}
+
+void test_filling_kills_the_within_assembly_artifacts() {
+    // THE HEADLINE. An unfilled clique K_n has b1 = (n-1)(n-2)/2; filled, the
+    // 2-skeleton of a simplex is simply connected, so b1 = 0.
+    for (int n : {3, 5, 7, 10}) {
+        const int expected_unfilled = (n - 1) * (n - 2) / 2;
+
+        ConceptStore off(4);
+        off.set_max_assembly_for_triangles(0);   // edges only: the old store
+        off.observe(concepts("u", n));
+        assert(off.num_triangles() == 0);
+        assert(betti1(off.store().complex) == expected_unfilled &&
+               "unfilled clique b1 must be (n-1)(n-2)/2 -- the artifact count");
+
+        ConceptStore on(4);
+        on.observe(concepts("u", n));
+        assert(betti1(on.store().complex) == 0 &&
+               "filling a clique must leave NO cycle: it is contractible");
+    }
+    std::cout << "  filled cliques: b1 (n-1)(n-2)/2 -> 0 at n = 3,5,7,10\n";
+}
+
+void test_a_cross_assembly_hole_SURVIVES() {
+    // The other half, and the one that makes this a fix rather than a delete.
+    // Three assemblies in a ring, consecutive ones sharing one concept. Each is
+    // filled and contractible; the cover's nerve is a 3-cycle, so the nerve
+    // lemma predicts exactly one surviving class -- a hole NO single assembly
+    // covers. If filling killed this too, the change would have removed the
+    // growth address rather than cleaned it.
+    ConceptStore cs(4);
+    cs.observe({"h0", "p0", "h1"});
+    cs.observe({"h1", "p1", "h2"});
+    cs.observe({"h2", "p2", "h0"});
+    assert(cs.num_triangles() == 3);
+    assert(betti1(cs.store().complex) == 1 &&
+           "the cross-assembly cycle must SURVIVE -- it is a real hole");
+    std::cout << "  a cross-assembly cycle survives filling: b1 = 1\n";
+}
+
+void test_the_cap_is_counted_never_silent() {
+    ConceptStore cs(4);
+    cs.set_max_assembly_for_triangles(4);
+    cs.observe(concepts("w", 8));           // over the cap
+
+    assert(cs.num_triangles() == 0 && "a wide assembly contributes no 2-cells");
+    assert(cs.num_edges() == 28 && "but it still contributes ALL its edges");
+    assert(cs.skipped_wide_assemblies() == 1 &&
+           "the skip must be COUNTED: b1 is contaminated and the caller "
+           "cannot know without this");
+    assert(cs.widest_assembly_seen() == 8);
+    // And the contamination is exactly the artifact the rule removes elsewhere.
+    assert(betti1(cs.store().complex) == 21 && "(8-1)(8-2)/2 = 21 artifacts");
+
+    cs.observe(concepts("n", 4));           // under the cap
+    assert(cs.skipped_wide_assemblies() == 1 && "a narrow assembly is not a skip");
+    assert(cs.num_triangles() == 4);
+    std::cout << "  the cap keeps edges, drops 2-cells, and COUNTS the skip\n";
+}
+
 }  // namespace
 
 int main() {
@@ -243,6 +366,12 @@ int main() {
     test_store_grows_and_keeps_what_it_learned();
     test_coactivation_is_symmetric_and_counted();
     test_single_concept_tick_makes_no_edge();
+
+    std::cout << "-- triangles: the same rule, one dimension up --\n";
+    test_a_triple_becomes_a_2_simplex();
+    test_filling_kills_the_within_assembly_artifacts();
+    test_a_cross_assembly_hole_SURVIVES();
+    test_the_cap_is_counted_never_silent();
     std::cout << "all concept-store tests passed\n";
     return 0;
 }

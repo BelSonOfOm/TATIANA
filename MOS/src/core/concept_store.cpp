@@ -139,6 +139,8 @@ void ConceptStore::observe(const std::vector<std::string>& coactive) {
         }
     }
 
+    widest_seen_ = std::max(widest_seen_, uniq.size());
+
     for (std::size_t i = 0; i < uniq.size(); ++i) {
         for (std::size_t j = i + 1; j < uniq.size(); ++j) {
             const HodgeEdge e = canonical(uniq[i], uniq[j]);
@@ -146,6 +148,43 @@ void ConceptStore::observe(const std::vector<std::string>& coactive) {
             ++coactivation_[e];
         }
     }
+
+    // The 2-cells. Same rule as the edges above, one dimension up: a triple
+    // that fired together IS a 2-simplex. Downward closure holds for free --
+    // every pair of the triple just got an edge in the loop above -- so
+    // Complex2's enforcement can never trip on what we build here.
+    if (max_assembly_for_triangles_ == 0) return;
+    if (uniq.size() > max_assembly_for_triangles_) {
+        // COUNTED, NOT SILENT. This assembly keeps its edges but not its
+        // 2-cells, so its (n-1)(n-2)/2 within-assembly cycles survive as
+        // harmonic mass indistinguishable from a real structural hole -- the
+        // exact artifact this rule exists to remove. A caller reading b1
+        // without reading this counter would be reading a contaminated number.
+        ++skipped_wide_;
+        return;
+    }
+
+    // Sorted, so a triple has ONE key however the retrieval ordered it. `uniq`
+    // preserves retrieval order (deliberately, for vertex-insertion stability),
+    // so the sort here is what makes (a,b,c) and (c,a,b) the same 2-simplex.
+    std::vector<std::string> sorted_names(uniq.begin(), uniq.end());
+    std::sort(sorted_names.begin(), sorted_names.end());
+
+    const std::size_t n = sorted_names.size();
+    for (std::size_t i = 0; i + 2 < n; ++i) {
+        for (std::size_t j = i + 1; j + 1 < n; ++j) {
+            for (std::size_t k = j + 1; k < n; ++k) {
+                if (triangles_.emplace(sorted_names[i], sorted_names[j],
+                                       sorted_names[k]).second) {
+                    dirty_ = true;
+                }
+            }
+        }
+    }
+}
+
+void ConceptStore::set_max_assembly_for_triangles(std::size_t n) noexcept {
+    max_assembly_for_triangles_ = n;
 }
 
 int ConceptStore::coactivation_count(const std::string& u,
@@ -172,7 +211,13 @@ Store& ConceptStore::store() {
     es.reserve(coactivation_.size());
     for (const auto& [e, count] : coactivation_) es.push_back(e);
 
-    Store rebuilt(Complex2(std::move(vs), es), d_);
+    // Triangles carry NO sheaf data of their own -- the restriction maps live on
+    // edges. They exist so delta1 is not the zero map, which is what splits
+    // curl off from harmonic. Without them every cycle reads as harmonic and
+    // the growth address is dominated by within-assembly clique artifacts.
+    std::vector<HodgeTriangle> ts(triangles_.begin(), triangles_.end());
+
+    Store rebuilt(Complex2(std::move(vs), es, ts), d_);
 
     for (const auto& e : es) {
         auto old = kept_restriction.find(e);

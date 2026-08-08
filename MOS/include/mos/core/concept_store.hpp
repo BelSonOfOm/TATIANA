@@ -21,11 +21,39 @@
 // fits its latent causes to -- so the store's wiring and the cover model are
 // built from one signal, not two loosely-related ones.
 //
-// WHAT IS DELIBERATELY NOT HERE: no triangles. Complex2 supports them and b1
-// needs them, but nothing in the engine yet decides when three concepts form a
-// 2-simplex rather than three edges, and inserting them on a guess would move
-// b1 -- the number the harmonic part exists to expose -- for a reason no one
-// could later reconstruct. Edges only, until something earns the triangle.
+// TRIANGLES: THE SAME RULE, ONE DIMENSION UP (added 2026-08-03, logbook 5as).
+// This file previously said "no triangles ... until something earns the
+// triangle", on the stated ground that b1 would move for an unreconstructable
+// reason. THE PREMISE WAS BACKWARDS, and that is why the rule changed:
+//
+//   With no 2-cells delta1 = 0, so the curl subspace is trivial and
+//   harmonic = (im delta0)^perp, of dimension b1 = E - V + b0. Leaving
+//   triangles out does not zero b1 -- IT MAXIMISES IT. And since `observe`
+//   inserts each assembly as a CLIQUE, one assembly of size n contributes
+//   b1(K_n) = (n-1)(n-2)/2 cycles on its own: 171 for a 20-concept tick.
+//   The growth address was never blocked. It was SWAMPED, by artifacts of
+//   inserting cliques and refusing to fill them.
+//
+// So a 2-simplex is recorded exactly when its three concepts co-fired in ONE
+// assembly -- the edge rule, one dimension up. It introduces no new constant,
+// and it is the same co-activation signal Construction 5 fits its causes to.
+// Three facts make it the right rule rather than merely a cheap one:
+//
+//   1. The 2-skeleton of a simplex is simply connected, so every
+//      WITHIN-assembly cycle dies. No tetrahedra are needed.
+//   2. H1 depends only on the 2-skeleton, so b1(filled) = b1(union of the
+//      assembly simplices).
+//   3. {Delta(A_t)} is a GOOD COVER -- simplices are contractible, and
+//      intersect(Delta(A_t)) = Delta(intersect(A_t)) is a simplex or empty --
+//      so the nerve lemma applies with its hypotheses verified EXACTLY, not
+//      assumed. Hence b1(fine complex) = b1(assembly nerve).
+//
+// What survives is CROSS-assembly: a hole no single assembly covers. That is a
+// real structural gap, and it is what the growth address was always meant to
+// name. Verified numerically in `python/validate_triangles.py` (necklaces of
+// k filled assemblies return b1 = 1 for every k, as the nerve lemma predicts).
+//
+// THE COST IS NOT FREE AND IS NOT HIDDEN: see max_assembly_for_triangles.
 
 #include <map>
 #include <optional>
@@ -89,7 +117,56 @@ public:
     /// of concepts one query retrieves -- single digits -- so k(k-1)/2 is small.
     /// A tick retrieving fewer than two concepts creates no edge, which is
     /// correct: one concept alone co-activates with nothing.
+    ///
+    /// AND EVERY TRIPLE GETS A TRIANGLE -- the same rule, one dimension up.
+    /// See `max_assembly_for_triangles` for why that is not free.
     void observe(const std::vector<std::string>& coactive);
+
+    /// @brief Largest assembly for which triangles are recorded. 0 disables
+    ///        triangles entirely and restores the edges-only store.
+    ///
+    /// WHY A CAP EXISTS AT ALL. Triangles per assembly grow as C(n,3) while
+    /// edges grow as C(n,2), so their ratio is (n-2)/3 -- LINEAR in assembly
+    /// size, with no n beyond which the count stops mattering. Measured
+    /// (`python/validate_triangles.py`), at 1500 ticks: n=20 costs 1.7M
+    /// triangles (~82-164 MB), n=30 costs 6.1M (~292-585 MB), n=50 costs 29.4M
+    /// (~1.4-2.8 GB) on a 5.9 GB machine. 30 is the largest that fits a tenth
+    /// of the machine, so that is the default -- derived from the budget, not
+    /// picked.
+    ///
+    /// AND THE CAP IS MANDATORY, not prudent: `KnowledgeBase::
+    /// get_relevant_concepts` is a THRESHOLD SCAN WITH NO LIMIT over the whole
+    /// store, so |A| is bounded by the relevance threshold and the corpus size
+    /// rather than by any constant. At |A| = 1000 a single tick would want
+    /// 166 million triangles.
+    void set_max_assembly_for_triangles(std::size_t n) noexcept;
+    [[nodiscard]] std::size_t max_assembly_for_triangles() const noexcept {
+        return max_assembly_for_triangles_;
+    }
+
+    /// @brief Assemblies whose triangles were SKIPPED because they exceeded the
+    ///        cap. MUST be read before interpreting b1.
+    ///
+    /// A skipped assembly keeps its edges but not its 2-cells, so its
+    /// (n-1)(n-2)/2 within-assembly cycles survive as HARMONIC MASS that looks
+    /// exactly like a structural hole. That is the artifact this whole change
+    /// exists to remove, so a nonzero count here means b1 is contaminated by
+    /// precisely the thing being fixed. Exposed rather than logged because a
+    /// silent cap would move b1 -- the number the harmonic part exists to
+    /// expose -- for a reason nobody could later reconstruct.
+    [[nodiscard]] std::size_t skipped_wide_assemblies() const noexcept {
+        return skipped_wide_;
+    }
+
+    /// @brief Concepts in the widest assembly seen, capped or not. Telemetry
+    ///        for choosing the cap against a real corpus rather than a guess.
+    [[nodiscard]] std::size_t widest_assembly_seen() const noexcept {
+        return widest_seen_;
+    }
+
+    [[nodiscard]] std::size_t num_triangles() const noexcept {
+        return triangles_.size();
+    }
 
     /// @brief The store, rebuilt if `observe` changed the graph since last call.
     [[nodiscard]] Store& store();
@@ -117,6 +194,10 @@ private:
     std::set<std::string> vertices_;
     std::vector<std::string> order_;               ///< insertion order, for stability
     std::map<HodgeEdge, int> coactivation_;        ///< canonical (min, max) key
+    std::set<HodgeTriangle> triangles_;            ///< sorted triple, so (a,b,c) is one key
+    std::size_t max_assembly_for_triangles_ = 30;  ///< derived; see the setter's docs
+    std::size_t skipped_wide_ = 0;
+    std::size_t widest_seen_ = 0;
     std::map<std::string, int> weight_;            ///< reserved: per-concept counts
     std::optional<Store> store_;
     bool dirty_ = true;

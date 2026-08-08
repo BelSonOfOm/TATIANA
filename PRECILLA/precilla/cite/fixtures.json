@@ -1,0 +1,277 @@
+{
+  "_README": [
+    "Calibration battery for the cite instrument.",
+    "",
+    "MOS discipline rule 3: every instrument passes its full battery at ONE",
+    "shared parameter setting, or it is not used. For a citation resolver the",
+    "battery is three classes, analogous to partition / cover / structure-free:",
+    "",
+    "  gold     real papers, correctly remembered   -> must reach VERIFIED",
+    "  nearmiss real papers, garbled by the model   -> must reach PARTIAL/AMBIGUOUS",
+    "  decoy    papers that do not exist            -> must reach UNRESOLVED",
+    "",
+    "The decoy class is the positive control that Tier 0 kept discovering it",
+    "needed. Without it, an instrument that says VERIFIED to everything scores",
+    "100% on gold.",
+    "",
+    "EPISTEMIC STATUS OF THIS FILE: the gold entries are [UNVERIFIED SEED] --",
+    "written from model knowledge, exactly the thing PRECILLA exists to",
+    "distrust. They are NOT authority. The first successful `precilla cite",
+    "calibrate --promote` run replaces each seed with the resolved DOI and",
+    "flips it to [MEASURED]. Until then, a gold entry that fails is ambiguous",
+    "between 'bad fixture' and 'bad resolver' and the report says so.",
+    "",
+    "The decoy entries are [DERIVED]: constructed, so known-false by",
+    "construction. They carry no such ambiguity, which is why decoy failures",
+    "are the harder failure and are reported first."
+  ],
+  "gold": [
+    {
+      "cid": "howard-tcm",
+      "authors": [
+        "Howard",
+        "Kahana"
+      ],
+      "year": 2002,
+      "title_hint": "distributed representation of temporal context",
+      "seed_status": "MEASURED",
+      "doi": "10.1006/jmps.2001.1388",
+      "resolved_title": "A Distributed Representation of Temporal Context"
+    },
+    {
+      "cid": "polyn-cmr",
+      "authors": [
+        "Polyn",
+        "Norman",
+        "Kahana"
+      ],
+      "year": 2009,
+      "title_hint": "context maintenance and retrieval model of organizational processes in free recall",
+      "seed_status": "MEASURED",
+      "doi": "10.1037/a0014420",
+      "resolved_title": "A context maintenance and retrieval model of organizational processes in free recall."
+    },
+    {
+      "cid": "raaijmakers-sam",
+      "authors": [
+        "Raaijmakers",
+        "Shiffrin"
+      ],
+      "year": 1981,
+      "title_hint": "search of associative memory",
+      "seed_status": "MEASURED",
+      "doi": "10.1037/0033-295x.88.2.93",
+      "resolved_title": "Search of associative memory."
+    },
+    {
+      "cid": "mcclelland-cls",
+      "authors": [
+        "McClelland",
+        "McNaughton",
+        "O'Reilly"
+      ],
+      "year": 1995,
+      "title_hint": "why there are complementary learning systems in the hippocampus and neocortex",
+      "seed_status": "MEASURED",
+      "doi": "10.1037/0033-295x.102.3.419",
+      "resolved_title": "Why there are complementary learning systems in the hippocampus and neocortex: Insights from the successes and failures of connectionist models of learning and memory."
+    },
+    {
+      "cid": "dayan-sr",
+      "authors": [
+        "Dayan"
+      ],
+      "year": 1993,
+      "title_hint": "improving generalization for temporal difference learning the successor representation",
+      "seed_status": "MEASURED",
+      "doi": "10.1162/neco.1993.5.4.613",
+      "resolved_title": "Improving Generalization for Temporal Difference Learning: The Successor Representation"
+    },
+    {
+      "cid": "stachenfeld-hippo",
+      "authors": [
+        "Stachenfeld",
+        "Botvinick",
+        "Gershman"
+      ],
+      "year": 2017,
+      "title_hint": "the hippocampus as a predictive map",
+      "seed_status": "MEASURED",
+      "doi": "10.1038/nn.4650",
+      "resolved_title": "The hippocampus as a predictive map"
+    },
+    {
+      "cid": "bousfield-clustering",
+      "authors": [
+        "Bousfield"
+      ],
+      "year": 1953,
+      "title_hint": "the occurrence of clustering in the recall of randomly arranged associates",
+      "seed_status": "MEASURED",
+      "doi": "10.1080/00221309.1953.9710088",
+      "resolved_title": "The Occurrence of Clustering in the Recall of Randomly Arranged Associates"
+    },
+    {
+      "cid": "murdock-serialpos",
+      "authors": [
+        "Murdock"
+      ],
+      "year": 1962,
+      "title_hint": "the serial position effect of free recall",
+      "seed_status": "MEASURED",
+      "doi": "10.1037/h0045106",
+      "resolved_title": "The serial position effect of free recall."
+    },
+    {
+      "cid": "anderson-fan",
+      "authors": [
+        "Anderson"
+      ],
+      "year": 1974,
+      "title_hint": "retrieval of propositional information from long-term memory",
+      "seed_status": "MEASURED",
+      "doi": "10.1016/0010-0285(74)90021-8",
+      "resolved_title": "Retrieval of propositional information from long-term memory"
+    },
+    {
+      "cid": "friston-freeenergy",
+      "authors": [
+        "Friston"
+      ],
+      "year": 2010,
+      "title_hint": "the free-energy principle a unified brain theory",
+      "seed_status": "MEASURED",
+      "doi": "10.1038/nrn2787",
+      "resolved_title": "The free-energy principle: a unified brain theory?"
+    },
+    {
+      "cid": "hopfield-nets",
+      "authors": [
+        "Hopfield"
+      ],
+      "year": 1982,
+      "title_hint": "neural networks and physical systems with emergent collective computational abilities",
+      "seed_status": "MEASURED",
+      "doi": "10.1073/pnas.79.8.2554",
+      "resolved_title": "Neural networks and physical systems with emergent collective computational abilities."
+    },
+    {
+      "cid": "cepeda-spacing",
+      "authors": [
+        "Cepeda",
+        "Pashler",
+        "Vul",
+        "Wixted",
+        "Rohrer"
+      ],
+      "year": 2006,
+      "title_hint": "distributed practice in verbal recall tasks a review and quantitative synthesis",
+      "seed_status": "MEASURED",
+      "doi": "10.1037/0033-2909.132.3.354",
+      "resolved_title": "Distributed practice in verbal recall tasks: A review and quantitative synthesis."
+    }
+  ],
+  "nearmiss": [
+    {
+      "cid": "nm-tcm-wrongyear",
+      "authors": [
+        "Howard",
+        "Kahana"
+      ],
+      "year": 1997,
+      "title_hint": "distributed representation of temporal context",
+      "why": "correct paper, year off by five -- must not reach VERIFIED on year alone"
+    },
+    {
+      "cid": "nm-cmr-dropauthor",
+      "authors": [
+        "Polyn",
+        "Kahana"
+      ],
+      "year": 2009,
+      "title_hint": "context maintenance and retrieval model",
+      "why": "real paper with a middle author dropped -- the commonest model error"
+    },
+    {
+      "cid": "nm-sr-wrongfirst",
+      "authors": [
+        "Gershman"
+      ],
+      "year": 1993,
+      "title_hint": "successor representation temporal difference",
+      "why": "right idea, wrong person attached to the wrong year"
+    },
+    {
+      "cid": "nm-cls-merged",
+      "authors": [
+        "McClelland",
+        "Rumelhart"
+      ],
+      "year": 1995,
+      "title_hint": "complementary learning systems hippocampus neocortex",
+      "why": "real collaborators, wrong pairing for this paper"
+    }
+  ],
+  "decoy": [
+    {
+      "cid": "dc-sheaf-retrieval",
+      "authors": [
+        "Halvorsen",
+        "Nakamura"
+      ],
+      "year": 2019,
+      "title_hint": "sheaf-theoretic foundations of associative retrieval",
+      "why": "constructed: plausible title in the exact topical neighbourhood"
+    },
+    {
+      "cid": "dc-lagcrp-sheaf",
+      "authors": [
+        "Petrov",
+        "Almeida"
+      ],
+      "year": 2015,
+      "title_hint": "lag-conditional response probability under simplicial memory covers",
+      "why": "constructed: fuses two real literatures that have never been fused"
+    },
+    {
+      "cid": "dc-fatigue-assembly",
+      "authors": [
+        "Whitcombe",
+        "Iyer",
+        "Sorensen"
+      ],
+      "year": 2021,
+      "title_hint": "adaptive fatigue and emergent assembly width in cortical memory",
+      "why": "constructed: reads like a real systems-neuro title"
+    },
+    {
+      "cid": "dc-curveball-cognition",
+      "authors": [
+        "Marchetti"
+      ],
+      "year": 2018,
+      "title_hint": "curveball randomization for cognitive co-activation graphs",
+      "why": "constructed: real method, real domain, paper does not exist"
+    },
+    {
+      "cid": "dc-kwta-cover",
+      "authors": [
+        "Ostrowski",
+        "Behrens"
+      ],
+      "year": 2020,
+      "title_hint": "k-winners-take-all dynamics recover topological covers of semantic memory",
+      "why": "constructed: states the project's own hypothesis as prior art -- the most dangerous possible hallucination"
+    },
+    {
+      "cid": "dc-tcm-sheaf-adjunction",
+      "authors": [
+        "Lindqvist",
+        "Rao"
+      ],
+      "year": 2022,
+      "title_hint": "adjoint functors between crystallised and working memory sheaves",
+      "why": "constructed: mirrors the MOS K/W adjunction claim back at itself"
+    }
+  ]
+}
