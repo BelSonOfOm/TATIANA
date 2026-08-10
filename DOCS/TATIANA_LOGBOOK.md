@@ -4686,6 +4686,32 @@ runs on existing data, five controls with numeric pass criteria) and Spec B (the
 every decision stated). **Pre-registered before any run: clique complex on the citation graph, raw
 count difference `η(i→j) = #(i cites j) − #(j cites i)`, 50/50 split, probit.**
 
+### 🧰 ADDED TO THE TOOLING THIS SESSION
+`python/validate_construction6.py` — the Construction 6 instrument. numpy only, no corpus, no model,
+no network, **under a second**. Builds a sheaf on a `k`-cycle, cones it per §5.2–§5.5, and reports
+harmonic dimension and the mass of a specific `η` before and after. `η` is drawn **from the harmonic
+space itself**, so the "before" mass is 1 by construction and the "after" number is unambiguous —
+closing the obvious way this measurement could have flattered itself (an `η` that was mostly gradient
+all along). Two controls, both mandatory. **Every assertion in it is a claim from
+`DERIVATION_MDL_GROWTH_LAW.md`, so a failure localises to a section number.**
+
+Run with Python **3.11** explicitly — bare `python` hits the Windows Store stub on this machine:
+
+```
+"$LOCALAPPDATA/Programs/Python/Python311/python.exe" MOS/python/validate_construction6.py
+```
+
+### ➡️ WHAT MOVED IN THE DERIVATION AS A RESULT
+`DERIVATION_MDL_GROWTH_LAW.md` §6.2 → **RESOLVED**; §8 added (the instrument, its sign conventions,
+its controls, and the two errors it caught); §7's order of work re-cut. **And §6.3 changed status
+from "open" to BLOCKING:** `c_old` and `c_new` need real code lengths, the natural choice is
+surprisal under the model's own transition distribution, and that needs **`F_MOS` written down as an
+equation** — owed since `PRECILLA/draft.md` §10.1 called it the single largest gap. It is no longer
+merely outstanding; it is in the way of the growth law.
+
+**Next cheap item: §6.4** — is `b` (bits per real) the standard `½ log n` of the two-part code? If so
+a constant becomes derived rather than chosen.
+
 ### 🔓 STILL OPEN AFTER THIS SESSION
 1. **[OPEN HYPOTHESIS]** Does the sigmoid support a sustained limit cycle, or are noise and slow
    learning the only sources of ongoing motion?

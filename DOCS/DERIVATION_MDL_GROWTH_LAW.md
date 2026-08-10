@@ -1,7 +1,10 @@
 # DERIVATION — THE GROWTH LAW'S COST SIDE
 
-*Opened 2026-08-08. Track B, and it is **paper work with zero compute** — it can run in parallel with
-P1–P4 (logbook §7). This is a derivation IN PROGRESS: §1–§4 are done, §5–§7 are the work.*
+*Opened 2026-08-08. Track B, and it is **paper work with near-zero compute** — it can run in parallel
+with P1–P4 (logbook §7).*
+
+**State: §1–§5 are done and §5 has been validated numerically (§8). §6 lists what is left; §6.2, the
+item that could have voided everything after §4, is RESOLVED.**
 
 Tags: `[MEASURED]` · `[DERIVED]` · `[PROPOSED]` · `[OPEN]`.
 
@@ -308,14 +311,94 @@ new concept should be a universal construction at all.
 
 ## 7. ORDER OF WORK
 
-1. **Check §6.2 first.** It is a synthetic computation with a positive control and it can refute §5
-   outright. If the limit does not kill the harmonic class, everything after §4 is wrong and it is
-   better to know before writing more.
-2. **Then §6.4** — settle `b` from the standard two-part code. Cheap, and it may derive a constant.
-3. **Then §6.1**, the theorem.
-4. **§6.3 waits on `F_MOS` being written down**, which is owed independently.
+1. ~~**Check §6.2 first.**~~ ✅ **DONE 2026-08-08** — see §8. Construction 6 survives, and the check
+   returned more than was asked of it.
+2. **§6.4 next** — settle `b` from the standard two-part code (`½ log n` bits per continuous
+   parameter). Cheap, and it may turn a constant into a derived quantity.
+3. **Then §6.1**, the subspace-selection rule. Consistency already fixed the shape; this fixes the
+   size.
+4. **§6.3 is now BLOCKING rather than merely open.** `c_old` and `c_new` need real code lengths, the
+   natural choice is surprisal under the model's own transition distribution, and that requires
+   `F_MOS` **written down as an equation** — owed since `PRECILLA/draft.md` §10.1 named it the single
+   largest gap. It has moved from "outstanding" to "in the way of the growth law."
+5. **§6.5, §6.6** last.
 
 **Nothing here needs the simulator, the corpus, or a single LLM call.**
+
+---
+
+## 8. THE VALIDATION — `python/validate_construction6.py`
+
+`[MEASURED 2026-08-08]` §6.2 was the cheapest way to refute §5, so it was run before anything was
+built on top of it. Results in §6.2; this section is the **instrument**, so the numbers can be
+re-derived rather than trusted.
+
+### 8.1 What it builds
+
+A cellular sheaf on a `k`-cycle with stalks `R^n`, then the cone over it per §5.2–§5.5, then the two
+coboundaries, then the harmonic space of each.
+
+**Sign conventions, stated because getting them wrong changes every number silently:**
+
+```
+    e_i = [v_i, v_{i+1}]        (δ⁰x)_{e_i} = r_i^+ x_{i+1} − r_i^- x_i
+    f_i = [w, v_i]              (δ⁰x)_{f_i} = x_i − p_i x_w
+    t_i = [w, v_i, v_{i+1}]     ∂t_i = e_i − f_{i+1} + f_i
+```
+
+with `F(f_i) := F(v_i)` (identity out of `v_i`, §5.3) and `F(t_i) := F(e_i)` (identity out of `e_i`,
+and the existing `r_i^∓` out of the two `f` faces).
+
+### 8.2 What it measures
+
+Harmonic 1-cochains are `ker(δ⁰)ᵀ ∩ ker δ¹`, computed as the nullspace of the **stacked** map
+`C¹ → C⁰ ⊕ C²` — legitimate because both are linear conditions on the same space. Rank decisions are
+made once, by SVD, at a single tolerance.
+
+Two numbers per case: the **dimension** of the harmonic space, and the **mass** of a specific cochain
+`η`. `η` is drawn *from the harmonic space itself*, so its "before" mass is 1 by construction and the
+"after" number is unambiguous — **no question of `η` having been mostly gradient all along**, which
+is the obvious way this measurement could have flattered itself.
+
+### 8.3 The controls — both mandatory, per the standing rule
+
+| control | asserts | why it exists |
+|---|---|---|
+| **path** (tree, `b₁ = 0`) | harmonic dim `= 0` exactly | if a tree reports harmonic mass the instrument is manufacturing it and **no other number in the file counts** |
+| **arbitrary non-cone `F(w)`** | `\|δ¹δ⁰\|_max > 0` | ⭐ without it, `δ¹δ⁰ = 0` might be an identity holding for *any* `F(w)` and would prove nothing. Measured: **1.756** |
+
+### 8.4 What it returned that was not asked for
+
+**[DERIVED, then MEASURED]** `(δ¹δ⁰x)_{t_i} = (r_i^+ p_{i+1} − r_i^- p_i)x_w`, so `δ¹δ⁰ = 0` **iff**
+the cone condition holds. Measured: `4.4e-16` with the limit, `1.756` with an arbitrary `F(w)`.
+
+> **The cochain complex is a complex if and only if `F(w)` is a cone over `D_γ`.** Construction 6 is
+> not the best choice among several — it is the **only** choice for which the coned object is a sheaf
+> at all. The universal property was never a preference; it is the existence condition.
+
+### 8.5 Two errors the run caught in this document
+
+**① "A generic rotation fixes nothing" is false in odd dimensions.** The degenerate case was written
+expecting `dim lim = 0` for a generic element of `SO(3)`; it returned `1`. **Every element of
+`SO(odd)` has eigenvalue 1**, hence fixes an axis, hence `H⁰(γ) ≠ 0` for any odd-dimensional stalk
+with orthogonal restriction maps.
+
+**A fact about MOS, not about the test.** MOS's restriction maps *are* orthogonal (Householder;
+`Π_{O(d)}` in consolidation), so which degenerate cases are reachable is governed by **the parity of
+`d`**. `d = 384` is even, so they are.
+
+**② §5.5's "refusal" branch is unreachable** — corrected in §5.9, with the `χ = 0` argument that
+makes `dim H¹ = dim H⁰` on a cycle.
+
+### 8.6 To re-run
+
+```bash
+"$LOCALAPPDATA/Programs/Python/Python311/python.exe" MOS/python/validate_construction6.py
+```
+
+Python **3.11** specifically (project interpreter; `python` alone hits the Windows Store stub).
+numpy only — no corpus, no model, no network. Runs in under a second, and **every assertion in it is
+a claim from this document**, so a failure localises to a section number.
 
 ---
 
