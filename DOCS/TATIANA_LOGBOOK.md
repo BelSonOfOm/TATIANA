@@ -4431,6 +4431,57 @@ one concept aligned with the query but long, and one skewed but short, where L2 
 **disagree about the winner**. Caught by asking what the acceptance measurement actually measured —
 the same question that should be asked of every port.
 
+**Fourth round, same day — what a concept IS, mathematically.** `[SEARCHED]` Charbel pushed back on
+storing concepts "naively as vectors" and asked for a DNA-like structure motivated by modern
+literature, having already accepted that Dawkins-style replicators are the wrong frame.
+
+**First, a correction to the premise, and it cuts both ways.** In C++ a concept is a **stalk** —
+rank-`k` SPD, i.e. a Gaussian `(μ, Σ)` — plus its restriction maps plus its position in `C`. The
+vector is only `μ`, the least of it. **But `module_vertex.py`'s `Concept` really is
+`(label, vector, weight)`.** The Python and C++ notions of a concept have diverged, and the Python
+one is the impoverished one. **Recorded as a live inconsistency.**
+
+- **Gärdenfors, *Conceptual Spaces* (2000)** — concepts are **convex regions**, not points.
+  Convexity is justified rather than assumed: categorisation extends by interpolation, colour-space
+  division supports it empirically, and convex regions are easier to learn. **[DERIVED]** A Gaussian
+  stalk's level sets are ellipsoids, hence convex — **so the SPD stalk already IS a Gärdenfors
+  region**, in the ellipsoidal case. That upgrades `Σ` from "a covariance, for Bures" to "the
+  concept's extent, because concepts have extent." The formalism was right and under-motivated.
+- **Goguen, algebraic semiotics — blending as a COLIMIT.** The blend of input concepts is their
+  categorical colimit, *"a general unification operation… which takes account of shared
+  substructures"*; the amalgam model is provably equivalent to the pushout model in the ordered
+  category of partial maps. **This answers open item ④ (the coned concept's stalk): not a
+  barycentre — a universal construction.**
+- ⚠️ **Variance is opposite to Goguen's and must not be copied blindly.** His blend receives maps
+  *from* its inputs (colimit). A cellular sheaf's restriction maps point vertex→edge, so `F(v)` must
+  map *into* the edge stalks — a **limit**. Same insight, opposite direction.
+- **[DERIVED]** A categorical *cone* is an object with compatible maps to every object of a diagram;
+  a topological *cone* is the cell filling a cycle. **The growth operator is a cone in both senses at
+  once, and the limit is the universal one.** The naming coincidence is not one.
+- Also surfaced, directly on the M1 track: **"Formalising and Learning a Quantum Model of Concepts"**
+  (arXiv:2302.14822) and **"The Conceptual VAE"** (arXiv:2203.11216). A quantum model of concepts
+  already exists in the literature. **Read before the thesis framing hardens.**
+
+**So the answer to "what is the DNA":** not a genome string. **The inheritable structure is the
+concept's position in a diagram** — its morphisms to and from other concepts — and reproduction is
+taking a limit/colimit. That is canonical (unique up to iso, so nothing is chosen), path-dependent
+(it depends on the diagram, hence on history), and it is exactly the property whose absence got FCA
+rejected on 2026-07-27.
+
+### 📄 TWO SPECS FILED THIS SESSION
+- `DOCS/SPEC_P1_TO_P4_PROTOTYPE.md` — Track A. P1 support resolution (with the finding that an empty
+  support makes the operad's parallelism dead code and leaves `VerifyOp` unable to know what it is
+  verifying), P2 VerifyOp in three tiers with `γ(UNKNOWN) = 0` as a hard rule, P3 the `Q(t)`
+  diagnostic (**log `‖R^W − R^𝕂‖` alongside `Q(t)`, or the two opposite diagnoses are
+  indistinguishable**), P4 the end-to-end run whose real deliverable is the trajectory, not the
+  answer.
+- `DOCS/DERIVATION_MDL_GROWTH_LAW.md` — Track B, zero compute, runs in parallel. §1–§4 derive the
+  attachment threshold `n > b·d_v(1 + Σ d_e) / (c_old − c_new)` — **a recurrence count that is
+  computed rather than chosen**, which also orders competing holes and predicts *non*-attachment for
+  one-off inconsistencies. §5 proposes `F(v) = lim` of the cycle's stalk diagram. §6 lists six open
+  items, of which **§6.2 (does attaching the limit actually kill the harmonic class?) is cheapest and
+  can refute the whole of §5** — do it first.
+
 ### 🔍 FOUR THINGS THE CODEBASE ALREADY CONTAINED
 This session re-derived work that exists. **Recording it as a process failure, not a footnote: the
 code was not read before the design was written.**
