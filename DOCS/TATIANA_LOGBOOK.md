@@ -4379,6 +4379,58 @@ searches batched, stop when either a standard answer exists or none does, record
 **Second round, same day — concept formation:** DreamCoder (Roy. Soc. 2023), predicate invention in
 ILP, chunking-as-compression/MDL. See "the growth law needs a cost side", below.
 
+**Third round, same day — the contextuality gate.** `[UPGRADED: [SPECULATION] → [OPEN, well-posed]]`
+
+Both halves are standard and cited. **Abramsky–Barbosa–Mansfield**, *The Cohomology of Non-Locality
+and Contextuality* (arXiv:1111.3620, QPL 2011): Čech cohomology on an abelian presheaf built from the
+**support** of a probabilistic model, obstruction = a cohomology class, non-vanishing for PR boxes,
+GHZ, the Peres–Mermin magic square and Cabello's 18-vector configuration. And **Hansen**, *Laplacians
+of Cellular Sheaves*, confirms our side outright: *the space of harmonic cochains coincides with the
+space of global sections.*
+
+**The intersection is NOT an established area** — the search returned the two literatures as separate
+subjects. That cuts both ways, so the differences are stated precisely rather than waved at:
+
+| | ABM | ours |
+|---|---|---|
+| base space | measurement contexts | complex of concepts |
+| coefficients | presheaf of **distributions** | sheaf of **vector spaces** |
+| obstruction asks | does a global distribution **exist**? | is `H⁰` **nontrivial**? |
+
+**The prerequisite already exists.** An identification needs a base space indexing *contexts*, and an
+assembly is a set of concepts jointly held — structurally a context. The natural base is the **nerve
+of the assemblies**, and `concept_store.hpp` already establishes `{Δ(A_t)}` is a **good cover with
+the nerve-lemma hypotheses verified exactly, not assumed**. That is the technical precondition for a
+Čech argument, already done and validated numerically.
+
+**The real gap, sharper than "different coefficients":** a sheaf of vector spaces always admits the
+zero global section, so our obstruction is about **dimension**; ABM's is about **existence** of a
+consistent distribution. Bridging means either working with distributions on the assembly cover, or
+showing the linear version is a genuine linearisation of theirs. **A well-posed thesis problem, not a
+hole in hand-waving.**
+
+Thesis object as it now stands: *a cellular sheaf whose stalks are quantum states, whose Laplacian is
+a Hamiltonian (`L_F` is Hermitian PSD, so `e^{−iL_F t}` is unitary), whose ground space is the
+globally-consistent assignments (`ker L_F = H⁰`), and whose ground-state energy is a contextuality
+witness.* First-year-sized version: 3–5 vertices, qubit stalks, prepare the `L_F` ground state
+variationally, show energy `> 0` exactly when no global section exists.
+
+### ⚠️ P0 — A SECOND DEFECT FOUND WHILE VALIDATING THE FIRST FIX
+
+The first port ranked on the d-intensive Wasserstein term `‖μ_q − μ_i‖²`. **Wrong, and only by an
+unverified assumption.** Expanding, `‖μ_q‖²` is constant for a fixed query and drops out, but
+`‖μ_i‖²` does not — so squared distance reproduces a cosine ranking **only if stored means are
+unit-norm**. They are not: `π_v` is a weighted centroid of unit vectors, whose norm falls below 1 and
+falls further the broader the concept. The term is a **penalty proportional to how general a concept
+is.**
+
+And `recall@30 = 46.6%` was measured on a **cosine** ranking (`measure_reference_recall.py`,
+transform `raw`), so squared distance would have made the acceptance criterion meaningless.
+Corrected to cosine before the port was accepted, with a regression test pinning it: a store holding
+one concept aligned with the query but long, and one skewed but short, where L2 and cosine
+**disagree about the winner**. Caught by asking what the acceptance measurement actually measured —
+the same question that should be asked of every port.
+
 ### 🔍 FOUR THINGS THE CODEBASE ALREADY CONTAINED
 This session re-derived work that exists. **Recording it as a process failure, not a footnote: the
 code was not read before the design was written.**

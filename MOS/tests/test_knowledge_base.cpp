@@ -103,13 +103,39 @@ void test_p0_rank_beats_threshold() {
         assert(top1.size() == 1);
         assert(top1[0]->get_name() == "concept_0");
 
-        // Ascending order is part of the contract, not an accident of insertion.
-        double prev = -1.0;
+        // Descending COSINE is the contract, not an accident of insertion.
+        double prev = 2.0;
         for (const auto& c : top) {
-            double s = (query - c->get_mu()).squaredNorm();
-            assert(s >= prev);
-            prev = s;
+            const Eigen::VectorXd& m = c->get_mu();
+            double cos = query.dot(m) / (query.norm() * m.norm());
+            assert(cos <= prev);
+            prev = cos;
         }
+    }
+
+    // THE LENGTH-BIAS REGRESSION. Ranking on ||mu_q - mu_i||^2 instead of cosine
+    // is correct only if stored means are unit-norm, and pi_v's centroids are
+    // not. This store contains a concept pointing EXACTLY at the query but with
+    // a large norm, and one pointing further off-axis with a small norm. Cosine
+    // must prefer the aligned one; squared distance would prefer the short one
+    // purely because it is short.
+    {
+        translation::KnowledgeBase kb(db_path);
+        Eigen::VectorXd aligned_long = query * 3.0;        // cos = 1, far in L2
+        Eigen::VectorXd skew_short = Eigen::VectorXd::Zero(d);
+        skew_short(0) = 0.30;
+        skew_short(1) = 0.30;                              // cos ~ 0.707, near in L2
+        kb.commit_concept(std::make_shared<core::SemanticEmbedding>(
+            aligned_long, Eigen::MatrixXd::Zero(d, 0), 0.01, "aligned_long"));
+        kb.commit_concept(std::make_shared<core::SemanticEmbedding>(
+            skew_short, Eigen::MatrixXd::Zero(d, 0), 0.01, "skew_short"));
+
+        // The trap this pins: L2 says skew_short wins, cosine says aligned_long.
+        assert((query - skew_short).squaredNorm() < (query - aligned_long).squaredNorm());
+
+        auto top = kb.get_top_k_concepts(query, 1);
+        assert(top.size() == 1);
+        assert(top[0]->get_name() == "aligned_long");
     }
 
     std::remove(db_path.c_str());

@@ -99,9 +99,27 @@ get_top_k_concepts(const Eigen::VectorXd& thought_mu, std::size_t k) const;
 ```
 
 1. **Rank, do not threshold.**
-2. **Rank on `semantic` = `‖μ_q − μ_i‖²`**, the d-intensive term — exactly what the header already
-   instructs. Computed directly as `(thought_mu - mu).squaredNorm()`; this is the *same formula*, not
-   an approximation of it.
+2. **Rank on cosine — NOT on `semantic = ‖μ_q − μ_i‖²`.** `[CORRECTED 2026-08-08, before the port
+   was accepted]` The first version of this spec said to rank on the d-intensive Wasserstein term.
+   That is wrong, and only by an assumption that does not hold:
+
+   $$\|\mu_q - \mu_i\|^2 \;=\; \|\mu_q\|^2 \;-\; 2\langle \mu_q, \mu_i\rangle \;+\; \|\mu_i\|^2$$
+
+   For a fixed query `‖μ_q‖²` is constant and drops out of the ranking. **`‖μ_i‖²` does not.**
+   Squared distance reproduces a cosine ranking **only if every stored mean is unit-norm**, and
+   stored means are not: `π_v` is a **weighted centroid** of unit vectors (Construction 2,
+   `module_vertex.py`), whose norm sits below 1 and falls further the more spread the concepts it
+   summarises. The `‖μ_i‖²` term would then act as a per-concept penalty **proportional to how broad
+   a concept is** — pushing exactly the general concepts down the list, for a reason unrelated to the
+   query.
+
+   And decisively: **recall@30 = 46.6% was MEASURED on a cosine ranking**
+   (`measure_reference_recall.py`, transform `raw`). Ranking by cosine is provably the same ordering
+   that was measured. Ranking by squared distance is a *different* ordering carrying an unmeasured
+   bias — which would have made the acceptance criterion in §5 meaningless.
+
+   Zero-norm vectors are dropped rather than scored: a zero vector has no direction, the same
+   refusal `embeddings.py` makes rather than padding a short vector.
 3. **Bounded max-heap of size `k`**, keeping the `k` smallest. Returned sorted ascending.
 4. **Skip the expensive deserialisation for rows that cannot win.** `μ` is needed to score; `U`, `D`
    and the reasoning string are not. Read `μ`, score, and only read the rest if the row would enter

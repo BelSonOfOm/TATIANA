@@ -189,12 +189,36 @@ std::vector<std::shared_ptr<const core::SemanticEmbedding>> KnowledgeBase::get_t
         Eigen::VectorXd mu(stored_dim);
         std::memcpy(mu.data(), mu_blob, mu_bytes);
 
-        // THE SCORE IS THE d-INTENSIVE TERM ALONE. This is WassersteinTerms::
-        // semantic = ||mu1 - mu2||^2 verbatim, not an approximation of it. The
-        // epistemic term is deliberately absent: it is d-EXTENSIVE, so at
-        // d = 384 it dominates any sum and selection ends up tracking epistemic
-        // breadth instead of relevance. semantic_skill.hpp:120 says so already.
-        const double score = (thought_mu - mu).squaredNorm();
+        // THE SCORE IS NEGATIVE COSINE, AND THE CHOICE IS LOAD-BEARING.
+        //
+        // The obvious score is the d-intensive Wasserstein term,
+        // semantic = ||mu_q - mu_i||^2. It is WRONG here, and only by an
+        // assumption that does not hold:
+        //
+        //     ||mu_q - mu_i||^2 = ||mu_q||^2 - 2<mu_q, mu_i> + ||mu_i||^2
+        //
+        // For a fixed query ||mu_q||^2 is constant and drops out of the ranking,
+        // but ||mu_i||^2 does NOT. Squared distance reproduces a cosine ranking
+        // ONLY IF every stored mean is unit-norm -- and stored means are not.
+        // pi_v is a WEIGHTED CENTROID of unit vectors (module_vertex.py,
+        // Construction 2), whose norm falls below 1 and falls further the more
+        // spread the concepts it summarises. The ||mu_i||^2 term would then act
+        // as a per-concept penalty proportional to how BROAD a concept is,
+        // pushing exactly the general concepts down the list for a reason that
+        // has nothing to do with the query.
+        //
+        // recall@30 = 46.6% was MEASURED on a cosine ranking
+        // (measure_reference_recall.py, transform `raw`). Ranking by cosine is
+        // therefore provably the same ordering that was measured; ranking by
+        // squared distance is a different ordering with an unmeasured bias.
+        //
+        // Degenerate norms cannot rank. A zero vector has no direction, so it is
+        // dropped rather than given an arbitrary score -- the same refusal
+        // embeddings.py makes rather than padding a short vector.
+        const double q_norm = thought_mu.norm();
+        const double mu_norm = mu.norm();
+        if (q_norm <= 0.0 || mu_norm <= 0.0) continue;
+        const double score = -thought_mu.dot(mu) / (q_norm * mu_norm);
 
         // Rows that cannot win are dropped BEFORE the expensive columns are
         // touched. U costs O(d * rank) to deserialise and the reasoning chain is
