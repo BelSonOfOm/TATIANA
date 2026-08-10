@@ -110,47 +110,157 @@ Three consequences, and the second and third were not asked for:
 
 ---
 
-## 5. ⭐ THE STALK — AND WHY IT IS THE SAME PROBLEM
+## 5. ⭐ CONSTRUCTION 6 — THE CONED CONCEPT
 
-`[PROPOSED]` §2 leaves `d_v` and the maps `F(v) → F(e)` undetermined, and §4's threshold depends on
-them. **So "what goes in the new concept" and "when is it worth it" are one problem, not two.**
+*The stalk of a newly-grown concept, derived rather than chosen. This section is the finalised
+construction; §5.6 corrects a claim made earlier in this document's own drafting.*
 
-MDL answers both at once: **choose `F(v)` to minimise `L_total`.** The cost term pushes `d_v` down;
-the data term pushes expressiveness up. The optimum is the *smallest* object that still admits maps
-to every `F(e)` around the cycle compatibly.
+### 5.1 The data
 
-That is a universal property. `[SEARCHED 2026-08-08]` — and it is precisely how the conceptual-
-blending literature builds new concepts. Goguen's algebraic semiotics computes a blend as the
-**categorical colimit** of the input specifications, *"a general unification operation… which takes
-account of shared substructures"*; the amalgam-based model is provably equivalent to the pushout
-model in the ordered category of partial maps.
+Let `γ = (v₁, e₁, v₂, e₂, …, v_k, e_k, v₁)` be a 1-cycle in `C` carrying harmonic mass, with
+`e_i = {v_i, v_{i+1}}` (indices mod `k`). Write the existing restriction maps as
 
-⚠️ **Variance matters and the direction is NOT Goguen's.** His objects are specifications being
-merged, so the blend receives maps *from* the inputs — a **colimit**. A cellular sheaf's restriction
-maps point *from the vertex to the edge*, so `F(v)` must map *into* the `F(e)` — a **limit**. Same
-insight (a universal property determines the new object, so nothing is chosen), opposite direction.
+$$r_i^- := F_{v_i \trianglelefteq e_i} : F(v_i) \to F(e_i), \qquad r_i^+ := F_{v_{i+1} \trianglelefteq e_i} : F(v_{i+1}) \to F(e_i).$$
 
-**And the pun is not a pun.** A categorical *cone* over a diagram is an object with compatible maps
-to every object in it. A topological *cone* over a cycle is the cell that fills it. **The growth
-operator is a cone in both senses simultaneously**, and the limit is the universal one.
+### 5.2 The cone, topologically
 
-> **`[PROPOSED]` — THE CENTRAL CONJECTURE OF THIS DOCUMENT**
-> `F(v) = lim` of the diagram of stalks around `γ`, with the restriction maps its projections.
-> Canonical (unique up to iso, so no hand-made choice), path-dependent (it depends on the diagram —
-> on history — which is exactly the property that got FCA rejected), and **plausibly the MDL
-> minimiser**, because the limit is the smallest object admitting the required maps.
+Attach a vertex `w`, edges `f_i = {w, v_i}`, and triangles `t_i = {w, v_i, v_{i+1}}`.
+
+`[DERIVED]` This kills the cycle. With `∂t_i = e_i − f_{i+1} + f_i`,
+
+$$\partial\Big(\sum_i t_i\Big) \;=\; \sum_i e_i \;+\; \sum_i (f_i - f_{i+1}) \;=\; \gamma$$
+
+— the `f` terms telescope to zero. **`γ` becomes a boundary.**
+
+### 5.3 The new cells' stalks — the minimal choice, so nothing is smuggled in
+
+$$F(f_i) := F(v_i), \qquad F_{v_i \trianglelefteq f_i} := \mathrm{id}.$$
+
+The new edge carries `v_i`'s data undistorted. **`[ENGINEERING CHOICE]`, and a deliberately empty
+one:** any distortion here would be a free parameter, and whatever the construction then achieved
+could be attributed to a cleverly chosen edge stalk rather than to the concept. All the content is
+forced into `F(w)` and the maps out of it, which is where we can reason about it.
+
+The only remaining unknowns are `F(w)` and `p_i := F_{w \trianglelefteq f_i} : F(w) → F(v_i)`.
+
+### 5.4 The derivation — the cone condition is forced, not imposed
+
+Take a 0-cochain `x`. Along a new edge,
+
+$$(\delta x)_{f_i} \;=\; F_{w \trianglelefteq f_i}\,x_w \;-\; F_{v_i \trianglelefteq f_i}\,x_{v_i} \;=\; p_i(x_w) - x_{v_i}.$$
+
+So `δx = 0` on the new edges **iff** `x_{v_i} = p_i(x_w)` for every `i`:
+
+> **The value at `w` GENERATES the section over the whole cycle.** That is what it means for a
+> concept to explain a loop — the loop stops being `k` independent facts and becomes one.
+
+Now require consistency on the *old* edges. Substituting `x_{v_i} = p_i(x_w)`:
+
+$$(\delta x)_{e_i} \;=\; r_i^+\,p_{i+1}(x_w) \;-\; r_i^-\,p_i(x_w).$$
+
+This vanishes for **every** `x_w ∈ F(w)` exactly when
+
+$$\boxed{\;r_i^+ \circ p_{i+1} \;=\; r_i^-\circ p_i \qquad \text{for all } i\;}$$
+
+**That is verbatim the definition of a cone over the diagram**
+
+$$D_\gamma:\qquad F(v_1) \xrightarrow{\,r_1^-\,} F(e_1) \xleftarrow{\,r_1^+\,} F(v_2) \xrightarrow{\,r_2^-\,} F(e_2) \xleftarrow{\;} \cdots$$
+
+with apex `F(w)` and legs `p_i`. **The categorical cone condition was not imposed on the
+construction; it fell out of demanding that the topological cone do its job.**
+
+### 5.5 The construction
+
+> ### CONSTRUCTION 6 (the coned concept)
+> $$F(w) \;:=\; \varprojlim D_\gamma, \qquad p_i \;:=\; \text{the limit's projections.}$$
+
+**Concretely**, for finite-dimensional stalks,
+
+$$\varprojlim D_\gamma \;=\; \Big\{(x_1,\dots,x_k) \in \bigoplus_i F(v_i) \;\Big|\; r_i^- x_i = r_i^+ x_{i+1}\ \ \forall i \Big\}$$
+
+which is **exactly the space of sections of `F` restricted to `γ`**:
+
+$$F(w) \;\cong\; H^0\big(\gamma;\, F|_\gamma\big).$$
+
+> **What the new concept IS, in words.** *Everything that was consistent around the loop that could
+> not be glued.* The concept does not summarise the cycle's members; it **is** the compatible part of
+> them. That is "a clever amalgamation of what the others failed to derive", made exact.
+
+**Three properties, and all three were requirements we had written down separately:**
+
+| property | why it matters |
+|---|---|
+| **canonical** — unique up to unique isomorphism | no hand-made choice enters. A17 |
+| **path-dependent** — depends on `D_γ`, i.e. on which cycle history produced | precisely the property whose absence got **FCA rejected** on 2026-07-27 |
+| **degenerate case is meaningful** | if `H⁰(γ; F\|_γ) = 0` the limit is the zero space — **nothing at all was consistent around that loop, so there is nothing to name.** The construction refuses rather than inventing |
+
+### 5.6 ⚠️ CORRECTION — the limit is NOT the MDL minimiser
+
+An earlier draft of this document claimed `F(w) = lim` because *"the limit is the smallest object
+admitting the required maps."* **That is backwards, and the error is worth keeping visible.**
+
+`[DERIVED]` Every cone over `D_γ` factors **uniquely through the limit**. If a candidate `F'(w)` has
+jointly injective legs — i.e. carries no data that no restriction map ever sees — that factoring map
+is injective, so
+
+$$\dim F'(w) \;\le\; \dim \varprojlim D_\gamma .$$
+
+**The limit is the LARGEST non-redundant choice, not the smallest.** It is a *ceiling* on what a new
+concept can usefully carry, not a floor.
+
+So the two determinations are genuinely separate, and both are still derived:
+
+1. **Consistency fixes the shape.** `F(w)` must be a cone; the limit is the universal one, and the
+   ceiling.
+2. **MDL fixes the size.** §4's cost is linear in `d_w`, so the optimum is a **subspace of the
+   limit** — keep the directions that pay for themselves and discard the rest.
+
+`[PROPOSED]` the natural selection rule is by explanatory power: rank the limit's directions by how
+much data-term saving each yields (the dominant directions of the legs `p_i`), and keep the prefix
+satisfying §4's inequality. **This replaces §4's `d_v` with a derived quantity and makes the
+threshold computable.**
+
+### 5.7 The cone in both senses
+
+A **categorical cone** over a diagram is an object with compatible maps to every object in it.
+A **topological cone** over a cycle is the cell that fills it.
+
+**The growth operator is a cone in both senses simultaneously, and the limit is the universal one.**
+§5.4 is the proof that this is not wordplay: the topological requirement (`δx = 0` across the filled
+cycle) *is* the categorical requirement (`r⁺p_{i+1} = r⁻p_i`), written twice.
+
+### 5.8 Provenance, and the variance trap
+
+`[SEARCHED 2026-08-08]` The universal-property route to a new concept is **Goguen's**, not ours.
+Algebraic semiotics computes a blend as the **categorical colimit** of the input specifications — *"a
+general unification operation… which takes account of shared substructures"* — and the amalgam-based
+model is provably equivalent to the pushout model in the ordered category of partial maps
+[R2, R3, R4].
+
+⚠️ **The direction is opposite to Goguen's and copying him would have got it backwards.** His inputs
+map *into* the blend (colimit). A cellular sheaf's restriction maps point **vertex → edge**, so
+`F(w)` must map *out* to the stalks (limit). The insight transfers; the variance does not.
+
+**What is ours:** that the *sheaf's own restriction maps* supply the diagram, so no extra structure
+is introduced — the concept is built from data the memory already had. **What is Goguen's:** that a
+new concept should be a universal construction at all.
 
 ---
 
 ## 6. WHAT IS ACTUALLY OPEN
 
-1. **`[OPEN]` Is the limit the MDL minimiser?** "Smallest object admitting the maps" and "shortest
-   description" are suggestively close and **not the same statement.** This is the theorem to prove
-   or refute, and it is the load-bearing claim of §5.
-2. **`[OPEN]` Does attaching the limit kill the harmonic class?** Coning kills the cycle
-   *topologically* regardless of the stalk. Whether the **sheaf** cohomology class dies depends on
-   `F(v)`. **If the limit does not kill it, §5 is wrong** — and this is the cheapest check in the
-   document: build a synthetic 4-cycle with known non-vanishing harmonic mass, attach, recompute.
+1. **`[RESOLVED — negatively, §5.6]` Is the limit the MDL minimiser?** **No.** It is the *ceiling*:
+   the largest non-redundant cone, since every cone factors uniquely through it. The MDL optimum is a
+   **subspace** of the limit. Consistency fixes the shape, MDL fixes the size; two separate
+   determinations, both derived. **What remains open is the selection rule for that subspace**
+   (§5.6's proposal: rank the limit's directions by data-term saving and keep the paying prefix).
+2. **`[OPEN]` — THE CHEAPEST CHECK, DO IT FIRST. Does attaching Construction 6 kill the harmonic
+   class?** What is already `[DERIVED]`: the cone makes `γ` a boundary (§5.2), the new triangles
+   raise `rank δ₁`, and the harmonic direction dual to `[γ]` therefore dies. What is **not** derived:
+   that the class carrying `η`'s mass is that direction, in the **twisted** (sheaf-coefficient)
+   setting rather than with constant coefficients. Build a synthetic 4-cycle with known non-vanishing
+   harmonic mass, attach Construction 6, recompute. **If the mass survives, §5 is wrong** and
+   everything after §4 needs rethinking.
 3. **`[OPEN]` `c_old` and `c_new` need actual code lengths.** The natural choice is surprisal under
    the model's own transition distribution, which hooks `F_MOS` — but `F_MOS` is still not written
    down as an equation (the largest gap flagged in `PRECILLA/draft.md` §10.1).
@@ -179,11 +289,105 @@ operator is a cone in both senses simultaneously**, and the limit is the univers
 
 ---
 
-## SOURCES `[SEARCHED 2026-08-08]`
+## REFERENCES
 
-- DreamCoder — <https://royalsocietypublishing.org/rsta/article/381/2251/20220050/112456/DreamCoder-growing-generalizable-interpretable>
-- Amalgams, colimits and conceptual blending — <https://www.iiia.csic.es/~enric/papers/Ch1-CoInvent.pdf>
-- A computational framework for conceptual blending — <https://www.sciencedirect.com/science/article/pii/S000437021730142X>
-- ILP at 30 (predicate invention) — <https://arxiv.org/pdf/2008.07912>
-- Chunk formation and data compression — <https://www.sciencedirect.com/science/article/abs/pii/S0010027716301470>
-- Minimum description length — <https://en.wikipedia.org/wiki/Minimum_description_length>
+⚠️ **All searched 2026-08-08 under the §9 gate protocol. URLs verified as returned by search; author
+lists and years are from search summaries and MUST be checked against the papers themselves before
+any bibliography.** The logbook's standing rule.
+
+### The universal-construction route to a new concept — Construction 6's provenance
+
+- **[R1] Goguen, J.** — *algebraic semiotics*; conceptual blending given a representation-independent,
+  mathematically precise account, with the core definitions **based on the notion of pushout**.
+  Overview and further work: <https://cseweb.ucsd.edu/~goguen/papers/sm/node7.html>
+- **[R2] Bou, Plaza et al.** — *Amalgams, Colimits, and Conceptual Blending* (CoInvent, ch. 1).
+  **The amalgam-based category-theoretical model is essentially equivalent to Goguen's pushout model
+  in the ordered category of partial maps**, and the theory generalises from pushouts to colimits,
+  *"which capture the notion of putting together objects to form larger objects, in a way that takes
+  account of shared substructures."* ⭐ **The load-bearing citation for §5.**
+  <https://www.iiia.csic.es/~enric/papers/Ch1-CoInvent.pdf>
+- **[R3]** *A computational framework for conceptual blending* — Artificial Intelligence.
+  Blend computed as the **categorical colimit** of input specifications enriched with priority
+  information (semiotic systems).
+  <https://www.sciencedirect.com/science/article/pii/S000437021730142X>
+- **[R4]** *A uniform model of computational conceptual blending* — Cognitive Systems Research.
+  Computational realisations across representation formalisms.
+  <https://www.sciencedirect.com/science/article/abs/pii/S1389041720300759>
+- **[R5]** *ASP, Amalgamation, and the Conceptual Blending Workflow*.
+  <https://www.researchgate.net/publication/280733527_ASP_Amalgamation_and_the_Conceptual_Blending_Workflow>
+
+### What a concept is, so that a stalk is motivated rather than convenient
+
+- **[R6] Gärdenfors, P.** — *Conceptual Spaces: The Geometry of Thought* (2000). **Concepts are
+  CONVEX REGIONS**, not points. Convexity is argued, not assumed: categorisation extends by
+  interpolation, colour-space division supports it empirically, and convex regions are easier to
+  learn. Connects to prototype theory.
+  <https://books.google.com/books/about/Conceptual_Spaces.html?id=FSLFjw1EcBwC> ·
+  review: <https://junctures.org/index.php/junctures/article/download/134/138/252>
+  > **[DERIVED]** A Gaussian stalk's level sets are ellipsoids, hence convex, so MOS's SPD stalk
+  > **already is** a Gärdenfors region in the ellipsoidal case. This upgrades `Σ` from "a covariance,
+  > needed for Bures" to **"the concept's extent, because concepts have extent."**
+- **[R7]** *Conceptual spaces: a mathematical framework for concept engineering* (collection).
+  <https://link.springer.com/collections/ehbihgjeah>
+
+### The compression criterion — §1–§4's provenance
+
+- **[R8] Ellis, K. et al.** — *DreamCoder: growing generalizable, interpretable knowledge with
+  wake–sleep Bayesian program learning*, Phil. Trans. R. Soc. A **381**(2251), 2023. Wake phase
+  solves with the current library; **sleep phase extracts COMMON sub-expressions and adds them as new
+  primitives iff they reduce total MDL**, over semantically equivalent refactorings.
+  ⭐ **The load-bearing citation for §3–§4** (frequency, not novelty, is the criterion).
+  <https://royalsocietypublishing.org/rsta/article/381/2251/20220050/112456/DreamCoder-growing-generalizable-interpretable> ·
+  full text + supplement: <https://www.cs.cornell.edu/~ellisk/documents/dreamcoder_with_supplement.pdf>
+- **[R9]** *Inductive logic programming at 30: a new introduction* — **predicate invention**: invent
+  auxiliary predicates rather than requiring all background knowledge up front; an ILP learner
+  compensates for **missing** background predicates this way. Field's verdict: *"without predicate
+  invention, learning always will be shallow."*
+  <https://arxiv.org/pdf/2008.07912> · overview:
+  <https://www.researchgate.net/publication/225190311_Predicate_invention_in_ILP_-_an_overview>
+- **[R10]** *Chunk formation in immediate memory and how it relates to data compression* — a chunk as
+  a unit in a maximally compressed code.
+  <https://www.sciencedirect.com/science/article/abs/pii/S0010027716301470> · and
+  *What's magic about magic numbers? Chunking and data compression in short-term memory*:
+  <https://www.sciencedirect.com/science/article/abs/pii/S0010027711002733>
+- **[R11]** *Minimum description length* — the two-part code, and the standard `½ log n` bits per
+  continuous parameter that §6.4 must check `b` against.
+  <https://en.wikipedia.org/wiki/Minimum_description_length>
+
+### Sheaf side — the machinery Construction 6 is built on
+
+- **[R12] Hansen, J.** — *Laplacians of Cellular Sheaves: Theory and Applications* (thesis).
+  **The space of harmonic cochains coincides with the space of global sections.**
+  <https://www.jakobhansen.org/publications/thesis.pdf>
+- **[R13] Grigor'yan, Lin, Muranov, Yau** — *Homologies of path complexes and digraphs*
+  (arXiv:1207.2834). GLMY path homology, the correct directed theory; **replaces the retracted
+  Alexandrov proposal** (logbook §5bb).
+  <https://arxiv.org/abs/1207.2834> · persistent version: <https://arxiv.org/abs/1701.00565> ·
+  efficient 1-D algorithm (SoCG 2020, the dimension the growth address lives in):
+  <https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.SoCG.2020.36>
+
+### The M1 / quantum-information track
+
+- **[R14] Abramsky, Barbosa, Mansfield** — *The Cohomology of Non-Locality and Contextuality*
+  (arXiv:1111.3620, QPL 2011). Čech cohomology on an abelian presheaf built from the **support** of a
+  probabilistic model; the obstruction is a cohomology class, non-vanishing for PR boxes, GHZ, the
+  Peres–Mermin magic square and Cabello's 18-vector configuration.
+  <https://arxiv.org/pdf/1111.3620>
+- **[R15]** *Formalising and Learning a Quantum Model of Concepts* (arXiv:2302.14822) and
+  *The Conceptual VAE* (arXiv:2203.11216). **A quantum model of concepts already exists — read
+  before the thesis framing hardens.**
+  <https://arxiv.org/pdf/2302.14822> · <https://arxiv.org/pdf/2203.11216>
+- **[R16]** *Contextuality, Cohomology and Paradox* (arXiv:1502.03097) and *On the Cohomology of
+  Contextuality* (arXiv:1701.00656) — follow-ups worth reading before committing to the bridge.
+  <https://arxiv.org/pdf/1502.03097> · <https://arxiv.org/pdf/1701.00656>
+
+### Behavioural side — carried from the G1 gate
+
+- **[R17]** CMR / retrieved-context models: **start-list context reinstatement** fits primacy better
+  than a learning-rate gradient alone; sCMR handles serial/free-recall dissociations.
+  <https://collaborate.princeton.edu/en/publications/a-context-maintenance-and-retrieval-model-of-organizational-proce/> ·
+  <https://d-nb.info/135447953X/34>
+- **[R18]** Active inference: **precision is the inverse temperature in the softmax** and controls
+  selection stochasticity — `τ² = 1/π_e` is standard, novelty disclaimed.
+  <https://www.sciencedirect.com/science/article/pii/S0022249620300857> ·
+  <https://activeinference.github.io/papers/process_theory.pdf>

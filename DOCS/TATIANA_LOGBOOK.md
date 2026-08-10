@@ -4468,6 +4468,71 @@ taking a limit/colimit. That is canonical (unique up to iso, so nothing is chose
 (it depends on the diagram, hence on history), and it is exactly the property whose absence got FCA
 rejected on 2026-07-27.
 
+### ⭐ CONSTRUCTION 6 — THE CONED CONCEPT, FINALISED (2026-08-08)
+
+**The stalk of a newly-grown concept is now derived rather than chosen.** Full derivation in
+`DOCS/DERIVATION_MDL_GROWTH_LAW.md` §5; the shape of it:
+
+Cone a cycle `γ = (v₁,e₁,…,v_k,e_k,v₁)` with a new vertex `w`, edges `f_i = {w,v_i}`, triangles
+`t_i = {w,v_i,v_{i+1}}`. Set `F(f_i) := F(v_i)` with `F_{v_i⊴f_i} := id` — **a deliberately empty
+`[ENGINEERING CHOICE]`**, so that no distortion hides in the new edge and all content is forced into
+`F(w)`.
+
+**[DERIVED]** Then `(δx)_{f_i} = p_i(x_w) − x_{v_i}`, so consistency on the new edges forces
+`x_{v_i} = p_i(x_w)`: **the value at `w` GENERATES the section over the whole cycle** — which is what
+it means for a concept to explain a loop, the loop stopping being `k` independent facts and becoming
+one. Substituting into the old edges gives
+
+```
+    r_i^+ ∘ p_{i+1}  =  r_i^- ∘ p_i        for all i
+```
+
+which is **verbatim the definition of a categorical cone** over the diagram `D_γ` of stalks and
+restriction maps. **The cone condition was not imposed — it fell out of demanding the topological
+cone do its job.**
+
+> **CONSTRUCTION 6.** `F(w) := lim D_γ`, with the `p_i` its projections.
+> Concretely `lim D_γ = {(x_i) ∈ ⊕F(v_i) : r_i^- x_i = r_i^+ x_{i+1}} ≅ H⁰(γ; F|_γ)`.
+
+**What the new concept IS, in words: everything that was consistent around the loop that could not be
+glued.** It does not summarise the cycle's members; it **is** their compatible part. That is
+"a clever amalgamation of what the others failed to derive", made exact.
+
+Three properties, each a requirement written down separately elsewhere: **canonical** (unique up to
+unique iso — no hand-made choice, A17); **path-dependent** (depends on which cycle history produced —
+precisely the property whose absence got FCA rejected on 2026-07-27); and **a meaningful degenerate
+case** — if `H⁰(γ;F|_γ) = 0` the limit is the zero space, meaning nothing at all was consistent
+around that loop, **so the construction refuses rather than inventing.**
+
+**⚠️ SELF-CORRECTION, KEPT VISIBLE.** An earlier draft justified `F(w) = lim` as *"the smallest object
+admitting the required maps."* **Backwards.** Every cone factors uniquely through the limit, so a
+candidate with jointly injective legs satisfies `dim F'(w) ≤ dim lim` — **the limit is the LARGEST
+non-redundant choice, a ceiling and not a floor.** Consequence: consistency fixes the *shape* (the
+limit), MDL fixes the *size* (a subspace of it). Two separate determinations, both still derived, and
+a better result than the conflated version.
+
+**[DERIVED]** The growth operator is a **cone in both senses simultaneously** — a categorical cone is
+an object with compatible maps to every object of a diagram; a topological cone is the cell filling a
+cycle — **and §5.4 is the proof that this is not wordplay**, the topological requirement and the
+categorical one being the same equations written twice. The limit is the universal one.
+
+**Provenance, stated honestly.** The universal-property route to a new concept is **Goguen's** [R1–R5],
+not ours: algebraic semiotics computes a blend as a categorical colimit, *"taking account of shared
+substructures"*, and the amalgam model is provably equivalent to the pushout model in the ordered
+category of partial maps. ⚠️ **The variance is opposite and copying him would have got it backwards** —
+his inputs map *into* the blend (colimit), while a sheaf's restriction maps point vertex→edge, so
+`F(w)` maps *out* (limit). **What is ours** is that the sheaf's own restriction maps supply the
+diagram, so nothing new is introduced and the concept is built from data the memory already held.
+
+**Next check, cheapest in the programme:** build a synthetic 4-cycle with known non-vanishing harmonic
+mass, attach Construction 6, recompute. It is `[DERIVED]` that `γ` becomes a boundary and the harmonic
+direction dual to `[γ]` dies; it is **not** derived that this holds with **twisted** coefficients
+rather than constant ones. **If the mass survives, §5 is wrong.**
+
+**⚠️ ALL REFERENCES [R1]–[R18] ARE NOW LOGGED IN `DERIVATION_MDL_GROWTH_LAW.md` § REFERENCES**, with
+the standing caveat attached: URLs are as returned by search; **author lists and years are from search
+summaries and must be checked against the papers before any bibliography.**
+
 ### 📄 TWO SPECS FILED THIS SESSION
 - `DOCS/SPEC_P1_TO_P4_PROTOTYPE.md` — Track A. P1 support resolution (with the finding that an empty
   support makes the operad's parallelism dead code and leaves `VerifyOp` unable to know what it is
