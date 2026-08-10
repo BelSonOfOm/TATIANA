@@ -4524,10 +4524,57 @@ his inputs map *into* the blend (colimit), while a sheaf's restriction maps poin
 `F(w)` maps *out* (limit). **What is ours** is that the sheaf's own restriction maps supply the
 diagram, so nothing new is introduced and the concept is built from data the memory already held.
 
-**Next check, cheapest in the programme:** build a synthetic 4-cycle with known non-vanishing harmonic
-mass, attach Construction 6, recompute. It is `[DERIVED]` that `γ` becomes a boundary and the harmonic
-direction dual to `[γ]` dies; it is **not** derived that this holds with **twisted** coefficients
-rather than constant ones. **If the mass survives, §5 is wrong.**
+### ✅ CONSTRUCTION 6 — CHECKED THE SAME DAY, AND IT SURVIVED (`python/validate_construction6.py`)
+
+The cheapest refutation test in the programme, run before anything was built on §5.
+
+**[MEASURED 2026-08-08]**
+
+| case | `dim F(w)` | harmonic before | harmonic after | mass of `η` after |
+|---|---|---|---|---|
+| flat sheaf, trivial holonomy | 3 | 3 | **0** | `0.000e+00` |
+| **partial holonomy (rotation)** — the twisted case, the whole question | 1 | 1 | **0** | `0.000e+00` |
+| degenerate, `H⁰ = 0` | 0 | **0** | — | see below |
+
+**Controls, both mandatory and both passed.** A **path** (tree, `b₁ = 0`) reports harmonic dim `0`, so
+the instrument is not manufacturing mass. An **arbitrary non-cone** `F(w)` gives `|δ¹δ⁰|_max = 1.756`,
+so the complex-check is **not vacuous** — without this control, `δ¹δ⁰ = 0` might have been an identity
+holding for any `F(w)` and would have proved nothing.
+
+**⭐ THE STRONGER FINDING, AND IT UPGRADES CONSTRUCTION 6.** With `F(w) = lim`,
+`|δ¹δ⁰|_max = 4.4e-16`; with an arbitrary `F(w)`, `1.756`. Since
+`(δ¹δ⁰x)_{t_i} = (r_i^+ p_{i+1} − r_i^- p_i)x_w`, **the cochain complex is a complex if and only if
+`F(w)` is a cone over `D_γ`.** So Construction 6 is not the best choice among several — **it is the
+only choice for which the coned object is a sheaf at all.** The universal property was never a
+preference; it was the existence condition.
+
+### ⚠️ TWO THINGS THE RUN SHOWED I HAD WRONG
+
+**① "A generic rotation fixes nothing" is false in odd dimensions.** The degenerate case was written
+expecting `dim lim = 0` for a generic element of `SO(3)` and got `1`. **Every element of `SO(odd)`
+has eigenvalue 1**, so it fixes an axis, so `H⁰(γ)` can never vanish for an odd-dimensional stalk with
+orthogonal restriction maps.
+
+**This is a fact about MOS, not about the test.** MOS's restriction maps *are* orthogonal (Householder
+maps; `Π_{O(d)}` in the consolidation formula), so which degenerate cases are reachable is governed by
+**the parity of `d`**. At `d = 384` (even) they are reachable; had `d` been odd, no cycle could ever
+have failed to have something consistent to name.
+
+**② The refusal branch is UNREACHABLE, and the reason is a small theorem.** §5.5 claimed the
+degenerate case is meaningful — *"nothing was consistent around that loop, so the construction refuses
+rather than inventing."* True, and it never happens. **[DERIVED]** For a 1-complex,
+`χ = dim C⁰ − dim C¹ = dim H⁰ − dim H¹`; on a `k`-cycle with equal vertex and edge stalk dimensions
+`dim C⁰ = dim C¹`, so
+
+```
+    dim H¹(γ; F|γ)  =  dim H⁰(γ; F|γ)
+```
+
+and with no 2-cells the harmonic space **is** `H¹`. **A cycle carries harmonic mass if and only if it
+has sections.** So `H⁰ = 0` ⟹ no harmonic mass ⟹ no growth address ⟹ the law never fires there.
+Confirmed numerically: the degenerate case reports *"harmonic space is EMPTY before coning — nothing
+to kill."* The general gap is `dim H¹ − dim H⁰ = k(n_e − n_v)`, so the branch could become reachable
+only if edge stalks are given a different dimension from vertex stalks. They are not.
 
 **⚠️ ALL REFERENCES [R1]–[R18] ARE NOW LOGGED IN `DERIVATION_MDL_GROWTH_LAW.md` § REFERENCES**, with
 the standing caveat attached: URLs are as returned by search; **author lists and years are from search

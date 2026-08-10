@@ -192,7 +192,27 @@ $$F(w) \;\cong\; H^0\big(\gamma;\, F|_\gamma\big).$$
 |---|---|
 | **canonical** — unique up to unique isomorphism | no hand-made choice enters. A17 |
 | **path-dependent** — depends on `D_γ`, i.e. on which cycle history produced | precisely the property whose absence got **FCA rejected** on 2026-07-27 |
-| **degenerate case is meaningful** | if `H⁰(γ; F\|_γ) = 0` the limit is the zero space — **nothing at all was consistent around that loop, so there is nothing to name.** The construction refuses rather than inventing |
+| **degenerate case** | if `H⁰(γ; F\|_γ) = 0` the limit is the zero space. ⚠️ **See §5.9 — this branch turns out to be UNREACHABLE**, and the reason is a small theorem |
+
+### 5.9 ⚠️ The refusal branch is unreachable, and that is a result
+
+`[MEASURED 2026-08-08, python/validate_construction6.py]` An earlier draft of §5.5 claimed the
+degenerate case is meaningful: *"nothing was consistent around that loop, so the construction refuses
+rather than inventing."* **True, and it never happens.**
+
+`[DERIVED]` For a 1-dimensional complex, `χ = dim C⁰ − dim C¹ = dim H⁰ − dim H¹`. On a `k`-cycle with
+vertex and edge stalks of equal dimension `n`, `dim C⁰ = dim C¹ = kn`, so `χ = 0` and
+
+$$\dim H^1(\gamma; F|_\gamma) \;=\; \dim H^0(\gamma; F|_\gamma).$$
+
+With no 2-cells the harmonic space **is** `H¹`. So **a cycle carries harmonic mass if and only if it
+has sections.** `H⁰ = 0` implies no harmonic mass, which implies no growth address, which implies the
+growth law never fires on that cycle at all.
+
+**The construction is never asked to refuse** — confirmed numerically: the degenerate case reports
+*"harmonic space is EMPTY before coning — nothing to kill."* In general the gap is
+`dim H¹ − dim H⁰ = k(n_e − n_v)`, so the branch could become reachable if edge stalks are ever given
+a different dimension from vertex stalks. **Not currently.**
 
 ### 5.6 ⚠️ CORRECTION — the limit is NOT the MDL minimiser
 
@@ -254,13 +274,23 @@ new concept should be a universal construction at all.
    **subspace** of the limit. Consistency fixes the shape, MDL fixes the size; two separate
    determinations, both derived. **What remains open is the selection rule for that subspace**
    (§5.6's proposal: rank the limit's directions by data-term saving and keep the paying prefix).
-2. **`[OPEN]` — THE CHEAPEST CHECK, DO IT FIRST. Does attaching Construction 6 kill the harmonic
-   class?** What is already `[DERIVED]`: the cone makes `γ` a boundary (§5.2), the new triangles
-   raise `rank δ₁`, and the harmonic direction dual to `[γ]` therefore dies. What is **not** derived:
-   that the class carrying `η`'s mass is that direction, in the **twisted** (sheaf-coefficient)
-   setting rather than with constant coefficients. Build a synthetic 4-cycle with known non-vanishing
-   harmonic mass, attach Construction 6, recompute. **If the mass survives, §5 is wrong** and
-   everything after §4 needs rethinking.
+2. **`[RESOLVED — MEASURED 2026-08-08]` Does attaching Construction 6 kill the harmonic class?**
+   **YES, including in the twisted case.** `python/validate_construction6.py`:
+
+   | case | `dim F(w)` | harmonic before | harmonic after | mass of `η` after |
+   |---|---|---|---|---|
+   | flat sheaf, trivial holonomy | 3 | 3 | **0** | `0.000e+00` |
+   | **partial holonomy** (rotation) | 1 | 1 | **0** | `0.000e+00` |
+   | degenerate, `H⁰ = 0` | 0 | **0** | — | unreachable, §5.9 |
+
+   Controls, both required and both passed: a **path** (tree, `b₁ = 0`) reports harmonic dim `0`, so
+   the instrument is not manufacturing mass; and an **arbitrary non-cone** `F(w)` gives
+   `|δ¹δ⁰|_max = 1.756`, so the `δ¹δ⁰ = 0` check below is **not vacuous.**
+
+   ⭐ **The stronger finding.** With `F(w) = lim`, `|δ¹δ⁰|_max = 4.4e-16`; with an arbitrary `F(w)`
+   it is `1.756`. Since `(δ¹δ⁰x)_{t_i} = (r_i^+p_{i+1} − r_i^-p_i)x_w`, **the cochain complex is a
+   complex if and only if `F(w)` is a cone over `D_γ`.** Construction 6 is therefore not a good
+   choice among several — **it is the only choice for which the coned object is a sheaf at all.**
 3. **`[OPEN]` `c_old` and `c_new` need actual code lengths.** The natural choice is surprisal under
    the model's own transition distribution, which hooks `F_MOS` — but `F_MOS` is still not written
    down as an equation (the largest gap flagged in `PRECILLA/draft.md` §10.1).
