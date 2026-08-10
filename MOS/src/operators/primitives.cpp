@@ -46,25 +46,29 @@ bool SearchOp::apply(core::CognitiveState &state) {
       return true;
     }
 
-    // Dynamically compute variance based on the Euclidean magnitude of the
-    // embedding
-    double norm_sq = 0.0;
-    for (double val : query_embedding) {
-      norm_sq += val * val;
-    }
-    double derived_variance =
-        std::sqrt(norm_sq) + std::numeric_limits<double>::epsilon();
-
-    // Dynamic relevance threshold based on ambient dimension
-    double relevance_threshold =
-        std::max(0.1, 1.0 / static_cast<double>(query_embedding.size()));
-
-    auto concepts = kb_->get_relevant_concepts(
+    // P0 -- RANK, DO NOT THRESHOLD. Spec: DOCS/SPEC_P0_RETRIEVAL_FIX.md.
+    //
+    // Two computations stood here and both are gone rather than kept:
+    //
+    //   * a "dynamic relevance threshold", max(0.1, 1/d), which at d = 384 is
+    //     0.1 for every query the system will ever see. MEASUREMENT: that policy
+    //     admits 0.31% of author-asserted true dependencies, against 46.6% for
+    //     rank-based retrieval at the same width.
+    //
+    //   * a "derived variance" set to the query's NORM -- a quantity with no
+    //     derivation behind it. It fed only the epistemic term, which the new
+    //     ranking does not use, so removing the threshold removed this too.
+    //
+    // Width now comes from KnowledgeBase::kDefaultRetrievalWidth, which is
+    // BOUNDED ABOVE by ConceptStore::max_assembly_for_triangles_ so that a tick
+    // can never produce an assembly whose triangles get skipped -- skipped
+    // triangles leave within-assembly cycles that look exactly like structural
+    // holes in b1.
+    auto concepts = kb_->get_top_k_concepts(
         Eigen::Map<Eigen::VectorXd>(query_embedding.data(),
-                                    query_embedding.size()),
-        derived_variance, relevance_threshold);
-    std::cout << "[SearchOp] Found " << concepts.size()
-              << " related concepts.\n";
+                                    query_embedding.size()));
+    std::cout << "[SearchOp] Retrieved " << concepts.size()
+              << " nearest concepts.\n";
 
     // Inject retrieved concepts into the cognitive state as new boundary
     // conditions

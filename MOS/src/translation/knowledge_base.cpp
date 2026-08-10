@@ -1,10 +1,13 @@
 #include "mos/translation/knowledge_base.hpp"
 #include "mos/core/semantic_skill.hpp"
 #include "sqlite3.h"
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 #include <stdexcept>
 #include <cstring>
+#include <utility>
+#include <vector>
 
 namespace mos {
 namespace translation {
@@ -150,35 +153,55 @@ double KnowledgeBase::calculate_wasserstein_2_sq(const Eigen::VectorXd& mu1, dou
     return core::wasserstein_2_terms(mu1, D1, mu2, U2, D2).total();
 }
 
-std::vector<std::shared_ptr<const core::SemanticEmbedding>> KnowledgeBase::get_relevant_concepts(
-        const Eigen::VectorXd& thought_mu, 
-        double thought_D, 
-        double epsilon) const {
-        
+std::vector<std::shared_ptr<const core::SemanticEmbedding>> KnowledgeBase::get_top_k_concepts(
+        const Eigen::VectorXd& thought_mu,
+        std::size_t k) const {
+
     std::lock_guard<std::mutex> lock(mutex_);
     std::vector<std::shared_ptr<const core::SemanticEmbedding>> results;
-    
+    if (k == 0) return results;
+
+    // A MAX-heap of the k BEST-SO-FAR. The largest score sits on top, so the
+    // worst survivor is the one that gets evicted, and heap.front().first is the
+    // admission price once the heap is full. Bounded at k, so memory does not
+    // grow with the store the way the old unbounded threshold scan's did.
+    using Scored = std::pair<double, std::shared_ptr<const core::SemanticEmbedding>>;
+    const auto worse = [](const Scored& a, const Scored& b) { return a.first < b.first; };
+    std::vector<Scored> heap;
+    heap.reserve(k + 1);
+
     const char* sql = "SELECT reasoning_chain, dimension, rank, mu_vector, u_matrix, noise_floor FROM distilled_theorems;";
     sqlite3_stmt* stmt = nullptr;
-    
+
     if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) != SQLITE_OK) {
         return results;
     }
-    
+
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         int stored_dim = sqlite3_column_int(stmt, 1);
-        
+
         // Fast dimension rejection
         if (stored_dim != static_cast<int>(thought_mu.size())) continue;
-        
-        int stored_rank = sqlite3_column_int(stmt, 2);
-        
+
         int mu_bytes = sqlite3_column_bytes(stmt, 3);
         const void* mu_blob = sqlite3_column_blob(stmt, 3);
         if (mu_bytes != stored_dim * static_cast<int>(sizeof(double))) continue;
         Eigen::VectorXd mu(stored_dim);
         std::memcpy(mu.data(), mu_blob, mu_bytes);
-        
+
+        // THE SCORE IS THE d-INTENSIVE TERM ALONE. This is WassersteinTerms::
+        // semantic = ||mu1 - mu2||^2 verbatim, not an approximation of it. The
+        // epistemic term is deliberately absent: it is d-EXTENSIVE, so at
+        // d = 384 it dominates any sum and selection ends up tracking epistemic
+        // breadth instead of relevance. semantic_skill.hpp:120 says so already.
+        const double score = (thought_mu - mu).squaredNorm();
+
+        // Rows that cannot win are dropped BEFORE the expensive columns are
+        // touched. U costs O(d * rank) to deserialise and the reasoning chain is
+        // a whole string; neither is needed to know this row loses.
+        if (heap.size() == k && score >= heap.front().first) continue;
+
+        int stored_rank = sqlite3_column_int(stmt, 2);
         Eigen::MatrixXd U(stored_dim, stored_rank);
         if (stored_rank > 0) {
             int u_bytes = sqlite3_column_bytes(stmt, 4);
@@ -186,18 +209,27 @@ std::vector<std::shared_ptr<const core::SemanticEmbedding>> KnowledgeBase::get_r
             if (u_bytes != stored_dim * stored_rank * static_cast<int>(sizeof(double))) continue;
             std::memcpy(U.data(), u_blob, u_bytes);
         }
-        
+
         double D = sqlite3_column_double(stmt, 5);
         if (D <= 0.0) D = 1e-9;
-        
-        double w2_sq = calculate_wasserstein_2_sq(thought_mu, thought_D, mu, U, D);
-        if (w2_sq <= epsilon) {
-            std::string reasoning = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-            results.push_back(std::make_shared<core::SemanticEmbedding>(mu, U, D, reasoning));
+
+        const unsigned char* reasoning_text = sqlite3_column_text(stmt, 0);
+        std::string reasoning = reasoning_text ? reinterpret_cast<const char*>(reasoning_text) : "";
+
+        heap.emplace_back(score, std::make_shared<core::SemanticEmbedding>(mu, U, D, reasoning));
+        std::push_heap(heap.begin(), heap.end(), worse);
+        if (heap.size() > k) {
+            std::pop_heap(heap.begin(), heap.end(), worse);
+            heap.pop_back();
         }
     }
-    
+
     sqlite3_finalize(stmt);
+
+    // sort_heap on a max-heap leaves ASCENDING order, which is nearest-first.
+    std::sort_heap(heap.begin(), heap.end(), worse);
+    results.reserve(heap.size());
+    for (auto& scored : heap) results.push_back(std::move(scored.second));
     return results;
 }
 
