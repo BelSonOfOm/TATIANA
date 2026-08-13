@@ -1,0 +1,589 @@
+% =====================================================================
+%  PART I -- THE STATE SPACE
+% =====================================================================
+
+\chapter{The Base Complex}\label{ch:complex}
+
+\section{What the object is}
+
+\begin{intu}\Intu
+Picture a research assistant that is not one mind but a small society of
+specialists: one that searches, one that remembers, one that reasons, one
+that checks. \textsc{tatiana} is the mathematics of \emph{that society} ---
+who is bound to whom, whether their beliefs agree, by how much they
+disagree and exactly where, and how the society rewires itself as it
+works. The reasoning itself is done by an external language model. The
+mathematics governs the society, not the neurons.
+\end{intu}
+
+\begin{definition}[Cognitive state space]\label{def:M}
+A \emph{cognitive state space} is a triple $\M=(\CC,\Fs,s)$ where
+\begin{enumerate}[label=(\roman*)]
+  \item $\CC$ is a stratified finite abstract simplicial complex
+        (Section~\ref{sec:strat});
+  \item $\Fs$ is a cellular sheaf of finite-dimensional real
+        inner-product spaces on $\CC$ (Chapter~\ref{ch:sheaf});
+  \item $s\in\Czero$ is a distinguished $0$-cochain, the \emph{current
+        state}, whose coherence is measured by the sheaf Laplacian
+        (Chapter~\ref{ch:laplacian}).
+\end{enumerate}
+The space evolves in discrete time under structural operators drawn from
+an operator algebra $\Dop$ which is itself permitted to grow
+(Part~V).
+\end{definition}
+
+\source{\texttt{DOCS/TATIANA\_Mathematical\_Description.tex}, Def.~1.1,
+merged with \texttt{DOCS/TATIANA\_LOGBOOK.md} \S0.1. The logbook writes
+the triple as $(C,F,s)$ with $C$ ``a stratified simplicial complex
+(coarse level = cognitive organs as vertices; fine level = concepts
+inside each organ's stalk)''. Note that this phrasing conflates two
+different things --- the fine complex $\CC_v$ and the stalk $\stalk{v}$
+--- which are kept strictly separate here and in
+Chapter~\ref{ch:sheaf}. See Appendix~\ref{app:discrepancy}, item D1.}
+
+\section{Simplicial complexes and $n$-ary binding}
+
+\begin{intu}\Intu
+A graph records \emph{pairwise} facts: $A$ relates to $B$. But a theorem
+depending on three hypotheses is \emph{one} three-way fact, not three
+separate pairs --- drop any one hypothesis and the fact is gone, which is
+not how three independent edges behave. A simplicial complex is the
+smallest honest language for facts of arbitrary arity: a filled triangle
+is a genuine three-way binding.
+\end{intu}
+
+\begin{definition}[Abstract simplicial complex]\label{def:asc}
+Let $V$ be a finite set. An \emph{abstract simplicial complex} $\CC$ on
+$V$ is a family of nonempty subsets of $V$, called \emph{simplices},
+which is \emph{downward closed}: if $\sigma\in\CC$ and
+$\emptyset\neq\tau\subseteq\sigma$, then $\tau\in\CC$. A simplex of
+cardinality $k+1$ is a \emph{$k$-simplex}; write $\dim\sigma=k$. If
+$\tau\subseteq\sigma$ we write $\tau\triang\sigma$ and call $\tau$ a
+\emph{face} of $\sigma$. The set of $k$-simplices is denoted $\CC_k$.
+\end{definition}
+
+Thus $0$-simplices are vertices, $1$-simplices edges, $2$-simplices
+filled triangles, and so on. Downward closure is not a technical
+convenience; it is the modelling assumption that every sub-collection of
+a jointly bound fact is itself recorded.
+
+\begin{remark}[Simplices are $n$-ary relations]\label{rem:nary}
+A $k$-simplex $\{v_0,\dots,v_k\}$ models a single $(k{+}1)$-ary binding
+among its vertices, not $\binom{k+1}{2}$ pairwise ones. This distinction
+is what later earns the use of $b_1$ as a diagnostic
+(Part~IV): a $1$-cycle counts as a genuine structural hole
+only because a \emph{filled} $2$-simplex means ``these three are jointly
+bound'' rather than merely ``each pair is bound''.
+\end{remark}
+
+\begin{remark}[Two relations on the same vertices]\label{rem:twostructures}
+A logical prerequisite chain is \emph{directed}: $A$ is needed for $B$.
+A simplicial complex is undirected. \textsc{tatiana} therefore carries
+two relations on the same vertex set --- a directed poset for logical
+dependency, and the undirected simplices for $n$-ary co-binding. They are
+never conflated, and no result in this book uses one where the other is
+meant.
+\end{remark}
+
+\section{The two-level stratification}\label{sec:strat}
+
+\begin{intu}\Intu
+The society has two scales. Zoom out and the vertices are whole
+\emph{organs}. Zoom into one organ and it is itself a little complex whose
+vertices are \emph{concepts}. The same geometry runs at both scales, and
+the two are glued by a coarse-graining map developed in Part~III.
+\end{intu}
+
+\begin{construction}[The stratified complex]\label{con:strat}
+$\CC$ carries two strata.
+\begin{itemize}
+  \item The \emph{coarse complex} $\Kc$ has as vertices the cognitive
+        organs
+        \[
+          V(\Kc)=\{\textsc{Planner},\ \textsc{Search},\
+          \textsc{Canonicalizer},\ \textsc{Curator},\
+          \textsc{WorkingMemory},\ \textsc{Reasoning},\ \textsc{Verify}\}.
+        \]
+        A simplex $\sigma\in\Kc$ is a \emph{bound coalition} of organs
+        acting as a unit, carrying a time-dependent coupling weight
+        $w(\sigma,t)\in[0,1]$.
+  \item For each organ $v\in V(\Kc)$, a \emph{fine complex} $\CC_v$ has
+        concepts as vertices and $n$-ary conceptual bindings as
+        simplices. This is the organ's internal knowledge.
+\end{itemize}
+\end{construction}
+
+The stratification answers an ambiguity present in the earliest drafts
+--- \emph{are the vertices concepts or subsystems?} --- by answering
+\emph{both}, at two different levels.
+
+\begin{hon}\Hon
+\Contested\ The word ``stratified'' is used here in a weak,
+combinatorial sense: two nested scales with a map between them. It does
+\emph{not} refer to a Whitney stratification, a stratified space in the
+sense of intersection homology, or a constructible sheaf on a stratified
+base, and no theorem from those theories is invoked anywhere in this
+book. Earlier drafts borrowed vocabulary from that literature; the
+logbook (\S0.5) records that most such borrowing was cut as decorative.
+This is a naming collision, and the reader should not import
+expectations from it.
+\end{hon}
+
+\section{The running example}\label{sec:running}
+
+Every instrument built in this book will be applied to one small
+complex, so that the same object is measured repeatedly and the
+measurements can be compared.
+
+\begin{example}[The complex $\Kc_4$]\label{ex:K4}
+Let $\Kc_4$ have vertex set
+\[
+  V=\{\mathsf{S},\ \mathsf{M},\ \mathsf{R},\ \mathsf{V}\}
+\]
+(read: \textsc{Search}, \textsc{Memory}, \textsc{Reasoning},
+\textsc{Verify}), with $1$-simplices
+\[
+  E=\bigl\{\{\mathsf{S},\mathsf{M}\},\ \{\mathsf{M},\mathsf{R}\},\
+  \{\mathsf{S},\mathsf{R}\},\ \{\mathsf{R},\mathsf{V}\}\bigr\}
+\]
+and a single $2$-simplex $\{\mathsf{S},\mathsf{M},\mathsf{R}\}$, filled.
+Downward closure holds: all three faces of the triangle are in $E$.
+\end{example}
+
+\begin{center}
+\begin{tikzpicture}[scale=1.6,
+  vtx/.style={circle,fill=black,inner sep=1.8pt},
+  lbl/.style={font=\small}]
+  \coordinate (S) at (0,1);
+  \coordinate (M) at (-1,0);
+  \coordinate (R) at (1,0);
+  \coordinate (V) at (2.3,-0.6);
+  \fill[linkblue,opacity=0.18] (S) -- (M) -- (R) -- cycle;
+  \draw[thick] (S)--(M) (M)--(R) (S)--(R) (R)--(V);
+  \node[vtx] at (S) {}; \node[vtx] at (M) {};
+  \node[vtx] at (R) {}; \node[vtx] at (V) {};
+  \node[lbl,above] at (S) {$\mathsf{S}$};
+  \node[lbl,left]  at (M) {$\mathsf{M}$};
+  \node[lbl,below right] at (R) {$\mathsf{R}$};
+  \node[lbl,right] at (V) {$\mathsf{V}$};
+  \node[font=\footnotesize,linkblue] at (0,0.35) {filled};
+\end{tikzpicture}
+\captionof{figure}{The running example $\Kc_4$. The triangle
+$\{\mathsf{S},\mathsf{M},\mathsf{R}\}$ is filled: it is one ternary
+binding, not three binary ones. The edge to $\mathsf{V}$ is a pendant.}
+\label{fig:K4}
+\end{center}
+
+Its degrees are
+$\deg\mathsf{S}=2$, $\deg\mathsf{M}=2$, $\deg\mathsf{R}=3$,
+$\deg\mathsf{V}=1$, and its graph Laplacian, in the vertex order
+$(\mathsf{S},\mathsf{M},\mathsf{R},\mathsf{V})$, is
+\begin{equation}\label{eq:LK4}
+  L_{\Kc_4}=
+  \begin{pmatrix}
+     2 & -1 & -1 &  0\\
+    -1 &  2 & -1 &  0\\
+    -1 & -1 &  3 & -1\\
+     0 &  0 & -1 &  1
+  \end{pmatrix}.
+\end{equation}
+
+\begin{proposition}[Spectrum of the running example]\label{prop:specK4}
+\Proved\ The characteristic polynomial of $L_{\Kc_4}$ is
+$\lambda(\lambda-1)(\lambda-3)(\lambda-4)$, so
+\[
+  \operatorname{spec}L_{\Kc_4}=\{0,\ 1,\ 3,\ 4\}.
+\]
+\end{proposition}
+\begin{proof}
+Direct expansion of $\det(L_{\Kc_4}-\lambda I)$ gives
+$\lambda^4-8\lambda^3+19\lambda^2-12\lambda
+ =\lambda(\lambda-1)(\lambda-3)(\lambda-4)$.
+The eigenvalue $0$ is forced: $L_{\Kc_4}\mathbf 1=0$ since every row
+sums to zero. Its multiplicity is $1$ because the $1$-skeleton is
+connected (Proposition~\ref{prop:b0kernel}).
+\end{proof}
+
+The integrality here is a happy accident of this particular graph and
+should not be expected in general. It is why $\Kc_4$ was chosen: every
+quantity in Parts I--IV can be carried through in exact arithmetic.
+
+% =====================================================================
+\chapter{The Sheaf}\label{ch:sheaf}
+% =====================================================================
+
+\begin{intu}\Intu
+On top of the shape we lay \emph{data}. Each organ holds a vector
+describing what it currently believes. Each binding holds a space in
+which the beliefs of its members are meant to be compared. A sheaf is
+exactly this: local data on every piece, plus rules for moving data into
+the places where comparison happens. A ``coherent thought'' is then a
+choice of data that agrees everywhere it is compared.
+\end{intu}
+
+\section{Which way do the restriction maps point?}\label{sec:direction}
+
+Before the definition, one question must be settled, because the source
+documents answer it in two incompatible ways and the answer determines
+everything downstream.
+
+Given a face relation $\sigma\triang\tau$ --- say a vertex $u$ on an edge
+$e$ --- a sheaf must supply a linear map between $\stalk{u}$ and
+$\stalk{e}$. Which direction?
+
+\begin{center}
+\begin{tikzpicture}[scale=1.1,
+  box/.style={draw,rounded corners=2pt,minimum width=1.9cm,
+              minimum height=0.75cm,font=\small},
+  lbl/.style={font=\footnotesize}]
+  % left: sheaf (correct)
+  \node[box] (Fu) at (0,0)    {$\stalk{u}$};
+  \node[box] (Fv) at (2.6,0)  {$\stalk{v}$};
+  \node[box] (Fe) at (1.3,1.6){$\stalk{e}$};
+  \draw[-{Latex[length=2.4mm]},thick,examplecol] (Fu) -- (Fe);
+  \draw[-{Latex[length=2.4mm]},thick,examplecol] (Fv) -- (Fe);
+  \node[lbl,font=\footnotesize] at (1.3,-0.75) {\textbf{sheaf} (used here)};
+  % right: cosheaf (poster)
+  \node[box] (Gu) at (6,0)    {$\stalk{u}$};
+  \node[box] (Gv) at (8.6,0)  {$\stalk{v}$};
+  \node[box] (Ge) at (7.3,1.6){$\stalk{e}$};
+  \draw[-{Latex[length=2.4mm]},thick,honestycol] (Ge) -- (Gu);
+  \draw[-{Latex[length=2.4mm]},thick,honestycol] (Ge) -- (Gv);
+  \node[lbl,font=\footnotesize] at (7.3,-0.75)
+       {\textbf{cosheaf} (poster \S4)};
+\end{tikzpicture}
+\captionof{figure}{The two possible orientations. Only the left one makes
+$\ker\cob$ the space of agreeing assignments.}
+\label{fig:direction}
+\end{center}
+
+\begin{proposition}[The direction is forced]\label{prop:direction}
+\Proved\ Suppose we want a linear operator $\cob$ from vertex data to
+edge data whose kernel is exactly the set of assignments
+$x=(x_v)_{v\in V}$ that ``agree on every edge''. Then the structure maps
+must go \emph{from faces to cofaces}, i.e.
+$\rest{u\triang e}:\stalk{u}\to\stalk{e}$.
+\end{proposition}
+\begin{proof}
+An assignment gives one vector $x_v\in\stalk{v}$ per vertex, and nothing
+on edges. For the two endpoint values $x_u,x_v$ of an edge $e=\{u,v\}$
+to be \emph{compared} at all, they must be brought into a common space.
+The only space available to $e$ is $\stalk{e}$. Hence we require maps
+$\stalk{u}\to\stalk{e}$ and $\stalk{v}\to\stalk{e}$, and agreement on
+$e$ means
+$\rest{u\triang e}(x_u)=\rest{v\triang e}(x_v)$.
+
+Suppose instead the maps ran downward,
+$\rho_{e\to u}:\stalk{e}\to\stalk{u}$. Then from vertex data alone no
+map into $\stalk{e}$ exists, so no operator $\Czero\to\Cone$ can be
+built from the structure maps, and the condition ``$x$ agrees on $e$''
+is not expressible. Downward maps instead assemble into a boundary
+operator $\partial:\Cone\to\Czero$, whose kernel consists of \emph{edge}
+data summing to zero at vertices --- a flow condition, not an agreement
+condition. That is the defining structure of a \emph{cellular cosheaf},
+and its invariants are homology $H_\bullet$, not the cohomology
+$H^\bullet$ used throughout this book.
+\end{proof}
+
+\begin{hon}\Hon
+\Refuted\ The poster section \texttt{POSTER/sections/05\_sheaf.tex}
+defines, for $\sigma\subseteq\tau$, a map
+$\rho_{\tau\to\sigma}:\stalk{\tau}\to\stalk{\sigma}$, and its diagram
+draws $\stalk{e}$ above the vertices with arrows pointing down. It then
+asserts, three boxes later, that $s\in\Hzero(\CC,\Fs)$ is a global
+section. By Proposition~\ref{prop:direction} these two statements are
+incompatible: with downward maps the object defined is a cosheaf and
+$\Hzero$ as ``the space of compatible assignments'' does not arise. The
+main mathematical description
+(\texttt{DOCS/TATIANA\_Mathematical\_Description.tex}, Def.~3.1) has the
+direction correct. The poster is wrong and should be corrected before it
+is shown to anyone. Logged as Appendix~\ref{app:discrepancy}, item D2.
+\end{hon}
+
+\begin{exercise}
+Take the downward convention seriously for one minute and try to build
+$\cob:\Czero\to\Cone$ from it. Where exactly does the construction
+fail --- at the definition of $\cob$, or later at the claim
+$\ker\cob=\{\text{agreeing assignments}\}$? Answering this is the
+fastest way to internalise why the direction is not a convention.
+\end{exercise}
+
+\section{The definition}
+
+\begin{definition}[Cellular sheaf]\label{def:sheaf}
+A \emph{cellular sheaf} $\Fs$ of real inner-product spaces on a
+simplicial complex $\CC$ assigns
+\begin{enumerate}[label=(\roman*)]
+  \item to each simplex $\sigma\in\CC$ a finite-dimensional real
+        inner-product space $\stalk{\sigma}$, the \emph{stalk} over
+        $\sigma$;
+  \item to each face relation $\sigma\triang\tau$ a linear
+        \emph{restriction map}
+        \[
+          \rest{\sigma\triang\tau}:\stalk{\sigma}\longrightarrow\stalk{\tau},
+        \]
+\end{enumerate}
+subject to functoriality: $\rest{\sigma\triang\sigma}=\Id$, and for every
+chain $\sigma\triang\tau\triang\upsilon$,
+\begin{equation}\label{eq:functoriality}
+  \rest{\tau\triang\upsilon}\circ\rest{\sigma\triang\tau}
+  \;=\;\rest{\sigma\triang\upsilon}.
+\end{equation}
+Equivalently, $\Fs$ is a functor from the face poset of $\CC$, viewed as
+a category, to $\Vect_\R$.
+\end{definition}
+
+\begin{remark}[Functoriality is a real constraint]\label{rem:functoriality}
+Condition~\eqref{eq:functoriality} is vacuous on a complex of dimension
+$\le 1$, since there are no chains of length two. It becomes a genuine
+constraint the moment a $2$-simplex is filled --- which $\Kc_4$ does. Any
+procedure that manufactures restriction maps edge-by-edge (for instance
+by fitting each $\rest{v\triang e}$ independently to data) will in
+general \emph{violate} \eqref{eq:functoriality} on filled triangles, and
+the resulting object is then not a sheaf. This failure mode is not
+hypothetical; it is the standard obstruction encountered when
+$L^2$-projections are used as restriction maps, and the canonical repair
+is to promote the offending interface to a cell of its own so that the
+composite is not required to commute. Part~VI returns to
+this.
+\end{remark}
+
+\begin{definition}[Cochains]\label{def:cochains}
+For $k\ge 0$ set
+\[
+  \Ck{k}\;=\;\bigoplus_{\sigma\in\CC_k}\stalk{\sigma},
+\]
+the space of \emph{$k$-cochains}, with the direct-sum inner product
+$\inner{x}{y}=\sum_\sigma\inner{x_\sigma}{y_\sigma}$. An element of
+$\Czero$ is an assignment of one vector to each organ; the current state
+$s$ of Definition~\ref{def:M} lives here.
+\end{definition}
+
+\section{What the stalks contain}
+
+\begin{construction}[Deployed stalk data]\label{con:stalks}
+\Implemented\ In the deployed system every vertex and edge stalk is
+$\Rd$ with $d=384$, and the vector $x_v\in\stalk{v}$ is a sentence
+embedding produced by a fixed local encoder. Two invariants are enforced
+at the level of types:
+\begin{enumerate}[label=(\roman*)]
+  \item dimensions never truncate or pad --- a mismatch raises rather
+        than silently reshaping;
+  \item an idle organ carries \emph{no} stalk value, a formal $\unk$,
+        never the zero vector.
+\end{enumerate}
+\end{construction}
+
+\begin{hon}\Hon
+Invariant (ii) is the sheaf-theoretic content of ``do not fabricate
+data'', and it is worth stating why it is not pedantry. The zero vector
+is a genuine point of $\Rd$: it has a distance to every other point, it
+contributes to $\norm{X}_F^2$, and it participates in every average.
+Substituting $0$ for ``unknown'' therefore does not represent absence,
+it asserts a specific belief --- that the organ believes the origin ---
+and drags every downstream distance toward it. The distinction between
+$\unk$ and $0$ is the difference between a measurement not made and a
+measurement made and found to be zero.
+\end{hon}
+
+\begin{remark}[Where the fine complex lives]\label{rem:finevsstalk}
+The logbook occasionally describes concepts as living \emph{inside an
+organ's stalk}. This is loose. The stalk $\stalk{v}$ is a
+$384$-dimensional real vector space; the fine complex $\CC_v$ is a
+simplicial complex whose vertices are concepts. They are different
+objects, and the relation between them is the coarse-graining map
+$\pi_v$ of Part~III, which sends the concept data of
+$\CC_v$ to a single vector in $\stalk{v}$. Conflating them makes $\pi_v$
+look like an identity when it is in fact a lossy precision-weighted
+fusion.
+\end{remark}
+
+% =====================================================================
+\chapter{Coboundary and Laplacian}\label{ch:laplacian}
+% =====================================================================
+
+\section{The coboundary}
+
+\begin{definition}[Coboundary in degree zero]\label{def:coboundary}
+Fix an arbitrary orientation of each edge, writing $e=(u,v)$ for the
+edge $\{u,v\}$ oriented from $u$ to $v$. The \emph{coboundary}
+$\cob:\Czero\to\Cone$ acts edgewise by
+\begin{equation}\label{eq:coboundary}
+  (\cob x)_e\;=\;\rest{v\triang e}(x_v)\;-\;\rest{u\triang e}(x_u)
+  \ \in\ \stalk{e}.
+\end{equation}
+A $0$-cochain $x$ is a \emph{global section} if $\cob x=0$, that is, if
+every bound pair agrees after being mapped into its shared comparison
+space.
+\end{definition}
+
+\begin{lemma}[Orientation-independence]\label{lem:orientation}
+\Proved\ Reversing the orientation of an edge $e$ replaces
+$(\cob x)_e$ by its negative. Consequently $\ker\cob$, the quantity
+$\norm{\cob x}^2$, and the operator $\cob^\top\cob$ are all independent
+of the chosen orientations.
+\end{lemma}
+\begin{proof}
+Reversal exchanges the roles of $u$ and $v$ in \eqref{eq:coboundary},
+negating the entry. Negating a coordinate leaves its vanishing, its
+squared norm, and hence the sum of squared norms unchanged. Writing
+$\cob'=D\cob$ with $D$ diagonal with entries $\pm1$ blockwise, we get
+$\cob'^\top\cob'=\cob^\top D^\top D\cob=\cob^\top\cob$ since $D^\top D=I$.
+\end{proof}
+
+\begin{remark}[Why an arbitrary choice is harmless]
+Lemma~\ref{lem:orientation} is what licenses the phrase ``fix an
+arbitrary orientation''. It is worth checking rather than assuming,
+because the analogous statement fails for the \emph{signed} per-edge
+quantity $(\cob x)_e$ itself, which is only defined up to sign. Any
+diagnostic that reports $(\cob x)_e$ rather than $\norm{(\cob x)_e}^2$
+is reporting an orientation-dependent quantity and is therefore not
+well defined.
+\end{remark}
+
+\section{The sheaf Laplacian}
+
+\begin{definition}[Sheaf Laplacian and discord]\label{def:laplacian}
+The \emph{degree-zero sheaf Laplacian} is
+\begin{equation}\label{eq:laplacian}
+  \Lap\;=\;\cob^\top\cob\;:\;\Czero\to\Czero,
+\end{equation}
+and the \emph{discord} of a state $x$ is the Dirichlet energy
+\begin{equation}\label{eq:omega}
+  \discord(x)\;=\;x^\top \Lap x\;=\;\norm{\cob x}^2
+  \;=\;\sum_{e=\{u,v\}}
+       \norm{\rest{v\triang e}(x_v)-\rest{u\triang e}(x_u)}^2 .
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Basic properties]\label{prop:Lpsd}
+\Proved\ $\Lap$ is symmetric positive semidefinite, and
+\[
+  \discord(x)=0
+  \iff \cob x=0
+  \iff x\in\ker \Lap .
+\]
+Moreover $\ker\cob=\Hzero$, the zeroth sheaf cohomology.
+\end{proposition}
+\begin{proof}
+Symmetry: $(\cob^\top\cob)^\top=\cob^\top\cob$. Positive
+semidefiniteness: $x^\top \Lap x=\norm{\cob x}^2\ge0$. If $\Lap x=0$
+then $\norm{\cob x}^2=x^\top \Lap x=0$, so $\cob x=0$ since
+$\norm{\cdot}$ is a norm; conversely $\cob x=0$ gives $\Lap x=0$
+immediately. Finally the cochain complex begins in degree $0$ --- there
+are no $(-1)$-cochains --- so $\Hzero=\ker\cob^0/\im\cob^{-1}=\ker\cob$.
+\end{proof}
+
+\begin{intu}\Intu
+$\discord$ is a single number: the total squared disagreement across all
+bindings. It vanishes exactly when the society holds one coherent
+thought. The point of the construction is that ``a coherent thought'' has
+become a precise object --- a vector in the kernel of a matrix --- rather
+than a mood.
+\end{intu}
+
+\begin{proposition}[Kernel and components]\label{prop:b0kernel}
+\Proved\ If every restriction map is the identity on a common stalk
+$\Rd$, then
+\[
+  \Lap=L_{\Kc}\otimes I_d,
+\]
+where $L_{\Kc}$ is the ordinary combinatorial graph Laplacian of the
+$1$-skeleton. Consequently $\operatorname{spec}\Lap$ is
+$\operatorname{spec}L_\Kc$ with each eigenvalue repeated $d$ times, and
+$\dim\ker\Lap=d\cdot b_0$, where $b_0$ is the number of connected
+components.
+\end{proposition}
+\begin{proof}
+With identity restrictions \eqref{eq:omega} reads
+$\discord(x)=\sum_{\{u,v\}\in E}\norm{x_u-x_v}^2$, which is the
+Dirichlet form of $L_\Kc$ applied coordinatewise in each of the $d$
+components. Hence $\Lap=L_\Kc\otimes I_d$. The spectrum of a Kronecker
+product with the identity is the spectrum of the factor with multiplicity
+$d$. The kernel of $L_\Kc$ is spanned by the indicator vectors of the
+connected components, of which there are $b_0$; tensoring with $\Rd$
+multiplies the dimension by $d$.
+\end{proof}
+
+\begin{hon}\Hon
+\Implemented\ The deployed system uses identity restriction maps, so
+Proposition~\ref{prop:b0kernel} describes the regime it actually
+operates in. This is honest and cheap, but it is the \emph{crudest}
+possible sheaf: on a connected $1$-skeleton, $\ker\Lap$ is the diagonal
+$\{x:x_u=x_v\ \forall u,v\}$, so the only coherent states are exact
+consensus and reconciliation is plain averaging. Everything interesting
+that a sheaf can express --- that two organs agree \emph{after} a
+change of basis, or agree only on a subspace --- lives in non-identity
+restriction maps. Promoting them (learned $\rest{v\triang e}$, for
+instance by closed-form Procrustes alignment) is the identified route
+from a diagnostic sheaf to a computational one. It is a direction, not a
+result.
+\end{hon}
+
+\section{The running example, computed}
+
+\begin{workedbox}\Worked
+Take $\Kc_4$ from Example~\ref{ex:K4} with identity restrictions and
+stalk dimension $d=2$, and give it the state
+\[
+  x_{\mathsf S}=\begin{pmatrix}1\\0\end{pmatrix},\quad
+  x_{\mathsf M}=\begin{pmatrix}1\\0\end{pmatrix},\quad
+  x_{\mathsf R}=\begin{pmatrix}0\\1\end{pmatrix},\quad
+  x_{\mathsf V}=\begin{pmatrix}0\\1\end{pmatrix}.
+\]
+Read it as: \textsc{Search} and \textsc{Memory} agree with each other,
+\textsc{Reasoning} and \textsc{Verify} agree with each other, and the two
+camps are orthogonal.
+
+\medskip
+\emph{Discord, edge by edge.} Using \eqref{eq:omega} with identity maps,
+$\discord_e=\norm{x_u-x_v}^2$:
+\[
+\begin{array}{lcl}
+  \{\mathsf S,\mathsf M\}:&\ \norm{(0,0)}^2 &= 0,\\
+  \{\mathsf M,\mathsf R\}:&\ \norm{(1,-1)}^2 &= 2,\\
+  \{\mathsf S,\mathsf R\}:&\ \norm{(1,-1)}^2 &= 2,\\
+  \{\mathsf R,\mathsf V\}:&\ \norm{(0,0)}^2 &= 0,
+\end{array}
+\qquad\Longrightarrow\qquad \discord(x)=4 .
+\]
+
+\emph{Localisation.} The two guilty edges tie at $\discord_e=2$. The
+$\arg\max$ is therefore \emph{not unique}, and a diagnostic that returns
+a single ``worst edge'' here is returning an artefact of tie-breaking
+order, not a measurement. The honest return is the tied set
+$\{\{\mathsf M,\mathsf R\},\{\mathsf S,\mathsf R\}\}$ --- which, read
+back, correctly says that $\mathsf R$ is the organ at odds with the rest.
+
+\emph{Kernel projection.} The $1$-skeleton is connected, so by
+Proposition~\ref{prop:b0kernel} the kernel is the diagonal and $x_0$ is
+the constant assignment at the mean
+$\bar x=\tfrac14\bigl((1,0)+(1,0)+(0,1)+(0,1)\bigr)
+ =\bigl(\tfrac12,\tfrac12\bigr)$.
+Hence
+\[
+  \norm{x_0}^2=4\cdot\Bigl(\tfrac14+\tfrac14\Bigr)=2,
+  \qquad
+  x_\perp = x-x_0
+  =\Bigl(\pm\tfrac12,\mp\tfrac12\Bigr)_{v},
+  \qquad
+  \norm{x_\perp}^2=4\cdot\tfrac12=2,
+\]
+and Pythagoras checks: $\norm{X}_F^2=2+2=4$. \hfill$\square$
+\end{workedbox}
+
+These numbers are picked up again in Part~II, where they are fed to the
+coherence score $\rhoscore$ and its factorisation, and in
+Part~IV, where the same complex is used to compute
+$b_0$, $b_1$ and $\Hone$.
+
+\begin{exercise}
+Recompute $\discord(x)$ for the same complex after filling in a
+restriction map that is \emph{not} the identity: let
+$\rest{\mathsf R\triang e}$ be rotation by $90^\circ$ for the two edges
+at $\mathsf R$ inside the triangle, and the identity elsewhere. Does
+$\discord$ go up or down, and does the resulting assignment of maps
+satisfy functoriality \eqref{eq:functoriality} on the filled triangle
+$\{\mathsf S,\mathsf M,\mathsf R\}$? The second half of that question is
+the important one.
+\end{exercise}

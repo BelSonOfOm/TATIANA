@@ -3,8 +3,12 @@
 *Opened 2026-08-08. Track B, and it is **paper work with near-zero compute** — it can run in parallel
 with P1–P4 (logbook §7).*
 
-**State: §1–§5 are done and §5 has been validated numerically (§8). §6 lists what is left; §6.2, the
-item that could have voided everything after §4, is RESOLVED.**
+**State (2026-08-11): §5 — the *shape* of a new concept — is done and validated. The *cost* side was
+wrong and is corrected here. §2 overcounted the model term by a factor of `k` (≈5×). §4 as boxed had
+a degenerate optimum at `d_w = 0`: the empty concept costs nothing and, by §5.10, still kills the
+hole, so the law read literally said *attach always*. §5.11 (Construction 7) replaces it with a
+**per-direction** law that is derived, measured against exact code lengths, and needs no `F_MOS`.
+§6 and §7 are rewritten. Second instrument: §9.**
 
 Tags: `[MEASURED]` · `[DERIVED]` · `[PROPOSED]` · `[OPEN]`.
 
@@ -52,24 +56,60 @@ everything. The sum.
 
 ## 2. THE MODEL TERM
 
-`[DERIVED]` Coning a cycle `γ` of length `k` with a new vertex `v` adds:
+### 2.1 ⚠️ CORRECTION — the first version overcounted by a factor of `k`
 
-| item | count | cost each |
+An earlier draft priced the cone as one stalk plus `k` independently described restriction maps:
+
+$$\Delta L(\text{model}) \;\overset{?}{=}\; b\,d_v\Big(1 + \textstyle\sum_{e \in \gamma} d_e\Big)$$
+
+**Wrong, and wrong for the same reason the triangles are free.** `[DERIVED]` The cone condition
+(§5.4) is `r_i^+ p_{i+1} = r_i^- p_i`. MOS's restriction maps are **orthogonal** (Householder;
+`Π_{O(d)}` in consolidation), hence invertible, so
+
+$$p_{i+1} \;=\; (r_i^+)^{-1} r_i^-\, p_i .$$
+
+**`k − 1` of the `k` legs are determined by the first and by maps the decoder already holds.** Only
+`p_1` is described. `[MEASURED, §9 [C]]` the propagated legs satisfy `δ⁰ = 0` to `0.00e+00` in all
+three sheaf configurations.
+
+The same computation says where `p_1` may live. Round the loop once, `p_1 = H p_1` with the
+**holonomy** `H = (r_k^+)^{-1}r_k^- ⋯ (r_1^+)^{-1}r_1^-`, so
+
+$$\varprojlim D_\gamma \;\cong\; \ker(H - I) \;\subseteq\; F(v_1).$$
+
+⭐ **This is the implementable form of Construction 6**: `k` matrix products and one eigenspace at
+`d = 384`, not a nullspace in `k·d` dimensions and no sheaf Laplacian anywhere. See §6.6.
+
+### 2.2 The corrected term
+
+`N = |V|` is the concept count.
+
+| item | count | cost |
 |---|---|---|
-| a vertex with a stalk | 1 | `d_v · b` bits, `b` = bits per real |
-| restriction maps `F(v) → F(e)` | `k` | `d_v · d_e · b` bits |
-| triangles | `k` | **0** — determined by the cone, not described separately |
+| the leg `p_1` — i.e. a basis of the concept inside `F(v_1)` | 1 | `b · d_w · d_v` |
+| the other `k − 1` legs | `k−1` | **0** — propagated, §2.1 |
+| the stalk's Gaussian `(μ_w, U_w, D_w)` | 1 | `b(d_w + d_w k_w + 1)` |
+| triangles | `k` | **0** — implied by the cone |
+| the address of `γ` | 1 | `≈ k·log₂ N ≈ 50` bits |
 
-$$\Delta L(\text{model}) \;=\; b\,d_v\Big(1 + \textstyle\sum_{e \in \gamma} d_e\Big)$$
+$$\boxed{\;\Delta L(\text{model}) \;=\; b\,d_w\big(d_v + k_w + 1\big) \;+\; b \;+\; k\log_2 N\;}$$
 
-**Two things to notice, and both matter.**
+**Three things to notice.**
 
-**(i) The cost is linear in `d_v`.** The dimension of the new stalk is the dominant free quantity, so
-whatever fixes `d_v` fixes most of the cost. That is §5.
+**(i) Still linear in `d_w`** — which is what lets §5.11's prefix rule work. But the coefficient is
+`b·d_v`, not `b·k·d_v`. At `d = 384, k = 5` that is a **4.98×** overcount removed, and it moves the
+recurrence threshold from ~2000 traversals to ~300 (§9).
 
-**(ii) Triangles are free.** They are *implied* by the cone, so the `k` new 2-cells cost nothing to
-describe. This is why coning is cheap relative to what it buys — and it is a real asymmetry, not a
-bookkeeping convenience.
+**(ii) A stalk is a Gaussian, not a vector space.** `rank_k_stalk.hpp` stores `N(μ, UUᵀ + D·I)`. The
+old `d_v · b` counted the mean only. `k_w`, the covariance rank, is a **second** size parameter that
+§5.11's selection rule does not address — carried forward as `[OPEN]` in §6.
+
+**(iii) The address of `γ` is not free.** The earlier draft omitted it. At ~50 bits against ~2000 for
+the leg it changes no decision, but a two-part code whose decoder cannot locate what it is being told
+is not a code.
+
+**(iv) Triangles are free.** Unchanged, and now with company: they are *implied* by the cone, so the
+`k` new 2-cells cost nothing to describe. This is why coning is cheap relative to what it buys.
 
 ---
 
@@ -90,9 +130,19 @@ where `c_old` is the cost of coding one traversal the long way and `c_new` the c
 seen once saves `(c_old − c_new)` and pays the full model cost. A cycle seen a thousand times saves a
 thousand times as much for the same price.
 
+> ⚠️ **`c_old − c_new` is written here as a constant, and that is the defect §5.11.1 diagnoses.** It
+> must depend on **how much of the loop the concept actually reproduces** — otherwise a concept that
+> carries nothing saves as much as one that carries everything. §5.11 supplies the dependence.
+
 ---
 
 ## 4. THE LAW
+
+> ⚠️ **SUPERSEDED BY §5.11.4.** This section is kept because the *shape* of the argument survives —
+> a threshold on recurrence, computed rather than chosen — and because the way it fails is
+> instructive. Two things are wrong with it: the numerator overcounts by `k` (§2.1), and the
+> denominator does not depend on the concept's size, which makes `d_w = 0` optimal (§5.11.1). Use
+> §5.11.4.
 
 Attach iff `ΔL_total < 0`:
 
@@ -235,13 +285,18 @@ So the two determinations are genuinely separate, and both are still derived:
 
 1. **Consistency fixes the shape.** `F(w)` must be a cone; the limit is the universal one, and the
    ceiling.
-2. **MDL fixes the size.** §4's cost is linear in `d_w`, so the optimum is a **subspace of the
-   limit** — keep the directions that pay for themselves and discard the rest.
+2. **MDL fixes the size.** §2.2's cost is linear in `d_w`, so the optimum is a **subspace of the
+   limit** — keep the directions that pay for themselves and discard the rest. Which ones, and how
+   many, is §5.11.4.
 
-`[PROPOSED]` the natural selection rule is by explanatory power: rank the limit's directions by how
-much data-term saving each yields (the dominant directions of the legs `p_i`), and keep the prefix
-satisfying §4's inequality. **This replaces §4's `d_v` with a derived quantity and makes the
-threshold computable.**
+`[DERIVED — was PROPOSED, resolved in §5.11.4]` The selection rule is by explanatory power: rank the
+limit's directions by the intraclass correlation `ρ²_j` of their readings across traversals, and keep
+the prefix satisfying §5.11.4's inequality. That the paying set is a **prefix** is now a consequence
+of `Δc` being increasing in `ρ²` against a constant per-direction cost, not an assumption.
+
+⚠️ **But note what §5.10 adds:** MDL is not merely *one* of the determinations of size — after §5.10
+it is the **only** one, because every cone kills the class equally well, including the zero cone. So
+this rule is not a refinement on top of a topological criterion; it is load-bearing on its own.
 
 ### 5.7 The cone in both senses
 
@@ -268,42 +323,197 @@ map *into* the blend (colimit). A cellular sheaf's restriction maps point **vert
 is introduced — the concept is built from data the memory already had. **What is Goguen's:** that a
 new concept should be a universal construction at all.
 
+### 5.10 ⚠️ Killing the class does not select a size — RETENTION of `H⁰` does
+
+`[MEASURED 2026-08-11, python/validate_growth_law.py]` §6.2 asked whether Construction 6 kills the
+harmonic class and got YES. **The test was never at risk of returning anything else.**
+
+`[DERIVED]` In the coned complex, with `F(f_i) = F(v_i)` and `F(t_i) = F(e_i)` (§8.1):
+
+- `δ¹` is **surjective** — take `y_{e_i} = z_i`, `y_{f_i} = 0` — so `H² = 0`;
+- a global section is `(x_w, (p_i x_w))`, determined by *and containing* `x_w`, so `dim H⁰ = d_w`;
+- the Euler characteristic is `dim C⁰ − dim C¹ + dim C² = d_w + kn_v − (kn_e + kn_v) + kn_e = d_w`.
+
+Hence `dim H¹ = dim H⁰ + dim H² − d_w = 0` **for every cone, at every size, including `F(w) = 0`.**
+
+| `F(w)` | `dim F(w)` | `\|δ¹δ⁰\|` | harmonic after | `dim H⁰` after |
+|---|---|---|---|---|
+| `lim D_γ` — Construction 6 | 3 | `3.3e-16` | **0** | 3 |
+| a 1-dim subspace of `lim` | 1 | `2.2e-16` | **0** | 1 |
+| **`0` — the empty concept** | 0 | `0.0e+00` | **0** | 0 |
+
+**Two consequences, and the second is the one that matters.**
+
+**(i) §8.4's claim is too strong.** *"The only choice for which the coned object is a sheaf at all"*
+is true of **cones**, not of **the limit**: every subspace of `lim` is also a cone and also a sheaf,
+and the table above builds one. Corrected: **cone is forced; the limit is the terminal cone, hence
+§5.6's ceiling.** The `δ¹δ⁰ = 0` test separates cones from non-cones (control: `3.805`) and nothing
+finer. §5.6 and §8.4 could not both be read literally; §5.6 was right.
+
+**(ii) No topological or cohomological quantity constrains `d_w`.** The hole dies either way. What
+`F(w)` controls is **how much of the loop's consistent content survives as a global section** —
+`dim H⁰` after equals `dim F(w)` exactly, in every row. So the figure of merit is **retention of
+`H⁰(γ; F|_γ)`, not annihilation of `H¹`**, and the entire determination of size falls to MDL. If §4
+is wrong, nothing else catches it. It was; §5.11.
+
+### 5.10a The concept is exactly as large as the hole
+
+`[DERIVED, then MEASURED]` §5.9 gives `dim H¹(γ) = dim H⁰(γ)` on a cycle with equal stalk dimensions,
+and §5.5 gives `F(w) ≅ H⁰(γ; F|_γ)`. Therefore
+
+$$\boxed{\;d_w \;=\; \dim \mathcal{H}(\gamma)\;}$$
+
+— **the dimension of the harmonic space of the very cycle being filled.** §6.2's own table already
+showed it (`3`/`3`, `1`/`1`) without remarking on it; §9 `[B]` asserts it in three configurations
+including the degenerate one (`0`/`0`).
+
+So `d_w` is **known before the decision is taken**, from the same computation that produced the growth
+address. With §2.2, the model term is fully determined the moment the address is read.
+
+### 5.11 ⭐ CONSTRUCTION 7 — THE DATA TERM, AND THE REPAIR OF §4
+
+#### 5.11.1 ⚠️ Why §4 as boxed is not yet a law
+
+§4 minimises `ΔL_total = b·d_w(1 + Σd_e) − n(c_old − c_new)`, in which `c_old − c_new` carries **no
+`d_w` dependence at all**. Once §5.6 made the size a free variable, that is fatal:
+
+$$\Delta L_{\text{total}}(d_w = 0) \;=\; 0 \;-\; n\,(c_{\text{old}} - c_{\text{new}}) \;<\; 0 .$$
+
+**The empty concept costs nothing and, by §5.10, still kills the class.** Its threshold is `n > 0`.
+Read literally, §4 says *always attach, with a concept that carries nothing* — which is §0's
+over-generation returning through the **size** axis after being shut out of the **frequency** axis.
+
+§4 was consistent while `d_v := dim lim` was forced. **§5.6 opened the hole; this section closes it.**
+The missing dependence is not a patch — it is what falls out of doing the quantisation honestly.
+
+#### 5.11.2 The setup
+
+Fix a direction `u ∈ lim D_γ`, `‖u‖ = 1`, with components `u_i ∈ F(v_i)`. A **traversal** is one
+occasion on which the cycle's vertices carried values `x_i ∈ F(v_i)`. Its `k` **readings** of `u` are
+
+$$a_i \;:=\; \langle x_i, u_i\rangle / \|u_i\|^2 .$$
+
+Because `u` is a **section**, the sheaf's prediction is exactly `a_1 = a_2 = ⋯ = a_k`, and the
+concept's value is the common number. So *"is this direction worth naming?"* becomes *"do its `k`
+readings agree?"* — a one-line statistic, and the reason the data term is computable at all.
+
+#### 5.11.3 The two codes
+
+Both codes send `k` reals per traversal on the same grid `δ`, so **`δ` cancels exactly** and the
+residual half of the saving contains no chosen constant.
+
+- **Without the concept:** each `a_i` under its own vertex marginal, variance `σ²_tot`.
+- **With the concept:** send `s` once, then `k` residuals of variance `σ²_w`.
+
+`δ_s := σ_w` is `[DERIVED, not chosen]`: the reconstruction error is `σ_w` however finely `s` is
+sent, so bits spent below that floor buy nothing.
+
+Write `ρ² := σ²_b/(σ²_b + σ²_w)`, the **intraclass correlation** of the readings. Then
+
+$$\boxed{\;\Delta c(u) \;=\; \frac{k}{2}\log_2\frac{1}{1-\rho^2} \;-\; b_s, \qquad
+b_s \;=\; \tfrac12\log_2\!\Big(1 + \frac{2\pi e\,\rho^2}{1-\rho^2}\Big)\;}$$
+
+⚠️ **The `+1` in `b_s` is load-bearing, and its absence was a real error in this section's own
+drafting.** The high-rate form `½log₂(2πe σ²_b/σ²_w)` **goes negative** when `σ_b < σ_w`, and no code
+length may be negative; without the `+1` the saving diverges to `+∞` exactly where the direction
+explains *nothing*. With it, `Δc → 0⁻`.
+
+`[MEASURED, §9 [D]]` against the **exact** entropy of the quantised Gaussian: the closed form is
+within **0.042 bits/traversal** over `ρ² ∈ [0, 0.995]`, and it **over**-prices `s`. So the threshold
+it yields is **conservative — the law will under-attach, never over-attach.**
+
+#### 5.11.4 The law
+
+The model term is paid **once**; `Δc` is earned on **each** of the `n` traversals. So direction `u_j`
+pays for itself iff
+
+$$\boxed{\;n \;>\; \frac{b\,(d_v + k_w + 1)}{\Delta c(u_j)}\;,\qquad\text{and never if } \Delta c(u_j)\le 0.}$$
+
+**Four things this buys; three of them were open items.**
+
+1. **The `d_w`-dependence is back, and it is per direction.** Each direction of `lim` pays its own
+   model cost and earns its own saving, so `d_w = |{\,j : n > n_j\,}|` — **the size of the concept is
+   decided by how often the loop recurred.** That is §6.1, closed.
+2. **The prefix rule is now a theorem, not a proposal.** `Δc` is increasing in `ρ²` and the per-direction
+   cost is constant, so sorting by `ρ²_j` descending makes `n_j` increasing and `{j : n > n_j}` a
+   **prefix**. §5.6's `[PROPOSED]` becomes `[DERIVED]`.
+3. ⭐ **A criterion that is not frequency at all.** `Δc ≤ 0` below a reliability floor, **at every `n`**.
+   No amount of recurrence buys a direction whose readings disagree. `[MEASURED, §9 [E]]`:
+
+   | `k` | 3 | 4 | 5 | 8 | 12 | 20 |
+   |---|---|---|---|---|---|---|
+   | floor on true `ρ²` | 0.576 | 0.370 | 0.239 | 0.055 | 0.000 | 0.000 |
+
+   Long cycles amortise the single transmission of `s` over more vertices and can be worth naming on
+   weaker agreement; short ones cannot. **Neither the old law nor §4 could express this.**
+4. **It does not need `F_MOS`.** See §6.3.
+
+#### 5.11.5 ⚠️ The estimator is biased, by exactly `(1−ρ²)/k`
+
+`[DERIVED, then MEASURED]` The coder estimates `s` by the mean reading `ā`, so `Var(ā) = σ²_b + σ²_w/k`
+and the plug-in ICC is
+
+$$\hat\rho^2 \;=\; \rho^2 + \frac{1-\rho^2}{k}\qquad\text{exactly.}$$
+
+Measured to `< 3e-3` at `ρ² ∈ {0.9, 0.5, 0.2, 0}` (§9 `[F]`). **Pure noise reads as `ρ̂² = 1/k`** — at
+`k = 5` that is `0.20`, comfortably inside the range an uncorrected threshold would find encouraging.
+Unbias before thresholding:
+
+$$\rho^2 \;=\; \frac{\hat\rho^2 - 1/k}{1 - 1/k}.$$
+
+Control `[K3]`: shuffling each vertex's readings independently drives `ρ̂²` to `0.199` and the saving
+to `−0.437` bits/traversal, against `+5.289` intact. **The saving measures the recurrence, not the
+coder.**
+
 ---
 
 ## 6. WHAT IS ACTUALLY OPEN
 
-1. **`[RESOLVED — negatively, §5.6]` Is the limit the MDL minimiser?** **No.** It is the *ceiling*:
-   the largest non-redundant cone, since every cone factors uniquely through it. The MDL optimum is a
-   **subspace** of the limit. Consistency fixes the shape, MDL fixes the size; two separate
-   determinations, both derived. **What remains open is the selection rule for that subspace**
-   (§5.6's proposal: rank the limit's directions by data-term saving and keep the paying prefix).
-2. **`[RESOLVED — MEASURED 2026-08-08]` Does attaching Construction 6 kill the harmonic class?**
-   **YES, including in the twisted case.** `python/validate_construction6.py`:
+1. **`[RESOLVED — §5.11.4]` The selection rule for the subspace.** The limit is the *ceiling*, not
+   the minimiser (§5.6). The rule is: rank the limit's directions by the intraclass correlation
+   `ρ²_j` of their readings, keep every `j` with `n > b(d_v + k_w + 1)/Δc(ρ²_j)`. The paying set is
+   provably a **prefix**, and `d_w` is its length — **the size of a concept is decided by how often
+   its loop recurred.**
+2. **`[RESOLVED — but the test was vacuous; §5.10]` Does attaching Construction 6 kill the harmonic
+   class?** YES — **and so does every other cone, including `F(w) = 0`.** `H² = 0` because `δ¹` is
+   surjective, `dim H⁰ = d_w`, and the Euler characteristic is `d_w`; so `dim H¹ = 0` identically.
+   `validate_construction6.py` confirmed the arithmetic but could not have failed. **The figure of
+   merit is retention of `H⁰`, not annihilation of `H¹`.** §8.4's "only choice" is corrected there.
+3. **`[RESOLVED — §5.11; `F_MOS` ROUTED AROUND]` `c_old` and `c_new`.** The old plan was surprisal
+   under the model's transition distribution, which hooks `F_MOS` — still undefined, and
+   `PRECILLA/draft.md` §10.1 still calls it *"the single largest gap"*. **Construction 7 prices
+   sections instead of transitions**, using the stalks' own Gaussians (`rank_k_stalk.hpp`), which the
+   engine already stores. It needs nothing that is not written down.
 
-   | case | `dim F(w)` | harmonic before | harmonic after | mass of `η` after |
-   |---|---|---|---|---|
-   | flat sheaf, trivial holonomy | 3 | 3 | **0** | `0.000e+00` |
-   | **partial holonomy** (rotation) | 1 | 1 | **0** | `0.000e+00` |
-   | degenerate, `H⁰ = 0` | 0 | **0** | — | unreachable, §5.9 |
-
-   Controls, both required and both passed: a **path** (tree, `b₁ = 0`) reports harmonic dim `0`, so
-   the instrument is not manufacturing mass; and an **arbitrary non-cone** `F(w)` gives
-   `|δ¹δ⁰|_max = 1.756`, so the `δ¹δ⁰ = 0` check below is **not vacuous.**
-
-   ⭐ **The stronger finding.** With `F(w) = lim`, `|δ¹δ⁰|_max = 4.4e-16`; with an arbitrary `F(w)`
-   it is `1.756`. Since `(δ¹δ⁰x)_{t_i} = (r_i^+p_{i+1} − r_i^-p_i)x_w`, **the cochain complex is a
-   complex if and only if `F(w)` is a cone over `D_γ`.** Construction 6 is therefore not a good
-   choice among several — **it is the only choice for which the coned object is a sheaf at all.**
-3. **`[OPEN]` `c_old` and `c_new` need actual code lengths.** The natural choice is surprisal under
-   the model's own transition distribution, which hooks `F_MOS` — but `F_MOS` is still not written
-   down as an equation (the largest gap flagged in `PRECILLA/draft.md` §10.1).
-4. **`[OPEN]` `b`, bits per real.** Not free, and not arbitrary: MDL for continuous parameters
-   normally uses `½ log n` bits per parameter (the standard two-part-code result). **If that is
-   right, `b` is derived and not chosen** — check it before assuming.
-5. **`[OPEN]` Sequencing.** Filling one hole changes the complex and hence the others. Is greedy
-   descent on `ΔL` optimal, or does it need lookahead? DreamCoder's answer is refactoring-aware
-   search over *semantically equivalent* rewrites, which is more than greedy.
-6. **`[OPEN]` The label.** `v` needs a name, and a name is not derivable from a diagram. **The one
+   ⚠️ **State the narrowing rather than hide it.** §1 defined the data as the assemblies **and** the
+   succession relation. Construction 7 prices only the first — *what was there*, not *which
+   succession fired*. It is therefore a **strict under-estimate** of the true saving, so the
+   threshold is conservative and the law under-attaches. `F_MOS` would add the second half and can be
+   added later as an extra positive term without changing anything derived here. **It is no longer in
+   the way of the growth law.**
+4. **`[OPEN — and it is a trap, not a quick win]` `b`, bits per real.** `½ log n` is the standard
+   two-part-code answer, and it has two consequences the earlier note missed:
+   - it makes the threshold **self-referential** (`n` on both sides). Harmless — the left side grows
+     linearly and the right logarithmically, so the crossing is unique and two fixed-point iterations
+     find it. §9 solves it this way.
+   - ⚠️ **it is asymptotic, and it degenerates precisely where the growth law lives.** At `n = 1` it
+     gives `b = 0`: the model is free, so a single traversal always pays. That is §0's
+     over-generation again. **Do not adopt `½ log n` as "derived, therefore safe"** — use NML, a
+     Bayesian marginal likelihood, or the engine's actual float width, and say which.
+5. **`[OPEN]` `k_w`, the covariance rank of the new stalk.** §2.2 exposed a **second** size parameter.
+   §5.11 selects `d_w` and says nothing about `k_w`. `rank_k_stalk.hpp`'s own argument (*"a concept
+   grown from `n` observations has a scatter matrix of rank ≤ `n`"*) probably settles it, but it has
+   not been checked against the cost side.
+6. **`[OPEN — but now cheap]` Implementation.** `coning.cpp` cones the **complex** and carries no
+   sheaf data: `ConeResult` has a `Complex2` and an apex name, no `F(w)` and no legs. And
+   `hodge_split` takes a **scalar** cochain (one `double` per edge), so the engine computes the graph
+   Hodge split, not the sheaf one. **§2.1 makes this a small job rather than a large one**: `F(w)` is
+   `ker(H − I)` for the holonomy `H`, i.e. `k` matrix products at `d = 384` and one eigenspace. No
+   sheaf Laplacian is required.
+7. **`[OPEN]` Sequencing.** Filling one hole changes the complex and hence the others. Is greedy
+   descent on `ΔL` optimal, or does it need lookahead? DreamCoder's answer is refactoring-aware search
+   over *semantically equivalent* rewrites, which is more than greedy.
+8. **`[OPEN]` The label.** `w` needs a name, and a name is not derivable from a diagram. **The one
    place an LLM is genuinely required and real novelty enters rather than being computed.** Name it
    as an oracle in the formalism rather than pretending it is derived.
 
@@ -311,19 +521,24 @@ new concept should be a universal construction at all.
 
 ## 7. ORDER OF WORK
 
-1. ~~**Check §6.2 first.**~~ ✅ **DONE 2026-08-08** — see §8. Construction 6 survives, and the check
-   returned more than was asked of it.
-2. **§6.4 next** — settle `b` from the standard two-part code (`½ log n` bits per continuous
-   parameter). Cheap, and it may turn a constant into a derived quantity.
-3. **Then §6.1**, the subspace-selection rule. Consistency already fixed the shape; this fixes the
-   size.
-4. **§6.3 is now BLOCKING rather than merely open.** `c_old` and `c_new` need real code lengths, the
-   natural choice is surprisal under the model's own transition distribution, and that requires
-   `F_MOS` **written down as an equation** — owed since `PRECILLA/draft.md` §10.1 named it the single
-   largest gap. It has moved from "outstanding" to "in the way of the growth law."
-5. **§6.5, §6.6** last.
+1. ~~Check §6.2.~~ ✅ **DONE 2026-08-08** (§8) — and ⚠️ **re-read 2026-08-11**: it passed, but §5.10
+   shows it could not have failed. The instrument was sound; the claim it tested was not the claim
+   that needed testing.
+2. ~~§6.1, the subspace rule.~~ ✅ **DONE 2026-08-11** — §5.11, measured in §9.
+   ⚠️ **The old §7 had this at step 3 and `c_old`/`c_new` at step 4. That ordering was impossible:**
+   §6.1's own proposal was *"rank by data-term saving"*, and the data term is what §6.3 was missing.
+   §6.3 was always upstream of §6.1. Both are now done, in the right order.
+3. **§6.5 next — `k_w`.** Cheapest remaining item, and it is the last free size parameter. Until it is
+   settled, §2.2's model term has an unpriced degree of freedom.
+4. **Then §6.4, `b`** — with the trap in §6.4 in mind. This is a *decision to justify*, not a formula
+   to look up.
+5. **Then §6.6, the C++.** In order: carry sheaf data through `cone_off_cycle`; compute `F(w)` by the
+   holonomy route (§2.1); accumulate `ρ̂²` per direction per traversal; print `n_j`. The first two are
+   pure linear algebra against `Eigen` and need no new theory.
+6. **§6.7, §6.8** last.
 
-**Nothing here needs the simulator, the corpus, or a single LLM call.**
+**Nothing above needs the simulator, the corpus, or a single LLM call** — except §6.8, which is an
+LLM by construction.
 
 ---
 
@@ -372,9 +587,14 @@ is the obvious way this measurement could have flattered itself.
 **[DERIVED, then MEASURED]** `(δ¹δ⁰x)_{t_i} = (r_i^+ p_{i+1} − r_i^- p_i)x_w`, so `δ¹δ⁰ = 0` **iff**
 the cone condition holds. Measured: `4.4e-16` with the limit, `1.756` with an arbitrary `F(w)`.
 
-> **The cochain complex is a complex if and only if `F(w)` is a cone over `D_γ`.** Construction 6 is
-> not the best choice among several — it is the **only** choice for which the coned object is a sheaf
-> at all. The universal property was never a preference; it is the existence condition.
+> **The cochain complex is a complex if and only if `F(w)` is a cone over `D_γ`.** Being a cone is
+> not a preference; it is the existence condition for the coned object to be a sheaf at all.
+
+⚠️ **CORRECTED 2026-08-11 — this section originally read "Construction 6 is the *only* choice", and
+that is too strong.** The test discriminates **cones from non-cones**, not the limit from its
+subspaces: every subspace of `lim` is also a cone, also gives `δ¹δ⁰ = 0`, and also kills the class
+(§5.10). What is forced is the *cone condition*; the limit is the **terminal** cone, i.e. §5.6's
+ceiling. As written, §8.4 contradicted §5.6 — §5.6 was right.
 
 ### 8.5 Two errors the run caught in this document
 
@@ -399,6 +619,67 @@ makes `dim H¹ = dim H⁰` on a cycle.
 Python **3.11** specifically (project interpreter; `python` alone hits the Windows Store stub).
 numpy only — no corpus, no model, no network. Runs in under a second, and **every assertion in it is
 a claim from this document**, so a failure localises to a section number.
+
+---
+
+## 9. THE SECOND INSTRUMENT — `python/validate_growth_law.py`
+
+`[MEASURED 2026-08-11]` §8 tested whether Construction 6 is a **sheaf**. This one tests the claims the
+**cost** side rests on. Same discipline: every assertion is a numbered claim above, and it asserts
+rather than prints, so a failure localises.
+
+```bash
+"$LOCALAPPDATA/Programs/Python/Python311/python.exe" MOS/python/validate_growth_law.py
+```
+
+### 9.1 What it asserts
+
+| tag | claim | section | result |
+|---|---|---|---|
+| **A** | every cone kills `H¹`, including `F(w) = 0` | §5.10 | 3 sheaf configurations × 3 apex sizes, all `0` |
+| **B** | `d_w = dim 𝓗(γ)` | §5.10a | `3`/`3`, `1`/`1`, `0`/`0` |
+| **C** | `lim ≅ ker(H − I)`; the legs propagate | §2.1 | dims match; `δ⁰ = 0` to `0.00e+00` |
+| **D** | the closed form for `Δc` **is** the code length | §5.11.3 | within `0.042` bits over `ρ² ∈ [0, 0.995]` |
+| **E** | a reliability floor exists at every `n` | §5.11.4 | `ρ² > 0.576` at `k=3` down to `0` at `k≥12` |
+| **F** | `ρ̂² = ρ² + (1−ρ²)/k`, exactly | §5.11.5 | error `< 3e-3` at four values |
+
+### 9.2 The controls — three, all mandatory
+
+| control | asserts | why it exists |
+|---|---|---|
+| **K1** path (tree, `b₁ = 0`) | harmonic dim `= 0` | if a tree reports harmonic mass the instrument manufactures it and no other number counts |
+| **K2** arbitrary non-cone `F(w)` | `\|δ¹δ⁰\| > 0` | measured `3.805`, so **A** is not vacuous |
+| **K3** readings shuffled per vertex | saving goes negative | `+5.289 → −0.437` bits/traversal. ⭐ Without it, **D** would be measuring the coder rather than the recurrence |
+
+### 9.3 ⚠️ What it caught in this document
+
+**① `b_s` went negative.** §5.11.3's first draft used the high-rate form `½log₂(2πe σ²_b/σ²_w)`, which
+is negative whenever `σ_b < σ_w` — so the "saving" *diverged to `+∞`* exactly where the direction
+explains nothing, and the reliability floor of `[E]` did not exist for `k ≥ 8`. Fixed by the `+1`, and
+now checked against the **exact** quantised-Gaussian entropy rather than any closed form.
+
+**② The estimator's bias.** `[F]` was not on the list of things to test; it showed up as a systematic
+gap between the target `ρ²` and the measured one, in the same direction at every value. It is exactly
+`(1−ρ²)/k`, so **pure noise reads as `ρ̂² = 1/k = 0.20` at `k = 5`** — and an uncorrected threshold
+would have treated that as signal.
+
+### 9.4 What the law then prints
+
+`d_v = 384`, `k = 5`, one direction, `k_w = 1`, `b = ½log₂ n` solved self-consistently:
+
+| true `ρ²` | `Δc` (bits/traversal) | `n` with §2 **as written** | `n` with §2 **corrected** |
+|---|---|---|---|
+| 0.99 | 11.89 | 775 | **110** |
+| 0.95 | 7.27 | 1378 | **204** |
+| 0.90 | 5.30 | 1987 | **300** |
+| 0.70 | 2.26 | 5265 | **830** |
+| 0.50 | 0.94 | 14122 | **2299** |
+| 0.30 | 0.17 | 95569 | **16235** |
+
+> **A recurrence threshold in the low hundreds for a reliable direction on a 5-cycle.** ⚠️ Read the
+> `n` column as *conditional on §6.4*: `b = ½log₂ n` is the item §6.4 warns against adopting
+> uncritically, and it is what sets the absolute scale here. The **ratio** between the two columns —
+> `≈ 6.5×` — is not conditional on it, and is the cost of §2's overcount.
 
 ---
 

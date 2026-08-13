@@ -1,0 +1,51 @@
+\chapter{Discrepancy Register}\label{app:discrepancy}
+
+Places where the sources disagree with each other, or where the
+implementation determines a mathematical fact that the prose states
+differently. Each is a fact about \textsc{tatiana}, not a typo.
+
+\paragraph{D1 --- Concepts ``inside the stalk''.}
+\texttt{TATIANA\_LOGBOOK.md} \S0.1 describes the fine level as
+``concepts inside each organ's stalk''. The stalk is a vector space; the
+fine complex is a simplicial complex. Conflating them makes the
+coarse-graining $\pi_v$ look like an identity when it is a lossy
+precision-weighted fusion. Resolved in favour of the separation
+(Remark~\ref{rem:finevsstalk}).
+
+\paragraph{D2 --- Restriction maps point the wrong way in the poster.}
+\texttt{POSTER/sections/05\_sheaf.tex} defines
+$\rho_{\tau\to\sigma}:\stalk{\tau}\to\stalk{\sigma}$ and draws the
+arrows downward, then asserts $s\in\Hzero$. These are incompatible
+(Proposition~\ref{prop:direction}); the downward convention defines a
+cosheaf. \texttt{TATIANA\_Mathematical\_Description.tex} has it correct.
+\textbf{Action: fix the poster before showing it.}
+
+\paragraph{D3 --- Two different systems named MOS.}
+The \texttt{README} on \texttt{main} describes a retrieval pipeline
+(EvidenceEngine, KnowledgeCurator, Canonicalizer). The poster and the
+mathematical description define a sheaf-theoretic state space. These are
+different objects sharing a name, and the README is what a reader sees
+first.
+
+\paragraph{D4 --- \texttt{main} is stale.}
+At the time of writing, \texttt{main} is four commits and roughly six
+weeks behind \texttt{fix-11-13-and-curvature-decisions}, which carries
+$+33{,}450$ lines including all of Part~VI's material and the
+\textsc{precilla} package. Any reader who clones the default branch gets
+a snapshot that this book does not describe.
+
+\paragraph{D5 --- \texttt{hodge.py} is scalar, not sheaf-valued.}
+The Hodge decomposition code operates on a scalar complex --- the
+trivial sheaf $\stalk{\sigma}=\R$ --- with
+$(\cob^0 f)_{uv}=f(v)-f(u)$. It is therefore a computation about the
+\emph{shape}, not about the sheaf. This is correct for what it measures
+and should not be cited as evidence about sheaf-valued cohomology.
+
+\paragraph{D6 --- The Hebbian-weight gap appears to be closed.}
+An earlier scrutiny session recorded that plasticity weights were
+computed but never read by the coherence measurement, which would make
+$\rhoscore$ a different functional from the one documented. The current
+\texttt{coherence.py} computes a precision-weighted degree
+$d_\pi(v)=\sum_{e\ni v}\pi_e$ and a weighted Anderson--Morley bound, so
+the gap looks repaired. \textbf{This needs confirming against the
+precision source} before the finding is retired.

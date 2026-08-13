@@ -1,0 +1,74 @@
+% =====================================================================
+%  macros.tex -- notation.  Every symbol used in the book is declared
+%  here and tabulated in Appendix A.
+% =====================================================================
+
+% --- the state space -------------------------------------------------
+\newcommand{\M}{\mathcal{M}}          % cognitive state space (C, F, s)
+\newcommand{\CC}{\mathcal{C}}         % base complex (stratified)
+\newcommand{\Kc}{K}                   % coarse complex (organs)
+\newcommand{\Cfine}{\CC}              % fine complex, subscripted by organ
+\newcommand{\Fs}{\mathcal{F}}         % the sheaf
+\newcommand{\stalk}[1]{\Fs(#1)}       % stalk over a cell
+\newcommand{\rest}[1]{\Fs_{#1}}       % restriction map
+\newcommand{\triang}{\trianglelefteq} % face relation
+
+% --- ambient algebra -------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rd}{\mathbb{R}^{d}}
+\newcommand{\Cx}{\mathbb{C}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Vect}{\mathbf{Vect}}
+\newcommand{\Id}{\mathrm{Id}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\coker}{\operatorname{coker}}
+\newcommand{\spn}{\operatorname{span}}
+% \deg is already defined by LaTeX; do not redeclare.
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\inner}[2]{\left\langle #1,#2\right\rangle}
+\newcommand{\bigoplusv}{\bigoplus}
+
+% --- cochains and cohomology ----------------------------------------
+\newcommand{\Czero}{C^{0}(\CC;\Fs)}
+\newcommand{\Cone}{C^{1}(\CC;\Fs)}
+\newcommand{\Ctwo}{C^{2}(\CC;\Fs)}
+\newcommand{\Ck}[1]{C^{#1}(\CC;\Fs)}
+\newcommand{\Hzero}{H^{0}(\CC;\Fs)}
+\newcommand{\Hone}{H^{1}(\CC;\Fs)}
+\newcommand{\Hk}[1]{H^{#1}(\CC;\Fs)}
+\newcommand{\cob}{\delta}             % coboundary
+\newcommand{\Lap}{L}                  % sheaf Laplacian
+\newcommand{\Lapk}[1]{L_{#1}}
+
+% --- coherence -------------------------------------------------------
+\newcommand{\discord}{\omega}
+\newcommand{\rhoscore}{\rho}
+\newcommand{\rhotil}{\tilde{\rho}}
+\newcommand{\dissent}{\alpha}
+\newcommand{\AM}{B}                   % Anderson--Morley normaliser
+\newcommand{\precn}{\pi}              % precision (\prec is a LaTeX relation)
+\newcommand{\unk}{\bot}                % "measurement not made" (\undef is taken)
+
+% --- geometry --------------------------------------------------------
+\newcommand{\BW}{d_{\mathrm{BW}}}     % Bures--Wasserstein distance
+\newcommand{\SPD}[1]{\mathrm{SPD}(#1)}
+\newcommand{\Sym}[1]{\mathrm{Sym}(#1)}
+
+% --- dynamics --------------------------------------------------------
+\newcommand{\Dop}{\mathfrak{D}}       % operator algebra
+\newcommand{\opbind}{\mathsf{bind}}
+\newcommand{\opcollapse}{\mathsf{collapse}}
+\newcommand{\opsplit}{\mathsf{split}}
+\newcommand{\opmerge}{\mathsf{merge}}
+\newcommand{\opcone}{\mathsf{cone}}
+
+% --- quantum (Part X) ------------------------------------------------
+\newcommand{\ket}[1]{\lvert #1 \rangle}
+\newcommand{\bra}[1]{\langle #1 \rvert}
+\newcommand{\braket}[2]{\langle #1 \vert #2 \rangle}
+\newcommand{\Dirac}{D_{\Fs}}          % sheaf Dirac operator
+\newcommand{\dsheaf}{d_{\Fs}}

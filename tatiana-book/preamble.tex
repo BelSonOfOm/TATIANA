@@ -1,0 +1,102 @@
+% =====================================================================
+%  preamble.tex -- packages, theorem environments, epistemic status tags
+% =====================================================================
+
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,fit,backgrounds}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[colorlinks=true,linkcolor=linkblue,citecolor=linkblue,
+            urlcolor=linkblue]{hyperref}
+
+% ---------------------------------------------------------------------
+%  Colours
+% ---------------------------------------------------------------------
+\definecolor{linkblue}{RGB}{28,78,140}
+\definecolor{intuitioncol}{RGB}{38,92,158}
+\definecolor{honestycol}{RGB}{168,52,40}
+\definecolor{examplecol}{RGB}{34,110,72}
+\definecolor{warncol}{RGB}{176,96,16}
+\definecolor{greybg}{RGB}{246,246,244}
+
+% ---------------------------------------------------------------------
+%  Theorem environments -- numbered within chapters
+% ---------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{construction}[definition]{Construction}
+\newtheorem{example}[definition]{Example}
+\newtheorem{exercise}[definition]{Exercise}
+\newtheorem{notation}[definition]{Notation}
+
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{openproblem}[definition]{Open Problem}
+
+% ---------------------------------------------------------------------
+%  Epistemic status tags
+%
+%  Every substantive claim in this book carries one of these.  The point
+%  is that the source documents disagree with each other, and a smooth
+%  narrative would hide that.  Read the tag before you trust the claim.
+% ---------------------------------------------------------------------
+\newcommand{\statusbadge}[2]{%
+  \textcolor{#1}{\small\textsf{\textbf{[#2]}}}}
+
+\newcommand{\Proved}{\statusbadge{examplecol}{PROVED}}
+\newcommand{\ProvedCond}{\statusbadge{examplecol}{PROVED UNDER STATED CONDITIONS}}
+\newcommand{\Implemented}{\statusbadge{warncol}{IMPLEMENTED, UNPROVED}}
+\newcommand{\Proposed}{\statusbadge{linkblue}{PROPOSED}}
+\newcommand{\Refuted}{\statusbadge{honestycol}{REFUTED}}
+\newcommand{\Contested}{\statusbadge{honestycol}{CONTESTED BY AUDIT}}
+
+% ---------------------------------------------------------------------
+%  Layered-exposition boxes
+% ---------------------------------------------------------------------
+\newmdenv[topline=false,bottomline=false,rightline=false,linewidth=2pt,
+  linecolor=intuitioncol,innerleftmargin=10pt,innertopmargin=3pt,
+  innerbottommargin=3pt,skipabove=8pt,skipbelow=8pt]{intu}
+\newmdenv[topline=false,bottomline=false,rightline=false,linewidth=2pt,
+  linecolor=honestycol,innerleftmargin=10pt,innertopmargin=3pt,
+  innerbottommargin=3pt,skipabove=8pt,skipbelow=8pt]{hon}
+\newmdenv[topline=false,bottomline=false,rightline=false,linewidth=2pt,
+  linecolor=examplecol,innerleftmargin=10pt,innertopmargin=3pt,
+  innerbottommargin=3pt,skipabove=8pt,skipbelow=8pt]{workedbox}
+\newmdenv[linewidth=0.6pt,linecolor=black!35,backgroundcolor=greybg,
+  innerleftmargin=9pt,innerrightmargin=9pt,innertopmargin=7pt,
+  innerbottommargin=7pt,skipabove=9pt,skipbelow=9pt,roundcorner=2pt]{sourcebox}
+
+\newcommand{\Intu}{\noindent\textbf{\color{intuitioncol}Intuition.}\ }
+\newcommand{\Hon}{\noindent\textbf{\color{honestycol}Claims and non-claims.}\ }
+\newcommand{\Worked}{\noindent\textbf{\color{examplecol}Worked example.}\ }
+
+% Provenance note: which file in DOCS/ a passage descends from.
+\newcommand{\source}[1]{%
+  \begin{sourcebox}\small\textsf{\textbf{Source.}} #1\end{sourcebox}}
+
+% ---------------------------------------------------------------------
+%  Headers
+% ---------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\small\thepage}
+\fancyhead[RE]{\small\itshape\nouppercase{\leftmark}}
+\fancyhead[LO]{\small\itshape\nouppercase{\rightmark}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist{itemsep=2pt,parsep=0pt,topsep=4pt}
+\allowdisplaybreaks

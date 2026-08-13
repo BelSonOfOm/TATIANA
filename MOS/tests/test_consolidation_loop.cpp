@@ -81,6 +81,50 @@ void build_search_dag(flatbuffers::FlatBufferBuilder& fbb,
     fbb.Finish(dag);
 }
 
+/// SEARCH -> VERIFY, where the VERIFY is guaranteed to come back UNVERIFIABLE.
+///
+/// The command is rejected by VerifyOp's security whitelist (unapproved
+/// executable), and that path publishes Verdict::Unverifiable deliberately:
+/// "the oracle was never allowed to run, so nothing was learned about whether
+/// the mathematics holds". That is exactly the state P2's rule is about, and it
+/// is reachable without a real interpreter.
+void build_search_then_blocked_verify_dag(flatbuffers::FlatBufferBuilder& fbb,
+                                          const std::vector<float>& geom) {
+    auto search = fbs::CreateOperator(fbb, fbs::OpType_SEARCH,
+                                      fbb.CreateString("query"), 0, 0,
+                                      fbb.CreateVector(geom));
+    auto verify = fbs::CreateOperator(fbb, fbs::OpType_VERIFY,
+                                      fbb.CreateString("definitely_not_python foo"),
+                                      0, 0, 0);
+    auto n1 = fbs::CreateOperadNode(fbb, /*id=*/1, verify, 0);
+    auto n0 = fbs::CreateOperadNode(fbb, /*id=*/0, search,
+                                    fbb.CreateVector<int32_t>({1}));
+    auto dag = fbs::CreateOperadDAG(
+        fbb, fbb.CreateVector<flatbuffers::Offset<fbs::OperadNode>>({n0, n1}));
+    fbb.Finish(dag);
+}
+
+/// Every restriction map in the store, as raw doubles, for a BITWISE compare.
+///
+/// Comparing Q(t) alone would be too weak: Q is a mean of squared norms, so a
+/// pair of offsetting changes could leave it identical while the wiring moved.
+/// The claim is that the store does not move AT ALL, so the test reads the
+/// actual matrices.
+std::vector<double> store_fingerprint(const core::OSKernel& kernel) {
+    std::vector<double> out;
+    const auto* cs = kernel.concept_store();
+    if (!cs) return out;
+    // Same const_cast the kernel's own store_Q() uses: the store is rebuilt
+    // lazily, so materialising it is not a logical mutation.
+    auto& store = const_cast<core::ConceptStore&>(*cs).store();
+    for (const auto& [edge, map] : store.restriction) {
+        (void)edge;
+        const Eigen::MatrixXd dense = map.dense();
+        for (Eigen::Index i = 0; i < dense.size(); ++i) out.push_back(dense.data()[i]);
+    }
+    return out;
+}
+
 /// Seed a KB with `n` concepts clustered near the query direction, so the
 /// Wasserstein filter actually returns several of them together.
 std::shared_ptr<translation::KnowledgeBase> seeded_kb(const std::string& path,
@@ -223,6 +267,115 @@ void test_refuted_tick_does_not_move_the_store() {
     std::remove(db.c_str());
 }
 
+void test_unverifiable_tick_leaves_the_store_bit_identical() {
+    // P2'S SAFETY RULE, AND THE TEST THAT PROVES IT IS REAL.
+    //
+    // "UNKNOWN must map to gamma = 0, not to a small positive number. An
+    // unverified claim should leave the crystallised store untouched, not nudge
+    // it slightly. Nudging is how an unverified claim becomes a verified one
+    // after enough repetitions." (SPEC_P1_TO_P4 §P2)
+    //
+    // This knowingly overrides gamma_nu, which maps Unverifiable to eps*gamma0.
+    // See KernelConfig::unverifiable_gamma_zero for both sides of that
+    // disagreement. The test pins the POLICY, and the second half pins that the
+    // policy is genuinely doing the work rather than the tick being inert.
+    const std::string db = temp_path("q_unverifiable");
+    auto kb = seeded_kb(db, 5);
+
+    core::KernelConfig cfg;
+    cfg.assembly_log_path = "";
+    core::CognitiveState state;
+    core::OSKernel kernel(state, cfg);
+    kernel.set_knowledge_base(kb);
+
+    // Tick 1: a plain SEARCH, no oracle. Builds the store and learns.
+    flatbuffers::FlatBufferBuilder fbb;
+    build_search_dag(fbb, query_geometry());
+    assert(kernel.execute_dag(fbb.GetBufferPointer(), fbb.GetSize()));
+
+    if (!kernel.concept_store() || kernel.concept_store()->num_edges() == 0) {
+        std::cout << "  [SKIP] no edges formed; unverifiable test vacuous\n";
+        std::remove(db.c_str());
+        return;
+    }
+    const auto before = store_fingerprint(kernel);
+    const double q_before = kernel.store_Q().value();
+    assert(!before.empty());
+
+    // Tick 2: the SAME retrieval, plus an oracle that is blocked and therefore
+    // returns UNVERIFIABLE. It learns exactly as much as tick 1 did -- the gap
+    // is nonzero -- so anything that moves is the gate leaking.
+    flatbuffers::FlatBufferBuilder fbb2;
+    build_search_then_blocked_verify_dag(fbb2, query_geometry());
+    assert(kernel.execute_dag(fbb2.GetBufferPointer(), fbb2.GetSize()));
+
+    assert(kernel.last_verdict().has_value());
+    assert(*kernel.last_verdict() == core::Verdict::Unverifiable);
+
+    const auto after = store_fingerprint(kernel);
+    const double q_after = kernel.store_Q().value();
+
+    std::cout << "  verdict=" << core::to_string(*kernel.last_verdict())
+              << " Q " << q_before << " -> " << q_after
+              << ", learned " << kernel.last_learned() << " edge(s), gap mean="
+              << (kernel.last_gap_mean() ? std::to_string(*kernel.last_gap_mean())
+                                         : std::string("n/a"))
+              << ", crystallised " << kernel.last_crystallised() << "\n";
+
+    // THE CLAIM: bit-identical, not merely close.
+    assert(after.size() == before.size());
+    for (std::size_t i = 0; i < before.size(); ++i) {
+        assert(before[i] == after[i] && "an UNVERIFIABLE tick moved the store");
+    }
+    assert(q_after == q_before);
+    assert(kernel.last_crystallised() == 0);
+
+    // AND THE TEST IS NOT VACUOUS: the tick really did have something to teach.
+    // Without this, a run that learned nothing would pass the bitwise check
+    // while proving nothing about the gate.
+    assert(kernel.last_learned() > 0);
+    assert(kernel.last_gap_mean().has_value() && *kernel.last_gap_mean() > 0.0);
+
+    std::remove(db.c_str());
+}
+
+void test_unverifiable_does_move_the_store_when_the_policy_is_off() {
+    // The mirror image, so the flag is shown to be the cause. With the policy
+    // disabled, gamma_nu's eps*gamma0 applies and the same tick DOES nudge the
+    // store -- which is precisely the accumulation the spec objects to.
+    const std::string db = temp_path("q_unverifiable_off");
+    auto kb = seeded_kb(db, 5);
+
+    core::KernelConfig cfg;
+    cfg.assembly_log_path = "";
+    cfg.unverifiable_gamma_zero = false;   // restore gamma_nu's own rate
+    core::CognitiveState state;
+    core::OSKernel kernel(state, cfg);
+    kernel.set_knowledge_base(kb);
+
+    flatbuffers::FlatBufferBuilder fbb;
+    build_search_dag(fbb, query_geometry());
+    assert(kernel.execute_dag(fbb.GetBufferPointer(), fbb.GetSize()));
+    if (!kernel.concept_store() || kernel.concept_store()->num_edges() == 0) {
+        std::cout << "  [SKIP] no edges formed\n";
+        std::remove(db.c_str());
+        return;
+    }
+    const double q_before = kernel.store_Q().value();
+
+    flatbuffers::FlatBufferBuilder fbb2;
+    build_search_then_blocked_verify_dag(fbb2, query_geometry());
+    assert(kernel.execute_dag(fbb2.GetBufferPointer(), fbb2.GetSize()));
+    assert(*kernel.last_verdict() == core::Verdict::Unverifiable);
+
+    const double q_after = kernel.store_Q().value();
+    std::cout << "  policy OFF: Q " << q_before << " -> " << q_after
+              << ", crystallised " << kernel.last_crystallised() << "\n";
+    assert(kernel.last_crystallised() > 0);
+    assert(q_after > q_before);   // the nudge the spec calls laundering
+    std::remove(db.c_str());
+}
+
 void test_store_identity_survives_growth_through_the_kernel() {
     const std::string db = temp_path("q_growth");
     auto kb = seeded_kb(db, 6);
@@ -264,6 +417,8 @@ int main() {
     test_Q_leaves_zero_after_a_real_tick();
     test_Q_is_monotone_over_repeated_ticks();
     test_refuted_tick_does_not_move_the_store();
+    test_unverifiable_tick_leaves_the_store_bit_identical();
+    test_unverifiable_does_move_the_store_when_the_policy_is_off();
     test_store_identity_survives_growth_through_the_kernel();
     std::cout << "all consolidation-loop tests passed\n";
     return 0;

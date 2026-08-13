@@ -5,6 +5,7 @@
 #include "mos/core/cognitive_state.hpp"
 #include "mos/core/concept_store.hpp"
 #include "mos/core/operad.hpp"
+#include "mos/core/plasticity.hpp"
 #include "mos/core/reflection.hpp"
 #include "mos/core/thread_pool.hpp"
 #include "mos/translation/knowledge_base.hpp"
@@ -98,6 +99,68 @@ struct KernelConfig {
     /// contributes 0 and is therefore implicit.
     double gamma_prior_verified = 0.0;
     double gamma_prior_unverifiable = 1.0;
+
+    /// @brief P2's rule: an UNVERIFIABLE verdict crystallises NOTHING.
+    ///
+    /// ⚠️ THIS CONTRADICTS `gamma_nu`, DELIBERATELY, AND THE CONFLICT IS REAL.
+    /// Both positions are written down and they disagree:
+    ///
+    ///   two_complex.hpp: "Verified -> gamma0; Unverifiable -> eps*gamma0;
+    ///       Refuted -> 0 EXACTLY." An unverifiable claim crystallises slowly
+    ///       rather than not at all, so ordinary operation can still learn.
+    ///
+    ///   SPEC_P1_TO_P4 §P2: "UNKNOWN must map to gamma = 0, not to a small
+    ///       positive number. An unverified claim should leave the crystallised
+    ///       store untouched, not nudge it slightly. NUDGING IS HOW AN
+    ///       UNVERIFIED CLAIM BECOMES A VERIFIED ONE AFTER ENOUGH REPETITIONS."
+    ///
+    /// The spec is the newer document and its argument is about a failure mode
+    /// the other does not address -- eps*gamma0 is small per tick, but it is
+    /// applied EVERY tick, so a claim the oracle could never decide accumulates
+    /// into the store simply by being retrieved often. That is laundering by
+    /// repetition, and it is invisible in Q(t), which only ever goes up.
+    ///
+    /// APPLIED HERE, NOT INSIDE gamma_nu, on purpose. `gamma_nu` is a
+    /// mathematical definition with its own pinned tests; this is a POLICY about
+    /// which rate the kernel chooses. Folding the policy into the definition
+    /// would silently change a tested function and leave the disagreement
+    /// undocumented in both places.
+    ///
+    /// Set false to restore `gamma_nu`'s eps*gamma0 for Unverifiable ticks.
+    /// This does NOT affect ticks where no oracle ran at all -- that fourth
+    /// state is `crystallise_unverified` / `gamma_no_verdict`, and the engine
+    /// keeps the two distinct everywhere else, so this does too.
+    bool unverifiable_gamma_zero = true;
+
+    /// @brief P2 TIER 1: let incoherence REFUTE, but never let coherence VERIFY.
+    ///
+    /// THE TENSION THIS RESOLVES, STATED RATHER THAN GLOSSED. SPEC_P1_TO_P4 asks
+    /// for "nu = REFUTED when a candidate claim raises rho above the RESOLVE
+    /// gate". `execute_dag` says, just as plainly, that `verified` is "STILL
+    /// never inferred from rho -- Construction 3 is explicit that coherence is
+    /// not correctness, and guessing here would fabricate the promotion gate's
+    /// own evidence". Both are right, and they are compatible because the
+    /// inference is ONE-DIRECTIONAL:
+    ///
+    ///   rho HIGH  => the organs that just cooperated disagree with each other.
+    ///                That is an internal contradiction, visible without any
+    ///                oracle, and it is a reason to REFUSE to crystallise.
+    ///   rho LOW   => the organs agree. They may agree on something false, so
+    ///                this licenses NOTHING and emits no verdict at all.
+    ///
+    /// So tier 1 can only ever CLOSE the gate, never open it. It emits Refuted
+    /// or stays silent; it cannot emit Verified. Since gamma(Refuted) = 0
+    /// exactly, the worst a false positive can do is decline to learn from one
+    /// tick -- whereas a fabricated Verified would write unearned structure into
+    /// the permanent store, which is the failure mode the invariant exists to
+    /// prevent.
+    ///
+    /// THE THRESHOLD IS NOT A NEW CONSTANT. It is `CriticalityMonitor::eps_rho()`,
+    /// the same auto-calibrated quantile the RESOLVE/EXPLORE controller uses, so
+    /// tier 1 fires exactly when the controller would enter RESOLVE. Introducing
+    /// a second threshold here would let the system refuse to learn from a tick
+    /// it simultaneously called coherent.
+    bool coherence_verdict = true;
 
     /// @brief Where E7 appends assembly events. Empty disables recording.
     ///
@@ -201,6 +264,46 @@ public:
     /// @brief Edges crystallised by the most recent tick's i_!.
     [[nodiscard]] int last_crystallised() const noexcept { return last_crystallised_; }
 
+    // ------------------------------------------------------ P3: the gap ------
+    //
+    // ||R^W - R^K||, THE NUMBER THAT DISAMBIGUATES Q(t) = 0.
+    //
+    // Commit 1e7fc88 closed the consolidation loop and reported "Q(t) left
+    // zero", which has THREE causes that look identical from Q alone and have
+    // opposite remedies:
+    //
+    //   retrieval returned nothing, so W was empty         -> a P0 problem
+    //   nu never reached VERIFIED, so gamma(nu) = 0 always -> a P2 problem
+    //   R^W ~= R^K, so the update term itself vanishes     -> neither: nothing
+    //                                                         is being learned
+    //
+    // Q = 0 with a LARGE gap means the GATE is closed. Q = 0 with a ZERO gap
+    // means there is NOTHING TO CONSOLIDATE. Same symptom, opposite diagnoses,
+    // and only this extra number separates them -- which is why it is recorded
+    // per tick rather than derived afterwards from a log that never held it.
+    //
+    // `delta_R` has existed in two_complex.cpp since the adjunction landed and
+    // was called by nobody.
+
+    /// @brief Mean per-edge ||R^W_e - R^K_e||_F over the edges this tick
+    ///        learned, or nullopt when the tick learned no edge at all.
+    ///
+    /// nullopt is NOT 0.0: "no edge was learned" and "every learned edge already
+    /// agreed with the store" are the first and third diagnoses above, and
+    /// collapsing them would destroy exactly the distinction this exists for.
+    [[nodiscard]] std::optional<double> last_gap_mean() const noexcept {
+        return last_gap_mean_;
+    }
+
+    /// @brief Largest per-edge ||R^W_e - R^K_e||_F this tick. A mean near zero
+    ///        with a large max is a few edges learning against a quiet majority.
+    [[nodiscard]] std::optional<double> last_gap_max() const noexcept {
+        return last_gap_max_;
+    }
+
+    /// @brief Edges whose restriction map this tick actually learned.
+    [[nodiscard]] int last_learned() const noexcept { return last_learned_; }
+
     /// @brief nu for the most recent tick, or nullopt when NO check ran.
     ///
     /// This is gamma_nu's input, and it is the reason the consolidation loop
@@ -218,6 +321,18 @@ public:
     /// "learns what an unchecked tick is worth" true only within one session.
     [[nodiscard]] const VerdictCounts& verdict_counts() const noexcept {
         return verdict_counts_;
+    }
+
+    /// @brief The auto-calibrated RESOLVE gate, and the tier-1 refutation
+    ///        threshold. Exposed so a run's logs can be read against the gate
+    ///        that was actually in force at the time, which moves as rho
+    ///        history accumulates.
+    [[nodiscard]] double eps_rho_now() const { return criticality_.eps_rho(); }
+
+    /// @brief Whether the most recent tick was refuted by tier 1 (internal
+    ///        incoherence) rather than by an external oracle.
+    [[nodiscard]] bool last_refuted_by_coherence() const noexcept {
+        return last_refuted_by_coherence_;
     }
 
     /// @brief gamma the NEXT unchecked tick would use. Exposed for telemetry:
@@ -245,6 +360,17 @@ private:
     // knowable once a concept with geometry has actually been retrieved.
     std::optional<ConceptStore> concept_store_;
     int last_crystallised_ = 0;
+
+    // P3. The learning gap, per tick. nullopt until a tick learns an edge.
+    std::optional<double> last_gap_mean_;
+    std::optional<double> last_gap_max_;
+    int last_learned_ = 0;
+
+    // P2 tier 1. Auto-calibrates eps_rho from observed rho, so the refutation
+    // threshold is the SAME object as the RESOLVE gate rather than a second
+    // constant that could disagree with it.
+    CriticalityMonitor criticality_{config_.eps_rho};
+    bool last_refuted_by_coherence_ = false;
 };
 
 } // namespace core

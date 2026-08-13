@@ -1,0 +1,397 @@
+\chapter{The MDL Growth Law}\label{ch:mdl}
+
+The question this chapter answers: \emph{when is a new concept worth
+inventing?} Earlier designs answered it with a threshold someone chose.
+This one derives a threshold instead.
+
+\section{Two-part description length}
+
+\begin{intu}\Intu
+A memory is a compression of experience. Minimum description length
+makes that literal: the total cost of an explanation is what it takes to
+write down the model plus what it takes to write down the data
+\emph{given} the model. Adding a concept always makes the first term
+worse. It is worth doing exactly when it makes the second term better by
+more.
+\end{intu}
+
+\begin{definition}[Two-part MDL]\label{def:mdl}
+\[
+  L_{\text{total}}
+  =\underbrace{L(\text{model})}_{\text{the memory}}
+  +\underbrace{L(\text{data}\mid\text{model})}_{\text{the experience}} .
+\]
+The \emph{model} is the complex $\CC$ together with the sheaf $\Fs$ ---
+what the system \emph{is}. The \emph{data} is the observed record: the
+sequence of assemblies and the succession relation read off it --- what
+the system has \emph{seen}.
+\end{definition}
+
+Neither term alone is the criterion. Minimising the model term alone
+forbids all growth; minimising the data term alone is achieved by
+memorising everything. The criterion is the sum.
+
+\section{The model term}
+
+\begin{proposition}[Cost of coning a cycle]\label{prop:modelterm}
+\Proved\ Let $\gamma$ be a $1$-cycle of length $k$, and cone it with a
+new vertex $w$ carrying a stalk of dimension $d_w$. Writing $b$ for bits
+per real number, the added model cost is
+\begin{equation}\label{eq:modelterm}
+  \Delta L(\text{model})
+  =b\,d_w\Bigl(1+\sum_{e\in\gamma}d_e\Bigr).
+\end{equation}
+\end{proposition}
+\begin{proof}
+Three kinds of new object are described. The vertex with its stalk costs
+$d_w\cdot b$ bits. Each of the $k$ restriction maps out of $\stalk{w}$
+is a $d_e\times d_w$ matrix, costing $d_w d_e b$ bits, summed over
+$e\in\gamma$. The $k$ new triangles cost \emph{nothing}: they are
+determined by the cone construction, not described separately. Summing
+gives \eqref{eq:modelterm}.
+\end{proof}
+
+\begin{remark}[Two consequences, both load-bearing]
+First, the cost is \emph{linear in $d_w$}. The dimension of the new
+stalk is the dominant free quantity, so whatever fixes $d_w$ fixes most
+of the cost --- which is what Section~\ref{sec:conesize} is for.
+Second, \emph{triangles are free}. They are implied by the cone, so the
+$k$ new $2$-cells cost nothing to describe. This is a real asymmetry,
+not a bookkeeping convenience, and it is why coning is cheap relative to
+what it buys.
+\end{remark}
+
+\section{The data term and the law}
+
+\begin{proposition}[Data-term saving]\label{prop:dataterm}
+\Proved\ Let the cycle $\gamma$ occur $n$ times in the record. Without
+the concept, each traversal is coded as $k$ separate transitions, each
+costing its full surprisal; with the concept it is a single named event.
+Then
+\begin{equation}\label{eq:dataterm}
+  \Delta L(\text{data}\mid\text{model})=-n\bigl(c_{\text{old}}-c_{\text{new}}\bigr),
+\end{equation}
+where $c_{\text{old}}$ is the cost of coding one traversal the long way
+and $c_{\text{new}}$ the cost of naming it.
+\end{proposition}
+
+\begin{theorem}[The growth law]\label{thm:growthlaw}
+\Proved\ Attach the concept if and only if $\Delta L_{\text{total}}<0$,
+that is
+\begin{equation}\label{eq:growthlaw}
+  \boxed{\ n\;>\;
+  \frac{b\,d_w\bigl(1+\sum_{e\in\gamma}d_e\bigr)}
+       {c_{\text{old}}-c_{\text{new}}}\ }
+\end{equation}
+\end{theorem}
+\begin{proof}
+Add \eqref{eq:modelterm} and \eqref{eq:dataterm} and require the sum
+negative; rearrange, using $c_{\text{old}}>c_{\text{new}}$.
+\end{proof}
+
+\begin{intu}\Intu
+Read what this is: a \emph{recurrence threshold that is computed, not
+chosen}. It is the ratio of what a concept costs to store against what
+it saves per use --- the number of times a pattern must repeat before it
+is worth naming.
+\end{intu}
+
+Three consequences, two of which were not asked for:
+
+\begin{enumerate}
+  \item $n$ is a number the engine can print, rather than a parameter a
+        human sets.
+  \item \textbf{It orders the holes.} When several harmonic classes
+        compete, fill them in decreasing $\abs{\Delta L_{\text{total}}}$.
+        This removes a decision that had been silently delegated to a
+        human.
+  \item \textbf{It predicts non-attachment.} A one-off inconsistency is
+        \emph{noise to be tolerated}, not a concept to be invented. The
+        earlier threshold-based law had no way to express this, which is
+        exactly how it would have over-generated.
+\end{enumerate}
+
+\chapter{The Coned Concept}\label{ch:cone}
+
+This is the central construction of the later work: the stalk of a
+newly-grown concept, \emph{derived} rather than chosen.
+
+\section{The topological cone}
+
+\begin{construction}[Coning a cycle]\label{con:conetopo}
+Let $\gamma=(v_1,e_1,v_2,\dots,v_k,e_k,v_1)$ be a $1$-cycle carrying
+harmonic mass, with $e_i=\{v_i,v_{i+1}\}$ (indices mod $k$). Attach a
+vertex $w$, edges $f_i=\{w,v_i\}$, and triangles
+$t_i=\{w,v_i,v_{i+1}\}$.
+\end{construction}
+
+\begin{proposition}[The cone kills the cycle]\label{prop:conekills}
+\Proved\ With $\partial t_i=e_i-f_{i+1}+f_i$,
+\[
+  \partial\Bigl(\sum_i t_i\Bigr)
+  =\sum_i e_i+\sum_i(f_i-f_{i+1})=\gamma,
+\]
+since the $f$ terms telescope to zero. Hence $\gamma$ becomes a
+boundary.
+\end{proposition}
+
+\section{The stalks, chosen minimally}
+
+\begin{construction}[New edge stalks]\label{con:conestalks}
+Set
+\[
+  \stalk{f_i}:=\stalk{v_i},
+  \qquad
+  \rest{v_i\triang f_i}:=\Id .
+\]
+\end{construction}
+
+\begin{hon}\Hon
+This is an \emph{engineering choice}, and a deliberately empty one. Any
+distortion introduced here would be a free parameter, and whatever the
+construction then achieved could be attributed to a cleverly chosen edge
+stalk rather than to the concept. All the content is forced into
+$\stalk{w}$ and the maps out of it, which is where it can be reasoned
+about.
+\end{hon}
+
+The only remaining unknowns are $\stalk{w}$ and the legs
+$p_i:=\rest{w\triang f_i}:\stalk{w}\to\stalk{v_i}$.
+
+\section{The cone condition is forced, not imposed}
+
+\begin{proposition}[Derivation of the cone condition]\label{prop:conecond}
+\Proved\ Write $r_i^-:=\rest{v_i\triang e_i}$ and
+$r_i^+:=\rest{v_{i+1}\triang e_i}$. For a $0$-cochain $x$:
+\begin{enumerate}[label=(\roman*)]
+  \item $\cob x$ vanishes on the new edges if and only if
+        $x_{v_i}=p_i(x_w)$ for every $i$;
+  \item given (i), $\cob x$ vanishes on the old edges for
+        \emph{every} $x_w\in\stalk{w}$ if and only if
+        \begin{equation}\label{eq:conecond}
+          \boxed{\ r_i^+\circ p_{i+1}=r_i^-\circ p_i
+          \quad\text{for all }i\ }
+        \end{equation}
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(i) On the new edge $f_i$, using
+Construction~\ref{con:conestalks},
+\[
+  (\cob x)_{f_i}
+  =\rest{w\triang f_i}x_w-\rest{v_i\triang f_i}x_{v_i}
+  =p_i(x_w)-x_{v_i},
+\]
+which vanishes exactly when $x_{v_i}=p_i(x_w)$.
+
+(ii) Substituting $x_{v_i}=p_i(x_w)$ into the old edge $e_i$,
+\[
+  (\cob x)_{e_i}=r_i^+p_{i+1}(x_w)-r_i^-p_i(x_w)
+  =\bigl(r_i^+p_{i+1}-r_i^-p_i\bigr)(x_w).
+\]
+A linear map vanishes on all of $\stalk{w}$ if and only if it is the
+zero map, which is \eqref{eq:conecond}.
+\end{proof}
+
+\begin{intu}\Intu
+Part (i) says something worth pausing on: \textbf{the value at $w$
+generates the section over the whole cycle}. That is what it means for a
+concept to explain a loop --- the loop stops being $k$ independent facts
+and becomes one.
+\end{intu}
+
+Condition \eqref{eq:conecond} is verbatim the definition of a
+\emph{cone} over the diagram
+\[
+  D_\gamma:\quad
+  \stalk{v_1}\xrightarrow{r_1^-}\stalk{e_1}\xleftarrow{r_1^+}
+  \stalk{v_2}\xrightarrow{r_2^-}\stalk{e_2}\xleftarrow{\ \ }\cdots
+\]
+with apex $\stalk{w}$ and legs $p_i$. The categorical cone condition was
+not imposed on the construction; it fell out of demanding that the
+topological cone do its job.
+
+\section{The construction}
+
+\begin{construction}[The coned concept]\label{con:coned}
+\[
+  \boxed{\ \stalk{w}:=\varprojlim D_\gamma,
+  \qquad p_i:=\text{the limit's projections.}\ }
+\]
+\end{construction}
+
+\begin{proposition}[Concrete description]\label{prop:conelim}
+\Proved\ For finite-dimensional stalks,
+\[
+  \varprojlim D_\gamma
+  =\Bigl\{(x_1,\dots,x_k)\in\bigoplus_i\stalk{v_i}\ \Big|\
+    r_i^-x_i=r_i^+x_{i+1}\ \forall i\Bigr\}
+  \;\cong\;H^0\bigl(\gamma;\Fs|_\gamma\bigr).
+\]
+\end{proposition}
+\begin{proof}
+The limit of a finite diagram of vector spaces is the subspace of the
+product on which all the diagram's maps agree, which is the displayed
+equaliser. Comparing with Definition~\ref{def:coboundary} restricted to
+the subcomplex $\gamma$, the agreement conditions are exactly
+$\cob x=0$, so the space is $\ker\cob|_\gamma=H^0(\gamma;\Fs|_\gamma)$.
+\end{proof}
+
+\begin{intu}\Intu
+In words: the new concept \emph{is} everything that was consistent
+around the loop but could not be glued. It does not summarise the
+cycle's members; it \emph{is} the compatible part of them.
+\end{intu}
+
+Three properties, each of which had been written down separately as a
+requirement:
+
+\begin{center}
+\begin{tabular}{@{}p{3.4cm}p{8.4cm}@{}}
+\toprule
+\textbf{Property} & \textbf{Why it matters}\\
+\midrule
+canonical --- unique up to unique isomorphism & no hand-made choice
+enters the construction\\
+path-dependent --- depends on $D_\gamma$, i.e. on which cycle history
+produced & precisely the property whose absence caused an earlier
+formal-concept-analysis approach to be rejected\\
+degenerate case & if $H^0(\gamma;\Fs|_\gamma)=0$ the limit is the zero
+space --- but see Proposition~\ref{prop:unreachable}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{The refusal branch is unreachable}
+
+\begin{proposition}[Harmonic mass implies sections]\label{prop:unreachable}
+\Proved\ On a $k$-cycle with vertex and edge stalks all of dimension
+$n$, and with no $2$-cells,
+\[
+  \dim H^1(\gamma;\Fs|_\gamma)=\dim H^0(\gamma;\Fs|_\gamma).
+\]
+Consequently the cycle carries harmonic mass if and only if it has
+nonzero sections.
+\end{proposition}
+\begin{proof}
+For a $1$-dimensional complex the Euler characteristic satisfies
+$\chi=\dim\Czero-\dim\Cone=\dim H^0-\dim H^1$. On a $k$-cycle with all
+stalks of dimension $n$ there are $k$ vertices and $k$ edges, so
+$\dim\Czero=\dim\Cone=kn$ and $\chi=0$, giving the equality. With no
+$2$-cells the harmonic space \emph{is} $H^1$.
+\end{proof}
+
+\begin{hon}\Hon
+An earlier draft claimed the degenerate case is meaningful --- ``nothing
+was consistent around that loop, so the construction refuses rather than
+inventing''. True, and it never happens. By
+Proposition~\ref{prop:unreachable}, $H^0=0$ implies no harmonic mass,
+which implies no growth address, which implies the growth law never
+fires on that cycle at all. Confirmed numerically: the degenerate case
+reports that the harmonic space is already empty before coning, so there
+is nothing to kill.
+
+In general the gap is $\dim H^1-\dim H^0=k(n_e-n_v)$, so the branch
+\emph{could} become reachable if edge stalks are ever given a different
+dimension from vertex stalks. They are not, currently.
+\end{hon}
+
+\section{The limit is a ceiling, not a floor}\label{sec:conesize}
+
+\begin{hon}\Hon
+\Refuted\ An earlier draft justified
+Construction~\ref{con:coned} by asserting that the limit is ``the
+smallest object admitting the required maps''. That is backwards, and
+the error is worth keeping visible.
+\end{hon}
+
+\begin{proposition}[Universality bounds from above]\label{prop:ceiling}
+\Proved\ Every cone over $D_\gamma$ factors uniquely through the limit.
+If a candidate apex $\stalk{w}'$ has jointly injective legs --- i.e.
+carries no data that no restriction map ever sees --- then that
+factoring map is injective, so
+\[
+  \dim\stalk{w}'\ \le\ \dim\varprojlim D_\gamma .
+\]
+\end{proposition}
+\begin{proof}
+The universal property of the limit gives a unique
+$\phi:\stalk{w}'\to\varprojlim D_\gamma$ commuting with the legs. If
+$\phi(z)=0$ then every leg $p_i'(z)=0$; joint injectivity of the legs
+then forces $z=0$, so $\phi$ is injective and the dimension inequality
+follows.
+\end{proof}
+
+So the limit is the \emph{largest non-redundant} choice, not the
+smallest --- a ceiling on what a new concept can usefully carry. The two
+determinations are therefore genuinely separate, and both are derived:
+
+\begin{enumerate}
+  \item \textbf{Consistency fixes the shape.} $\stalk{w}$ must be a cone
+        over $D_\gamma$; the limit is the universal one.
+  \item \textbf{MDL fixes the size.} By \eqref{eq:modelterm} the cost is
+        linear in $d_w$, so the optimum is a \emph{subspace} of the
+        limit: keep the directions that pay for themselves, discard the
+        rest.
+\end{enumerate}
+
+\chapter{Retrieval: Rank, Do Not Threshold}\label{ch:retrieval}
+
+\begin{intu}\Intu
+Retrieval decides which stored concepts an organ sees. A threshold on
+distance answers ``which concepts are close enough?'', which sounds
+right and is not: it makes the number of results depend on how the
+embedding space happens to be scaled, and it silently returns nothing at
+all when the query lands in a sparse region.
+\end{intu}
+
+\begin{construction}[Bounded rank query]\label{con:topk}
+Replace the $\varepsilon$-ball query with a bounded rank query returning
+the top $k$ stored concepts, ranked by \emph{cosine similarity} to the
+query mean, using a bounded max-heap of size $k$. Zero-norm vectors are
+dropped rather than scored, since a zero vector has no direction.
+\end{construction}
+
+\begin{proposition}[Why cosine and not squared distance]\label{prop:cosine}
+\Proved\ Expanding,
+\[
+  \norm{\mu_q-\mu_i}^2
+  =\norm{\mu_q}^2-2\inner{\mu_q}{\mu_i}+\norm{\mu_i}^2 .
+\]
+For a fixed query, $\norm{\mu_q}^2$ is constant and drops out of any
+ranking. The term $\norm{\mu_i}^2$ does \emph{not}. Hence squared
+distance reproduces the cosine ranking if and only if every stored mean
+is unit-norm.
+\end{proposition}
+
+\begin{hon}\Hon
+Stored means are \emph{not} unit-norm. By
+Construction~\ref{con:piv}, $\pi_v$ is a weighted centroid of unit
+vectors, so its norm lies below $1$ and falls further the more spread
+the concepts it summarises. Ranking by squared distance would therefore
+apply a per-concept penalty \emph{proportional to how broad a concept
+is}, pushing exactly the general concepts down the list for a reason
+unrelated to the query.
+
+There is also an evidential argument, which is decisive on its own: the
+measured recall figure against which the retrieval fix is accepted was
+obtained on a \emph{cosine} ranking. Ranking by squared distance is a
+different ordering carrying an unmeasured bias, which would have made
+the acceptance criterion meaningless.
+\end{hon}
+
+\begin{remark}[Cost]
+Scoring needs only $\mu$; the low-rank factor $U$, the floor $D$ and the
+stored reasoning text are not needed unless the row enters the heap.
+Reading $\mu$, scoring, and deserialising the rest only on entry drops
+the per-row cost from $O(dk^2+k^3)$ to $O(d)$ for the large majority of
+rows.
+\end{remark}
+
+\begin{hon}\Hon
+$k$ is an \emph{engineering choice} ($k=24$), not a derived quantity.
+What changed is that it is now constrained on both sides --- too small
+starves the organ, too large defeats the point of retrieval --- rather
+than being an unexamined constant. Saying so is the difference between a
+parameter and a magic number.
+\end{hon}

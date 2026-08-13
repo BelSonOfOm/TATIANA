@@ -1,0 +1,33 @@
+\chapter{Refuted-Claims Ledger}\label{app:refuted}
+
+Claims that were made, tested, and failed. They are kept because the
+refutations are the expensive part.
+
+\paragraph{R1 --- Encoder anisotropy explains the dead dynamic range of
+$\rhoscore$.} \Refuted\ (2026-07-28). The deployed encoder returns
+unit-normalised vectors, for which $\dissent=(n-1)(1-\bar c)/n$ exactly,
+$\bar c$ the mean pairwise cosine. At the observed $\bar c\approx0.449$
+with $n=7$ this gives $\dissent\approx0.46$, which is not small. The
+compression is produced jointly by $\dissent$, by $\rhotil$ sitting
+mid-window, and by $\AM$ over-bounding $\lambda_{\max}$.
+
+\paragraph{R2 --- The cohomological hierarchy is informative as built.}
+\Refuted. The $1$-cochain the engine emits is $\cob x$ for a global
+state $x$; a coboundary is exact, so its class in $\Hone$ vanishes
+identically, for every state and every sheaf. The growth mechanism has
+no address in $\Hone$. See Open Problem~\ref{op:H1}.
+
+\paragraph{R3 --- Proposition 12.4 of the earlier description.}
+\Contested\ The audit records it as false in the deployed case. The
+statement and the counterexample must be reproduced here before this
+ledger entry is complete.
+
+\paragraph{R4 --- Theorem 7.5 as stated.}
+\Contested\ The audit records that it is stated more generally than it
+is proved. The gap between hypothesis and proof must be located
+precisely.
+
+\paragraph{R5 --- $K_0$ classes as memory invariants.}
+\Contested\ The audit records that the $K_0$ classes are trivial for
+every object the system produces, which would mean the invariant
+separates nothing. See Open Problem~\ref{op:jordanholder}.

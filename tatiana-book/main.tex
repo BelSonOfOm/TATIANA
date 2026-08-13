@@ -1,0 +1,90 @@
+% =====================================================================
+%
+%   THE MATHEMATICS OF TATIANA
+%   A Cellular-Sheaf Cognitive Architecture over a Stratified Complex
+%
+%   Compile with:  latexmk -pdf main.tex
+%
+%   This is a merged, corrected and expanded consolidation of every
+%   mathematical document in TATIANA/DOCS, TATIANA/POSTER and the
+%   specification files on branch fix-11-13-and-curvature-decisions.
+%   It is deliberately implementation-free: where the code determines a
+%   mathematical fact, that fact is stated abstractly and the code
+%   discrepancy is logged in Appendix B.
+%
+% =====================================================================
+\documentclass[11pt,openany]{book}
+
+\input{preamble}
+\input{macros}
+
+\hypersetup{pdftitle={The Mathematics of TATIANA},pdfauthor={Charbel Dargham}}
+
+\begin{document}
+
+\frontmatter
+
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries The Mathematics of \textsc{Tatiana}\par}
+\vspace{12pt}
+{\Large A Cellular--Sheaf Cognitive Architecture over a\\[2pt]
+ Stratified Simplicial Complex\par}
+\vspace{22pt}
+{\normalsize\itshape A complete, implementation-free consolidation,\\[2pt]
+ with epistemic status attached to every claim\par}
+\vspace{3cm}
+{\large Charbel Dargham\par}
+\vspace{8pt}
+{\normalsize\today\par}
+\end{titlepage}
+
+\input{parts/00_frontmatter}
+
+\tableofcontents
+
+\mainmatter
+
+\part{The State Space}
+\input{parts/01_state_space}
+
+\part{Coherence}
+\input{parts/02_coherence}
+
+\part{Semantic Geometry}
+\input{parts/03_semantic_geometry}
+
+\part{Cohomology and Diagnostics}
+\input{parts/04_cohomology}
+
+\part{Dynamics}
+\input{parts/05_dynamics}
+
+\part{The Later Constructions}
+\input{parts/06_later_constructions}
+
+\part{Verification and Control}
+\input{parts/07_verification}
+
+\part{Limits: What Is and Is Not Claimed}
+\input{parts/08_limits}
+
+\part{Open Problems within MOS}
+\input{parts/09_open_problems}
+
+\part{Potentials for Quantum Implementation}
+\input{parts/10_quantum}
+
+\appendix
+\part*{Appendices}
+\addcontentsline{toc}{part}{Appendices}
+\input{appendices/A_notation}
+\input{appendices/B_discrepancy_register}
+\input{appendices/C_refuted_ledger}
+
+\backmatter
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}

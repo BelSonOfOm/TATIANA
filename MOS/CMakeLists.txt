@@ -10,6 +10,12 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /std:c++17 /permissive- /Zc:__cplusplus")
     # Suppress some verbose warnings in 3rd party code if needed
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4127 /wd4505 /wd4714")
+    # cone_stalk.cpp exceeds COFF's 65279-section limit in Debug: Eigen expands a
+    # separate section per instantiated template, and Construction 6 instantiates
+    # a lot of them. Not a size optimisation -- without this the object file
+    # cannot be emitted at all (C1128), so mos_core and every test that links it
+    # fail to build.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 endif()
@@ -64,6 +70,7 @@ set(SOURCES
     src/core/two_complex.cpp
     src/core/concept_store.cpp
     src/core/coning.cpp
+    src/core/cone_stalk.cpp
     src/core/rank_k_stalk.cpp
     src/core/householder.cpp
     src/core/plasticity.cpp
@@ -142,6 +149,12 @@ target_link_libraries(mos_plasticity_tests PRIVATE mos_core)
 add_executable(mos_stalk_floor_tests tests/test_stalk_floor.cpp)
 target_link_libraries(mos_stalk_floor_tests PRIVATE mos_core)
 
+# P1: the DAG can name what it acts on. Uses the REAL primitives, not a stub --
+# the co-schedulability rule was always correct, but the operators never reached
+# it with anything to say, which a StubOp-based suite cannot detect.
+add_executable(mos_p1_support_tests tests/test_p1_support.cpp)
+target_link_libraries(mos_p1_support_tests PRIVATE mos_core)
+
 # E7 assembly recording. The signature cases here are shared with
 # python/check_signature_parity.py — if the two implementations drift, every
 # recurrence count is silently wrong while every other test still passes.
@@ -160,6 +173,13 @@ target_link_libraries(mos_rank_k_stalk_tests PRIVATE mos_core)
 # and that the rejected chord alternative makes b1 WORSE.
 add_executable(mos_coning_tests tests/test_coning.cpp)
 target_link_libraries(mos_coning_tests PRIVATE mos_core)
+
+# The growth law's COST side (DERIVATION_MDL_GROWTH_LAW.md 2.1, 5.10a, 5.11).
+# F(w) = ker(Hol - I) by the holonomy route, the propagated legs that make k-1 of
+# them free, and the per-direction MDL threshold. C++ mirror of
+# python/validate_growth_law.py.
+add_executable(mos_cone_stalk_tests tests/test_cone_stalk.cpp)
+target_link_libraries(mos_cone_stalk_tests PRIVATE mos_core)
 
 # Phase-2 items 5 & 6: the K/W adjunction (i^* i_! = id) and gamma(nu).
 add_executable(mos_two_complex_tests tests/test_two_complex.cpp)

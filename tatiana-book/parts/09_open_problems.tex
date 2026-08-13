@@ -1,0 +1,80 @@
+\chapter{Open Problems within MOS}\label{ch:open}
+
+These are stated as problems, not as directions, because each one has a
+definite answer that is currently unknown and whose resolution would
+change what the system can claim. They are ordered by how much else
+depends on them.
+
+\begin{openproblem}[Non-identity restriction maps]\label{op:restrictions}
+Find a procedure that learns restriction maps
+$\rest{v\triang e}$ from organ data such that
+(i) the maps are not all the identity,
+(ii) functoriality \eqref{eq:functoriality} holds on every filled
+simplex, and
+(iii) the learning is closed-form or otherwise costs no gradient
+training.
+Closed-form Procrustes alignment satisfies (i) and (iii) but is not known
+to satisfy (ii). Everything expressive about the sheaf is downstream of
+this problem: while the maps are the identity, $\ker\Lap$ is the
+diagonal and the sheaf is a graph Laplacian in disguise
+(Proposition~\ref{prop:b0kernel}).
+\end{openproblem}
+
+\begin{openproblem}[A non-vacuous $\Hone$]\label{op:H1}
+Under identity restrictions the cohomological hierarchy carries no
+information: the $1$-cochain the engine emits is $\cob x$ for a global
+state $x$, and a coboundary is exact by definition, so its class in
+$\Hone$ vanishes identically --- for every state, every sheaf, and every
+choice of restriction map. Find a source of $1$-cochains that is
+\emph{not} of the form $\cob x$ --- pairwise judgements formed
+independently of any global state are the candidate --- and determine
+whether the resulting classes are stable enough to serve as a diagnostic.
+The audit records that one proposed repair is half circular; the
+circularity must be identified precisely before a fix is adopted.
+\end{openproblem}
+
+\begin{openproblem}[Does the architecture actually compound?]\label{op:slope}
+The central bet is on the \emph{slope}, not the intercept: that a
+self-checking, self-restructuring organiser improves with use even though
+its per-inference ceiling is fixed by the underlying language model.
+This is an empirical claim and it has not been tested. Design an
+experiment with a pre-registered metric, a control (the same model with
+no architecture), and a horizon long enough for accumulation to show, and
+state in advance what result would falsify the bet.
+\end{openproblem}
+
+\begin{openproblem}[The right normaliser]\label{op:normaliser}
+The Anderson--Morley bound $\AM$ over-bounds $\lambda_{\max}$, which
+compresses $\rhoscore$ toward zero and contributes to its dead dynamic
+range. Determine whether a tighter, still eigensolver-free bound exists
+for the sheaf Laplacian with non-identity restrictions, or prove that no
+degree-based bound can be tight in this regime.
+\end{openproblem}
+
+\begin{openproblem}[Stability of the diagnostics under growth]\label{op:stability}
+The growth operators change the topology, and both the calibration
+window and the kernel projection are topology-dependent. Give a
+stability estimate: if $\opbind$ or $\opcollapse$ changes the complex by
+one simplex, how much can $\rhotil$ move for a fixed state? Without such
+an estimate, a change in $\rhotil$ across a growth step cannot be
+attributed to the state rather than to the rewiring.
+\end{openproblem}
+
+\begin{openproblem}[Functoriality repair by hybridisation]\label{op:hybrid}
+When restriction maps are obtained as projections onto an interface,
+functoriality fails predictably. The canonical repair is to promote the
+interface to a cell of its own, which is what hybridisation methods do in
+the finite-element setting. Determine whether the same repair applies to
+the cognitive complex, and what it costs: does promoting every offending
+interface preserve the two-level stratification, or does it force a third
+stratum?
+\end{openproblem}
+
+\begin{openproblem}[Composition factors as memory atoms]\label{op:jordanholder}
+A later development formalises memory atoms as Jordan--H\"older
+composition factors, with retrieval ordered by stratum, then integer
+content, then structure. Determine whether the composition series is
+canonical for the objects the system actually produces --- the audit
+records that the associated $K_0$ classes are trivial for every such
+object, which if correct means the invariant distinguishes nothing.
+\end{openproblem}

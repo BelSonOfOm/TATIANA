@@ -1,0 +1,122 @@
+\chapter{Verification: the External Oracle}\label{ch:verify}
+
+\begin{intu}\Intu
+Coherence governs whether to keep exploring or stop and reconcile. Only
+an external checker touches \emph{truth}. And ``I could not check'' must
+never be mistaken for ``it is false''.
+\end{intu}
+
+\begin{definition}[Three-valued verification]\label{def:verify}
+\textsc{VerifyOp} calls a sandboxed symbolic oracle returning one of
+three verdicts, acting on an obstruction counter $\Omega$:
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}lll@{}}
+\toprule
+exit & verdict & effect on state\\
+\midrule
+$0$ & \textsc{Verified} & obstruction cleared; state may crystallise\\
+$1$ & \textsc{Refuted} & $\Omega\mathrel{+}=1000$; forced into \textsc{Resolve}\\
+$2$ & \textsc{Unverifiable} & $\Omega$ \emph{untouched}\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{definition}
+
+\begin{remark}[Absence of proof is not proof of absence]\label{rem:threevalued}
+An earlier version treated every nonzero exit as failure, conflating
+\textsc{Refuted} with \textsc{Unverifiable}. That would spike conflict
+over the oracle's own blind spots and lock the system into
+\textsc{Resolve} over perfectly good mathematics. A checker crash also
+returns \textsc{Unverifiable}. This three-valued logic is the promotion
+gate of Construction~\ref{con:micro}: a composite becomes a generator of
+$\Dop$ only if it survives the oracle, and surviving means
+\textsc{Verified}, not merely ``not refuted''.
+\end{remark}
+
+\begin{hon}\Hon
+The asymmetry in the table is deliberate and is the load-bearing design
+decision. A refutation moves $\Omega$ by a large fixed amount; an
+inability to check moves it not at all. The system is therefore allowed
+to be ignorant without being punished for it, and is punished
+immediately for being wrong. The alternative --- treating unverifiable
+as mildly bad --- produces a gradient toward only ever asserting things
+the oracle happens to understand, which is a narrower system, not a
+better one.
+\end{hon}
+
+\chapter{The Controller}\label{ch:controller}
+
+\begin{definition}[Coherence-gated mode]\label{def:controller}
+With threshold $\varepsilon$, the controller selects
+\begin{equation}\label{eq:modes}
+  \text{mode}(x)=
+  \begin{cases}
+    \textsc{Resolve}, & \rhoscore>\varepsilon,\\[2pt]
+    \textsc{Explore}, & \rhoscore\le\varepsilon,\\[2pt]
+    \textsc{Unknown}, & \rhoscore=\unk .
+  \end{cases}
+\end{equation}
+\end{definition}
+
+\begin{remark}[Three modes, and an empirical $\varepsilon$]\label{rem:controller}
+The \textsc{Unknown} branch is essential: when $\rhoscore$ is undefined
+the controller \emph{refuses} to default to \textsc{Explore}, because
+``no measurement'' is not ``all is well''
+(Remark~\ref{rem:unk}). The threshold is calibrated rather than guessed:
+on real $384$-dimensional embeddings, agreement gave
+$\rhoscore\approx0.00$, related-but-distinct $\approx0.06$, and
+off-topic $\approx0.14$, so $\varepsilon\approx0.10$ is a principled
+starting gate.
+
+Two cautions were recorded from live runs. First, $\rhoscore$ is
+\emph{not} monotonic in the number of active organs: adding a
+well-aligned organ raises the normaliser faster than the discord, so
+$\rhoscore$ dilutes. Second, comparisons across differently sized
+complexes must be made with care, because $\AM$ and $\norm{X}_F^2$ both
+change.
+\end{remark}
+
+\begin{remark}[Superseded: gate on $\rhotil$, not $\rhoscore$]\label{rem:gate-tilde}
+Both cautions are consequences of a single fact, isolated in
+Proposition~\ref{prop:split}: $\rhoscore=\dissent\cdot\rhotil$, and
+\emph{only $\dissent$ has the pathologies}. Organ-count dilution moves
+$\dissent$ and leaves $\rhotil$ invariant. Cross-complex comparison is
+unsafe for $\rhoscore$, but $\rhotil$ is comparable across complexes
+once expressed as its position inside the window \eqref{eq:window}. The
+controller should therefore gate on $\rhotil$ --- or on its window
+position --- and report $\dissent$ alongside as the answer to a
+genuinely different question.
+
+The typed reading is what the single number could not give:
+\begin{itemize}
+  \item large $\dissent$, small $\rhotil$: a clean two-camp split; the
+        coalition wants restructuring ($\opsplit$, or a new $\opbind$);
+  \item small $\dissent$, large $\rhotil$: one organ is an outlier; a
+        single edge wants repair.
+\end{itemize}
+\end{remark}
+
+\begin{workedbox}\Worked
+Apply the controller to the running example. With $\varepsilon=0.10$ and
+$\rhoscore=0.2$, mode \eqref{eq:modes} returns \textsc{Resolve}, and a
+diagnostic reading only $\rhoscore$ would report ``mild disagreement,
+reconcile''. The typed reading gives more: $\dissent=0.5$ is large and
+$\rhotil$ sits at window position $\tfrac13$, so by
+Remark~\ref{rem:gate-tilde} this is a two-camp split, and the correct
+remediation is $\opsplit$ or a new $\opbind$ --- \emph{not} repair of the
+worst edge. Note also that the worst-edge diagnostic was ambiguous here
+(the argmax tied), which is the same fact appearing in a second
+instrument.
+\hfill$\square$
+\end{workedbox}
+
+\begin{hon}\Hon
+The controller is the one place where every earlier honesty decision
+becomes operational. $\unk$ propagates into a mode rather than being
+coerced to a number; the split of Proposition~\ref{prop:split} changes
+which quantity is gated on; the window of
+Proposition~\ref{prop:window} makes the threshold topology-relative. It
+is also where a mistake is most expensive, because a controller that
+mis-reads its instrument does not merely report wrongly --- it acts.
+\end{hon}

@@ -1,0 +1,322 @@
+\chapter{The Coherence Score}\label{ch:rho}
+
+This chapter derives the two numbers the engine computes on every tick,
+and then shows that one of them is secretly two numbers with different
+meanings.
+
+\section{Why a normaliser is needed at all}
+
+\begin{intu}\Intu
+The discord $\discord$ has no natural scale. A bigger complex has more
+edges and therefore a bigger $\discord$ for no interesting reason, and a
+state scaled by a factor of $10$ has a discord scaled by $100$. What is
+wanted is a dimensionless thermometer in $[0,1]$: $0$ for perfect
+agreement, $1$ for the maximum disagreement the shape permits. The
+subtlety is getting it \emph{without} an eigendecomposition, because the
+score is computed on every tick and an eigensolver is not free.
+\end{intu}
+
+The natural normaliser is $\lambda_{\max}(\Lap)\norm{x}^2$, since
+$\discord(x)=x^\top\Lap x\le\lambda_{\max}(\Lap)\norm{x}^2$ by the
+Rayleigh bound. But computing $\lambda_{\max}$ is exactly what we are
+trying to avoid. The way out is a classical degree bound.
+
+\begin{theorem}[Anderson--Morley]\label{thm:AM}
+\Proved\ Let $G$ be a finite simple graph with combinatorial Laplacian
+$L_G$. Then
+\begin{equation}\label{eq:AMbound}
+  \lambda_{\max}(L_G)\ \le\ \max_{\{u,v\}\in E}\bigl(\deg u+\deg v\bigr)
+  \ =:\ \AM .
+\end{equation}
+\end{theorem}
+\begin{proof}
+Write $L_G=D-A$ and let $Q=D+A$ be the signless Laplacian. Because
+$Q=NN^\top$ for $N$ the unsigned incidence matrix, $Q$ is positive
+semidefinite, and $\lambda_{\max}(L_G)\le\lambda_{\max}(Q)$: passing to
+the bipartite double cover exchanges $L_G$ and $Q$ while preserving the
+spectral radius, and $L_G$ is a principal restriction of that cover's
+signless Laplacian.
+
+It therefore suffices to bound $\lambda_{\max}(Q)$. Let $y$ be a unit
+eigenvector of $Q$ for $\lambda_{\max}$, let $u$ maximise $\abs{y_u}$,
+and let $v$ be a neighbour of $u$ maximising $\abs{y_v}$. From
+$\lambda_{\max}y_u=\deg(u)y_u+\sum_{w\sim u}y_w$ we get
+\[
+  (\lambda_{\max}-\deg u)\abs{y_u}\ \le\ \deg(u)\abs{y_v},
+\]
+and symmetrically $(\lambda_{\max}-\deg v)\abs{y_v}\le\deg(v)\abs{y_u}$.
+Multiplying the two inequalities and cancelling $\abs{y_u}\abs{y_v}>0$
+gives
+$(\lambda_{\max}-\deg u)(\lambda_{\max}-\deg v)\le\deg u\deg v$, i.e.
+$\lambda_{\max}^2-\lambda_{\max}(\deg u+\deg v)\le0$, whence
+$\lambda_{\max}\le\deg u+\deg v\le\AM$.
+\end{proof}
+
+\begin{remark}[The bound is loose, and the looseness costs something]
+\eqref{eq:AMbound} is tight only on special graphs --- it is exact on
+complete bipartite graphs. On the running example $\Kc_4$ it gives
+$\AM=5$ while $\lambda_{\max}=4$, a $25\%$ over-estimate. Over-bounding
+$\lambda_{\max}$ compresses $\rhoscore$ toward zero, which is one of
+three contributors to the dead dynamic range documented in
+Section~\ref{sec:deadrange}. Finding a tighter eigensolver-free bound is
+Open Problem~\ref{op:normaliser}.
+\end{remark}
+
+\section{The score}
+
+\begin{definition}[Coherence score]\label{def:rho}
+Let $X\in\R^{\abs{V}\times d}$ stack the active stalk vectors as rows,
+with Frobenius norm $\norm{X}_F$. In the identity-restriction regime the
+\emph{coherence score} is
+\begin{equation}\label{eq:rho}
+  \boxed{\ \rhoscore\;=\;\frac{\discord}{\AM\,\norm{X}_F^2}\ }
+\end{equation}
+When $E=\emptyset$ or $\norm{X}_F=0$, the score is \emph{undefined} and
+returns $\unk$ --- never $0$ and never $1$.
+\end{definition}
+
+\begin{proposition}[{$\rhoscore\in[0,1]$}]\label{prop:rhobound}
+\ProvedCond\ With identity restriction maps, $0\le\rhoscore\le1$.
+\end{proposition}
+\begin{proof}
+Lower bound: $\discord\ge0$ and $\AM\norm{X}_F^2>0$ whenever the score
+is defined. Upper bound: by Proposition~\ref{prop:b0kernel},
+$\Lap=L_\Kc\otimes I_d$, so
+$\lambda_{\max}(\Lap)=\lambda_{\max}(L_\Kc)\le\AM$ by
+Theorem~\ref{thm:AM}. Hence
+$\discord=x^\top\Lap x\le\lambda_{\max}(\Lap)\norm{x}^2\le\AM\norm{X}_F^2$,
+using $\norm{x}=\norm{X}_F$ under the row-stacking identification.
+\end{proof}
+
+\begin{hon}\Hon
+The hypothesis in Proposition~\ref{prop:rhobound} is not cosmetic. With
+\emph{non-identity} restriction maps the Kronecker factorisation fails,
+$\lambda_{\max}(\Lap)$ is no longer the spectrum of any
+$\abs{V}\times\abs{V}$ matrix, and $\AM$ need not bound it. The correct
+general hypothesis is an operator-norm condition: if every
+$\norm{\rest{v\triang e}}\le1$ then a weighted version of
+Theorem~\ref{thm:AM} still applies. Without it the score can exceed $1$.
+The recorded design decision is that this case is \emph{reported}, not
+silently clamped --- a value $\rhoscore>1$ is evidence that the
+normalisation hypothesis has been violated, and truncating it destroys
+the only evidence there is.
+\end{hon}
+
+\begin{remark}[Why $\unk$ is not $0$]\label{rem:unk}
+An empty edge set means no comparison was made. Returning $0$ would
+report perfect agreement, which is a measurement; returning $\unk$
+reports that no measurement exists. The distinction propagates: the
+controller of Chapter~\ref{ch:controller} carries a third mode precisely
+so that ``no measurement'' does not default to ``all is well''.
+\end{remark}
+
+\section{The score answers two questions at once}
+
+\begin{intu}\Intu
+The numerator $\discord$ is \emph{blind} to consensus, because consensus
+is exactly $\ker\Lap$ and the kernel contributes nothing to the
+quadratic form. The denominator $\norm{X}_F^2$ counts consensus in full.
+So $\rhoscore$ is disagreement divided by (disagreement plus consensus),
+tangled together with a second and quite different quantity saying which
+\emph{shape} the disagreement takes. Untangling them costs one
+orthogonal projection.
+\end{intu}
+
+\begin{proposition}[Exact factorisation]\label{prop:split}
+\ProvedCond\ Assume identity restrictions. Let $x=x_0\oplus x_\perp$ be
+the orthogonal decomposition with $x_0$ the projection onto $\ker\Lap$,
+and suppose $x_\perp\neq0$. Then
+$\discord(x)=x_\perp^\top\Lap x_\perp$,
+$\norm{X}_F^2=\norm{x_0}^2+\norm{x_\perp}^2$, and
+\begin{equation}\label{eq:split}
+  \boxed{\
+  \rhoscore\;=\;
+  \underbrace{\frac{\norm{x_\perp}^2}{\norm{X}_F^2}}_{\textstyle\dissent}
+  \cdot
+  \underbrace{\frac{\discord}{\AM\norm{x_\perp}^2}}_{\textstyle\rhotil}\ }
+\end{equation}
+where $\dissent$, the \emph{dissent fraction}, says how much of the
+state is not consensus, and $\rhotil$, the \emph{mode index}, says which
+mode the disagreement occupies.
+\end{proposition}
+\begin{proof}
+Since $\Lap x_0=0$ and $\Lap$ is symmetric, the cross terms in
+$x^\top\Lap x=(x_0+x_\perp)^\top\Lap(x_0+x_\perp)$ vanish, because
+$x_0^\top\Lap x_\perp=(\Lap x_0)^\top x_\perp=0$. The norm identity is
+Pythagoras. The factorisation is multiplication and division of
+\eqref{eq:rho} by $\norm{x_\perp}^2$.
+\end{proof}
+
+\begin{remark}[The kernel is per-component, not the global mean]\label{rem:percomp}
+For a connected $1$-skeleton, $\ker\Lap$ is the diagonal and
+$x_0=\mathbf1\otimes\bar x$ with $\bar x$ the global mean. For $b_0>1$
+this is \emph{false}: by Proposition~\ref{prop:b0kernel} the kernel
+consists of assignments constant on \emph{each component}, so $x_0$
+subtracts the \textbf{per-component} mean. Using the global mean when
+$b_0>1$ scores between-component separation as dissent, when in fact it
+lies \emph{inside} the kernel and is not disagreement at all. This is a
+correctness condition, not an optimisation.
+\end{remark}
+
+\begin{proposition}[The achievable window]\label{prop:window}
+\ProvedCond\ $\rhotil=R_\Lap(x_\perp)/\AM$ is a Rayleigh quotient of
+$\Lap$ restricted to $(\ker\Lap)^\perp$, so by Courant--Fischer
+\begin{equation}\label{eq:window}
+  \rhotil\ \in\
+  \Bigl[\ \lambda^{+}_{\min}(L_\Kc)/\AM,\ \
+          \lambda_{\max}(L_\Kc)/\AM\ \Bigr],
+\end{equation}
+where $\lambda^{+}_{\min}$ is the smallest \emph{nonzero} eigenvalue ---
+the Fiedler value when $\Kc$ is connected. Both endpoints are graph
+invariants, computable from the $1$-skeleton before any data is seen,
+and needing recomputation only when the topology changes.
+\end{proposition}
+\begin{proof}
+$x_\perp$ ranges over $(\ker\Lap)^\perp$, an invariant subspace on which
+$\Lap$ is positive definite with spectrum the nonzero eigenvalues. The
+Rayleigh quotient of a symmetric operator on an invariant subspace
+attains exactly the closed interval between the extreme eigenvalues
+there. Dividing by the constant $\AM$ gives \eqref{eq:window}.
+\end{proof}
+
+\begin{hon}\Hon
+Four points, in order of importance.
+
+\emph{(i)} \eqref{eq:split} resolves the non-monotonicity of
+Remark~\ref{rem:controller}: adding a well-aligned organ inflates
+$\norm{X}_F^2$ and barely moves $\norm{x_\perp}^2$, so $\dissent$
+dilutes while $\rhotil$ is untouched. The controller should gate on
+$\rhotil$ and report $\dissent$ alongside.
+
+\emph{(ii)} \eqref{eq:window} is \textbf{normalisation, not derivation}.
+Setting a threshold $\varepsilon$ as a quantile $q$ of the window still
+requires choosing $q$. What changes is that $\varepsilon$ is expressed
+in units the graph supplies and adapts automatically to rewiring. It is
+a magic number made topology-relative, not a magic number eliminated,
+and it must not be sold as more than that.
+
+\emph{(iii)} The split is exact \emph{only} for identity restrictions.
+With non-identity maps, $\ker\Lap$ is not the per-component constants
+and no $\abs{V}\times\abs{V}$ matrix carries the spectrum of $\Lap$. The
+correct behaviour is then to report $\dissent$, $\rhotil$ and the window
+as $\unk$ rather than approximate them. $\rhoscore$ itself is unaffected.
+
+\emph{(iv)} When $x_\perp=0$ exactly, $\dissent=0$ and $\rhotil=\unk$:
+perfect consensus has no mode. Returning $0$ for $\rhotil$ would assert
+``the most global mode possible'', a measurement that was not made.
+\end{hon}
+
+\section{The running example, continued}
+
+\begin{workedbox}\Worked
+Continue Example~\ref{ex:K4} with the state of
+Chapter~\ref{ch:laplacian}, where we found $\discord=4$,
+$\norm{X}_F^2=4$ and $\norm{x_\perp}^2=2$.
+
+The degrees are $2,2,3,1$, so
+\[
+  \AM=\max\{2{+}2,\ 2{+}3,\ 2{+}3,\ 3{+}1\}=5 .
+\]
+Hence
+\[
+  \rhoscore=\frac{4}{5\cdot4}=\frac15,
+  \qquad
+  \dissent=\frac{2}{4}=\frac12,
+  \qquad
+  \rhotil=\frac{4}{5\cdot2}=\frac25,
+\]
+and the factorisation checks:
+$\dissent\cdot\rhotil=\tfrac12\cdot\tfrac25=\tfrac15=\rhoscore$.
+
+By Proposition~\ref{prop:specK4} the nonzero spectrum is $\{1,3,4\}$, so
+\[
+  \text{window}=\Bigl[\tfrac{1}{5},\ \tfrac{4}{5}\Bigr]=[0.2,\ 0.8],
+\]
+and $\rhotil=0.4$ sits at window position
+$(0.4-0.2)/(0.8-0.2)=\tfrac13$.
+
+\emph{Reading the pair.} $\dissent=\tfrac12$ is large: half the state's
+energy is not consensus. $\rhotil$ at $\tfrac13$ of its window is low.
+By the typed reading of Remark~\ref{rem:gate-tilde}, large $\dissent$
+with small $\rhotil$ is a \emph{two-camp split} --- which is exactly how
+the state was built. The single number $\rhoscore=0.2$ reads as ``mild
+disagreement'' and misses this completely.
+\hfill$\square$
+\end{workedbox}
+
+\begin{exercise}
+Add a fifth organ $\mathsf{P}$ attached only to $\mathsf{S}$, with
+$x_{\mathsf P}=x_{\mathsf S}=(1,0)$: a perfectly aligned new organ
+contributing no disagreement. Recompute $\AM$, $\rhoscore$, $\dissent$
+and $\rhotil$. Which changed, and does the change match the dilution
+claim in item~(i) above?
+\end{exercise}
+
+\section{The dead dynamic range}\label{sec:deadrange}
+
+\begin{hon}\Hon
+\Refuted\ (measured 2026-07-28). It was claimed that the compressed
+dynamic range of $\rhoscore$ is caused by encoder anisotropy acting
+through $\dissent$. The claim does not survive. The deployed encoder
+returns unit-normalised vectors, for which
+\begin{equation}\label{eq:alphaexact}
+  \dissent=\frac{(n-1)(1-\bar c)}{n},
+\end{equation}
+with $\bar c$ the mean pairwise cosine. At the observed
+$\bar c\approx0.449$ and $n=7$ this gives $\dissent\approx0.46$, which
+is not small. The compression is produced \emph{jointly} by $\dissent$,
+by $\rhotil$ sitting mid-window, and by $\AM$ over-bounding
+$\lambda_{\max}$. On a seven-organ complex the measurement was
+$\rhotil\approx0.47$ inside a window $[0.146,0.854]$: the mode index has
+healthy dynamic range that $\rhoscore$ was multiplying away.
+\end{hon}
+
+\begin{exercise}
+Derive \eqref{eq:alphaexact}. Assume $\norm{x_v}=1$ for all $v$, take
+$x_0$ to be the constant assignment at the mean, and expand
+$\norm{x_\perp}^2=\sum_v\norm{x_v-\bar x}^2$ in terms of pairwise inner
+products. The identity is three lines, and it is why the refutation is
+airtight rather than merely suggestive.
+\end{exercise}
+
+\section{The precision-weighted generalisation}
+
+\begin{construction}[Weighted discord and normaliser]\label{con:weighted}
+\Implemented\ Give each edge a \emph{precision} $\precn_e>0$ and set
+\begin{equation}\label{eq:weighteddiscord}
+  \discord_\precn(x)=\sum_{e=\{u,v\}}\precn_e
+  \norm{\rest{v\triang e}(x_v)-\rest{u\triang e}(x_u)}^2 ,
+\end{equation}
+the Dirichlet form of $\Lap_\precn=\cob^\top P\cob$ with
+$P=\diag(\precn_e)$. Define the precision-weighted degree and the
+weighted normaliser
+\[
+  d_\precn(v)=\sum_{e\ni v}\precn_e,
+  \qquad
+  \AM_\precn=\max_{e=\{u,v\}}\bigl(d_\precn(u)+d_\precn(v)\bigr),
+\]
+and replace $\AM$ by $\AM_\precn$ throughout.
+\end{construction}
+
+\begin{proposition}[The weighted bound]\label{prop:weightedAM}
+\Proved\ In the identity-restriction regime,
+$\lambda_{\max}(\Lap_\precn)\le\AM_\precn$.
+\end{proposition}
+\begin{proof}
+For rational weights, the weighted graph Laplacian is the unweighted
+Laplacian of the multigraph in which edge $e$ is replaced by $\precn_e$
+parallel copies; Theorem~\ref{thm:AM} applied there gives the bound with
+degrees replaced by weighted degrees. The general case follows because
+both sides are continuous in the weights and the rationals are dense.
+\end{proof}
+
+\begin{hon}\Hon
+This is where organ-level confidence legitimately enters the
+architecture. It does \emph{not} enter as a stalk variance: the
+dimensional analysis of Chapter~\ref{ch:geometry} shows a
+confidence-derived stalk floor is $d$-extensive and swamps everything
+else at $d=384$. As an edge precision, entering as $s_e=-\ln c_e/d$, its
+trace contribution is $O(1)$ and it is dimensionally harmless. The same
+number is load-bearing in one place and destructive in the other, and
+the entire difference is where in the sheaf it is attached.
+\end{hon}

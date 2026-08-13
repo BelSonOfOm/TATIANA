@@ -1,0 +1,250 @@
+\chapter{Growth Operators and the Algebra $\Dop$}\label{ch:growth}
+
+\begin{intu}\Intu
+Learning \emph{is} change of shape. The complex binds organs that work
+together, prunes idle ones, and --- when a procedure repeatedly succeeds
+--- promotes it to a first-class operator. Four axes of growth, one of
+which grows the very set of moves the system can make.
+\end{intu}
+
+\section{The structural operators}
+
+\begin{definition}[Base moves]\label{def:ops}
+The base moves on $\CC$ are the typed operators
+\[
+  \{\opbind,\ \opcollapse,\ \opsplit,\ \opmerge\},
+\]
+each logged to an immutable mutation history.
+\end{definition}
+
+\begin{remark}[``Pachner move'' was discarded, correctly]
+Earlier drafts called these Pachner moves. A knowledge complex is not a
+manifold, so the invariance guarantees that make Pachner moves useful
+--- that any two triangulations of a PL manifold are connected by a
+finite sequence of them --- simply do not transfer. Borrowing the name
+would have imported a theorem that does not apply.
+\end{remark}
+
+\begin{construction}[The four growth axes]\label{con:axes}
+Evolution proceeds along
+\[
+  \underbrace{\delta\CC_{\text{fine}}}_{\text{concepts}},\quad
+  \underbrace{\delta\CC_{\text{coarse}}}_{\text{coalitions}},\quad
+  \underbrace{\delta\Fs}_{\text{stalk and restriction data}},\quad
+  \underbrace{\delta\Dop}_{\text{new operators}} .
+\]
+The fourth axis is the essential one: the operator algebra is
+time-dependent, $\Dop(t)\to\Dop(t+1)$.
+\end{construction}
+
+\begin{definition}[Hebbian coupling and decay]\label{def:hebb}
+For a coalition $\sigma$ with weight $w(\sigma,t)\in[0,1]$:
+co-activation increments $w$; idle steps apply
+$w(\sigma,t+1)=(1-\gamma)w(\sigma,t)$ for a decay rate $\gamma\in(0,1)$;
+a coalition falling below a bind threshold \emph{collapses}. A pair past
+the bind threshold is a $1$-simplex of $\Kc$.
+\end{definition}
+
+\begin{proposition}[Idle coalitions collapse in finite time]\label{prop:decay}
+\Proved\ If $\sigma$ is idle from time $t_0$ and the bind threshold is
+$\theta>0$, then $\sigma$ collapses at the first
+$t\ge t_0+\log_{1/(1-\gamma)}\bigl(w(\sigma,t_0)/\theta\bigr)$.
+\end{proposition}
+\begin{proof}
+Iterating the decay gives $w(\sigma,t_0+m)=(1-\gamma)^mw(\sigma,t_0)$,
+which falls below $\theta$ as soon as
+$m\ln(1-\gamma)<\ln\bigl(\theta/w(\sigma,t_0)\bigr)$; since
+$\ln(1-\gamma)<0$ this is $m>\log_{1/(1-\gamma)}(w(\sigma,t_0)/\theta)$.
+\end{proof}
+
+\begin{construction}[Consolidation and microneurons]\label{con:micro}
+Over the weight filtration, persistent homology reads which coalitions
+and concept-cycles \emph{survive}; survivors are promoted into permanent
+structure. A \emph{microneuron} is a promoted sub-tree: when a composite
+DAG repeatedly resolves conflict \emph{and} passes verification, it is
+named and thereafter emitted by the planner as a single atomic generator
+of $\Dop$. This is $\delta\Dop$ made concrete. The promotion gate is
+\textsc{VerifyOp} (Chapter~\ref{ch:verify}): a composite becomes a
+generator only if it survives the external oracle.
+\end{construction}
+
+\begin{hon}\Hon
+The requirement that promotion pass \textsc{VerifyOp} is doing real
+work. Without it, ``repeatedly resolved conflict'' promotes whatever
+procedure most reliably makes the organs agree --- which, in a system
+whose only cheap signal is agreement, selects for procedures that
+manufacture consensus rather than truth. Coherence is a control signal,
+not a fitness function, and the gate is what keeps that distinction
+enforced.
+\end{hon}
+
+\chapter{The Fine Dynamics}\label{ch:flow}
+
+\begin{intu}\Intu
+Inside an organ, reasoning is a \emph{flow}. New material perturbs the
+internal state and a gradient descent pulls it back toward internal
+coherence, subject to hard constraints (axioms that must hold) and soft
+constraints (inferred facts, bendable).
+\end{intu}
+
+\begin{construction}[Fine state and deductive flow]\label{con:flow}
+The fine state of an organ is a configuration $x\in(\Rd)^m$ over its $m$
+active concepts, with a scalar \emph{conflict functional} $\Phi(x)\ge0$
+measuring internal inconsistency --- the fine-level analogue of
+$\discord$. Reasoning integrates
+\begin{equation}\label{eq:flow}
+  \dot x=-\nabla\Phi(x)
+\end{equation}
+by a fixed-step fourth-order Runge--Kutta scheme. The reported
+\emph{$\delta$-strain} of a step is the achieved change $\Delta\Phi$.
+Two constraint types shape $\Phi$: \emph{rigid} constraints
+(user-stated axioms) act as hard orthogonal projections onto an affine
+subspace via a projector $P$; \emph{fluid} constraints (inferred facts)
+act as soft quadratic penalties.
+\end{construction}
+
+\begin{proposition}[The flow is a descent]\label{prop:descent}
+\Proved\ Along any solution of \eqref{eq:flow},
+$\frac{d}{dt}\Phi(x(t))=-\norm{\nabla\Phi(x(t))}^2\le0$, with equality
+exactly at critical points. If $\Phi$ is bounded below --- which it is,
+by $\Phi\ge0$ --- then $\Phi(x(t))$ converges and
+$\nabla\Phi(x(t))\to0$ along a subsequence.
+\end{proposition}
+\begin{proof}
+Chain rule: $\frac{d}{dt}\Phi=\inner{\nabla\Phi}{\dot x}
+=-\inner{\nabla\Phi}{\nabla\Phi}$. Monotone and bounded below implies
+convergent; integrating
+$\int_0^\infty\norm{\nabla\Phi}^2\,dt=\Phi(x(0))-\lim\Phi<\infty$
+forces $\liminf\norm{\nabla\Phi}=0$.
+\end{proof}
+
+\begin{remark}[Observed sign behaviour]
+On a live run, injecting a new concept raised $\Phi$ by a structural
+jump ($\delta$-strain $=+0.202$) and the subsequent flow pulled it back
+down ($\delta$-strain $=-0.081$): a structural expansion followed by a
+deductive relaxation, which is the intended dynamics. Note that the
+expansion is \emph{not} a descent step --- it is an exogenous change of
+the functional itself, and only the relaxation is governed by
+Proposition~\ref{prop:descent}.
+\end{remark}
+
+\begin{hon}\Hon
+The closed form of $\Phi$ is an implementation-level choice --- a
+penalised quadratic on the fine complex --- and is deliberately not
+over-specified here. What is mathematically committed is \eqref{eq:flow}
+(a gradient flow on a nonnegative conflict functional) and the
+rigid/fluid split as hard projection versus soft penalty. Convergence to
+a \emph{global} minimum is not claimed and would be false for a
+non-convex $\Phi$.
+\end{hon}
+
+\chapter{Scheduling: Antichains, and Why ``Operad'' Is Not Earned}\label{ch:operad}
+
+\begin{intu}\Intu
+A reasoning act is a small program: a directed acyclic graph of
+operators, some depending on others. Independent operators can run at
+once, and the scheduler slices the DAG into layers of mutually
+independent work.
+\end{intu}
+
+\begin{definition}[Antichain foliation]\label{def:foliation}
+A reasoning act is a DAG $T=(N,\prec)$ of operator nodes. The scheduler
+foliates $T$ into the antichain layers of $\prec$: layer $0$ is the set
+of minimal nodes, and layer $\ell+1$ is the set of nodes all of whose
+predecessors lie in layers $\le\ell$. Each layer is executed in
+parallel. Correctness follows because nodes in one antichain share no
+$\prec$-dependency. Node \emph{support} sets index which fine-complex
+vertices an operator reads and writes, so slices with disjoint support
+are safe to co-execute.
+\end{definition}
+
+\begin{remark}[The intended structure is a trace monoid]\label{rem:tracemonoid}
+What Definition~\ref{def:foliation} describes is antichain layering of a
+DAG. An operad requires multi-input composition together with
+equivariance, associativity and unit axioms, none of which are stated or
+used anywhere. The structure the design is reaching for is a
+\emph{trace monoid} $\mathbb M(\Sigma,I)$ in the sense of Mazurkiewicz:
+the free monoid on the operator alphabet modulo $ab=ba$ for pairs in an
+\emph{independence relation} $I$, whose canonical Foata normal form is
+exactly the antichain layering the scheduler computes. That
+identification would be a \emph{sharpening} rather than a downgrade,
+since it supplies normal forms, a Hilbert series, and a canonical form
+for deduplication. The terminology should be corrected regardless of
+whether the identification is completed.
+\end{remark}
+
+\begin{hon}\Hon
+\Refuted\ The trace-monoid identification \textbf{does not currently
+hold}, and the reason is three separate defects, measured 2026-07-29
+against the deployed operator set.
+
+\emph{(i) The relation is not symmetric.} In the scheduler, admitting
+\emph{any} empty-support node --- including a read-only one --- marks
+the whole slice as a global mutation and blocks every later node. So $8$
+of the $15$ operator pairs can share a slice in one order and not in the
+other. An independence relation is symmetric by definition; a
+non-symmetric relation defines no trace monoid, hence no Foata normal
+form and no Hilbert series. This is very likely an unintended scheduling
+behaviour and is worth fixing on its own merits.
+
+\emph{(ii) The support sets are placeholders.} Every support accessor
+returns a hardcoded literal --- $\varnothing$, $\{0\}$ or $\{1\}$ ---
+with three of the six operators returning the same $\{0\}$, and a
+comment standing in for an analysis of what the operator actually
+touches. Any invariant computed from these describes six constants, not
+the system.
+
+\emph{(iii) The convention for $\varnothing$ is inverted.} In the engine
+an empty support means \textsc{global}: touches everything, must run
+isolated. Read as a set, $\varnothing$ is disjoint from everything and
+would mean independent of everything. The two readings give capacities
+differing by a factor of $1.8$ ($\kappa=3.00$ versus $\kappa=5.45$,
+against $\kappa=6$ for the free monoid), so the quantity is not well
+defined until the convention is fixed.
+
+Under the reading the engine actually implements, the algebra is
+\emph{nearly free} --- about $9\%$ below the free monoid --- because
+three of six operators share one support. The order of repair is: fix
+the symmetry defect; derive real read/write sets, including the shared
+state the current model ignores entirely (the store, the obstruction
+counter $\Omega$, the mutation log, and the coarse stalks that $\pi_v$
+overwrites after every execution); only then recompute $I$. Operators
+that all mutate $\Omega$ do not commute whatever their vertex supports
+say. Until that is done, no capacity, Koszulity, or resolution claim
+about $\Dop$ should appear anywhere.
+\end{hon}
+
+\chapter{The Lift--Project Adjunction}\label{ch:adjunction}
+
+\begin{intu}\Intu
+Two worlds: free-form natural language, and structured reasoning DAGs.
+One map \emph{lifts} language into a validated DAG; a partner map
+\emph{projects} a DAG back into language. Meaning that carries no
+reasoning content collapses under the lift --- it lands in the kernel.
+\end{intu}
+
+\begin{construction}[The boundary morphisms]\label{con:adjunction}
+Let $\mathcal L$ send a natural-language request to a validated
+reasoning DAG, and $\mathcal M$ send a DAG to a natural-language
+rendering. The lift is guarded by a validator rejecting malformed DAGs
+at the boundary: duplicate identifiers, dangling children, cycles by
+depth-first colouring, absence of a terminal output node, and
+disconnection. The downstream engine therefore only ever receives
+well-formed programs.
+\end{construction}
+
+\begin{remark}[The kernel behaves as intended]
+Semantically void input maps into $\ker\mathcal L$: a joke embedded in a
+mathematical prompt produced zero DAG nodes, exactly as a kernel element
+should. This is an observation on one input, not a theorem.
+\end{remark}
+
+\begin{hon}\Hon
+$\mathcal L\dashv\mathcal M$ is the intended categorical \emph{framing}
+--- lift left adjoint to project --- and it organises the design
+usefully. The unit and counit are not constructed here and the triangle
+identities are not verified, so ``adjunction'' should be read as a
+structuring principle plus two concrete morphisms with an observed
+kernel behaviour, and not as a proved theorem. Stating this is part of
+the honesty invariant rather than an apology for it.
+\end{hon}

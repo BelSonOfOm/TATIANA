@@ -1,0 +1,117 @@
+\chapter{Potentials for Quantum Implementation}\label{ch:quantum}
+
+\begin{hon}\Hon
+\Proposed\ Nothing in this part is implemented, and nothing in it is
+required by any result elsewhere in the book. It is included because the
+sheaf Laplacian is exactly the kind of object for which quantum linear
+algebra has a story, and because that story has a specific shape worth
+recording before it is attempted. Every claim here should be read as a
+research programme with an identified failure mode, not as a capability.
+\end{hon}
+
+\section{Why this object at all}
+
+The two quantities \textsc{tatiana} computes on every tick are a
+Dirichlet energy $\discord(x)=x^\top\Lap x$ and a normalised version of
+it. Both are quadratic forms in a sparse, symmetric, positive
+semidefinite operator built from local data. This is the standard input
+to quantum linear-algebra routines, and the standard caution applies:
+the speedups are in the linear algebra, and they are destroyed by the
+cost of getting classical data in and scalar answers out.
+
+\section{The Dirac operator and its block-encoding}
+
+\begin{definition}[Sheaf Dirac operator]\label{def:dirac}
+Let $\dsheaf=\bigoplus_k\cob^k$ be the total coboundary of the sheaf.
+The \emph{sheaf Dirac operator} is
+\[
+  \Dirac \;=\; \dsheaf+\dsheaf^{\,\dagger},
+\]
+a self-adjoint operator on $\bigoplus_k \Ck{k}$ satisfying
+$\Dirac^2=\Delta$, the total Hodge Laplacian. Its kernel is the space of
+harmonic cochains, which by Hodge theory is isomorphic to
+$\bigoplus_k \Hk{k}$.
+\end{definition}
+
+The programme, stated as a pipeline:
+\begin{enumerate}
+  \item \textbf{Block-encode $\Dirac$.} Construct a unitary $U$ whose
+        top-left block is $\Dirac/\gamma$ for a subnormalisation
+        $\gamma\ge\norm{\Dirac}$. For a cellular sheaf with
+        \emph{matrix-valued} restriction maps this is the substantive
+        step, and the subnormalisation $\gamma$ scales with the
+        heterogeneity of those matrices --- which is precisely the
+        quantity that makes the sheaf interesting in the first place.
+  \item \textbf{Filter onto $\ker\Dirac$.} Apply a polynomial
+        approximation to a projector via quantum singular value
+        transformation, isolating the harmonic subspace.
+  \item \textbf{Extract a scalar.} Estimate $\discord$, or an overlap
+        with a prepared state, by amplitude estimation.
+\end{enumerate}
+
+\begin{remark}[Where this programme is honest and where it is not]
+Step 1 is the only step with genuine novelty for cellular sheaves with
+matrix-valued restrictions; steps 2 and 3 are standard. The honest
+statement of the advantage is therefore about the \emph{encoding} and
+its resource scaling, not about an end-to-end speedup for
+\textsc{tatiana}. In the deployed regime the restriction maps are the
+identity (Proposition~\ref{prop:b0kernel}), $\Lap=L_\Kc\otimes I_d$, and
+the whole object reduces to a graph Laplacian on seven vertices --- for
+which classical computation is instantaneous and any quantum treatment
+is theatre. The quantum question only becomes non-trivial once
+Open Problem~\ref{op:restrictions} is solved and the maps are genuinely
+matrix-valued and heterogeneous.
+\end{remark}
+
+\section{The obstruction: input and output}
+
+\begin{hon}\Hon
+Two costs dominate and both are classical.
+
+\emph{Input.} The stalk data is a set of $384$-dimensional embeddings
+produced by a classical encoder. Preparing an amplitude encoding of
+these costs, in the absence of a QRAM, time linear in the data --- which
+is the same order as computing $\discord$ classically. Any claimed
+speedup that assumes free state preparation is assuming away the
+problem.
+
+\emph{Output.} $\discord$ is one real number, and amplitude estimation
+returns it to precision $\varepsilon$ in $O(1/\varepsilon)$ queries. For
+a diagnostic thermometer read once per tick, $\varepsilon$ need not be
+small, but neither is the classical cost large. The regime where the
+quantum route can win is not ``compute $\rhoscore$ faster''; it is
+``compute something about the spectrum of $\Lap$ that is classically
+infeasible'', and no such quantity is currently required by the
+architecture.
+\end{hon}
+
+\section{What would make this real}
+
+\begin{openproblem}[A quantity worth the encoding]\label{op:quantumquantity}
+Identify a functional of $\Lap$ that (i) the architecture genuinely
+needs, (ii) is classically infeasible at the scale \textsc{tatiana}
+reaches, and (iii) is extractable from the block-encoded $\Dirac$ by a
+constant number of scalar measurements. Without (i) the programme is
+solving an unposed problem; without (ii) it is slower than the classical
+route; without (iii) the output cost swamps the encoding.
+\end{openproblem}
+
+\begin{openproblem}[Subnormalisation in terms of sheaf data]
+Give an explicit bound on the block-encoding subnormalisation $\gamma$
+for a cellular sheaf Dirac operator in terms of the restriction-map
+norms and the degrees of the complex, and determine how it degrades as
+the maps become heterogeneous. This is the resource-scaling statement on
+which any advantage claim rests.
+\end{openproblem}
+
+\begin{remark}[Relation to the eddy-current programme]
+The block-encoding of a cellular sheaf Dirac operator with matrix-valued
+restriction maps is the technical core of a separate research programme
+on magnetoquasistatic problems, where the sheaf arises from a
+discretised PDE rather than from a cognitive architecture and the
+subnormalisation scales in material contrast. The mathematics is the
+same; the physical problem supplies what
+Open Problem~\ref{op:quantumquantity} asks for and \textsc{tatiana},
+at present, does not. That asymmetry is the honest reason this part is
+short.
+\end{remark}

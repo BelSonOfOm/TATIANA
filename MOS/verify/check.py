@@ -29,6 +29,8 @@ SPEC FORMAT
     {"kind": "eigenvalues",    "matrix": [[2,0],[0,3]], "expected": [2,3]}
     {"kind": "limit",          "expr": "sin(x)/x", "var": "x", "to": "0", "expected": "1"}
     {"kind": "derivative",     "expr": "x**3", "var": "x", "expected": "3*x**2"}
+    {"kind": "citation",       "src": "2608.01080v1:thm:main", "dst": "2608.01080v1:lem:key",
+     "refs": "refs_corpus.json"}
 """
 
 from __future__ import annotations
@@ -113,12 +115,89 @@ def check_derivative(spec) -> tuple[int, str]:
     return EXIT_REFUTED, f"d/d{spec['var']} = {got}, expected {expected}"
 
 
+# --------------------------------------------------------------------------
+# P2 TIER 2 — CITATION GROUNDING
+# --------------------------------------------------------------------------
+#
+# A claim that block A depends on block B is checked against the author-asserted
+# dependency graph that `python/extract_refs.py` extracts from arXiv LaTeX
+# sources: when a proof writes "by Lemma 3.2", the author has asserted that this
+# block depends on that one.
+#
+# WHAT MAY AND MAY NOT BE CONCLUDED. extract_refs.py is explicit that its edges
+# are "excellent POSITIVES and unusable NEGATIVES" -- high precision, low recall,
+# because most real dependencies are implicit and never get a \ref. So:
+#
+#   A -> B present in the record      => VERIFIED. The author asserted it.
+#   B -> A present, A -> B absent     => REFUTED. Not silence: the record
+#                                        asserts the OPPOSITE direction, and a
+#                                        dependency cannot run both ways.
+#   neither present                   => UNVERIFIABLE, always.
+#
+# THE THIRD CASE IS THE WHOLE POINT AND IS THE EASIEST TO GET WRONG. Treating "no
+# edge in the record" as a refutation would convert the corpus's LOW RECALL into
+# confident falsehoods, and would refute most true dependencies in mathematics.
+# The docstring of extract_refs.py warns against exactly this, so the rule here
+# is the narrowest one that can still ever fire: only a recorded edge in the
+# opposite direction refutes.
+
+_REFS_CACHE = {}
+
+
+def _load_refs(path):
+    """Load and index the \\ref record once per process."""
+    if path in _REFS_CACHE:
+        return _REFS_CACHE[path]
+    with open(path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+    edges = set()
+    for e in payload.get("edges", []):
+        src, dst = e.get("src"), e.get("dst")
+        if src is not None and dst is not None:
+            edges.add((str(src), str(dst)))
+    blocks = {str(b.get("id")) for b in payload.get("blocks", [])}
+    _REFS_CACHE[path] = (edges, blocks)
+    return edges, blocks
+
+
+def check_citation(spec) -> "tuple[int, str]":
+    """Ground an asserted dependency against the author-asserted \\ref graph."""
+    path = spec.get("refs", "refs_corpus.json")
+    src, dst = spec.get("src"), spec.get("dst")
+    if not src or not dst:
+        return EXIT_UNVERIFIABLE, "citation check needs both 'src' and 'dst'"
+
+    try:
+        edges, blocks = _load_refs(path)
+    except (OSError, json.JSONDecodeError) as e:
+        return EXIT_UNVERIFIABLE, f"cannot read ref corpus {path!r}: {e}"
+
+    src, dst = str(src), str(dst)
+
+    # A block the corpus has never heard of cannot corroborate OR contradict.
+    if src not in blocks or dst not in blocks:
+        missing = [b for b in (src, dst) if b not in blocks]
+        return EXIT_UNVERIFIABLE, f"block(s) not in the ref corpus: {missing}"
+
+    if (src, dst) in edges:
+        return EXIT_VERIFIED, f"author asserted {src} -> {dst}"
+
+    if (dst, src) in edges:
+        return EXIT_REFUTED, (f"record asserts the OPPOSITE direction "
+                              f"({dst} -> {src}); a dependency cannot run both ways")
+
+    # Silence. NOT a refutation -- see the note above.
+    return EXIT_UNVERIFIABLE, (f"no \\ref edge either way between {src} and {dst}; "
+                               f"the record has low recall, so absence proves nothing")
+
+
 CHECKS = {
     "symbolic_equal": check_symbolic_equal,
     "simplify_zero": check_simplify_zero,
     "eigenvalues": check_eigenvalues,
     "limit": check_limit,
     "derivative": check_derivative,
+    "citation": check_citation,
 }
 
 
@@ -141,11 +220,16 @@ def main(argv) -> int:
               f"known: {sorted(CHECKS)}")
         return EXIT_UNVERIFIABLE
 
-    try:
-        import sympy  # noqa: F401
-    except ImportError:
-        print("VERDICT=UNVERIFIABLE reason=sympy not installed")
-        return EXIT_UNVERIFIABLE
+    # Only the SYMBOLIC checks need sympy. Gating every kind on it would make
+    # citation grounding -- which is pure set lookup against the \ref record --
+    # report UNVERIFIABLE on a machine without sympy, i.e. turn a missing
+    # optional dependency into a fabricated epistemic state.
+    if kind != "citation":
+        try:
+            import sympy  # noqa: F401
+        except ImportError:
+            print("VERDICT=UNVERIFIABLE reason=sympy not installed")
+            return EXIT_UNVERIFIABLE
 
     try:
         code, detail = fn(spec)

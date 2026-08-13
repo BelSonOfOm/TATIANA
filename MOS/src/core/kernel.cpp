@@ -24,6 +24,29 @@ public:
             geometry.assign(op_data->geometry()->begin(), op_data->geometry()->end());
         }
 
+        // P1. THE SUPPORT, WHICH USED TO BE READ BY NOBODY.
+        //
+        // `support` has been in the schema since the beginning and this factory
+        // never touched it, so the resolved ids crossed the boundary and died
+        // here. Every operator then reported a hard-coded constant, which is why
+        // `select_commuting_slice` could not tell two nodes apart and the
+        // operad's parallelism was dead code.
+        //
+        // The vector's PRESENCE is what distinguishes "the planner named
+        // concepts" from "this operator was never scoped", so the null check is
+        // the whole distinction and not a defensive habit: an absent vector
+        // leaves the operator on its legacy constant, while a present-but-empty
+        // one means "named, nothing resolved" and reads as a global mutation.
+        std::optional<std::set<int>> support;
+        if (op_data->support()) {
+            support.emplace(op_data->support()->begin(), op_data->support()->end());
+        }
+
+        auto scoped = [&support](std::shared_ptr<mos::core::CognitiveOperator> op) {
+            if (op && support) op->set_support(*support);
+            return op;
+        };
+
         switch (op_data->type()) {
             case mos::fbs::OpType_CONTEXT: {
                 std::vector<mos::operators::ContextOp::Constraint> c_list;
@@ -37,20 +60,20 @@ public:
                         c_list.push_back(c);
                     }
                 }
-                return std::make_shared<mos::operators::ContextOp>(payload, c_list);
+                return scoped(std::make_shared<mos::operators::ContextOp>(payload, c_list));
             }
             case mos::fbs::OpType_SEARCH:
-                return std::make_shared<mos::operators::SearchOp>(payload, kb, llm, geometry);
+                return scoped(std::make_shared<mos::operators::SearchOp>(payload, kb, llm, geometry));
             case mos::fbs::OpType_COMPUTE:
-                return std::make_shared<mos::operators::ComputeOp>(
+                return scoped(std::make_shared<mos::operators::ComputeOp>(
                     payload, llm, config.compute_dt, config.compute_lambda, geometry
-                );
+                ));
             case mos::fbs::OpType_VERIFY:
-                return std::make_shared<mos::operators::VerifyOp>(payload);
+                return scoped(std::make_shared<mos::operators::VerifyOp>(payload));
             case mos::fbs::OpType_REASON:
-                return std::make_shared<mos::operators::ReasonOp>(payload, llm, geometry);
+                return scoped(std::make_shared<mos::operators::ReasonOp>(payload, llm, geometry));
             case mos::fbs::OpType_RESPOND:
-                return std::make_shared<mos::operators::RespondOp>(payload);
+                return scoped(std::make_shared<mos::operators::RespondOp>(payload));
             default:
                 return nullptr;
         }
@@ -317,6 +340,45 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
         }
     }
 
+    // 4b-bis. MEASURE DISCORD, NOW RATHER THAN AT STEP 5.
+    //
+    // This used to be measured after consolidation, which made it useless as
+    // evidence: gamma was already chosen by then. Nothing between here and the
+    // old site touches `coarse_` -- consolidation writes concept_store_ and
+    // state_, not K -- so the number is identical; only its availability moved.
+    last_coherence_ = coarse_.report();
+
+    // P2 TIER 1: INTERNAL CONSISTENCY, THE ONLY VERDICT THAT NEEDS NO ORACLE.
+    //
+    // Compared against the gate BEFORE this tick's rho is recorded into it, so
+    // a tick is judged against accumulated experience rather than partly
+    // against itself. (With fewer than `min_history` samples eps_rho() returns
+    // the documented default, so early ticks are judged against the cold-start
+    // constant rather than against noise.)
+    //
+    // ONE DIRECTION ONLY -- see `KernelConfig::coherence_verdict`. High rho
+    // publishes Refuted; low rho publishes NOTHING. `note_verdict` combines by
+    // `combine` (weakest wins), so a tier-1 refutation cannot be overridden by
+    // a VerifyOp that passed, and a VerifyOp refutation is not weakened by
+    // organs that happened to agree.
+    last_refuted_by_coherence_ = false;
+    if (config_.coherence_verdict && last_coherence_.rho.has_value()) {
+        const double gate = criticality_.eps_rho();
+        if (*last_coherence_.rho > gate) {
+            state_.note_verdict(Verdict::Refuted);
+            last_refuted_by_coherence_ = true;
+            std::cerr << "[OSKernel] P2 tier 1: REFUTED by internal incoherence "
+                      << "(rho=" << *last_coherence_.rho << " > eps_rho=" << gate
+                      << "). The organs that just cooperated disagree; this tick "
+                      << "will not crystallise.\n";
+            if (auto guilty = last_coherence_.worst_edge()) {
+                std::cerr << "[OSKernel]   worst disagreement: '" << guilty->first
+                          << "' <-> '" << guilty->second << "'\n";
+            }
+        }
+        criticality_.record_rho(*last_coherence_.rho);
+    }
+
     // 4c. THE CONSOLIDATION LOOP (Phase 3). The spine, closed:
     //
     //     retrieved set --> i^*  --> W --> learn R^W --> nu --> gamma --> i_!
@@ -393,19 +455,64 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
                 // every check this store has ever seen. `crystallise_unverified
                 // = false` still forces exactly 0 -- only checked sessions move
                 // the store -- because that is a policy, not an estimate.
-                const double gamma =
+                double gamma =
                     last_verdict_
                         ? gamma_nu(*last_verdict_, config_.gamma0, config_.gamma_eps)
                         : gamma_for_unchecked();
 
+                // P2's rule, applied as POLICY over gamma_nu's DEFINITION.
+                // An oracle that ran and could not decide licenses nothing, so
+                // the store must be left bit-identical rather than nudged --
+                // see KernelConfig::unverifiable_gamma_zero for why this
+                // knowingly contradicts gamma_nu, and which document says what.
+                if (config_.unverifiable_gamma_zero && last_verdict_ &&
+                    *last_verdict_ == Verdict::Unverifiable) {
+                    gamma = 0.0;
+                }
+
+                // P3. MEASURE THE GAP BEFORE i_! MOVES THE STORE.
+                //
+                // After crystallisation R^K has already been pulled toward R^W,
+                // so a gap measured afterwards is the RESIDUAL and shrinks with
+                // gamma by construction. What the diagnosis needs is how much
+                // this tick had to teach, which only exists until i_shriek runs.
+                last_learned_ = learned;
+                last_gap_mean_.reset();
+                last_gap_max_.reset();
+                const auto gaps = delta_R(K, W);
+                if (!gaps.empty()) {
+                    double sum = 0.0, worst = 0.0;
+                    for (const auto& [edge, g] : gaps) {
+                        (void)edge;
+                        sum += g;
+                        if (g > worst) worst = g;
+                    }
+                    last_gap_mean_ = sum / static_cast<double>(gaps.size());
+                    last_gap_max_ = worst;
+                }
+
+                const double q_before = K.Q();
                 last_crystallised_ = i_shriek(K, W, gamma);
+                const double q_after = K.Q();
+
                 if (learned > 0) {
                     std::cerr << "[OSKernel] consolidation: learned " << learned
                               << " edge(s), gamma=" << gamma << " ("
                               << (last_verdict_ ? to_string(*last_verdict_)
                                                 : "no oracle")
                               << "), crystallised " << last_crystallised_
-                              << ", Q=" << K.Q() << "\n";
+                              << ", Q=" << q_before << "->" << q_after << "\n";
+                    // The P3 line. Logged even when it is zero, because a zero
+                    // gap is a FINDING (nothing left to learn) and an absent
+                    // line is indistinguishable from a tick that never ran.
+                    std::cerr << "[OSKernel] P3 gap ||R^W - R^K||: mean="
+                              << (last_gap_mean_ ? std::to_string(*last_gap_mean_)
+                                                 : std::string("n/a"))
+                              << " max="
+                              << (last_gap_max_ ? std::to_string(*last_gap_max_)
+                                                : std::string("n/a"))
+                              << " over " << gaps.size() << " shared edge(s)"
+                              << " | dQ=" << (q_after - q_before) << "\n";
                 }
             } catch (const std::exception& e) {
                 // Consolidation is not allowed to take the tick down. A store
@@ -415,12 +522,17 @@ bool OSKernel::execute_dag(const uint8_t* buffer, size_t size) {
         }
     }
 
-    // 5. Measure discord over the coarse complex K.
+    // 5. Report discord over the coarse complex K.
     // This is the real control signal: it asks whether the organs that just
     // cooperated on this reasoning act were working on semantically coherent
     // material. rho is reported as UNKNOWN when it genuinely is (no bound pairs,
     // or no organ carried geometry) rather than being defaulted to a number.
-    last_coherence_ = coarse_.report();
+    //
+    // MEASURED AT 4b-bis, not here: P2 tier 1 needs the verdict published before
+    // 4c chooses gamma, and a number computed after the decision it is supposed
+    // to inform is not evidence. Re-measuring here would give the same value --
+    // nothing since then has touched `coarse_` -- so it would only invite the
+    // two sites to drift.
     std::cerr << "[OSKernel] coherence: " << last_coherence_.summary() << "\n";
 
     // 5b. E7 — CLOSE THE EVENT now that rho_after exists.

@@ -1,0 +1,314 @@
+\chapter{Semantic Geometry}\label{ch:geometry}
+
+Part~I built the shape and Part~II measured disagreement across it. This
+part supplies the geometry \emph{inside} an organ: what a concept is,
+how many concepts collapse into the single vector a stalk holds, and how
+far apart two uncertain concepts are.
+
+\section{A concept is a Gaussian}
+
+\begin{intu}\Intu
+A concept is not a point. It is a point plus an admission of how
+uncertain that point is, and --- more subtly --- of the \emph{directions}
+in which it is uncertain. A concept may be sharply located along one
+axis of meaning and vague along another. A Gaussian with a structured
+covariance is the smallest object that records all three.
+\end{intu}
+
+\begin{definition}[Concept]\label{def:concept-gauss}
+A \emph{concept} is a Gaussian $\mathcal N(\mu_i,\Sigma_i)$ on $\Rd$
+with low-rank-plus-isotropic covariance
+\begin{equation}\label{eq:cov}
+  \Sigma_i=U_iU_i^\top+D_i I_d,
+  \qquad U_i\in\R^{d\times k_i},\ D_i>0 .
+\end{equation}
+Here $\mu_i$ is the embedding, $U_iU_i^\top$ is anisotropic learned
+spread, and $D_i$ is an isotropic noise floor --- the epistemic humility
+of the concept.
+\end{definition}
+
+The rank $k_i$ is kept small (in practice $k_i\le8$). This is not a
+performance compromise: it is what makes every computation below reduce
+to a $k\times k$ problem rather than a $d\times d$ one, and it is the
+reason the geometry is affordable at all.
+
+\section{The coarse-graining $\pi_v$}
+
+\begin{intu}\Intu
+An organ holds many concepts but exposes one vector to the coarse
+complex. Which vector? Not the plain average: a near-certain concept
+should dominate a vague one. The right notion of weight is
+\emph{precision} --- inverse variance --- and the resulting formula is
+exactly how independent noisy measurements of a single quantity are
+optimally combined.
+\end{intu}
+
+\begin{construction}[The coarse-graining map]\label{con:piv}
+For an organ $v$ with active concepts
+$\{\mathcal N(\mu_i,\Sigma_i)\}_{i=1}^n$, the coarse stalk value is
+\begin{equation}\label{eq:piv}
+  \boxed{\ \pi_v\;=\;
+  \Bigl(\sum_{i=1}^n\Sigma_i^{-1}\Bigr)^{-1}
+  \Bigl(\sum_{i=1}^n\Sigma_i^{-1}\mu_i\Bigr)\ }
+\end{equation}
+If $v$ has no active concept then $\pi_v=\unk$, and $v$ is excluded from
+the computation of $\rhoscore$ rather than contributing a zero vector.
+\end{construction}
+
+\begin{proposition}[$\pi_v$ is the maximum-likelihood fusion]\label{prop:pivmle}
+\Proved\ Suppose $\theta\in\Rd$ is a latent vector and each concept is an
+independent observation $\mu_i=\theta+\varepsilon_i$ with
+$\varepsilon_i\sim\mathcal N(0,\Sigma_i)$. Then the maximum-likelihood
+estimate of $\theta$ is \eqref{eq:piv}.
+\end{proposition}
+\begin{proof}
+The log-likelihood is
+$\ell(\theta)=-\tfrac12\sum_i(\mu_i-\theta)^\top\Sigma_i^{-1}(\mu_i-\theta)
++\text{const}$.
+Its gradient is
+$\nabla_\theta\ell=\sum_i\Sigma_i^{-1}(\mu_i-\theta)$, and setting it to
+zero gives $\bigl(\sum_i\Sigma_i^{-1}\bigr)\theta=\sum_i\Sigma_i^{-1}\mu_i$.
+The matrix $\sum_i\Sigma_i^{-1}$ is positive definite (each
+$\Sigma_i^{-1}$ is, since $D_i>0$), hence invertible, and $\ell$ is
+strictly concave, so the stationary point is the unique maximum.
+\end{proof}
+
+\begin{remark}[Three properties worth naming]
+The fusion \eqref{eq:piv} is \emph{order-independent} (both sums are
+commutative), \emph{non-destructive} (every concept contributes to both
+the precision sum and the mean; none is discarded), and \emph{$n$-ary}
+rather than iterated-pairwise. These are not incidental: an
+order-dependent or lossy summary would make the coarse measurement
+depend on the sequence in which an organ happened to acquire its
+concepts.
+\end{remark}
+
+\subsection*{Two computational paths, both exact}
+
+\begin{itemize}
+  \item \textbf{Isotropic fast path.} When all $U_i$ are empty,
+  $\Sigma_i^{-1}=D_i^{-1}I$ and \eqref{eq:piv} collapses to the scalar
+  precision-weighted average
+  \begin{equation}\label{eq:isopath}
+    \pi_v=\frac{\sum_i D_i^{-1}\mu_i}{\sum_i D_i^{-1}},
+  \end{equation}
+  computable in $O(nd)$ with no matrix inversion.
+
+  \item \textbf{General path.} With $U_i\neq\varnothing$, invert each
+  $\Sigma_i$ by the Sherman--Morrison--Woodbury identity
+  \begin{equation}\label{eq:woodbury}
+    \Sigma_i^{-1}=D_i^{-1}I
+    -D_i^{-1}U_i\bigl(I_{k_i}+D_i^{-1}U_i^\top U_i\bigr)^{-1}U_i^\top D_i^{-1},
+  \end{equation}
+  accumulate into a dense information matrix, and solve once, at
+  $O(ndk+d^3)$.
+\end{itemize}
+
+\begin{lemma}[Woodbury for this covariance]\label{lem:woodbury}
+\Proved\ \eqref{eq:woodbury} holds for $\Sigma=UU^\top+DI$ with $D>0$.
+\end{lemma}
+\begin{proof}
+The Woodbury identity states
+$(A+UCV)^{-1}=A^{-1}-A^{-1}U(C^{-1}+VA^{-1}U)^{-1}VA^{-1}$. Take
+$A=DI$, $C=I_k$, $V=U^\top$. Then $A^{-1}=D^{-1}I$ and
+$C^{-1}+VA^{-1}U=I_k+D^{-1}U^\top U$, which is positive definite and
+hence invertible. Substituting gives \eqref{eq:woodbury}. The cost is
+dominated by the $k\times k$ inverse, not by anything of size $d$.
+\end{proof}
+
+\begin{remark}[The floor is not optional]
+A lower bound $D_i\ge10^{-6}$ is imposed. Without it, a concept reported
+as near-certain produces $1/D_i\approx10^{16}$ and the information
+matrix loses all contribution from every other concept to rounding. The
+floor pins $\pi_v$ strongly but finitely. Numerically the general path
+was checked against a dense $\bigl(\sum_i\Sigma_i^{-1}\bigr)^{-1}$ solve
+and agreed to $2.2\times10^{-16}$; equal precisions reduce to the plain
+mean, and a $9{:}1$ precision ratio pulls $\pi_v$ to the confident
+concept, as required.
+\end{remark}
+
+\begin{remark}[This map is the two-level glue]\label{rem:glue}
+After execution, each organ's coarse stalk is \emph{overwritten} by its
+own $\pi_v$. That is what makes the coarse $\rhoscore$ and the fine
+geometry one measurement at two resolutions rather than two unrelated
+numbers. It also means $\pi_v$ is lossy in a load-bearing way: whatever
+the fine complex knew that does not survive \eqref{eq:piv} is invisible
+to every coarse diagnostic.
+\end{remark}
+
+\section{Distance between uncertain concepts}
+
+\begin{intu}\Intu
+How far apart are two concepts? Comparing centres alone throws away the
+spreads. The $2$-Wasserstein --- optimal-transport --- distance between
+Gaussians accounts for both, and is a genuine metric rather than a
+heuristic score.
+\end{intu}
+
+\begin{definition}[$2$-Wasserstein between Gaussians]\label{def:bures}
+\begin{equation}\label{eq:bures}
+  W_2^2\bigl(\mathcal N(\mu_1,\Sigma_1),\mathcal N(\mu_2,\Sigma_2)\bigr)
+  =\norm{\mu_1-\mu_2}^2+\Tr\Sigma_1+\Tr\Sigma_2
+   -2\Tr\Bigl[\bigl(\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2}\bigr)^{1/2}\Bigr].
+\end{equation}
+The covariance part alone is the squared Bures--Wasserstein distance
+$\BW^2$ on $\SPD{d}$.
+\end{definition}
+
+\begin{proposition}[Isotropic reduction to $O(k^3)$]\label{prop:buresiso}
+\Proved\ If $\Sigma_1=D_1I$ is isotropic and
+$\Sigma_2=U_2U_2^\top+D_2I$ with $U_2\in\R^{d\times k}$, then, writing
+$\{\sigma_j^2\}_{j=1}^k$ for the eigenvalues of the $k\times k$ matrix
+$U_2^\top U_2$,
+\begin{equation}\label{eq:buresreduced}
+  W_2^2=\norm{\mu_1-\mu_2}^2+\bigl(\Tr\Sigma_1+\Tr\Sigma_2\bigr)
+  -2\sqrt{D_1}\Bigl[\sum_{j=1}^k\sqrt{\sigma_j^2+D_2}+(d-k)\sqrt{D_2}\Bigr].
+\end{equation}
+\end{proposition}
+\begin{proof}
+Since $\Sigma_1^{1/2}=\sqrt{D_1}I$, we get
+$\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2}=D_1\Sigma_2$ and hence
+$\bigl(D_1\Sigma_2\bigr)^{1/2}=\sqrt{D_1}\,\Sigma_2^{1/2}$, so the cross
+term is $2\sqrt{D_1}\Tr\Sigma_2^{1/2}$. The eigenvalues of
+$\Sigma_2=U_2U_2^\top+D_2I$ are $\sigma_j^2+D_2$ on $\im U_2$ and $D_2$
+with multiplicity $d-k$ on $\ker U_2^\top$, because the nonzero
+eigenvalues of $U_2U_2^\top$ coincide with those of $U_2^\top U_2$.
+Summing $\sqrt{\lambda}$ over the spectrum gives
+\eqref{eq:buresreduced}. Only a $k\times k$ eigendecomposition is
+needed.
+\end{proof}
+
+This is exact for isotropic $\Sigma_1$, not a diagonal approximation.
+
+\section{The two terms are not commensurable}
+
+\begin{construction}[Reporting the split]\label{con:w2split}
+$W_2^2$ is a sum of two quantities measuring different things, and they
+are returned separately rather than added:
+\begin{equation}\label{eq:w2split}
+  W_2^2=
+  \underbrace{\norm{\mu_1-\mu_2}^2}_{\text{semantic: \emph{what} they say}}
+  +
+  \underbrace{\Tr\Sigma_1+\Tr\Sigma_2
+   -2\Tr\bigl[(\Sigma_1^{1/2}\Sigma_2\Sigma_1^{1/2})^{1/2}\bigr]}
+   _{\text{epistemic: \emph{how sure} they are}} .
+\end{equation}
+\end{construction}
+
+\begin{proposition}[Degeneration in the isotropic regime]\label{prop:w2hazard}
+\Proved\ If both concepts are isotropic, $\Sigma_i=D_iI$ with $U_i$
+empty, then
+\begin{equation}\label{eq:w2iso}
+  W_2^2=\norm{\mu_1-\mu_2}^2+d\bigl(\sqrt{D_1}-\sqrt{D_2}\bigr)^2 .
+\end{equation}
+In particular $D_1=D_2$ implies $W_2^2=\norm{\mu_1-\mu_2}^2$ exactly.
+\end{proposition}
+\begin{proof}
+Set $k=0$ in Proposition~\ref{prop:buresiso}. Then
+$\Tr\Sigma_1+\Tr\Sigma_2=d(D_1+D_2)$ and the cross term is
+$2\sqrt{D_1}\cdot d\sqrt{D_2}$, so the covariance part equals
+$d\bigl(D_1+D_2-2\sqrt{D_1D_2}\bigr)=d(\sqrt{D_1}-\sqrt{D_2})^2$.
+\end{proof}
+
+\begin{hon}\Hon
+Proposition~\ref{prop:w2hazard} recorded two uncomfortable facts. Both
+were true when written; both were subsequently repaired. The diagnosis
+is retained because it is what forced the repair and because the
+structural lesson survives it.
+
+\emph{(i) The machinery was inert.} Every grown concept carried the same
+prior $D=1.0$ with empty $U$, so $D_1=D_2$ and $W_2^2$ was
+\emph{exactly} squared Euclidean distance --- an optimal-transport
+apparatus with a Wasserstein-shaped proof attached and nothing to do.
+After the repair, $D$ is the shrinkage floor of
+Remark~\ref{rem:stalkfloor} and varies with effective sample size and
+with rank, so $D_1\neq D_2$ in general. On two stalks with equal means
+and ranks $0$ and $1$, the epistemic term moves from $0$ to $0.206$: the
+geometry is live.
+
+\emph{(ii) It would have become actively harmful the moment calibration
+was fixed.} The semantic term is $d$-\emph{intensive} --- bounded by $4$
+for unit-normalised embeddings, whatever $d$ is --- while the epistemic
+term is $d$-\emph{extensive}. At $d=384$, a prior $D_1=1.0$ against a
+confident concept with $D_2=-\ln0.95$ gave an epistemic term of roughly
+$230$ against a semantic term of $2$: about $115$ to $1$, driven
+entirely by a self-reported confidence that the architecture elsewhere
+declines to trust. Merge, split and consolidation would then have been
+governed by hallucinated confidences. This is a latent defect that
+switches on precisely when the system is \emph{improved}, which is the
+worst kind.
+
+The lesson survives both fixes and is why the terms are reported apart:
+summing a $d$-intensive and a $d$-extensive quantity and thresholding
+the sum is a dimensional error, not a modelling preference.
+\end{hon}
+
+\begin{exercise}
+Verify the $115{:}1$ figure. Take $d=384$, $D_1=1.0$, $D_2=-\ln 0.95$,
+both isotropic, and evaluate \eqref{eq:w2iso}. Then repeat with the
+shrinkage floor $D=O(1/d)$ of Remark~\ref{rem:stalkfloor} and confirm
+the epistemic term drops to order $1$. The point of doing this by hand
+is that the failure is visible in the exponents, before any numbers are
+substituted.
+\end{exercise}
+
+\section{Fusion and its entropy}
+
+\begin{definition}[Precision-weighted fusion]\label{def:fusion}
+The fusion of two concepts is the information-form product
+\begin{equation}\label{eq:merge}
+  \Lambda_i=\Sigma_i^{-1},\qquad
+  \Sigma_\star=(\Lambda_1+\Lambda_2)^{-1},\qquad
+  \mu_\star=\Sigma_\star(\Lambda_1\mu_1+\Lambda_2\mu_2),
+\end{equation}
+which is \eqref{eq:piv} for $n=2$. Full covariances are fused via
+Woodbury \eqref{eq:woodbury}, never element-wise.
+\end{definition}
+
+\begin{proposition}[Fused entropy by the matrix determinant lemma]\label{prop:entropy}
+\Proved\ The differential entropy
+$h=\tfrac12\ln\bigl((2\pi e)^d\det\Sigma_\star\bigr)$ is computable from
+a $k\times k$ determinant: for $\Sigma=UU^\top+DI$,
+\begin{equation}\label{eq:detlemma}
+  \det\Sigma=D^d\det\bigl(I_k+D^{-1}U^\top U\bigr).
+\end{equation}
+\end{proposition}
+\begin{proof}
+The matrix determinant lemma gives
+$\det(A+UV^\top)=\det A\cdot\det(I+V^\top A^{-1}U)$. With $A=DI$ and
+$V=U$ we have $\det A=D^d$ and $V^\top A^{-1}U=D^{-1}U^\top U$.
+\end{proof}
+
+\begin{remark}[Where confidence actually goes]\label{rem:stalkfloor}
+\Implemented\ An earlier design set the noise floor from the generating
+model's self-reported confidence via $D=-\ln c$, with a named prior
+$D=1.0$ when $c$ was unavailable. Both were removed. The floor is now a
+shared shrinkage floor
+\[
+  D=\varepsilon+\frac{\kappa}{d\,(n_{\mathrm{eff}}+\kappa)}=O(1/d),
+\]
+independent of any reported confidence. The scaling is the whole point:
+$D$ feeds a $d$-extensive Bures term, so a floor of order $1$
+contributes a trace of order $d$ and swamps a semantic term bounded by
+$4$. At $d=384$ the two retired forms give isotropic traces of about
+$19.7$ and $384$ respectively; the shrinkage floor gives $0.88$.
+
+Confidence is \emph{relocated, not discarded}: its home is the edge
+precision of Construction~\ref{con:weighted}, entering as
+$s_e=-\ln c_e/d$ so that its trace contribution is $O(1)$. There it is
+dimensionally harmless and load-bearing; as an isotropic stalk variance
+it was neither. Against the deployed model, token log-probabilities are
+unavailable, so $c$ is genuinely unknown and the engine warns once
+rather than fabricating a value. This is why $\rhoscore$, and not
+self-reported confidence, is the primary signal.
+\end{remark}
+
+\begin{hon}\Hon
+The pattern in this chapter is worth extracting, because it recurs. Each
+of the three defects --- inert geometry, dimensional mismatch,
+fabricated confidence --- was invisible to every test that checked
+whether the code \emph{ran}, and visible immediately to a check of
+whether the quantities being combined had the same units. Dimensional
+analysis is the cheapest correctness tool available here and it was
+applied late.
+\end{hon}

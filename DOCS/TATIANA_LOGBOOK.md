@@ -5140,3 +5140,54 @@ outcome (coherence ≠ correctness) · κ capacity (gameable).
 - **Wall-clock estimates are inferred from flop counts, not measured.** Measure before trusting.
 - **Discipline test (A17):** new mathematics earns its place only if it changes a number the engine
   prints, or deletes a decision a human was making by hand.
+
+---
+
+## 8. 🔴 V0 → V1 — the organ complex is retired, the kernel organ is the target (2026-08-12)
+
+**Status: decided, not yet executed.** §7's P0–P4 remain the active work and finish first, as the
+close-out of **V0**. This entry is a placeholder to reload full context into once they land — they
+will be relogged in against this section, not silently superseded.
+
+**What's being overturned.** §0.1 states the founding framing: *"a cognitive architecture layered
+AROUND a large language model."* That framing is what produced `kernel.cpp` / `operator.hpp` /
+`communicator.py` — a C++ dispatcher calling out to typed organs (Search, Reason, Context, Verify),
+one of which is a remote LLM. Charbel's read, on rereading §§1–2 fresh: this is a **complex of
+organs wrapped around a borrowed brain**, not the thing he actually set out to build. Everything
+built under that framing is now **V0** — kept, not deleted, closed out by finishing P0–P4.
+
+**The target for V1: a single kernel organ, not a complex of organs.** Not many specialists
+coordinated by an external dispatcher, but one generative kernel that, meeting a problem,
+**mutates, grows, and reproduces itself** to cover it — while staying provably the same kernel
+throughout. A **"body of thought,"** not a wrapper: a neural architecture built on these
+constructions directly, not an LLM with scaffolding around it.
+
+**What survives into V1, as raw material — needs recasting, not verbatim reuse:**
+- The **cone construction** (`cone_stalk.hpp/cpp`, Construction 6 — the coned concept, the cone
+  condition never imposed).
+- The **growth law** (`DERIVATION_MDL_GROWTH_LAW.md`) and the obstruction-cocycle attachment rule.
+- The **sheaf adjunction** `ι_! ⊣ ι* ⊣ ι_*` and the `𝕂` / `W` two-timescale memory split
+  ([[two-complex-memory-model]] — independently-derived Complementary Learning Systems,
+  McClelland/McNaughton/O'Reilly 1995; citeable).
+
+**The memory invariant, sharpened this session.** "Keeps its identity while it grows" is not one
+formula — the brain does it with two *independent* mechanisms, and MOS currently has only one:
+1. **Pattern separation / addressing** — new structure has to land somewhere that doesn't collide
+   with old structure, by construction. **This is Prop 8.2, the growth-address problem, already
+   logged and already blocking** (`[δx] = 0` always ⇒ growth has no address). Under V0 it was one
+   blocked organ among several. **Under V1 it is load-bearing for the entire kernel** — with no
+   organ complex to lean on, a kernel that can't address its own growth has no growth.
+2. **Throttled, evidence-gated consolidation** — already derived: `γ(ν)`, `γ₀ ≪ 1`, the anti-
+   catastrophic-interference property in the 𝕂/W formula. This half survives V1 intact.
+
+**The recast problem, stated precisely.** Today the math is a library `kernel.cpp` *calls*: it
+decides when to run the growth law, when to build a cone, when to fire the adjunction. For V1,
+the math has to stop being invoked from outside and become the control flow itself — the kernel's
+identity is "the thing that keeps applying `(grow ∘ cone ∘ adjunction-round-trip)` to itself,"
+with no separate class playing conductor. This is the actual content of "a bit of tweaking and
+letting it breathe in the new environment" — not a mood, a specific rewrite of who calls whom.
+
+**Companion doc:** `MATH_TOOLBOX.md` — full inventory of every construction, theorem, and mechanism
+across the logbook and derivation docs, with what worked, what didn't, and every caveat, as the
+founding material for V1. Compiled separately from this entry so this stays a decision record, not
+a duplicate of the toolbox.

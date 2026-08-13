@@ -1,0 +1,186 @@
+\chapter{Cohomology and the Diagnostic Hierarchy}\label{ch:cohomology}
+
+\section{Two pathologies that must not be confused}
+
+\begin{definition}[Sheaf cohomology in low degrees]\label{def:cohom}
+With coboundaries $\cob^k:\Ck{k}\to\Ck{k+1}$,
+\[
+  \Hzero=\ker\cob^0\quad(\text{global sections}),
+  \qquad
+  \Hone=\ker\cob^1/\im\cob^0\quad(\text{gluing failure}).
+\]
+\end{definition}
+
+\begin{intu}\Intu
+A \emph{structural hole} --- $b_1\neq0$, a Betti number of the bare
+shape --- means a \emph{binding is missing}: no theorem yet ties some
+loop together. A \emph{gluing failure} --- $\Hone\neq0$ of the sheaf ---
+means the data are \emph{contradictory}: the organs cannot be
+reconciled. The first calls for growth; the second calls for repair.
+Treating a contradiction as a hole makes you add structure when you
+should resolve a conflict, and treating a hole as a contradiction makes
+you argue when you should build.
+\end{intu}
+
+\begin{remark}[$b_1$ is earned here]\label{rem:b1earned}
+$b_1$ is a defensible diagnostic \emph{only} because simplices were
+defined to mean genuine $n$-ary binding
+(Remark~\ref{rem:nary}). A filled $2$-simplex really asserts a joint
+relation, so an unfilled $1$-cycle really is a missing joint relation.
+Most applications of topological data analysis to knowledge graphs skip
+this justification and compute $b_1$ of a complex whose $2$-cells mean
+nothing in particular, at which point the number is an artefact of the
+construction rather than a fact about the knowledge.
+\end{remark}
+
+\section{The hierarchy is vacuous as currently fed}
+
+This is the most important negative result in the book, and it is worth
+stating as a proposition rather than as a caveat.
+
+\begin{proposition}[Exactness of the emitted cochain]\label{prop:vacuous}
+\Proved\ Suppose the $1$-cochain submitted for cohomological analysis is
+obtained as $y=\cob^0 x$ for some global state $x\in\Czero$. Then
+$[y]=0$ in $\Hone$, for every $x$, every sheaf $\Fs$, and every choice
+of restriction maps.
+\end{proposition}
+\begin{proof}
+$\Hone=\ker\cob^1/\im\cob^0$ and $y\in\im\cob^0$ by construction, so
+$y$ represents the zero class. (That $y\in\ker\cob^1$ is automatic from
+$\cob^1\cob^0=0$, but is not even needed: membership in the image is
+already the conclusion.)
+\end{proof}
+
+\begin{hon}\Hon
+\Refuted\ The consequence is not subtle. The engine computes its
+$1$-cochain by applying $\cob$ to the current state --- that is what
+$\discord$ is built from. So the class it then measures in $\Hone$ is
+identically zero, and the growth mechanism that was supposed to be
+addressed by a nonzero class \emph{has no address}. Every reported
+$\Hone$ diagnostic in that pipeline was measuring the definition of a
+coboundary, not the state of the system.
+
+The repair requires a source of $1$-cochains that is \emph{not} of the
+form $\cob x$. The natural candidate is pairwise judgements formed
+independently: an organ pair that renders a verdict on their shared
+edge without either of them consulting a global state. That is new
+engineering --- organs that emit pairwise judgements, storage for
+$2$-simplices, and an actual $\cob^1$ --- and it does not exist yet.
+
+One proposed repair in the sources is recorded by the audit as
+\emph{half circular}, and the circularity must be located precisely
+before it is adopted. See Open Problem~\ref{op:H1}.
+\end{hon}
+
+\begin{remark}[The negative result is publishable]
+Proposition~\ref{prop:vacuous} is not merely an internal correction. It
+identifies a failure mode that any sheaf-based diagnostic over a derived
+cochain will share, and the derivation is three lines. It belongs in
+the paper on cohomological obstruction as a stated negative result,
+not in a footnote.
+\end{remark}
+
+\section{The Hodge decomposition}
+
+\begin{theorem}[Hodge decomposition for cellular sheaves]\label{thm:hodge}
+\Proved\ Let $\Lapk{1}=\cob^0(\cob^0)^\top+(\cob^1)^\top\cob^1$ be the
+degree-one Laplacian. Then
+\begin{equation}\label{eq:hodge}
+  \Cone=\im\cob^0\ \oplus\ \ker\Lapk{1}\ \oplus\ \im(\cob^1)^\top,
+\end{equation}
+an orthogonal decomposition, and $\ker\Lapk{1}\cong\Hone$.
+\end{theorem}
+\begin{proof}
+Orthogonality of $\im\cob^0$ and $\im(\cob^1)^\top$ follows from
+$\cob^1\cob^0=0$: for $y=\cob^0a$ and $z=(\cob^1)^\top b$,
+$\inner{y}{z}=\inner{\cob^0a}{(\cob^1)^\top b}
+=\inner{\cob^1\cob^0a}{b}=0$.
+For $w\in\ker\Lapk{1}$ we have
+$0=\inner{\Lapk{1}w}{w}=\norm{(\cob^0)^\top w}^2+\norm{\cob^1w}^2$, so
+$w\in\ker(\cob^0)^\top\cap\ker\cob^1$, which is the orthogonal
+complement of $\im\cob^0\oplus\im(\cob^1)^\top$. Counting dimensions
+gives \eqref{eq:hodge}. Finally each class in
+$\Hone=\ker\cob^1/\im\cob^0$ has a unique representative orthogonal to
+$\im\cob^0$, and that representative lies in $\ker\Lapk{1}$.
+\end{proof}
+
+\begin{intu}\Intu
+The decomposition sorts every $1$-cochain into three kinds of thing:
+the part that is the disagreement of some global assignment
+($\im\cob^0$), the part that is a genuine irreducible contradiction
+($\ker\Lapk{1}$, the harmonic part), and the part that is a local
+circulation with no bearing on gluing. Proposition~\ref{prop:vacuous}
+says that as currently fed, the engine only ever produces cochains of
+the first kind.
+\end{intu}
+
+\begin{workedbox}\Worked
+On the running example $\Kc_4$ with the trivial sheaf
+($\stalk{\sigma}=\R$): $\dim\Czero=4$, $\dim\Cone=4$ and the complex has
+one filled triangle so $\dim\Ctwo=1$. Since the $1$-skeleton is
+connected, $b_0=1$ and $\rank\cob^0=4-1=3$. The only cycle in the
+$1$-skeleton is the triangle $\{\mathsf S,\mathsf M,\mathsf R\}$, and it
+is filled, so $b_1=0$. Consistently:
+$\dim\ker\cob^1=\dim\Cone-\rank\cob^1=4-1=3=\rank\cob^0$, so
+$\Hone=0$.
+
+Now delete the $2$-simplex, leaving the same $1$-skeleton unfilled. Then
+$\Ctwo=0$, $\ker\cob^1=\Cone$ has dimension $4$, and
+$\Hone\cong\R^{4-3}=\R$, matching $b_1=1$: one unfilled loop, one
+class. This is the sense in which coning (Chapter~\ref{ch:cone}) kills
+a class --- it adds precisely the $2$-cells that make the cycle a
+boundary.
+\hfill$\square$
+\end{workedbox}
+
+\section{The uncertainty stack}\label{sec:uncert}
+
+\begin{intu}\Intu
+Coherence is not correctness. Five instruments, ordered by cost, answer
+five different questions, and they are not interchangeable. The most
+common error in systems of this kind is to let the cheapest instrument
+speak for all five.
+\end{intu}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}p{2.7cm}p{5.2cm}p{2.5cm}p{2.9cm}@{}}
+\toprule
+\textbf{Instrument} & \textbf{Question} & \textbf{Cost} & \textbf{When}\\
+\midrule
+$\rhoscore$ & Are my parts agreeing? & effectively free & every tick\\
+$\hat\rhoscore$ vs $\rhoscore$ & Did I \emph{know} whether I would agree? & free ($k$-NN) & once history exists\\
+$b_0,\ b_1$ & What is structurally missing? & medium & on conflict\\
+perturbation & Am I stable to paraphrase? & $k$ model calls & high stakes only\\
+\textsc{VerifyOp} & Am I actually \emph{right}? & medium & promotion gate\\
+\bottomrule
+\end{tabular}
+\captionof{table}{The five instruments and their distinct questions.}
+\end{center}
+
+\begin{remark}[Perturbation is a variance, not a derivative]\label{rem:perturbation}
+Stability is measured as paraphrase-perturbation variance: run $k$
+semantically equivalent paraphrases and measure the spread of outcomes.
+This replaces an earlier proposal to compute a Fr\'echet derivative
+$\norm{\partial F/\partial x}$ of the whole pipeline. That derivative
+does not exist: $F$ factors through discrete token sampling, a DAG
+generator, and database lookups, none of which is differentiable.
+Earlier drafts also posited an infinite-dimensional Banach state space
+for the same purpose; it was removed for the same reason. The
+replacement costs $k$ model calls and must be rationed.
+\end{remark}
+
+\begin{remark}[Expected precision and the feedback edge]\label{rem:rhohat}
+$\hat\rhoscore$ is a similarity-weighted $k$-nearest-neighbour
+prediction of $\rhoscore$ from a log of past (query embedding,
+$\rhoscore$) pairs. The \emph{signed} gap $\hat\rhoscore-\rhoscore$
+separates three states that a single number cannot: \emph{competence}
+(predicted agreement, observed agreement), \emph{known ignorance}
+(predicted disagreement, observed disagreement --- ``confidently, I do
+not know this''), and \emph{hallucination risk} (predicted agreement,
+observed disagreement). A \textsc{VerifyOp} failure updates the store,
+so self-knowledge improves with use. This is the only instrument in the
+stack whose accuracy is supposed to increase over time, and it is
+therefore the one that carries the architectural bet of
+Chapter~\ref{ch:limits}.
+\end{remark}

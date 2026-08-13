@@ -107,6 +107,10 @@ core::OperatorType SearchOp::get_type() const noexcept {
 }
 
 std::set<int> SearchOp::get_support() const {
+  // P1. The planner's resolved concepts when it named any; otherwise the legacy
+  // token. Empty is the right unscoped answer here either way -- a search reads
+  // the whole store, and READ_ONLY empty-support nodes co-schedule freely.
+  if (explicit_support_) return *explicit_support_;
   return {}; // Global read
 }
 
@@ -205,6 +209,7 @@ core::OperatorType ComputeOp::get_type() const noexcept {
 }
 
 std::set<int> ComputeOp::get_support() const {
+  if (explicit_support_) return *explicit_support_;
   return {0}; // Touches fundamental vertices
 }
 
@@ -276,6 +281,7 @@ core::OperatorType ReasonOp::get_type() const noexcept {
 }
 
 std::set<int> ReasonOp::get_support() const {
+  if (explicit_support_) return *explicit_support_;
   return {1}; // Touches specific reasoning vertices
 }
 
@@ -296,6 +302,7 @@ core::OperatorType RespondOp::get_type() const noexcept {
 }
 
 std::set<int> RespondOp::get_support() const {
+  if (explicit_support_) return *explicit_support_;
   return {}; // Read only
 }
 
@@ -470,7 +477,12 @@ core::OperatorType VerifyOp::get_type() const noexcept {
   return core::OperatorType::MUTATION;
 }
 
-std::set<int> VerifyOp::get_support() const { return {0}; }
+std::set<int> VerifyOp::get_support() const {
+  // P2 depends on this one specifically: a verifier that cannot be told WHICH
+  // concepts it is checking has nothing to check them against.
+  if (explicit_support_) return *explicit_support_;
+  return {0};
+}
 
 // --- ContextOp ---
 
@@ -503,6 +515,7 @@ core::OperatorType ContextOp::get_type() const noexcept {
 }
 
 std::set<int> ContextOp::get_support() const {
+  if (explicit_support_) return *explicit_support_;
   // 0-simplices are fundamental constructs
   return {0};
 }

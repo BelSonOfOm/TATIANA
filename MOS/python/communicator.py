@@ -4,12 +4,16 @@ import json
 import struct
 import subprocess
 import threading
+import zlib
 import flatbuffers
 import requests
 
 # Local semantic geometry (single source of truth, EMBED_DIM=384). Runs on CPU,
 # costs no API quota. Imported under an alias so `embed` isn't shadowed locally.
 from embeddings import embed as embed_text, EMBED_DIM
+
+# P1: concept-name -> vertex-id resolution against the live knowledge base.
+from concept_resolver import ConceptResolver, DEFAULT_DB
 
 # Generated FlatBuffers bindings (regenerate with:
 #   vendor/flatbuffers/flatc.exe --python -o python/ proto/operad.fbs)
@@ -26,13 +30,43 @@ except ImportError as _e:
     print(f"[WARNING] Could not import generated flatbuffers ({_e}). "
           "Run: vendor/flatbuffers/flatc.exe --python -o python/ proto/operad.fbs")
 
+def crc32_ieee(data: bytes) -> int:
+    """The same CRC-32 `main.cpp:compute_crc32` computes, for the IPC frame.
+
+    That function is the textbook reflected CRC-32 (init 0xFFFFFFFF, polynomial
+    0xEDB88320, final complement) -- i.e. IEEE 802.3, which is exactly what
+    `zlib.crc32` implements. Using zlib rather than re-deriving the bit loop in
+    Python keeps the two sides from drifting and is ~200x faster on a 1 MB DAG.
+    `python/test_full_loop.py` carries the explicit bit-banged version, so the
+    two implementations cross-check each other.
+    """
+    return zlib.crc32(data) & 0xFFFFFFFF
+
+
 class Communicator:
     """
     The Communicator (Frontend LLM Layer).
     Acts as the Projection Morphism (pi) from the Language Space (S) to the Universal Syntax Space (U).
     """
-    def __init__(self, model: str = None, api_key: str = None):
+    def __init__(self, model: str = None, api_key: str = None, kb_path: str = None):
         self.c_chat = [] # Episodic Cache (C_chat)
+
+        # P1. name -> id against the SAME knowledge base the engine opens, so
+        # both sides agree on what an id means by construction rather than by
+        # coincidence. main.cpp opens "mos_brain_ipc.db" relative to the working
+        # directory it inherits from us, so the default matches without either
+        # side being told twice.
+        self.resolver = ConceptResolver(kb_path or DEFAULT_DB)
+        self.unresolved_names = {}
+        if self.resolver.loaded:
+            print(f"[Communicator] P1 resolver: {self.resolver.size} concept(s) "
+                  f"in {self.resolver.db_path}")
+        else:
+            # Cold start is legitimate, but it is not silent: with nothing in
+            # memory every name resolves provisionally, and reading a run's
+            # support columns without knowing that would be misleading.
+            print(f"[Communicator] P1 resolver: NO STORE ({self.resolver.load_error}). "
+                  "Every named concept will get a provisional id.")
         # SPLIT BRAIN: reasoning runs REMOTELY on Groq (this machine cannot host a
         # local LLM); embeddings run LOCALLY via embeddings.py so that ingesting
         # documents never consumes API quota.
@@ -62,14 +96,23 @@ class Communicator:
         print(f"[Communicator] E7 assembly log -> {ASSEMBLY_LOG_PATH}")
 
         try:
-            # Note: stdout and stderr are piped so we can read them asynchronously
+            # BINARY PIPES, NOT TEXT. This was `text=True`, which makes stdin a
+            # TextIOWrapper -- so `stdin.write(bytes)` raises TypeError and the
+            # FlatBuffer never left the process. Combined with the missing CRC
+            # word above, the IPC path could not have carried a single payload.
+            # The engine also puts stdin in _O_BINARY (main.cpp:34) precisely so
+            # that no newline translation touches the frame; sending text from
+            # this side would undo that on every 0x0A byte.
+            #
+            # stdout stays a pipe and is decoded in the listener thread instead,
+            # where a malformed UTF-8 byte can be replaced rather than killing
+            # the reader.
             self.cpp_process = subprocess.Popen(
                 [mos_exe_path, "--ipc-server"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1,
+                bufsize=0,
                 env=child_env
             )
             
@@ -87,9 +130,13 @@ class Communicator:
             return
         
         try:
-            for line in iter(self.cpp_process.stdout.readline, ''):
-                if line:
-                    sys.stdout.write(f"{line}")
+            # The pipe is binary now (see Popen), so decode here. `replace`
+            # rather than `strict`: the engine writes UTF-8, but a torn write at
+            # process exit must not kill the reader and lose the last lines of
+            # a run's diagnostics.
+            for raw in iter(self.cpp_process.stdout.readline, b''):
+                if raw:
+                    sys.stdout.write(raw.decode("utf-8", errors="replace"))
                     sys.stdout.flush()
         except Exception as e:
             print(f"[Communicator] Listener thread terminated: {e}")
@@ -133,8 +180,12 @@ class Communicator:
             "OpTypes: CONTEXT (inject an assumption), SEARCH (retrieve external knowledge), "
             "COMPUTE (perform a calculation), REASON (derive/infer), RESPOND (emit the answer).\n"
             "\n"
-            "'support' MUST be an array of integers (internal vertex ids) or omitted entirely. "
-            "You do not know the internal vertex ids, so ALWAYS output \"support\": [].\n"
+            "'support' is the list of mathematical CONCEPTS this operator acts on, written as "
+            "NAMES, e.g. \"support\": [\"Stokes' theorem\", \"de Rham cohomology\"]. Name the "
+            "concepts you are actually reasoning about; do not invent plausible-sounding ones, "
+            "and do not list a concept merely because it is nearby. Naming NOTHING is worse than "
+            "naming a concept the system has not heard of: an empty support means 'this touches "
+            "everything', which forces the operator to run alone.\n"
             "\n"
             "'constraints' apply to CONTEXT nodes only. Each is {\"type\": \"FLUID\"} or "
             "{\"type\": \"RIGID\"}. Use RIGID ONLY for a constraint explicitly stated by the user, "
@@ -144,11 +195,11 @@ class Communicator:
             "\n"
             "Example: {\"type\": \"MATH\", \"nodes\": ["
             "{\"id\": 1, \"operator\": {\"type\": \"CONTEXT\", \"payload\": \"Assume X is continuous\", "
-            "\"support\": [], \"constraints\": [{\"type\": \"RIGID\"}]}, \"children_ids\": [2]}, "
+            "\"support\": [\"continuity\"], \"constraints\": [{\"type\": \"RIGID\"}]}, \"children_ids\": [2]}, "
             "{\"id\": 2, \"operator\": {\"type\": \"COMPUTE\", \"payload\": \"Integrate X over [0,1]\", "
-            "\"support\": []}, \"children_ids\": [3]}, "
+            "\"support\": [\"Riemann integral\", \"continuity\"]}, \"children_ids\": [3]}, "
             "{\"id\": 3, \"operator\": {\"type\": \"RESPOND\", \"payload\": \"Report the integral\", "
-            "\"support\": []}, \"children_ids\": []}]}"
+            "\"support\": [\"Riemann integral\"]}, \"children_ids\": []}]}"
         )
         
         if not self.api_key:
@@ -320,25 +371,45 @@ class Communicator:
             
             payload_str = builder.CreateString(op_data.get("payload", ""))
             
-            # Create support vector.
-            # HARDENING: the schema requires int32 vertex ids, but the LLM frequently
-            # emits concept NAMES here (e.g. ["CP^3", "Fubini-Study metric"]) because it
-            # cannot possibly know the engine's internal vertex ids. Feeding those to
-            # PrependInt32 crashes serialization outright. We drop non-integers loudly.
-            # An empty support means "global mutation" to the operad scheduler, which is
-            # the correct conservative reading of "we don't know what this touches".
+            # P1. RESOLVE THE SUPPORT, rather than discarding it.
+            #
+            # The planner now emits concept NAMES, which is what it actually
+            # knows, and they are resolved here against the live store. What
+            # used to happen instead: names were dropped one by one and the
+            # support arrived empty, which reads as "global mutation" to
+            # `select_commuting_slice` -- so nothing ever commuted.
+            #
+            # Integers are still accepted so a caller that already holds real
+            # ids (accumulate.py builds its DAGs by hand) does not have to round
+            # trip through names.
             raw_support = op_data.get("support", []) or []
             support_list = []
+            names_to_resolve = []
             for s in raw_support:
                 if isinstance(s, bool):
                     continue  # bool is an int subclass; never a vertex id
                 if isinstance(s, int):
                     support_list.append(s)
-                elif isinstance(s, str) and s.lstrip("-").isdigit():
-                    support_list.append(int(s))
+                elif isinstance(s, str) and s.strip().lstrip("-").isdigit():
+                    support_list.append(int(s.strip()))
+                elif isinstance(s, str) and s.strip():
+                    names_to_resolve.append(s)
                 else:
-                    print(f"[Communicator] Dropping non-integer support entry {s!r} "
-                          f"(vertex ids must be ints; name->id resolution is not wired yet).")
+                    print(f"[Communicator] Ignoring uninterpretable support entry {s!r}.")
+
+            if names_to_resolve:
+                res = self.resolver.resolve(names_to_resolve)
+                support_list.extend(i for i in res.ids if i not in support_list)
+                # An unresolved name is an EVENT: the planner is reasoning about
+                # something not yet in memory. It keeps a stable provisional id
+                # so co-scoping still works, and it is reported rather than
+                # silently folded into "we don't know".
+                if res.unresolved:
+                    self.unresolved_names.update(res.unresolved)
+                    print(f"[Communicator] support: {res.summary()} "
+                          f"-> not in memory: {sorted(res.unresolved)}")
+                elif res.resolved:
+                    print(f"[Communicator] support: {res.summary()}")
 
             Operator.OperatorStartSupportVector(builder, len(support_list))
             for s in reversed(support_list):
@@ -429,13 +500,26 @@ class Communicator:
 
     def send_to_cpp(self, binary_payload: bytearray):
         if self.cpp_process and self.cpp_process.poll() is None:
-            # Prefix with 4-byte size (little endian unsigned int)
-            size_prefix = struct.pack("<I", len(binary_payload))
+            # THE FRAME IS [size][crc32][payload], all little-endian.
+            #
+            # This used to send [size][payload]. `main.cpp` has read a CRC word
+            # since the integrity check was added, so the engine took the
+            # FlatBuffer's first four bytes as the checksum and the rest of the
+            # stream was off by four for the remainder of the session. Every
+            # payload then failed either the CRC compare or the FlatBuffers
+            # verifier, and the loop printed a boundary rejection rather than a
+            # framing error -- so it looked like malformed DAGs, not a protocol
+            # mismatch. `test_full_loop.py` framed it correctly all along, which
+            # is why the bug never showed up there.
+            payload = bytes(binary_payload)
+            frame = (struct.pack("<I", len(payload))
+                     + struct.pack("<I", crc32_ieee(payload))
+                     + payload)
             try:
-                self.cpp_process.stdin.write(size_prefix)
-                self.cpp_process.stdin.write(binary_payload)
+                self.cpp_process.stdin.write(frame)
                 self.cpp_process.stdin.flush()
-                print(f"[Communicator] Dispatched {len(binary_payload)} bytes over IPC.")
+                print(f"[Communicator] Dispatched {len(payload)} bytes over IPC "
+                      f"(framed with CRC32).")
             except Exception as e:
                 print(f"[Communicator] IPC Write Error: {e}")
         else:

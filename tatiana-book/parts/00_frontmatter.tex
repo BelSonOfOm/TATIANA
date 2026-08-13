@@ -1,0 +1,80 @@
+\chapter*{How to read this book}
+\addcontentsline{toc}{chapter}{How to read this book}
+\markboth{How to read this book}{How to read this book}
+
+\section*{What this is}
+
+This book consolidates the entire mathematical content of \textsc{tatiana}
+into a single document. Its sources are the files in \texttt{DOCS/}, the
+poster sections in \texttt{POSTER/}, and the specification documents added
+on the branch \texttt{fix-11-13-and-curvature-decisions}. It is
+\emph{implementation-free}: no C\raisebox{0.2ex}{\small ++}, no Python.
+Where the implementation determines a mathematical fact --- and it
+sometimes does --- the fact is stated abstractly here and the discrepancy
+is recorded in Appendix~\ref{app:discrepancy}.
+
+\section*{Why every claim carries a tag}
+
+The source documents \emph{contradict one another}. The internal audit
+(\texttt{DOCS/AUDIT\_SCRUTINY\_AND\_BOOK.md}) records fourteen findings
+against the earlier mathematical description, several of which are
+outright refutations: a proposition false in the deployed case, a theorem
+stated more generally than it is proved, a repair for $\Hone$ that is
+half circular. A smooth merge of these sources would present refuted
+material in the same confident register as proved material, and a reader
+studying it would learn falsehoods.
+
+So every substantive claim in this book carries one of six tags:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\Proved & A complete proof is given here, from stated hypotheses.\\
+\ProvedCond & Proved, but only under hypotheses the deployed system may not meet.\\
+\Implemented & The system computes this; no proof of correctness exists.\\
+\Proposed & A design intention. Not built, not proved.\\
+\Contested & The audit disputes this. The dispute is stated in place.\\
+\Refuted & Tested and failed, or shown false. Retained \emph{with} the refutation.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Refuted material is kept rather than deleted. Knowing why a construction
+failed is most of what you need in order not to rebuild it.
+
+\section*{The three layers}
+
+Each central object is presented three times over, so that a single
+reading can be shallow or deep:
+
+\begin{enumerate}
+  \item a boxed \textbf{Intuition} in plain language, with no symbols;
+  \item the formal \textbf{Definition}, \textbf{Construction} or
+        \textbf{Proposition}, with proof;
+  \item a \textbf{Worked example} on an explicit small complex, carried
+        through to numbers.
+\end{enumerate}
+
+The worked examples are cumulative. A single running example --- a
+seven-organ complex called $\Kc_7$, introduced in
+Chapter~\ref{ch:complex} --- is reused throughout, so that the same
+object is measured by every instrument the book builds. Where an
+exercise appears, it is because the step is short and doing it yourself
+is faster than reading it.
+
+\section*{Provenance}
+
+Grey boxes marked \textsf{\textbf{Source}} record which file a passage
+descends from, and what was changed in merging it. They exist so that
+any statement here can be traced back and checked against the original,
+and so that when the sources disagree you can see \emph{that} they
+disagree rather than only seeing the winner.
+
+\section*{Reading order}
+
+Parts I and II are the conceptual spine and everything else depends on
+them; read them in order. Parts III through VII may be read in any
+order once the spine is in place. Part VIII is the honest boundary and
+should be read before quoting any result from this book to anyone else.
+Parts IX and X are forward-looking: open problems, and the quantum
+implementation programme.
