@@ -57,3 +57,18 @@ it.
   exists (space in filename) and is committed — the plan's concern about a missing/unreconstructable
   script was unfounded, just needed a repo-wide search. **Next**: Phase 0's invariant-drift
   experiment (identity map §12 Kill-Test 3) — not yet started.
+- **2026-08-13 (same day)** — **Visualization strategy decided, work deferred.** Evaluated
+  `FutureAIGuru/BrainSimIII` and `FutureAIGuru/BrainSimII` (both C#/WPF, MIT). BrainSimII is a
+  spiking-neuron/embodied-agent simulator (vision/motor modules, a virtual agent "Sallie") — not a
+  structural match, ruled out. BrainSimIII's core is the UKS: a plain labeled graph ("Things"/
+  "Relationships") with a dedicated viewer (`ModuleShowGraphDlg.xaml`, `Network.cs`), the closer
+  match, but its graph UI is tightly coupled to its own engine, not a separable renderer, and a
+  plain node/edge graph has no notion of stalks, restriction maps, 2-cells, `ρ`/curvature, or
+  harmonic residual — the parts of TATIANA's structure that are load-bearing, not decorative
+  (identity map §4.3). **Decision (Charbel, overriding the lightweight-custom-viewer
+  recommendation)**: fork BrainSimIII and modify it to render TATIANA's actual complex state
+  instead of the UKS, for debugging/visualizing the C++ experiments only — it is tooling, never a
+  dependency of the math itself. **Explicitly deferred**: no forking or modification starts now;
+  this is picked up only once a specific math phase (Part B of the reformulation plan) is fully
+  closed out on paper first. `TATIANA-V2/README.md` records the planned `VIZ/` location. Nothing
+  created yet.

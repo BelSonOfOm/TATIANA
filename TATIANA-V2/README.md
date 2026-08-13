@@ -22,6 +22,10 @@ circumstance. C++ exists here solely to numerically test a theorem or claim.
 MATH/           one file per construction, epistemic-tagged (✅🔵❌⚠️🔴), organized by the
                 phases in the reformulation plan, not by session date
 EXPERIMENTS/    standalone CMake project, no dependency on ../MOS/CMakeLists.txt
+VIZ/            (deferred — see DOCS/LOGBOOK_V2.md 2026-08-13 entry) a fork of
+                FutureAIGuru/BrainSimIII, modified to render TATIANA's complex state
+                (dumped by EXPERIMENTS/ as JSON) instead of the UKS. Debugging/visualization
+                tool only, not a dependency of the math. Not started until a math phase closes.
 DOCS/
   LOGBOOK_V2.md   append-as-you-go decision record for this stage specifically
 ```
