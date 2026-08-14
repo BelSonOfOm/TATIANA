@@ -57,6 +57,35 @@ it.
   exists (space in filename) and is committed — the plan's concern about a missing/unreconstructable
   script was unfounded, just needed a repo-wide search. **Next**: Phase 0's invariant-drift
   experiment (identity map §12 Kill-Test 3) — not yet started.
+- **2026-08-14** — **Phase 0 ran. Kill-Test 3 SURVIVES.** `EXPERIMENTS/phase0_invariant/`
+  (C++20, no deps, ~1s); write-up in `MATH/phase0_invariant_dimension.md`. Three runs at one shared
+  setting: **A (null)** 3-cycle fed exact/pure-gradient input only — growth never fires, residual
+  `7.3e-15`; **B (positive)** same complex with a planted harmonic component — growth fires once,
+  residual stalls at `9.8e-01`; **C (structure-free)** path with `b₁=0` — growth structurally
+  unreachable, residual `5.9e-15`. A and C are zero for *different* reasons (untriggered vs.
+  impossible), which is the point of running both. **Pre-existing `K(𝕂)` exactly untouched in all
+  three runs across 500 ticks of real molding + consolidation**, and the one growth event's size
+  came out `k_w = 1` via **two independent routes that agree** — holonomy `dim ker(H−I)` and
+  cochain-space `dim ker(δ⁰(δ⁰)ᵀ)`. `Q(t)` moves in B (`4.910642→4.916937`) while dimensions stay
+  pinned — §3.2's projective claim (relative structure changes, dimension doesn't) behaving as
+  advertised. Reproduced across 4 RNG seeds, identical verdict and identical `k_w` each time.
+  `[MEASURED]` — this converts identity map §3.1/§3.2 from `[DERIVED]`/`[INFERRED]` to measured,
+  which is what Phase 0 existed to do.
+  **Harness bug found and fixed mid-run, recorded not quietly corrected**: the first version
+  compared `currentK()`'s vertices-then-edges concatenation index-by-index, so appending a grown
+  vertex shifted the boundary and reported a false `DRIFT DETECTED` in run B. Underlying dimensions
+  were never wrong. Caught **only** because run B's expected behaviour was written down before the
+  code — exactly the failure mode the discipline warns about.
+  **Does NOT establish** (all stated in the experiment header up front, not discovered later): no
+  2-cells, so §4.3's "triangles make molding obstructible" is untested and the routing law's
+  bad-2-cell branch is unexercised; **no sleep-phase MDL pruning**, so the "may decrease (pruning)"
+  half of §4's invariant table is entirely untested — Kill-Test 3 survives, it is not passed in
+  full; `γ(ν)` constant (VerifyOp unmodelled); post-growth dynamics unwired (measures one growth
+  event's size, not repeated-growth stability); dense orthogonal restriction maps rather than
+  Householder products; synthetic input only. **New open question raised, not answered**: molding
+  is bounded to one nudge per tick before the same tick's stall check — whether unbounded
+  accumulated molding could erode the very topological obstruction growth depends on is genuinely
+  open.
 - **2026-08-13 (same day)** — **Visualization strategy decided, work deferred.** Evaluated
   `FutureAIGuru/BrainSimIII` and `FutureAIGuru/BrainSimII` (both C#/WPF, MIT). BrainSimII is a
   spiking-neuron/embodied-agent simulator (vision/motor modules, a virtual agent "Sallie") — not a

@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Standalone on purpose: no add_subdirectory(../../MOS), no target_link_libraries against
 # MOS's engine. See README.md. One add_subdirectory() per phase, added when that phase's
-# first experiment exists — none yet.
+# first experiment exists.
+add_subdirectory(phase0_invariant)
