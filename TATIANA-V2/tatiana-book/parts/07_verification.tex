@@ -1,5 +1,49 @@
 \chapter{Verification: the External Oracle}\label{ch:verify}
 
+\begin{workplan}{\Recast}
+\wpgoal{Keep the trichotomy, which is a real epistemic fix. Retitle and
+re-found the chapter: in V2 there is no ``external oracle'' to appeal to, and
+the verification lift's architecture is an open problem, not a given.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~I.8 (the trichotomy and the promotion gate), I.5
+(the derivation of $\gamma(\emptyset)$ for unchecked ticks);
+Chapter~\ref{ch:encoder} of this book, which now owns the open question.}
+
+\wpsteps{
+  \item \textbf{Retitle.} ``The External Oracle'' presumes V0's architecture,
+    where verification was one organ among several and could be an outside
+    service. Rename to something that does not assume where the checker lives.
+  \item \textbf{Keep the trichotomy and its argument.} Two outcomes conflate
+    \textsc{refuted} with \textsc{unverifiable} --- ``the error of concluding
+    falsehood from inability to check'' --- and would spike conflict over the
+    checker's own blind spots. Three outcomes fix it: the obstruction clears,
+    increments, or is left untouched. A checker crash returns
+    \textsc{unverifiable}, never a refutation. \Proved\ as an epistemic
+    argument.
+  \item \textbf{Keep the consolidation gate.} $\gamma(\nu)$ reads the verdict
+    and is what stops unverified structure from entering the invariant. This
+    is the link that makes verification load-bearing rather than advisory ---
+    state it as such, cross-referencing Chapter~\ref{ch:identity}.
+  \item \textbf{Keep the derivation for unchecked ticks.} ``No test ran'' is
+    absence of evidence, not a failed test, and the rate for such ticks was
+    \emph{derived} by shrinkage rather than hand-set, degrading exactly to the
+    old constant on day one. Keep the honest caveat: it is conditional on
+    selection bias, since ticks that ran a check may not resemble ticks that
+    did not. Testable, strictly better than a constant, never to be quoted as
+    unbiased.
+  \item \textbf{State the implementation status.} The trichotomy is computed;
+    it has never been connected to a real prover or sandbox, so the verdict is
+    not earned from evidence in any live loop. \Proposed.
+  \item \textbf{Hand the open question to Chapter~\ref{ch:encoder}} rather
+    than answering it here, and say so explicitly so the two chapters do not
+    drift apart.
+}
+
+\wpdone{The trichotomy is stated with its epistemic argument, its link to the
+invariant is explicit, and no text presumes an external service.}
+\end{workplan}
+
 \begin{intu}\Intu
 Coherence governs whether to keep exploring or stop and reconcile. Only
 an external checker touches \emph{truth}. And ``I could not check'' must

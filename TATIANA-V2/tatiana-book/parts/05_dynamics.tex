@@ -1,5 +1,63 @@
 \chapter{Growth Operators and the Algebra $\Dop$}\label{ch:growth}
 
+\begin{workplan}{\Recast}
+\wpgoal{Keep the typed structural operators. Rebuild the algebra $\Dop$ on
+\emph{measured} relations rather than asserted ones, and be honest that in V2
+this chapter is mostly a programme rather than a result.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~I.1 (typed ops replacing Pachner moves), I.7 (the
+curvature controller --- derived, unit-tested, never wired);
+\texttt{DOCS/Phase I --- Understand the Geometry o.txt} (the phased programme:
+invariants, then primitives, then interaction laws, then the algebra).}
+
+\wpsteps{
+  \item \textbf{Keep the typed operators} $\opbind$, $\opcollapse$,
+    $\opsplit$, $\opmerge$, $\opcone$, each logged to a mutation history.
+    Keep the reason they replaced Pachner moves: a knowledge graph is not a
+    manifold, so the preservation guarantee does not transfer. \Keep.
+  \item \textbf{Add the invariants step \emph{before} the primitives.} The V0
+    text hunts for primitive operations first. The correct order --- and the
+    one the source programme itself corrects to --- is invariants first:
+    ``primitive'' is only meaningful relative to what must not move. Each
+    operator must now declare its effect on $\mathrm{K}(\mathbb{K})$
+    (Chapter~\ref{ch:identity}). Make that declaration part of the definition
+    of an operator, not a later audit.
+  \item \textbf{Derive the relations; do not invent them.} The commutators are
+    to be \emph{measured}: apply candidate primitives in both orders on small
+    explicit complexes and compute the difference. State clearly that
+    $\Dop = T(V)/I$ is a target, and that $I$ is empty until such measurements
+    exist. An algebra asserted without its relations is bookkeeping.
+  \item \textbf{Report the independence-relation test honestly.} If the
+    independence relation is empty, $\Dop$ is the free algebra and the whole
+    apparatus counts directed acyclic graphs. Record this as the falsifier for
+    this chapter, and record that it has not been run for V2's operator set.
+  \item \textbf{Keep the curvature controller with its warning.} ``Run the
+    flow, skip the surgery'' is right, and Forman's weights are \emph{not}
+    free --- they are fixed by whichever Laplacian the system actually prints
+    $\omega$ and $\rho$ from, so using a Hebbian coupling as the Forman weight
+    computes the curvature of a \emph{different} operator: a consistent-looking
+    number about the wrong thing. Keep the flagged prediction that a
+    low-precision edge may drift positive and be folded \emph{because we are
+    unsure of it}, which is backwards; check the sign behaviour before
+    trusting the controller.
+  \item \textbf{Keep the floor derivation as a template.} The exact
+    multiplicative flow can never sever an edge; what severs is the
+    forward-Euler discretisation flipping sign --- so the old weight floor was
+    patching a numerical artefact that had been misdiagnosed as a safety
+    mechanism. The replacement is exponential integration plus a control
+    barrier, which turns out to be exactly the object neuroscience calls
+    weight-dependent plasticity. Keep also the floating-point trap: bare
+    exponential integration underflows to zero and severs silently; only the
+    barrier survives floating point.
+  \item \textbf{State the implementation status plainly.} No line of the
+    curvature controller has ever moved a real edge weight. \Proposed.
+}
+
+\wpdone{Every operator declares its effect on the invariant, and the chapter
+distinguishes what is proved from what is a programme awaiting measurement.}
+\end{workplan}
+
 \begin{intu}\Intu
 Learning \emph{is} change of shape. The complex binds organs that work
 together, prunes idle ones, and --- when a procedure repeatedly succeeds
@@ -215,6 +273,61 @@ about $\Dop$ should appear anywhere.
 \end{hon}
 
 \chapter{The Lift--Project Adjunction}\label{ch:adjunction}
+
+\begin{workplan}{\Keep}
+\wpgoal{Keep the adjunction --- it is standard, genuinely proved, and now
+does double duty as the memory architecture and as the candidate reproduction
+morphism.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~II.2 (the $\mathbb{K}/W$ two-complex model, the
+consolidation rule, the measured $Q(t)$ trajectory), II.1 (what was tried and
+abandoned for memory identity first).}
+
+\wpsteps{
+  \item \textbf{Keep the theorem.} For a full subposet inclusion $\iota$:
+    $\iota^*$ restricts (instantiate, store $\to$ cache), $\iota_!$ is
+    extension by zero (write back only what was touched), $\iota_*$ fills
+    untouched cells by limits, and the (co)units are isomorphisms so
+    $\iota^*\iota_! \cong \Id$. \Proved, standard.
+  \item \textbf{State the write-back choice and its reason.} $\iota_!$, never
+    $\iota_*$: the cache must assert \emph{nothing} about untouched cells,
+    which is the sheaf-theoretic form of ``no measurement is not a measurement
+    of zero.''
+  \item \textbf{Present consolidation as the anti-interference mechanism.}
+    $\gamma_0 \ll 1$ is what lets new learning coexist with old memory without
+    overwriting it, and the session's state $s_W$ is \emph{never} written
+    back --- content and wiring persist, the episode does not.
+  \item \textbf{Report that $\gamma_0 \ll 1$ was forced twice, independently.}
+    Once by the anti-interference argument, and once by measurement: no
+    restriction-map parameterisation is affordable to learn from a single tick
+    (the cheapest is over-parameterised threefold, a full orthogonal map by
+    over five hundred). Two independent routes to one conclusion is worth
+    stating as such.
+  \item \textbf{Keep $Q(t)$ as an instrument.} Mean $\norm{R - \Id}_F^2$;
+    constant sheaf $\iff Q = 0$; measured moving monotonically off zero across
+    four ticks, and \emph{exactly} zero when nothing is verified. ``$Q(t)$
+    leaving zero is not a proxy for consolidation; it is the definition.''
+    \Measured.
+  \item \textbf{Keep the two bugs the tests caught}, since both would have
+    rotted silently: a constructor that pre-filled every edge with identity so
+    learned maps were dropped on rebuild, and a single Householder reflection
+    landing in the wrong component of $O(d)$ so consolidation correctly refused
+    to interpolate and $Q(t)$ would have stayed zero with every test passing.
+  \item \textbf{Add the forward reference to reproduction.} This same adjoint
+    pair is Chapter~\ref{ch:reproduction}'s candidate morphism. Note it here.
+  \item \textbf{Keep the abandoned alternatives with their reasons.} Formal
+    Concept Analysis \Refuted\ as substrate (data-determined; its canonicity
+    comes precisely from discarding the path-dependence that makes a memory a
+    memory --- memory must \emph{grow}, not be recomputed), and the
+    $K_0$/Jordan--Hölder schema \Refuted\ (both candidate categories fail for
+    opposite reasons). Both were dissolved by the growth-history identity this
+    chapter provides.
+}
+
+\wpdone{The adjunction is proved, the write-back choice is justified by the
+$\bot$-invariant, and its second role in reproduction is signposted.}
+\end{workplan}
 
 \begin{intu}\Intu
 Two worlds: free-form natural language, and structured reasoning DAGs.

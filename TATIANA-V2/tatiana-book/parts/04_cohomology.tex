@@ -1,5 +1,73 @@
 \chapter{Cohomology and the Diagnostic Hierarchy}\label{ch:cohomology}
 
+\begin{workplan}{\Recast}
+\wpgoal{This is the chapter V2 changes most in \emph{role}. In V0 the
+cohomology was a diagnostic hierarchy. In V2 the Hodge decomposition is the
+routing law of the wake phase and the harmonic component is the growth
+address --- so this chapter carries the architecture, not commentary on it.}
+
+\wpsource{This chapter's existing text (\S``the hierarchy is vacuous as
+currently fed'' is the key surviving content);
+\texttt{MATH\_TOOLBOX.md}~III.1 (Proposition~8.2 and the reframe it forced),
+III.2 (measuring a genuine $\eta$: four runs, one retraction), III.6 (the
+$b_1$-swamping bug and the triangle rule);
+\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S4.1, \S9.}
+
+\wpsteps{
+  \item \textbf{Open with Proposition~8.2, not with the hierarchy.}
+    $[\cob x] = 0$ in $\Hone$ \emph{unconditionally} --- a coboundary is by
+    definition not a gluing failure. This holds for every state, every sheaf,
+    identity restrictions or not. It is trivial to prove and it is the deepest
+    correct criticism the project received: the engine's only $1$-cochain is
+    always exact, so growth has no address, structurally, no matter how the
+    state is computed. \Proved. Everything else in the chapter is downstream
+    of it.
+  \item \textbf{State what it kills.} The original growth intuition (read the
+    address off $\Hone$ of a state the system already computes) is dead
+    permanently. So is the ``residuals of learned restriction maps'' repair,
+    which is \Refuted\ for the identical reason --- those residuals are still
+    coboundaries of the learned maps, still exact.
+  \item \textbf{Give the fix as the reframe it is.} Growth needs a genuinely
+    \emph{measured} $1$-cochain $\eta$ that is not the coboundary of any
+    single global state, plus the Hodge split; the harmonic component is the
+    address. State this as the pivot of the whole architecture.
+  \item \textbf{Flag the V2-specific hole loudly.} In V0, $\eta$ came from
+    organs emitting pairwise judgements that disagreed. \emph{V2 has no
+    organs.} Where a genuinely non-exact $\eta$ comes from for a single kernel
+    is \textbf{open} and is the most important unanswered question in the
+    book. Do not paper over it; give it its own section and forward-reference
+    Chapter~\ref{ch:open}.
+  \item \textbf{Keep the elicitation lesson.} A symmetric
+    $\{u,v,\text{agreement}\}$ schema \emph{cannot} be a $1$-cochain ---
+    antisymmetrising a symmetric table gives $\eta \equiv 0$ identically. Any
+    future source of $\eta$, organ-based or not, must be antisymmetric by
+    construction. Two earlier designs failed informatively before one worked.
+  \item \textbf{Keep the dimensionality trap.} A $1$-dimensional harmonic
+    subspace can report \emph{that} an obstruction exists but never
+    \emph{where} --- at $b_1 = 1$ every harmonic component is a multiple of one
+    fixed vector, so the ``consistent growth address'' it reports is an
+    artifact. Any configuration used for a real address needs $b_1 \ge 2$.
+    This nearly became a reported finding and must stay visible.
+  \item \textbf{Keep the triangle rule and the swamping bug.} Record a
+    $2$-simplex exactly when its three concepts co-fire; the earlier claim
+    that ``no triangles $\Rightarrow b_1 = 0$'' was backwards --- no triangles
+    \emph{maximises} $b_1$, and inserting each assembly as a clique
+    manufactures $(n-1)(n-2)/2$ artifact cycles that swamp the real address.
+    Also record that $b_1 = E - V + b_0 - F$ is \emph{wrong} once triangles
+    share edges; compute $b_1$ from ranks, always.
+  \item \textbf{Correct the headline statistic.} On a sparse graph a high
+    ``holes'' fraction is the \emph{null expectation}
+    ($\mathbb{E} = b_1/\abs{E}$), not evidence --- measured twelve sigma below
+    a null in one run. The usable output is per-cycle \emph{localisation} of
+    harmonic mass, which is what Construction~6 actually consumes. Replace the
+    fraction with localisation wherever the old text reports it.
+}
+
+\wpdone{A reader can prove Proposition~8.2 unaided, explain why it makes the
+growth address the central problem, and state what would have to be true of a
+source of $\eta$ for it to work --- including that V2 does not yet have one.}
+\end{workplan}
+
 \section{Two pathologies that must not be confused}
 
 \begin{definition}[Sheaf cohomology in low degrees]\label{def:cohom}

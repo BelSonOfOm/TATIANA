@@ -1,0 +1,100 @@
+\chapter{Identity: What Survives Mutation}\label{ch:identity}
+
+\NewV\ \emph{This chapter does not exist in the V0 book. It is the centre of
+V2 and everything after it depends on it.}
+
+\begin{workplan}{\NewV}
+\wpgoal{Make ``\textsc{tatiana} stays itself while it changes'' into a number
+that can be printed and a theorem that can fail. Nothing in this chapter may
+rest on the word ``identity'' being intuitively clear.}
+
+\wpsource{\texttt{DOCS/TATIANA\_V1\_IDENTITY\_MAP.md}~\S3 (the three levels),
+\S4 (which phase conserves what);
+\texttt{MATH\_TOOLBOX.md}~II.2 (the $\mathbb{K}/W$ split and the consolidation
+formula), III.3 (Construction~6 fixes the growth increment);
+\texttt{TATIANA-V2/MATH/phase0\_invariant\_dimension.md} (the first
+measurement, already run --- see step~5).}
+
+\wpsteps{
+  \item \textbf{State the split first.} Identity is carried by the
+    crystallized store $\mathbb{K}$, not by the working complex $W$; $W$ may
+    be destroyed at the end of every session. Give the reader the reason this
+    is the right place for identity to live \emph{before} any formula: a
+    memory that is destroyed nightly cannot be what makes you you.
+  \item \textbf{Level 0 --- the exact invariant.} Define
+    $\mathrm{K}(\mathbb{K}) = (\dim \Fs_{\mathbb{K}}(\sigma))_\sigma$, the
+    dimension vector, a $K_0$ class. Prove that the consolidation rule
+    $R^{\mathbb{K}} \leftarrow \Pi_{O(d)}(R^{\mathbb{K}} + \gamma(\nu)(R^W -
+    R^{\mathbb{K}}))$ conserves it \emph{exactly}. The proof is short and must
+    be given in full: a retraction onto $O(d)$ cannot change a dimension,
+    molding cannot, state relaxation cannot.
+  \item \textbf{The one thing that moves it.} Growth, and only growth, and by
+    a \emph{derived} amount: $\dim \Fs(w) = \dim \Hzero(\gamma; \Fs|_\gamma)$
+    from Construction~6 (Chapter~\ref{ch:cone}). Nothing is hand-set. State
+    the theorem shape explicitly, because it is the shape V2 is built to
+    have: \emph{two of three timescales conserve the invariant exactly; the
+    third changes it computably.}
+  \item \textbf{Level 1 --- the projective invariant.} Level 0 is coarse: it
+    cannot distinguish two stores with the same dimensions and different maps.
+    State the finer claim, that relative structure is preserved while absolute
+    magnitude is not, $\Fs_{\mathbb{K}} \sim \lambda\Fs_{\mathbb{K}}$. Then
+    make the observation that earns it: $\Pi_{O(d)}$ is the polar retraction
+    $R \mapsto UV^{\mathsf T}$, which discards scale and keeps direction ---
+    written into the design months earlier as a gauge fixing, and only later
+    recognised as the identity-preservation mechanism. Say plainly that the
+    coincidence is the reason to trust it, and that this is
+    \Contested\ until step~5's measurement is extended to cover it directly.
+  \item \textbf{Report the measurement that exists.} Phase~0 has been run.
+    Reproduce its result here in full, including its controls: on a $3$-cycle
+    and on a $b_1=0$ path, pre-existing $\mathrm{K}(\mathbb{K})$ is untouched
+    across 500 wake/sleep ticks; the single growth event's size is $k_w = 1$
+    confirmed by two independent routes (holonomy $\dim\ker(H-\Id)$ and
+    cochain-space $\dim\ker(\cob^0(\cob^0)^{\mathsf T})$); $Q(t)$ moves while
+    dimensions stay pinned. Tag \Measured.
+  \item \textbf{State what the measurement does not cover, in the same
+    breath.} Sleep-phase pruning is unimplemented, so the ``may decrease''
+    half of the invariant table is untested and the kill-test is
+    \emph{survived, not passed}. No $2$-cells; $\gamma(\nu)$ constant;
+    post-growth dynamics unwired; dense rather than Householder maps;
+    synthetic input only. This list is not an appendix item --- it goes
+    beside the result.
+  \item \textbf{Level 2 --- declare it out of scope and say why.} The full
+    isomorphism class of $\Fs_{\mathbb{K}}$: a cellular sheaf on a graph is a
+    representation of the incidence quiver, and anything richer than a single
+    cycle is of wild representation type. Krull--Schmidt makes the
+    decomposition into indecomposables unique but not computable. V2 reports
+    levels 0 and 1 and does not chase level 2.
+}
+
+\wpdone{A reader can state what $\mathrm{K}(\mathbb{K})$ is, prove
+unaided that consolidation conserves it, say exactly how much growth changes
+it and why that number is not a choice, and list what the existing
+measurement does not cover.}
+\end{workplan}
+
+\begin{workplan}{\NewV}
+\wpgoal{\S: The open question this chapter raises and cannot yet close ---
+whether molding can erode the obstruction that growth depends on.}
+
+\wpsource{Raised by the Phase~0 experiment; see
+\texttt{TATIANA-V2/MATH/phase0\_invariant\_dimension.md}~\S4 and the logbook
+entry for 2026-08-14.}
+
+\wpsteps{
+  \item State the concern precisely. Molding changes restriction maps; the
+    growth address is a harmonic class determined \emph{by} those maps. In the
+    experiment as run, molding is bounded to one nudge per tick before the
+    same tick's stall check, so the question never arises. Unbounded, it might.
+  \item Say why it matters: if slow molding can dissolve a harmonic
+    obstruction, the three-layer handoff of Chapter~\ref{ch:twophase} is not
+    a handoff but a race, and ``growth fires when molding stalls'' would be
+    a statement about the schedule rather than about the geometry.
+  \item Do not answer it here. Record it as an open problem with a stated
+    experiment (vary the molding budget per tick; measure whether the harmonic
+    component's norm decays to below the stall tolerance without growth ever
+    firing) and cross-reference Chapter~\ref{ch:open}.
+}
+
+\wpdone{The question is stated sharply enough that someone else could run
+the experiment that settles it.}
+\end{workplan}

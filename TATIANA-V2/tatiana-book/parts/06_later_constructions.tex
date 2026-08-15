@@ -1,5 +1,58 @@
 \chapter{The MDL Growth Law}\label{ch:mdl}
 
+\begin{workplan}{\Recast}
+\wpgoal{Keep Construction~7 and give it its V2 placement: this is the
+\emph{maintenance cost} of the sleep phase, and it is the only place cost
+lives in the entire architecture.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~III.4 (Construction~7, the per-direction code, the
+measurement); \texttt{DOCS/DERIVATION\_MDL\_GROWTH\_LAW.md};
+\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S6 (placement, and the one free
+parameter).}
+
+\wpsteps{
+  \item \textbf{Keep the superseded law as a worked failure.} The original had
+    a numerator overcounting by a factor of $k$ (fixed by holonomy
+    propagation --- only the first leg needs describing, the rest are
+    determined) and, fatally, a denominator that did not depend on concept
+    size at all, making a zero-dimensional concept always optimal: ``attach
+    always, with a concept that carries nothing.'' Keep this; it shows exactly
+    how a plausible law can invert its own purpose.
+  \item \textbf{State Construction~7's repair.} A per-direction code: fix a
+    direction in the limit, take its $k$ readings around a traversal, and ask
+    whether they agree. The saving per traversal follows from the intraclass
+    correlation, and the law becomes a threshold on recurrence count that is
+    never met when the saving is non-positive.
+  \item \textbf{Report the measurements.} Within $0.042$ bits/traversal of
+    exact quantised-Gaussian entropy; over-prices its own reference code so
+    the threshold is \emph{conservative} --- it under-attaches, never
+    over-attaches; and a shuffled-readings control drops the saving from
+    $+5.289$ to $-0.437$ bits, so the saving measures the recurrence and not
+    the coder. \Measured.
+  \item \textbf{Keep the restored consequences.} Size-dependence returns
+    per-direction; the subspace-selection rule (rank by reliability, keep a
+    prefix) is now a \emph{theorem} rather than a proposal; and a reliability
+    floor exists independent of frequency.
+  \item \textbf{Keep the open self-reference problem.} Taking bits-per-real as
+    $\tfrac12\log n$ is self-referential but resolvable by iteration ---
+    \emph{except} that it degenerates exactly where the growth law lives: at
+    $n = 1$ the model is free and over-generation returns. Do not adopt it as
+    derived-therefore-safe. State the alternatives.
+  \item \textbf{Keep the stated narrowing.} The law prices what was there, not
+    which succession fired --- a strict under-estimate, making it conservative
+    by construction rather than by luck.
+  \item \textbf{Add the V2 placement paragraph.} This cost is consulted during
+    \emph{sleep} only. It never bids against growth inside a single tick.
+    Name the exchange rate between deformation cost and new-cell cost as the
+    one genuine free parameter of the design, and record that acquiring a
+    second one is evidence the two-phase separation has failed.
+}
+
+\wpdone{The law is stated with its measurements and its open self-reference
+problem, and its placement in the sleep phase is explicit.}
+\end{workplan}
+
 The question this chapter answers: \emph{when is a new concept worth
 inventing?} Earlier designs answered it with a threshold someone chose.
 This one derives a threshold instead.
@@ -112,6 +165,68 @@ Three consequences, two of which were not asked for:
 \end{enumerate}
 
 \chapter{The Coned Concept}\label{ch:cone}
+
+\begin{workplan}{\Keep}
+\wpgoal{Keep Construction~6 essentially as written --- it is the
+most-verified construction in the record --- and add the one upgrade V2 needs:
+its output dimension is what moves the invariant, so this chapter and
+Chapter~\ref{ch:identity} must agree exactly.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~III.3 (derivation, two self-corrections, the
+measurements, provenance); \texttt{TATIANA-V2/MATH/phase0\_invariant\_dimension.md}
+(the dimension confirmed two independent ways).}
+
+\wpsteps{
+  \item \textbf{Keep the derivation and its punchline.} Consistency on the new
+    edges forces the value at $w$ to \emph{generate} the section over the whole
+    cycle, and substituting into the old edges gives verbatim the categorical
+    cone condition. The cone condition was not imposed --- it fell out of
+    demanding the topological cone do its job. \Proved.
+  \item \textbf{Keep the identification.} $\Fs(w) := \lim D_\gamma \cong
+    \Hzero(\gamma;\Fs|_\gamma)$: the new concept is \emph{not} a summary of the
+    cycle's members but their \emph{compatible part}. This sentence is the
+    chapter.
+  \item \textbf{Keep both self-corrections visible.} First, an earlier draft
+    argued the limit is ``the smallest object admitting the required maps'' ---
+    backwards; every cone factors uniquely through the limit, so it is the
+    \emph{largest} non-redundant choice, a ceiling and not a floor. Second, the
+    ``refusal branch'' (nothing consistent, so the construction declines) is
+    logically real but \emph{structurally unreachable}: a cycle carries
+    harmonic mass if and only if it has sections.
+  \item \textbf{Keep the upgrade from preference to necessity.} The coned
+    complex is a cochain complex \emph{if and only if} $\Fs(w)$ is a cone over
+    the diagram. Construction~6 is therefore not the best choice among several
+    --- it is the only choice for which the coned object is a sheaf at all. The
+    universal property was never a preference; it was the existence condition.
+    \Proved, and measured: an arbitrary $\Fs(w)$ gives $1.756$, the limit
+    gives $4.4 \times 10^{-16}$.
+  \item \textbf{Keep the parity observation.} Reachability of the degenerate
+    case is governed by the parity of $d$, since every element of $SO(\text{odd})$
+    fixes an axis. This is a fact about this architecture specifically, because
+    its restriction maps are orthogonal by construction.
+  \item \textbf{Keep the provenance paragraph, including the direction.} The
+    universal-property route to a new concept is Goguen's, not this project's
+    --- and the variance is \emph{opposite}: his blends are colimits, a sheaf's
+    restriction maps force a limit. ``Copying him would have gotten it
+    backwards.'' What is genuinely original is that the sheaf's own restriction
+    maps supply the diagram, so nothing new is introduced beyond what the
+    memory already held.
+  \item \textbf{Add the invariant link.} $\dim\Fs(w) = \dim\Hzero(\gamma;
+    \Fs|_\gamma)$ is exactly the amount by which $\mathrm{K}(\mathbb{K})$
+    changes, known \emph{before} the growth decision, from the same
+    computation that produced the address. Cross-reference
+    Chapter~\ref{ch:identity} and report that both routes to this number have
+    been computed and agree. \Measured.
+  \item \textbf{Record what is still not derivable.} The label for the new
+    concept is not derivable from a diagram. Name this as the one place
+    genuine novelty enters rather than being computed, and connect it to
+    Chapter~\ref{ch:encoder}.
+}
+
+\wpdone{The construction is proved to be forced rather than chosen, and its
+output dimension is stated identically here and in Chapter~\ref{ch:identity}.}
+\end{workplan}
 
 This is the central construction of the later work: the stalk of a
 newly-grown concept, \emph{derived} rather than chosen.
@@ -336,6 +451,62 @@ determinations are therefore genuinely separate, and both are derived:
 \end{enumerate}
 
 \chapter{Retrieval: Rank, Do Not Threshold}\label{ch:retrieval}
+
+\begin{workplan}{\Recast}
+\wpgoal{Keep the empirical result, which is large and well-measured, but
+change what the chapter is \emph{for}: V2's own diagnosis is that retrieval
+cannot live in a metric at all, so this chapter becomes the evidence for that
+conclusion rather than a description of a component.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~V.1--V.2 (the bug, the fix, the self-audit), VII.1
+(the six measurements that together say retrieval needs a generative process).}
+
+\wpsteps{
+  \item \textbf{Keep the bug and its magnitude.} A relevance threshold
+    compared against squared Bures--Wasserstein distance, with an unbounded
+    scan and no limit, admitted $0.31\%$ of ground-truth dependencies; at the
+    shipped default, literally zero of three thousand ticks retrieved a pair.
+    \Measured.
+  \item \textbf{Keep all three root causes}, since each is instructive: it was
+    a near-duplicate filter rather than a relevance filter; embeddings sit on a
+    large common-mode pedestal that any absolute threshold mostly measures; and
+    the epistemic term is dimension-extensive while the semantic term is
+    dimension-intensive, so summing them lets the former dominate by two orders
+    of magnitude regardless of meaning.
+  \item \textbf{Keep the fix and the honest framing of its size.} Rank, do not
+    threshold; rank on cosine, not squared distance (stored means are not
+    unit-norm, so squared-distance ranking silently penalises general
+    concepts). Worth $0.31\% \to 46.6\%$. State the lesson explicitly: the
+    whole design argument was about a four-point effect while the actual fix
+    was worth $140\times$.
+  \item \textbf{Keep the self-audit.} Two claims about the fix were themselves
+    overstated and walked back --- an optimum read off a flat sweep, and a
+    parameter called ``derived'' that was an unmeasured budget coincidence.
+    ``Two independent constraints landing on the same number is exactly the
+    tidiness motivated reasoning produces.'' Keep this sentence.
+  \item \textbf{Keep the refuted alternative.} Diffusion/heat-kernel retrieval,
+    twelve configurations, none beating raw cosine, degrading monotonically
+    with diffusion time --- the pedestal makes the walk near-uniform so it
+    amplifies hubness rather than removing it. \Refuted.
+  \item \textbf{Add the V2 recast.} State the conclusion this chapter is now
+    evidence for: retrieval cannot live in the metric alone, cannot live in a
+    single relation (citation and embedding similarity agree under half the
+    time), and cannot live in the corpus. What is missing is a process that
+    decides what to retrieve \emph{about} --- which in V2 is the wake phase's
+    drive, not a lookup. Reframe accordingly and forward-reference
+    Chapter~\ref{ch:twophase}.
+  \item \textbf{Carry the standing warning.} A simulator produces the topology
+    its rules imply. Moving from ``assume a structure and test for it'' to
+    ``generate the structure'' is a stronger design and \emph{also} a way to
+    hide assumptions inside an update rule. No claim about emergent structure
+    without a validation battery built \emph{before} the generator.
+}
+
+\wpdone{The chapter reads as the argument that retrieval needs a process
+rather than a metric, with the measurements as evidence rather than as the
+point.}
+\end{workplan}
 
 \begin{intu}\Intu
 Retrieval decides which stored concepts an organ sees. A threshold on

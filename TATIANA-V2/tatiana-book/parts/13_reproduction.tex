@@ -1,0 +1,59 @@
+\chapter{Reproduction}\label{ch:reproduction}
+
+\NewV\ \emph{The weakest chapter in the book, placed last and labelled as
+such. It proposes a canonical morphism and claims nothing beyond that.}
+
+\begin{workplan}{\NewV}
+\wpgoal{Give ``the kernel reproduces itself'' a precise candidate definition,
+and be explicit that a canonical morphism is not yet a viable offspring.}
+
+\wpsource{\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S5 (the proposal and its own
+warning), \S10 open decision~4;
+\texttt{MATH\_TOOLBOX.md}~II.2 (the adjunction, which is standard and already
+proved).}
+
+\wpblocked{Chapter~\ref{ch:identity} (there is no sub-invariant to carry until
+$\mathrm{K}(\mathbb{K})$ is established) and Chapter~\ref{ch:twophase} (there
+is nothing for an offspring to \emph{do} until the wake/sleep cycle is
+specified). Do not write this chapter before those two are finished.}
+
+\wpsteps{
+  \item \textbf{Say what reproduction is not.} Not a copy: a bitwise
+    duplicate carries no information about what the kernel learned to be, and
+    duplicating the whole store is not growth but storage. State this before
+    proposing anything.
+  \item \textbf{Propose the morphism.} The adjoint pair is already in the
+    mathematics: $\iota^*$ instantiates a downward-closed subcomplex,
+    $\iota_!$ writes back only what was touched, and because $\iota$ is a full
+    subposet inclusion the unit is an isomorphism, $\iota^*\iota_! \cong \Id$
+    --- so the round trip provably does not corrupt the fragment. An
+    offspring is a downward-closed subcomplex together with its pullback
+    sheaf.
+  \item \textbf{State the invariant it carries.} The offspring's
+    $\mathrm{K}$ is the restriction of the parent's dimension vector to the
+    subcomplex --- a \emph{sub-invariant}. Establish that this is well-defined
+    and that it is conserved by the offspring's own consolidation, which
+    follows from Chapter~\ref{ch:identity} applied to the subcomplex.
+  \item \textbf{Do not claim viability.} Tag the whole chapter \Proposed. The
+    honest statement is: the morphism is canonical, and nothing follows from
+    that about whether the offspring can run, learn, or survive contact with
+    input. Say so in those words.
+  \item \textbf{Write the falsifier.} Before any implementation: what
+    observation would show an offspring is \emph{not} viable? Candidates to
+    develop --- the offspring's wake phase never stalls (so it can never
+    grow); or it stalls immediately everywhere (so its address carries no
+    information); or its invariant drifts where the parent's did not. Specify
+    at least one as a runnable experiment.
+  \item \textbf{Connect to the selection question, and leave it open.} If
+    reproduction is cheap and viability is rare, something must choose which
+    fragments reproduce. Note that V0 explicitly \Refuted\ random
+    variation-and-selection as the growth mechanism --- variation needs
+    randomness \emph{because it has no address}, and this architecture
+    computes an address --- so the same argument constrains what a selection
+    rule here may look like. Do not propose one yet.
+}
+
+\wpdone{The morphism is defined, the sub-invariant is proved to be
+well-defined, the viability claim is explicitly \emph{not} made, and at least
+one falsifier is specified precisely enough to run.}
+\end{workplan}

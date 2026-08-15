@@ -12,6 +12,18 @@
 %   mathematical fact, that fact is stated abstractly and the code
 %   discrepancy is logged in Appendix B.
 %
+%   ---------------------------------------------------------------
+%   V2 STATUS.  The book was written for V0 (an organ complex around a
+%   language model).  V0 is retired.  Chapter 1 (parts/00_v2_reformulation)
+%   states what replaced it and why.  Every chapter now opens with a
+%   WORK PLAN box and a disposition tag <KEEP|RECAST|RETIRE|NEW IN V2>.
+%
+%   The work plan is an instruction for rewriting that chapter, not
+%   commentary on it.  When a chapter is rewritten, its work plan is
+%   deleted and replaced by the prose it asked for.  A chapter that
+%   still has a work plan in it is a chapter that is not done.
+%   ---------------------------------------------------------------
+%
 % =====================================================================
 \documentclass[11pt,openany]{book}
 
@@ -46,6 +58,9 @@
 
 \mainmatter
 
+\part{What TATIANA Is}
+\input{parts/00_v2_reformulation}
+
 \part{The State Space}
 \input{parts/01_state_space}
 
@@ -55,8 +70,21 @@
 \part{Semantic Geometry}
 \input{parts/03_semantic_geometry}
 
-\part{Cohomology and Diagnostics}
+\part{Cohomology and the Growth Address}
 \input{parts/04_cohomology}
+
+% ---------------------------------------------------------------------
+%  The V2 spine.  These two parts are new and they are the centre of the
+%  book: what stays the same, and what makes it change.  They sit here,
+%  immediately after the Hodge decomposition they depend on, and they
+%  forward-reference the cone construction for the one quantity that
+%  moves the invariant.
+% ---------------------------------------------------------------------
+\part{Identity}
+\input{parts/11_identity}
+
+\part{The Two-Phase Law}
+\input{parts/12_twophase}
 
 \part{Dynamics}
 \input{parts/05_dynamics}
@@ -67,10 +95,16 @@
 \part{Verification and Control}
 \input{parts/07_verification}
 
+\part{Reproduction}
+\input{parts/13_reproduction}
+
+\part{The Encoder and the Verification Lift}
+\input{parts/14_encoder}
+
 \part{Limits: What Is and Is Not Claimed}
 \input{parts/08_limits}
 
-\part{Open Problems within MOS}
+\part{Open Problems}
 \input{parts/09_open_problems}
 
 \part{Potentials for Quantum Implementation}

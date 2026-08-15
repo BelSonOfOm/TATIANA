@@ -4,6 +4,59 @@
 
 \chapter{The Base Complex}\label{ch:complex}
 
+\begin{workplan}{\Recast}
+\wpgoal{Rebuild the base complex on a justification that survives the loss of
+organs. The mathematics of $\CC$ is sound; the story told about \emph{why} it
+is stratified is V0's and is gone.}
+
+\wpsource{This chapter's existing text (the simplicial-complex material and
+the running example are reusable as-is);
+\texttt{MATH\_TOOLBOX.md}~I.1 (simplices as honest $n$-ary relations --- the
+one place the topology is earned rather than borrowed; also the list of what
+was cut as decorative); \texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S4.3
+($2$-cells are load-bearing).}
+
+\wpsteps{
+  \item \textbf{Replace the opening intuition.} The current one describes ``a
+    small society of specialists'' --- search, memory, reason, check. That is
+    V0's organ complex and it is retired. Write a new intuition for one
+    kernel whose parts are not specialists but regions of a single body of
+    thought.
+  \item \textbf{Keep, unchanged, the $n$-ary binding argument.} Simplices are
+    honest joint relations, not decomposed pairwise facts: a theorem
+    depending on three prerequisites is one $3$-simplex, not three edges.
+    This is the strongest justification in the chapter and it does not
+    depend on organs at all. \Keep.
+  \item \textbf{Re-derive or retire the stratification.} \S\ref{sec:strat}
+    currently justifies coarse/fine by organs being real separate subsystems.
+    With one kernel that ground is gone. Decide, and write down the decision
+    with its reason: either the stratification survives on a new ground (scale
+    of abstraction? crystallized vs working, which is a \emph{different} axis
+    and was repeatedly confused with this one in V0), or it collapses to a
+    single scale. Do not leave this ambiguous --- V0 conflated the two axes
+    repeatedly and had to keep re-separating them.
+  \item \textbf{Promote the $2$-cells.} The current text treats the complex as
+    up-to-$2$-dimensional almost incidentally. In V2 the $2$-cells are what
+    make molding obstructible, hence what make growth derivable, hence the
+    defence against every published negative result about learned sheaf
+    Laplacians on graphs. State that here, forward-referencing
+    Chapter~\ref{ch:twophase}, so the reader knows from the start why
+    triangles are not optional.
+  \item \textbf{Keep the running example} $\Kc_7$, but re-describe its
+    vertices as something other than organs. Every later chapter measures this
+    object; changing it is expensive, so change only its interpretation.
+  \item \textbf{Carry forward the register of what was cut and why.}
+    Infinite-dimensional Banach stalks, Pachner moves (a knowledge graph is
+    not a manifold, so the preservation guarantee does not transfer),
+    cohomology on undefined restriction maps. Keep these as refutations, not
+    silence.
+}
+
+\wpdone{The chapter justifies every structural feature of $\CC$ without once
+appealing to organs, and the stratification question is answered rather than
+inherited.}
+\end{workplan}
+
 \section{What the object is}
 
 \begin{intu}\Intu
@@ -210,6 +263,48 @@ quantity in Parts I--IV can be carried through in exact arithmetic.
 
 % =====================================================================
 \chapter{The Sheaf}\label{ch:sheaf}
+
+\begin{workplan}{\Keep}
+\wpgoal{Keep the sheaf as it stands and add the one thing V2 makes central:
+that the restriction maps are the \emph{only} place knowledge about wiring
+can live, so freezing them is not a simplification but a deletion of the
+architecture.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~I.4 (restriction maps as quantum channels; the
+potency ladder; Householder representation), I.5 (the measured collapse of a
+false conflict that identity maps provably cannot produce).}
+
+\wpsteps{
+  \item \textbf{Keep the direction argument} (\S\ref{sec:direction}) in full.
+    Which way the restriction maps point is the chapter's real content and it
+    is correct.
+  \item \textbf{Add the constant-sheaf refutation early, not late.} Identity
+    restriction maps on a connected graph make the reconciled state the plain
+    average: no knowledge lives in the wiring, and the cohomology goes
+    vacuous. This is \Refuted\ and it is the reason molding exists. It
+    currently appears as a remark; in V2 it belongs near the definition.
+  \item \textbf{State the potency ladder as the chapter's organising idea.}
+    Level~0 identity (``same thing, verbatim''); level~1 orthogonal (``same
+    content, different basis'' --- reversible, lossless); level~2 general CPTP
+    (lossy, and the added entropy \emph{is} a measure of connection quality).
+    Give the measured evidence: precision-weighted maps collapse a false
+    conflict (same content, rotated frame) while leaving a real conflict
+    untouched. Identity maps cannot do this, and that asymmetry is the
+    argument.
+  \item \textbf{Record the representation caveat honestly.} Householder
+    products are exactly orthogonal by construction and cheap, but the
+    $m$-reflection family is \emph{not} closed under the retraction
+    consolidation uses, and reflection-count parity is a genuine topological
+    obstruction --- differing parities lie in different components of $O(d)$
+    and no continuous path joins them. V2 must \emph{choose} a retraction
+    deliberately rather than defaulting. Flag as an open decision.
+}
+
+\wpdone{A reader can say why identity restriction maps would make the whole
+architecture decorative, and can state the parity obstruction without
+consulting the source documents.}
+\end{workplan}
 % =====================================================================
 
 \begin{intu}\Intu
@@ -400,6 +495,35 @@ fusion.
 
 % =====================================================================
 \chapter{Coboundary and Laplacian}\label{ch:laplacian}
+
+\begin{workplan}{\Keep}
+\wpgoal{Unchanged mathematically. Add the forward references that make it
+carry V2's weight, since almost every later chapter reduces to a statement
+about this operator.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~I.1 ($\Lap = \cob^{\mathsf T}\cob$ real symmetric
+PSD, which is why the spectral theorem applies for real rather than by
+analogy; $\Hzero = \ker\Lap$).}
+
+\wpsteps{
+  \item Keep the construction and proofs as they are. \Keep.
+  \item Emphasise $\Hzero(\CC;\Fs) = \ker\Lap$ --- ``a coherent thought is
+    literally a matrix kernel'' --- and forward-reference it as the object
+    Chapter~\ref{ch:twophase}'s fast flow converges into.
+  \item Note that $\Lap$ stays symmetric PSD even when restriction maps are
+    general CPTP channels, because such maps are linear on the space of
+    symmetric matrices. This costs nothing and is what lets the potency ladder
+    of Chapter~\ref{ch:sheaf} be adopted without redoing the spectral theory.
+  \item Add a forward reference to the Hodge routing law: the three-way
+    splitting of $\Cone$ used throughout V2 is a statement about this
+    coboundary and belongs here in skeleton form.
+}
+
+\wpdone{The chapter states the two facts every later part relies on
+($\Hzero = \ker\Lap$; symmetry survives CPTP maps) and points forward to
+where each is used.}
+\end{workplan}
 % =====================================================================
 
 \section{The coboundary}

@@ -1,5 +1,54 @@
 \chapter{The Coherence Score}\label{ch:rho}
 
+\begin{workplan}{\Recast}
+\wpgoal{Keep the decomposition $\rho = \dissent\cdot\rhotil$ intact --- it is
+the single highest-value result in the V0 record --- while correcting its
+\emph{status}: in V2 $\rho$ is a diagnostic and a Lyapunov function, never an
+objective.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~I.2 (the exact decomposition, the Courant--Fischer
+window, the measured refutation of the ``dead dynamic range'' worry), I.3
+(the weighted Anderson--Morley bound and its stated hypothesis);
+\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S8 DON'T~2.}
+
+\wpsteps{
+  \item \textbf{Keep the whole decomposition.} $\dissent = \norm{x^\perp}^2 /
+    \norm{X}_F^2$ (dissent fraction) and $\rhotil$ (mode index) as a genuine
+    Rayleigh quotient on $(\ker\Lap)^\perp$, hence
+    $\rhotil \in [\lambda_2(\Lap_{\Kc})/\AM,\ \lambda_{\max}(\Lap_{\Kc})/\AM]$
+    by Courant--Fischer --- both endpoints computable from the graph
+    \emph{before any data}. \Keep, \Proved.
+  \item \textbf{Get the kernel right, in the text, where it can be checked.}
+    $\ker\Lap$ is the \emph{per-component} constants, not the global diagonal.
+    Two earlier write-ups got this wrong, and when $b_0 > 1$ the error scores a
+    between-component separation as dissent when it is in the kernel. State
+    the correct version and note the trap.
+  \item \textbf{Carry the Anderson--Morley hypothesis explicitly.} The bound
+    requires $\norm{\rest{v \triang e}} \le 1$; orthogonal restriction maps
+    suffice, general learned maps do not. An early proof silently assumed
+    identity maps. Any theorem statement must carry the norm bound.
+    \ProvedCond, and say under which conditions.
+  \item \textbf{Retract the novelty framing.} An earlier draft called the
+    weighted bound ``the one genuinely new theorem.'' It is standard spectral
+    graph theory. Correct this in place rather than quietly dropping it.
+  \item \textbf{Add the V2 status paragraph --- this is the recast.} State
+    plainly: \emph{do not minimise $\rho$.} Perfect coherence is death --- the
+    flow drives the state to its harmonic projection and generically to zero.
+    $\rho$ diagnoses and certifies descent; it is never the thing being
+    optimised. The typed diagnosis survives and is the point: high
+    $\dissent$/low $\rhotil$ is a structural split, low $\dissent$/high
+    $\rhotil$ is one bad edge.
+  \item \textbf{Keep \S\ref{sec:deadrange}} (the measured refutation of the
+    dead-dynamic-range worry) as written --- it is a clean example of a
+    speculative objection being killed by measurement, and $\dissent =
+    (n-1)(1-\bar c)/n$ is exact.
+}
+
+\wpdone{The decomposition is stated with its hypotheses, and no reader could
+come away thinking $\rho$ is an objective function.}
+\end{workplan}
+
 This chapter derives the two numbers the engine computes on every tick,
 and then shows that one of them is secretly two numbers with different
 meanings.

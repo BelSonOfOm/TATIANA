@@ -1,0 +1,101 @@
+\chapter{The Two-Phase Law}\label{ch:twophase}
+
+\NewV\ \emph{This chapter replaces the role a single global objective would
+have played. There is no such objective, and the reason is structural.}
+
+\begin{workplan}{\NewV}
+\wpgoal{Establish that \textsc{tatiana} alternates between two phases with
+different objectives, that this is forced rather than chosen, and that cost
+lives in exactly one of them.}
+
+\wpsource{\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S4 (the table), \S4.1 (wake,
+the Hodge routing law), \S4.2 (sleep), \S6 (the maintenance cost);
+\texttt{MATH\_TOOLBOX.md}~I.5 (predictive coding, $\dot x = -Lx$ is sheaf
+diffusion), II.2 ($\gamma(\nu)$, $\gamma_0 \ll 1$).}
+
+\wpsteps{
+  \item \textbf{Open with the table}, since it is the whole chapter in one
+    view: what drives each phase ($q_t \neq 0$ vs $q_t = 0$), what moves
+    ($s$ fast, $\Fs$ slow, $\CC$ grows / $\Fs$ renormalizes, $\CC$ prunes),
+    the objective (discharge discord / pay down maintenance cost), and what
+    happens to $\mathrm{K}(\mathbb{K})$ (conserved exactly / may decrease).
+  \item \textbf{Argue both phases are forced.} The model must be able to run
+    with empty input; that requirement alone establishes an offline phase
+    exists. Name it rather than deriving it from biology, and only then note
+    the neuroscience that agrees.
+  \item \textbf{Wake --- the Hodge routing law.} On the $2$-complex,
+    $\Cone = \im\cob^0 \oplus \Hone \oplus \im(\cob^1)^*$, orthogonally. State
+    and prove the routing claim: \emph{each summand is dischargeable by
+    exactly one layer.} $\im\cob^0$ yields to changing $s$ (the fast flow
+    $\dot s = -\Lap_{\Fs} s + \text{drive}$, provably, since $\Lap_{\Fs}$ is
+    PSD); $\Hone$ does not --- it is holonomy of $\Fs$ around a cycle, and only
+    molding or growth touches it; $\im(\cob^1)^*$ flags a bad $2$-cell.
+    Include the Lyapunov argument in full.
+  \item \textbf{The handoff is a stall, not a threshold.} This is the
+    chapter's sharpest point and must not be blurred. When the constrained
+    descent has converged and discord remains, it is \emph{proven} that no
+    further motion at that level helps. That is the growth trigger, derived
+    from the geometry. Contrast explicitly with a rule of the form
+    $\rho > c$, and say why the latter would be a hand-set number.
+  \item \textbf{Name the one free parameter.} The numerical tolerance on
+    ``converged'' is an \Proposed\ engineering choice. State it in the open.
+    Do not hide it inside a $\lambda$.
+  \item \textbf{Sleep --- renormalize, then down-select.} Apply $\Pi_{O(d)}$
+    globally: scale drops, relative structure survives
+    (Chapter~\ref{ch:identity}, level 1). Then consult the maintenance cost
+    and prune structure that does not pay for itself.
+  \item \textbf{State where energy lives and why it lives nowhere else.} One
+    term, one phase. Growth adds during wake; pruning removes during sleep;
+    they never bid against each other inside a single tick. Give this its own
+    paragraph --- it is the entire answer to the objection that the design
+    needs a multi-term objective with weights.
+  \item \textbf{The maintenance cost.} $\mathcal{U}(\mathbb{K}) =
+    L(\text{structure}) + L(\text{observations} \mid \text{structure})$. The
+    description-length form is already derived (Chapter~\ref{ch:mdl}); what is
+    new here is only its \emph{placement}. Then name the one genuine free
+    parameter of the entire design: the exchange rate between the cost of a
+    deformation and the cost of a new cell, since MDL needs both in the same
+    units. State it in the open and record that if it acquires siblings, the
+    design has regressed.
+}
+
+\wpdone{A reader can say what moves in each phase, prove that the fast flow
+cannot discharge a harmonic component, explain why the growth trigger is not
+a threshold, and name the single exchange rate together with the reason a
+second one would be evidence of failure.}
+\end{workplan}
+
+\begin{workplan}{\Retire}
+\wpgoal{\S: Record the refused alternative, so it is not proposed again.}
+
+\wpsource{The predictive-coding discussion in
+\texttt{DOCS/Phase I --- Understand the Geometry o.txt} (second half);
+refusal recorded in \texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S8 DON'T~1 and
+\S13.}
+
+\wpsteps{
+  \item State the proposal as it was made and at its strongest: a single
+    cognitive energy functional $F = E_{\text{pred}} + \lambda_C E_C +
+    \lambda_{\Fs} E_{\Fs} + \lambda_s E_s + \lambda_I E_I + \lambda_K E_K$,
+    with dynamics choosing whichever admissible transformation most decreases
+    it. It is a coherent design and its appeal should be visible.
+  \item Give the refusal and its reason: six weights are six hand-set numbers
+    trading against each other every tick, which is exactly the failure mode
+    the discipline rule against hand-set constants exists to prevent. The
+    two-phase separation achieves the same coordination with one exchange
+    rate.
+  \item Record the standing consequence: \emph{do not add a $\lambda$.} A
+    second exchange rate means the two-phase separation has failed and should
+    be re-derived, not patched.
+  \item Note honestly what the refused proposal got right, since parts of it
+    survive under other names: prediction error precision-weighted is $\omega$
+    (Chapter~\ref{ch:rho}); the compression term is the MDL law
+    (Chapter~\ref{ch:mdl}); the stability term is $\gamma_0 \ll 1$'s
+    anti-interference property. What is rejected is the \emph{blending}, not
+    the ingredients.
+}
+
+\wpdone{Someone rereading the predictive-coding notes can see why they were
+not adopted wholesale, and which of their parts already live elsewhere in the
+book.}
+\end{workplan}

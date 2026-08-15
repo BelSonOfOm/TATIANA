@@ -1,5 +1,67 @@
 \chapter{Open Problems within MOS}\label{ch:open}
 
+\begin{workplan}{\Recast}
+\wpgoal{Re-rank the open problems for V2 and add the ones the pivot created.
+Retitle: ``within MOS'' names the retired system.}
+
+\wpsource{This chapter's existing text;
+\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S10 (the ranked open decisions);
+\texttt{MATH\_TOOLBOX.md}~II.1 (Tier~C material and why it was inert), III.5
+(the contextuality bridge);
+\texttt{TATIANA-V2/MATH/phase0\_invariant\_dimension.md}~\S4.}
+
+\wpsteps{
+  \item \textbf{Rank, and say what the ranking means:} an open problem here is
+    one where a construction or a measurement is missing, not merely one where
+    work remains.
+  \item \textbf{\#1 --- the source of a non-exact $\eta$ for a single kernel.}
+    V0 got its measured $1$-cochain from organs disagreeing. V2 has no organs.
+    Without a source, Proposition~8.2 leaves growth with no address and the
+    kernel cannot grow at all. This is the most important open problem in the
+    book. Candidate to develop and test: disagreement between the kernel's own
+    competing candidate transformations.
+  \item \textbf{\#2 --- co-allocation versus separation.} When a harmonic
+    residual names a cycle, does the kernel cone it (integrate) or keep the
+    memories distinct? The allocation literature says excitability history
+    decides, which in this formalism means it depends on the coupling weights
+    --- and those weights are \emph{computed and never read}. That is a live
+    bug, not merely a gap.
+  \item \textbf{\#3 --- can molding erode the obstruction growth depends on?}
+    Raised by the Phase~0 experiment, which bounds molding to one nudge per
+    tick and so never tests it. If slow molding can dissolve a harmonic class,
+    the layer handoff is a race rather than a handoff. State the experiment
+    that settles it.
+  \item \textbf{\#4 --- does $\mathrm{Ext}^2$ vanish for the incidence algebra
+    of the $2$-complex?} This decides whether ``triangles make molding
+    obstructible'' is a theorem or an analogy. Quiver categories are
+    hereditary; poset categories with relations should have higher global
+    dimension. Currently unverified --- do not build on it either way.
+  \item \textbf{\#5 --- the MDL exchange rate}, and \textbf{\#6 --- the stall
+    tolerance}: the design's only two admitted free parameters. Keep them
+    listed so that a third would be conspicuous.
+  \item \textbf{\#7 --- reproduction viability}
+    (Chapter~\ref{ch:reproduction}), stated as currently carrying no claim.
+  \item \textbf{Revisit the shelved homological material on purpose.}
+    Characteristic cycles, $b$-functions and Hochschild cohomology were shelved
+    as inert for one stated reason: every concept the V0 engine produced was
+    simple, so the machinery had nothing to act on. A coned concept is a limit
+    of a diagram and is not obviously simple, so the premise may no longer
+    hold. Re-examine, carrying the standing corrections so they are not
+    re-derived wrongly --- extension obstructions live in $\mathrm{HH}^3$ and
+    not $\mathrm{HH}^2$; Ore extensions are unobstructed given their data; and
+    a classification theorem used here needs an algebraically closed field and
+    was once silently applied over $\R$.
+  \item \textbf{Keep the contextuality bridge as a well-posed problem.} Both
+    halves are standard separately; the intersection is not an established
+    area. State the real gap sharply: a sheaf of vector spaces always admits
+    the zero section, so this obstruction is about \emph{dimension}, while the
+    contextuality one is about \emph{existence}.
+}
+
+\wpdone{The problems are ranked by what blocks what, and \#1 is unmistakably
+identified as the one that gates the architecture.}
+\end{workplan}
+
 These are stated as problems, not as directions, because each one has a
 definite answer that is currently unknown and whose resolution would
 change what the system can claim. They are ordered by how much else

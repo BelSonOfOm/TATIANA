@@ -57,6 +57,39 @@ it.
   exists (space in filename) and is committed — the plan's concern about a missing/unreconstructable
   script was unfounded, just needed a repo-wide search. **Next**: Phase 0's invariant-drift
   experiment (identity map §12 Kill-Test 3) — not yet started.
+- **2026-08-14 (later)** — **The book is now V2-shaped, as a plan.** `tatiana-book/` moved into
+  `TATIANA-V2/` (by Charbel) and restructured to be rewritten section by section rather than read
+  as finished. Changes: (1) new opening chapter `parts/00_v2_reformulation.tex` — the commitment,
+  what TATIANA is *not*, the six structural changes that force a rewrite rather than an edit, and
+  the encoder/verification-lift position; (2) **every chapter now carries a disposition**
+  (`KEEP`/`RECAST`/`RETIRE`/`NEW IN V2`) **and a work-plan box** stating goal, raw material, ordered
+  steps, and a done-when condition — the plan is an *instruction*, deleted and replaced by prose
+  when the chapter is written, so **a chapter still containing a work plan is a chapter that is not
+  done**; (3) four new chapters, currently pure work plans: `11_identity` (the invariant — now the
+  centre of the book), `12_twophase` (the wake/sleep law, plus the record of the refused six-λ
+  functional), `13_reproduction`, `14_encoder`; (4) `main.tex` reordered so Identity and the
+  Two-Phase Law sit immediately after the cohomology they depend on, rather than the V0 ordering
+  which had no place for them; (5) frontmatter rewritten to say the book is mid-rewrite and how to
+  read it that way. Compiles clean, 101 pages, no undefined references.
+  **Dispositions assigned**: `KEEP` — sheaf, Laplacian, adjunction, cone (Construction 6), quantum;
+  `RECAST` — base complex (its stratification was justified by organs and that ground is gone),
+  coherence (ρ is a diagnostic and Lyapunov function, *never* an objective), semantic geometry,
+  cohomology (largest change in *role*: the Hodge split becomes the wake phase's routing law),
+  growth operators, MDL law (now explicitly the sleep phase's maintenance cost), retrieval,
+  verification, limits, open problems. Nothing was assigned `RETIRE` except the six-λ energy
+  functional, which is recorded as refused inside `12_twophase` rather than deleted.
+  **Sharpest thing the pass surfaced**: the growth-address problem is now the book's ranked #1 open
+  problem. V0 obtained its measured non-exact 1-cochain η from *organs disagreeing with each
+  other*. V2 has no organs. Until a source of η exists for a single kernel, Prop 8.2 leaves growth
+  with no address and the kernel cannot grow at all — this is flagged loudly in `04_cohomology`
+  and `09_open_problems` rather than papered over.
+  **Docs**: copied four inherited documents into `TATIANA-V2/DOCS/` that the book cites but did not
+  have locally — `AUDIT_SCRUTINY_AND_BOOK.md` (the F1–F14 audit the epistemic-tag discipline
+  descends from), `Phase I — Understand the Geometry o.txt`, `PRIOR_ART_AND_THE_REPLAN.md`,
+  `MOS_FINALIZATION.md`. Wrote `TATIANA-V2/DOCS/README.md` recording what each inherited doc is for
+  **and what was deliberately left behind** (V0 engine specs, the LLM budget plan, the dropped
+  K₀/Jordan–Hölder schema, and the retrieval/cover sagas already condensed into `MATH_TOOLBOX.md`
+  Parts V–VI) so the decision is visible and reversible.
 - **2026-08-14** — **Phase 0 ran. Kill-Test 3 SURVIVES.** `EXPERIMENTS/phase0_invariant/`
   (C++20, no deps, ~1s); write-up in `MATH/phase0_invariant_dimension.md`. Three runs at one shared
   setting: **A (null)** 3-cycle fed exact/pure-gradient input only — growth never fires, residual

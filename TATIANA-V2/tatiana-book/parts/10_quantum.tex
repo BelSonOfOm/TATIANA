@@ -1,5 +1,40 @@
 \chapter{Potentials for Quantum Implementation}\label{ch:quantum}
 
+\begin{workplan}{\Keep}
+\wpgoal{Keep as a forward-looking chapter, unchanged in substance. Guard it
+against the one failure mode it invites: becoming a claim rather than a
+programme.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~I.4 (restriction maps as CPTP channels --- the
+structural reason this chapter is not fanciful), III.5 (the proposed toy
+object).}
+
+\wpsteps{
+  \item \textbf{Keep the structural motivation, which is genuine.} Storing a
+    stalk as a rank-$k$ SPD matrix makes it the cone over density-matrix space;
+    congruence by an orthogonal map preserves trace, so restriction maps
+    already \emph{are} unitary channels. The quantum reading is not imported
+    --- it is what the objects already are. \Proved.
+  \item \textbf{Keep the obstruction section prominent.} Input and output
+    remain the hard part; a block-encoding that cannot be loaded or read is
+    not an implementation. This section is the reason the chapter is honest
+    and it must not shrink.
+  \item \textbf{Keep the toy object as a proposal.} A cellular sheaf with
+    quantum-state stalks, whose Laplacian is a Hamiltonian, whose ground space
+    is the globally consistent assignments and whose ground-state energy is a
+    contextuality witness. \Proposed, clearly.
+  \item \textbf{Add a status line at the head of the chapter.} Nothing here is
+    on the critical path for V2. It is a direction, retained because the
+    architecture points at it for structural reasons, not because it is being
+    built. Say so explicitly so that a reader in a hurry cannot mistake it for
+    work in progress.
+}
+
+\wpdone{The chapter's structural motivation is stated as proved, everything
+else as proposed, and its status relative to V2's actual work is unambiguous.}
+\end{workplan}
+
 \begin{hon}\Hon
 \Proposed\ Nothing in this part is implemented, and nothing in it is
 required by any result elsewhere in the book. It is included because the

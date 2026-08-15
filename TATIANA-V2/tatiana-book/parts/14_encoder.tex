@@ -1,0 +1,60 @@
+\chapter{The Encoder and the Verification Lift}\label{ch:encoder}
+
+\NewV\ \emph{Two roles the architecture cannot do without and has not yet
+derived. This chapter exists to keep them visible as open problems rather
+than letting them be quietly filled by an import.}
+
+\begin{workplan}{\NewV}
+\wpgoal{State precisely what the encoder and the verification lift must
+\emph{do} --- as constraints the rest of the mathematics imposes on them ---
+without assuming any particular architecture for either.}
+
+\wpsource{\texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S2.1 (the narrow allowance,
+now further narrowed --- see \S\ref{sec:encoder-position} of
+Chapter~\ref{ch:v2}); \texttt{MATH\_TOOLBOX.md}~I.8 (the verification
+trichotomy, already fixed epistemically), I.5 (what the drive term needs to
+be for the wake flow to act on it).}
+
+\wpsteps{
+  \item \textbf{Derive the encoder's type, do not choose it.} Work backwards
+    from the wake phase: the drive term enters $\dot s = -\Lap_{\Fs}s +
+    \text{drive}$, so $o_t$ must live where the restriction maps can receive
+    it. Establish the minimum: which space, what normalisation, and whether
+    anything more than a vector is required. The answer is a \emph{constraint},
+    and the chapter's contribution is to state it exactly.
+  \item \textbf{Ask what would make an encoder wrong.} Two failure modes to
+    develop: an encoder whose output geometry already contains the structure
+    the sheaf is supposed to learn (in which case the sheaf is decorative and
+    the architecture is a dressed-up embedding lookup), and an encoder whose
+    output is isotropic noise to the sheaf (in which case nothing can ever
+    glue). Both are checkable. Specify how.
+  \item \textbf{Derive the verification lift's contract.} What must
+    $\mathcal{L}$ guarantee for the trichotomy --- \textsc{verified},
+    \textsc{refuted}, \textsc{unverifiable} --- to remain meaningful? The
+    third value is the load-bearing one: it exists precisely so that
+    inability to check is never recorded as falsehood, and a checker crash
+    must return it rather than a refutation. State the contract as
+    requirements on the lift, not as a description of a particular checker.
+  \item \textbf{Connect the contract to consolidation.} $\gamma(\nu)$ reads
+    the verdict: $\gamma_0$ if verified, $\varepsilon\gamma_0$ if
+    unverifiable, $0$ if refuted. So the lift's guarantees are exactly what
+    stops unverified structure from entering the invariant. Make the
+    dependency explicit --- it is why this chapter cannot be deferred
+    indefinitely.
+  \item \textbf{Check the surviving toolbox before reaching outward.} Ask
+    whether either role reduces to something already present: is an encoder a
+    restriction map into the complex from a boundary cell? Is a checker a
+    discrete verification map with the same signature as the operators the
+    book already defines? Record the answers even if negative, since a
+    negative answer is what would justify building something new.
+  \item \textbf{State the standing constraint, in the chapter, not in a
+    footnote.} Neither role may be discharged by wrapping a pretrained,
+    externally-hosted model. If a derivation arrives at machinery that also
+    appears in such models, that is permitted --- as a conclusion with a
+    derivation attached, never as a default and never as an import.
+}
+
+\wpdone{Both roles have stated contracts derived from what the rest of the
+architecture requires of them; at least two failure modes are specified as
+checkable; and no architecture has been assumed for either.}
+\end{workplan}

@@ -70,11 +70,44 @@ any statement here can be traced back and checked against the original,
 and so that when the sources disagree you can see \emph{that} they
 disagree rather than only seeing the winner.
 
+\section*{This book is mid-rewrite, and says so on every page}
+
+The book was written for \textbf{V0}: an architecture in which typed organs
+were dispatched by external code around a language model. That architecture
+is retired. Chapter~\ref{ch:v2} states what replaced it and why.
+
+Most of the mathematics survives the pivot. The framing around it does not,
+and in several places the \emph{justification} for a construction was
+organ-shaped even where the construction itself was not. So every chapter now
+opens with two things:
+
+\begin{itemize}
+  \item a \textbf{disposition} --- \Keep, \Recast, \Retire\ or \NewV\ --- saying
+        what the pivot does to it;
+  \item a \textbf{work plan} box: the goal, the raw material, the ordered
+        steps, and the condition under which the chapter is finished.
+\end{itemize}
+
+A work plan is an \emph{instruction for writing the chapter}, not commentary
+on it. When a chapter is written, its work plan is deleted and replaced by the
+prose it asked for. \textbf{A chapter that still contains a work plan is a
+chapter that is not done.} This is deliberate: it makes the book's own
+incompleteness impossible to overlook, including by its author.
+
 \section*{Reading order}
 
-Parts I and II are the conceptual spine and everything else depends on
-them; read them in order. Parts III through VII may be read in any
-order once the spine is in place. Part VIII is the honest boundary and
-should be read before quoting any result from this book to anyone else.
-Parts IX and X are forward-looking: open problems, and the quantum
-implementation programme.
+Chapter~\ref{ch:v2} first, always --- it is short and everything else is
+answerable to it.
+
+Then Parts~II and~III (state space, coherence) as the conceptual spine, in
+order. Part~V (cohomology) carries Proposition~8.2, which is the constraint the
+entire architecture is built around, and should be read before anything that
+mentions growth.
+
+Parts~VI and~VII --- \textbf{Identity} and \textbf{The Two-Phase Law} --- are
+the centre of V2. They are new, and a reader who reads only three parts should
+read Chapter~\ref{ch:v2} and those two.
+
+The remaining parts may be read in any order once the spine is in place, with
+one exception: the limits chapter is the honest boundary and should be read
+before quoting any result from this book to anyone else.

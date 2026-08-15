@@ -64,6 +64,28 @@
 \newcommand{\Refuted}{\statusbadge{honestycol}{REFUTED}}
 \newcommand{\Contested}{\statusbadge{honestycol}{CONTESTED BY AUDIT}}
 
+% Measured: a number was printed by a program that can be re-run.  Distinct
+% from PROVED (an argument) and from IMPLEMENTED (code exists, no result
+% quoted).  Introduced in V2 because Phase 0 produced the book's first
+% claim of this kind.
+\newcommand{\Measured}{\statusbadge{examplecol}{MEASURED}}
+
+% ---------------------------------------------------------------------
+%  V2 disposition tags
+%
+%  Every chapter carries one.  The book was written for V0 -- an organ
+%  complex dispatched by external code around a language model.  V2
+%  retires that architecture.  Most of the mathematics survives; the
+%  framing around it does not.  The disposition says which.
+% ---------------------------------------------------------------------
+\newcommand{\dispbadge}[2]{%
+  \textcolor{#1}{\small\textsf{\textbf{<#2>}}}}
+
+\newcommand{\Keep}{\dispbadge{examplecol}{KEEP}}
+\newcommand{\Recast}{\dispbadge{warncol}{RECAST}}
+\newcommand{\Retire}{\dispbadge{honestycol}{RETIRE}}
+\newcommand{\NewV}{\dispbadge{linkblue}{NEW IN V2}}
+
 % ---------------------------------------------------------------------
 %  Layered-exposition boxes
 % ---------------------------------------------------------------------
@@ -87,6 +109,37 @@
 % Provenance note: which file in DOCS/ a passage descends from.
 \newcommand{\source}[1]{%
   \begin{sourcebox}\small\textsf{\textbf{Source.}} #1\end{sourcebox}}
+
+% ---------------------------------------------------------------------
+%  Work plans
+%
+%  The V2 rewrite is done section by section, and each section states its
+%  own plan before it is written.  A work plan is not commentary on the
+%  finished text -- it is the instruction for producing it, and it stays
+%  in the document until the section it governs is complete, at which
+%  point it is replaced by the prose it asked for.
+%
+%  Usage:
+%    \begin{workplan}{<disposition tag>}
+%      \wpgoal{one sentence: what this section must establish}
+%      \wpsource{where the raw material is}
+%      \wpsteps{\item ... \item ...}
+%      \wpdone{the condition under which this section is finished}
+%    \end{workplan}
+% ---------------------------------------------------------------------
+\newmdenv[linewidth=1pt,linecolor=linkblue!60,backgroundcolor=linkblue!4,
+  innerleftmargin=10pt,innerrightmargin=10pt,innertopmargin=8pt,
+  innerbottommargin=8pt,skipabove=10pt,skipbelow=10pt,roundcorner=3pt]{wpbox}
+
+\newenvironment{workplan}[1]
+  {\begin{wpbox}\small\noindent\textsf{\textbf{\color{linkblue}Work plan.}}\ #1\par\vspace{3pt}}
+  {\end{wpbox}}
+
+\newcommand{\wpgoal}[1]{\noindent\textit{Goal.}\ #1\par\vspace{2pt}}
+\newcommand{\wpsource}[1]{\noindent\textit{Raw material.}\ #1\par\vspace{2pt}}
+\newcommand{\wpblocked}[1]{\noindent\textit{Blocked by.}\ #1\par\vspace{2pt}}
+\newcommand{\wpsteps}[1]{\noindent\textit{Steps.}\begin{enumerate}[leftmargin=1.4em,itemsep=1pt]#1\end{enumerate}}
+\newcommand{\wpdone}[1]{\vspace{2pt}\noindent\textit{Done when.}\ #1\par}
 
 % ---------------------------------------------------------------------
 %  Headers

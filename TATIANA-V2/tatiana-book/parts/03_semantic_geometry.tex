@@ -1,5 +1,55 @@
 \chapter{Semantic Geometry}\label{ch:geometry}
 
+\begin{workplan}{\Keep}
+\wpgoal{Keep the geometry and make its dispatch rule --- which metric for
+which job --- the chapter's organising principle rather than a remark.}
+
+\wpsource{This chapter's existing text;
+\texttt{MATH\_TOOLBOX.md}~IV.1 (the estimation/comparison dispatch), IV.2
+(Cone--Bures: kept as a metric, its closeness claim refuted), IV.3 (what a
+concept is), I.6 (the variance floor --- the largest measured downstream
+effect in the V0 record).}
+
+\wpsteps{
+  \item \textbf{Lead with the dispatch rule.} \textsc{estimation} uses
+    information/Fisher--Rao geometry, where a theorem exists (precision-
+    weighted fusion is a genuine MLE); \textsc{comparison} uses
+    Bures--Wasserstein transport geometry, where a modelling choice exists.
+    They genuinely disagree --- by Agueh--Carlier the Wasserstein barycenter
+    of Gaussians has the \emph{plain} weighted mean, not the precision-weighted
+    one. Never blend comparison into estimation.
+  \item \textbf{Own the seam.} $\pi_v$ fuses in information geometry but its
+    output is immediately compared in transport geometry by $\omega$; $\pi_v$
+    is \emph{not} the transport barycenter of its own fine complex. This is a
+    paragraph the book owes a reader, not a bug. Write it.
+  \item \textbf{Record the rejected repair.} Training a blend weight between
+    the two geometries is \Refuted, on four grounds worth keeping because they
+    generalise: it replaces a choice-with-a-reason by a fitted-constant-with-
+    none; no training signal exists; one scalar wants a sweep, not an
+    optimizer; and the two uses are asymmetric, so blending damages a proven
+    MLE for a fitted number.
+  \item \textbf{Upgrade what a concept \emph{is}.} A Gaussian stalk's level
+    sets are ellipsoids, hence convex, so the SPD stalk already \emph{is} a
+    convex conceptual region in Gärdenfors' sense --- concepts have extent, and
+    treating one as a point discards exactly the structure this geometry
+    builds. State this as the chapter's conclusion.
+  \item \textbf{Keep the variance-floor fix and its numbers.} The correct
+    invariant is ``floor carries trace $O(1)$'' and not ``shared epsilon'';
+    getting this wrong once cost a $47\times$ slowdown, and fixing it moved the
+    epistemic term from $229.76$ to $0$ and made the transport term non-inert.
+    \Measured. It is the best worked example in the book of a hardcoded
+    constant silently flattening a whole geometry.
+  \item \textbf{Keep Cone--Bures with its refutation attached.} It survives as
+    a genuine metric (proved, measured, bounded, and it deletes a hand-set
+    threshold). Its ``tracks true Hellinger--Kantorovich to under 1\%'' claim
+    does \emph{not} survive real text. Keep both facts adjacent; report the
+    diagnostic ratio as telemetry and never as a claim.
+}
+
+\wpdone{A reader can state which metric to use for a given job and why, and
+can explain the seam between them without treating it as an oversight.}
+\end{workplan}
+
 Part~I built the shape and Part~II measured disagreement across it. This
 part supplies the geometry \emph{inside} an organ: what a concept is,
 how many concepts collapse into the single vector a stalk holds, and how
