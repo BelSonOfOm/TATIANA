@@ -4,10 +4,11 @@
 % =====================================================================
 
 % --- the state space -------------------------------------------------
-\newcommand{\M}{\mathcal{M}}          % cognitive state space (C, F, s)
-\newcommand{\CC}{\mathcal{C}}         % base complex (stratified)
-\newcommand{\Kc}{K}                   % coarse complex (organs)
-\newcommand{\Cfine}{\CC}              % fine complex, subscripted by organ
+\newcommand{\M}{\mathcal{M}}          % cognitive space
+\newcommand{\CC}{\mathcal{C}}         % base complex
+\newcommand{\Kc}{K}                   % the running example complex, K_4
+\newcommand{\Conf}{\mathfrak{B}}      % configuration space of (C,F) pairs
+\newcommand{\Kinv}{\mathrm{K}}        % dimension-vector invariant
 \newcommand{\Fs}{\mathcal{F}}         % the sheaf
 \newcommand{\stalk}[1]{\Fs(#1)}       % stalk over a cell
 \newcommand{\rest}[1]{\Fs_{#1}}       % restriction map
@@ -19,6 +20,31 @@
 \newcommand{\Cx}{\mathbb{C}}
 \newcommand{\Nat}{\mathbb{N}}
 \newcommand{\Vect}{\mathbf{Vect}}
+
+% --- the two algebras (Chapter \ref{ch:sheaf}) -----------------------
+%  These are DIFFERENT and the book keeps them apart everywhere:
+%    \Kfield  the scalar field carrying the metric   (forced to R, C, H)
+%    \Ralg    the coefficient algebra carrying content (a semiring)
+%  \Kstore is the crystallized store of Part VI; it is \mathcal{K}, NOT
+%  \mathbb{K}, precisely so that it cannot be confused with the field.
+\newcommand{\Kfield}{\mathbb{K}}
+\newcommand{\Ralg}{R}
+\newcommand{\Kstore}{\mathcal{K}}
+\newcommand{\Hq}{\mathbb{H}}
+\newcommand{\Bool}{\mathbb{B}}
+\newcommand{\Rnn}{\mathbb{R}_{\ge 0}}
+\newcommand{\Fq}{\mathbb{F}_{q}}
+\newcommand{\Kd}{\Kfield^{d}}
+
+% --- ingest (Chapter \ref{ch:ingest}) --------------------------------
+\newcommand{\Dow}[1]{\mathrm{D}_{#1}}     % Dowker complex on a side
+\newcommand{\Nrv}{\mathcal{N}}            % nerve of a cover
+\newcommand{\VR}{\mathrm{VR}}             % Vietoris--Rips
+\newcommand{\rel}{\mathrel{R}}            % the ingest relation
+
+% --- Hodge -----------------------------------------------------------
+\newcommand{\Harm}{\mathcal{H}}           % harmonic subspace
+\newcommand{\adjt}{\ast}                  % adjoint (real: transpose)
 \newcommand{\Id}{\mathrm{Id}}
 \newcommand{\Tr}{\operatorname{Tr}}
 \newcommand{\rank}{\operatorname{rank}}

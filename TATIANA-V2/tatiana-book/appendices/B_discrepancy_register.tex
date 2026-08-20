@@ -4,13 +4,14 @@ Places where the sources disagree with each other, or where the
 implementation determines a mathematical fact that the prose states
 differently. Each is a fact about \textsc{tatiana}, not a typo.
 
-\paragraph{D1 --- Concepts ``inside the stalk''.}
-\texttt{TATIANA\_LOGBOOK.md} \S0.1 describes the fine level as
-``concepts inside each organ's stalk''. The stalk is a vector space; the
-fine complex is a simplicial complex. Conflating them makes the
-coarse-graining $\pi_v$ look like an identity when it is a lossy
-precision-weighted fusion. Resolved in favour of the separation
-(Remark~\ref{rem:finevsstalk}).
+\paragraph{D1 --- The two-scale complex, and ``concepts inside the stalk''.}
+Earlier drafts described the base complex as carrying two nested scales, and
+described the fine scale as living \emph{inside} a coarse vertex's stalk.
+Both are withdrawn. A stalk is a vector space and a complex is a complex, so
+the second description was a category error; and the two-scale structure
+itself is no longer assumed, for the reasons in \S\ref{sec:stratword}.
+The base complex has one scale, and the word \emph{stratified} now applies
+only to the configuration space (\S\ref{sec:stratconf}).
 
 \paragraph{D2 --- Restriction maps point the wrong way in the poster.}
 \texttt{POSTER/sections/05\_sheaf.tex} defines

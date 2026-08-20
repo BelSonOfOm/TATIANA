@@ -58,6 +58,79 @@ The project records refutations as carefully as results. A few:
 That last row is why the generative process is now an explicit part of the model rather than an
 implicit consequence of a retrieval rule.
 
+## Install
+
+```bash
+git clone https://github.com/BelSonOfOm/TATIANA
+cd TATIANA
+pip install numpy scipy
+```
+
+The Python organ layer runs on numpy alone for everything below. The C++ engine
+in `MOS/` builds with CMake and Eigen and is not needed to reproduce this.
+
+## Quick example
+
+Build a small complex, assemble its Hodge Laplacians, print the spectra:
+
+```bash
+python examples/sheaf_laplacian_spectrum.py
+```
+
+```python
+from hodge import e5_complex, hodge_split
+
+cx = e5_complex()                      # 4 vertices, 5 edges, 1 filled triangle
+d0, d1 = cx.delta0(), cx.delta1()      # coboundaries: (E x V) and (F x E)
+
+L0 = d0.T @ d0                         # 0-Laplacian
+L1 = d0 @ d0.T + d1.T @ d1             # 1-Laplacian (Hodge)
+
+eta = np.array([0.0, 1.0, -1.0, 0.0, 1.0])
+s = hodge_split(cx, eta)
+```
+
+Output:
+
+```
+complex   : V=4 E=5 F=1 b0=1 b1=1
+spec L0   : [0. 2. 4. 4.]
+spec L1   : [0. 2. 3. 4. 4.]
+dim ker L0: 1 = b0 (connected components)
+dim ker L1: 1 = b1 (independent unfilled cycles)
+
+eta       : [ 0.  1. -1.  0.  1.]
+gradient  : 0.0000   curl: 0.1111   harmonic: 0.8889  (fractions of ||eta||^2)
+```
+
+The last line is the point of the construction. The measured 1-cochain `eta` has
+**no gradient part** — no per-vertex potential explains it — and only 11% curl,
+which a filled triangle could repair. The remaining 89% is **harmonic**: an
+inconsistency around the unfilled cycle `A-C-D-A` that neither a potential nor an
+existing face can account for. Its support is where the complex has to grow.
+
+A coboundary can never produce that reading. `delta^1 delta^0 = 0`, so anything of
+the form `delta^0 f` is pure gradient by construction and reports `harmonic = 0`
+every time. That is why the growth signal has to come from a genuinely measured
+cochain rather than from the coboundary of a global state.
+
+To reproduce the full verification suite, including the null model that any new
+instrument must beat:
+
+```bash
+cd MOS/python && python hodge.py
+```
+
+```
+=== 6. THE NULL: isotropic noise scores 0.60/0.20/0.20 ===
+    Monte Carlo (20000): grad=0.6010 curl=0.1984 harm=0.2006
+    dim/E predicts  : grad=0.6000 curl=0.2000 harm=0.2000
+    => a RANDOM instrument scores harm+curl = 0.40.
+       THIS is the number E5 must beat, not 0.  OK
+
+ALL HODGE SELF-TESTS PASSED (zero API calls)
+```
+
 ## Method
 
 1. **No measurement without a positive control.** Four artifacts were caught this way; the fourth

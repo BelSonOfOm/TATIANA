@@ -58,6 +58,11 @@ class Communicator:
         # side being told twice.
         self.resolver = ConceptResolver(kb_path or DEFAULT_DB)
         self.unresolved_names = {}
+
+        # Engine telemetry, tapped by the listener thread. P4 reads it to build
+        # the trajectory; nothing else depends on it.
+        self.engine_lines = []
+        self._engine_lock = threading.Lock()
         if self.resolver.loaded:
             print(f"[Communicator] P1 resolver: {self.resolver.size} concept(s) "
                   f"in {self.resolver.db_path}")
@@ -136,8 +141,15 @@ class Communicator:
             # a run's diagnostics.
             for raw in iter(self.cpp_process.stdout.readline, b''):
                 if raw:
-                    sys.stdout.write(raw.decode("utf-8", errors="replace"))
+                    line = raw.decode("utf-8", errors="replace")
+                    sys.stdout.write(line)
                     sys.stdout.flush()
+                    # P4 needs the engine's own telemetry (rho, Q, the P3 gap)
+                    # per tick, and the engine reports it on this stream. Kept
+                    # under a lock because the reader is a background thread and
+                    # run_p4.py drains this list from the main one.
+                    with self._engine_lock:
+                        self.engine_lines.append(line.rstrip("\r\n"))
         except Exception as e:
             print(f"[Communicator] Listener thread terminated: {e}")
     
@@ -175,6 +187,12 @@ class Communicator:
             "\n"
             "REQUIRED: exactly one terminal RESPOND node with no children, which every other branch "
             "eventually leads into. Without it the system produces no answer.\n"
+            "REQUIRED: at least one SEARCH node, placed BEFORE any COMPUTE or REASON node that "
+            "depends on recalled material. This system has a permanent memory of mathematics it "
+            "has already read; a question about known mathematics must consult it rather than "
+            "being answered from the model's own weights. A DAG with no SEARCH never touches "
+            "memory, so nothing is retrieved, nothing co-activates, and the system learns nothing "
+            "from having thought about the question.\n"
             "The graph must be connected and acyclic, with a single entry point.\n"
             "\n"
             "OpTypes: CONTEXT (inject an assumption), SEARCH (retrieve external knowledge), "
@@ -326,6 +344,22 @@ class Communicator:
         types = [(n.get("operator", {}) or {}).get("type") for n in nodes]
         if "RESPOND" not in types:
             problems.append("no RESPOND node: this DAG would execute and return nothing")
+
+        # At least one SEARCH: without it the engine never reads its own memory.
+        #
+        # MEASURED, not anticipated. The first P4 run produced DAGs of
+        # CONTEXT -> COMPUTE -> REASON -> RESPOND with no SEARCH anywhere, so
+        # `retrieved` was 0 on every tick, W was empty, consolidation never ran
+        # and Q(t) stayed undefined. The engine was working correctly; it was
+        # simply never asked to recall anything. A DAG that skips retrieval
+        # reduces MOS to an LLM wrapper -- the reasoning happens entirely in the
+        # model's weights, and the permanent store contributes nothing and
+        # learns nothing.
+        if "SEARCH" not in types:
+            problems.append(
+                "no SEARCH node: this DAG never consults the knowledge base, so "
+                "nothing is retrieved, nothing co-activates, and the consolidation "
+                "loop cannot run")
 
         # Connectivity (undirected): a forest means uncontrolled parallel branches
         adj = {i: set() for i in id_set}

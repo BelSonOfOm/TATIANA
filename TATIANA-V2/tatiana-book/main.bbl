@@ -1,3 +1,159 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{10}
+
+\bibitem{ABKLM}
+Samson Abramsky, Rui~Soares Barbosa, Kohei Kishida, Raymond Lal, and Shane
+  Mansfield.
+\newblock Contextuality, cohomology and paradox.
+\newblock {\em Computer Science Logic (CSL 2015)}, pages 211--228, 2015.
+
+\bibitem{AbramskyBrandenburger}
+Samson Abramsky and Adam Brandenburger.
+\newblock The sheaf-theoretic structure of non-locality and contextuality.
+\newblock {\em New Journal of Physics}, 13(11):113036, 2011.
+
+\bibitem{BSS}
+Afonso~S. Bandeira, Amit Singer, and Daniel~A. Spielman.
+\newblock A {C}heeger inequality for the graph connection {L}aplacian.
+\newblock {\em SIAM Journal on Matrix Analysis and Applications},
+  34(4):1611--1630, 2013.
+
+\bibitem{Battiston}
+Federico Battiston, Giulia Cencetti, Iacopo Iacopini, Vito Latora, Maxime
+  Lucas, Alice Patania, Jean-Gabriel Young, and Giovanni Petri.
+\newblock Networks beyond pairwise interactions: structure and dynamics.
+\newblock {\em Physics Reports}, 874:1--92, 2020.
+
+\bibitem{BodnarSheaf}
+Cristian Bodnar, Francesco Di~Giovanni, Benjamin~P. Chamberlain, Pietro
+  Li{\`o}, and Michael~M. Bronstein.
+\newblock Neural sheaf diffusion: a topological perspective on heterophily and
+  oversmoothing in {GNN}s.
+\newblock {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  2022.
+
+\bibitem{BodnarSIN}
+Cristian Bodnar, Fabrizio Frasca, Yu~Guang Wang, Nina Otter, Guido
+  Mont{\'u}far, Pietro Li{\`o}, and Michael~M. Bronstein.
+\newblock Weisfeiler and {L}ehman go topological: message passing simplicial
+  networks.
+\newblock {\em International Conference on Machine Learning (ICML)}, 2021.
+
+\bibitem{Carlsson}
+Gunnar Carlsson.
+\newblock Topology and data.
+\newblock {\em Bulletin of the American Mathematical Society}, 46(2):255--308,
+  2009.
+
+\bibitem{ChazalStructure}
+Fr{\'e}d{\'e}ric Chazal, Vin de~Silva, Marc Glisse, and Steve Oudot.
+\newblock The structure and stability of persistence modules.
+\newblock {\em SpringerBriefs in Mathematics}, 2016.
+
+\bibitem{ChowdhuryMemoli}
+Samir Chowdhury and Facundo M{\'e}moli.
+\newblock A functorial {D}owker theorem and persistent homology of asymmetric
+  networks.
+\newblock {\em Journal of Applied and Computational Topology},
+  2(1--2):115--175, 2018.
+
+\bibitem{CoeckeSadrzadehClark}
+Bob Coecke, Mehrnoosh Sadrzadeh, and Stephen Clark.
+\newblock Mathematical foundations for a compositional distributional model of
+  meaning.
+\newblock {\em Linguistic Analysis}, 36(1--4):345--384, 2010.
+
+\bibitem{CEH}
+David Cohen-Steiner, Herbert Edelsbrunner, and John Harer.
+\newblock Stability of persistence diagrams.
+\newblock {\em Discrete \& Computational Geometry}, 37(1):103--120, 2007.
+
+\bibitem{Curry}
+Justin Curry.
+\newblock {\em Sheaves, Cosheaves and Applications}.
+\newblock 2014.
+\newblock PhD thesis, University of Pennsylvania.
+
+\bibitem{Dowker}
+Clifford~H. Dowker.
+\newblock Homology groups of relations.
+\newblock {\em Annals of Mathematics}, 56(1):84--95, 1952.
+
+\bibitem{Gardenfors}
+Peter G{\"a}rdenfors.
+\newblock {\em Conceptual Spaces: The Geometry of Thought}.
+\newblock MIT Press, 2000.
+
+\bibitem{GhristRiess}
+Robert Ghrist and Hans Riess.
+\newblock Cellular sheaves of lattices and the {T}arski {L}aplacian.
+\newblock {\em Homology, Homotopy and Applications}, 24(1):325--345, 2022.
+
+\bibitem{HansenGebhart}
+Jakob Hansen and Thomas Gebhart.
+\newblock Sheaf neural networks.
+\newblock {\em NeurIPS Workshop on Topological Data Analysis and Beyond}, 2020.
+
+\bibitem{HansenGhristLearning}
+Jakob Hansen and Robert Ghrist.
+\newblock Learning sheaf {L}aplacians from smooth signals.
+\newblock {\em IEEE International Conference on Acoustics, Speech and Signal
+  Processing (ICASSP)}, pages 5446--5450, 2019.
+
+\bibitem{HansenGhrist}
+Jakob Hansen and Robert Ghrist.
+\newblock Toward a spectral theory of cellular sheaves.
+\newblock {\em Journal of Applied and Computational Topology}, 3(4):315--358,
+  2019.
+
+\bibitem{HansenGhristOpinion}
+Jakob Hansen and Robert Ghrist.
+\newblock Opinion dynamics on discourse sheaves.
+\newblock {\em SIAM Journal on Applied Mathematics}, 81(5):2033--2060, 2021.
+
+\bibitem{Lam}
+Tsit-Yuen Lam.
+\newblock {\em Introduction to Quadratic Forms over Fields}.
+\newblock American Mathematical Society, 2005.
+
+\bibitem{Palais}
+Richard~S. Palais.
+\newblock The classification of real division algebras.
+\newblock {\em American Mathematical Monthly}, 75(4):366--368, 1968.
+
+\bibitem{RobinsonTSP}
+Michael Robinson.
+\newblock {\em Topological Signal Processing}.
+\newblock Springer, 2014.
+
+\bibitem{RobinsonSensor}
+Michael Robinson.
+\newblock Sheaves are the canonical data structure for sensor integration.
+\newblock {\em Information Fusion}, 36:208--224, 2017.
+
+\bibitem{SchaubTSP}
+Michael~T. Schaub, Yu~Zhu, Jean-Baptiste Seby, T.~Mitchell Roddenberry, and
+  Santiago Segarra.
+\newblock Signal processing on higher-order networks.
+\newblock {\em Signal Processing}, 187:108149, 2021.
+
+\bibitem{Shepard}
+Allen~D. Shepard.
+\newblock {\em A cellular description of the derived category of a stratified
+  space}.
+\newblock 1985.
+\newblock PhD thesis, Brown University.
+
+\bibitem{SingerWu}
+Amit Singer and Hau-Tieng Wu.
+\newblock Vector diffusion maps and the connection {L}aplacian.
+\newblock {\em Communications on Pure and Applied Mathematics},
+  65(8):1067--1144, 2012.
+
+\bibitem{SinghMemoliCarlsson}
+Gurjeet Singh, Facundo M{\'e}moli, and Gunnar Carlsson.
+\newblock Topological methods for the analysis of high dimensional data sets
+  and {3D} object recognition.
+\newblock {\em Eurographics Symposium on Point-Based Graphics}, pages 91--100,
+  2007.
 
 \end{thebibliography}

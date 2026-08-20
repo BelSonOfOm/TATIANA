@@ -1,236 +1,407 @@
 % =====================================================================
-%  PART I -- THE STATE SPACE
+%  PART II -- FOUNDATIONS
+%
+%  The mathematical spine.  Read in order: the complex is constructed
+%  before it is used, the sheaf is laid on it, the operator that measures
+%  everything is built, and the final chapter corrects a type error the
+%  earlier ones deliberately carry.
 % =====================================================================
 
-\chapter{The Base Complex}\label{ch:complex}
+\chapter{Where the Complex Comes From}\label{ch:ingest}
 
-\begin{workplan}{\Recast}
-\wpgoal{Rebuild the base complex on a justification that survives the loss of
-organs. The mathematics of $\CC$ is sound; the story told about \emph{why} it
-is stratified is V0's and is gone.}
+\section{The problem: $\CC$ may not be assumed}
 
-\wpsource{This chapter's existing text (the simplicial-complex material and
-the running example are reusable as-is);
-\texttt{MATH\_TOOLBOX.md}~I.1 (simplices as honest $n$-ary relations --- the
-one place the topology is earned rather than borrowed; also the list of what
-was cut as decorative); \texttt{TATIANA\_V1\_IDENTITY\_MAP.md}~\S4.3
-($2$-cells are load-bearing).}
+Every account of sheaves on a complex begins with the complex already
+present. For a theory of cognition this is not available: if the base complex
+is postulated, then every structural claim the theory makes is a claim about
+a hand-drawn picture, and the vertices --- the regions of
+\S\ref{sec:hypothesis} --- are exactly as arbitrary as the person drawing
+them.
 
-\wpsteps{
-  \item \textbf{Replace the opening intuition.} The current one describes ``a
-    small society of specialists'' --- search, memory, reason, check. That is
-    V0's organ complex and it is retired. Write a new intuition for one
-    kernel whose parts are not specialists but regions of a single body of
-    thought.
-  \item \textbf{Keep, unchanged, the $n$-ary binding argument.} Simplices are
-    honest joint relations, not decomposed pairwise facts: a theorem
-    depending on three prerequisites is one $3$-simplex, not three edges.
-    This is the strongest justification in the chapter and it does not
-    depend on organs at all. \Keep.
-  \item \textbf{Re-derive or retire the stratification.} \S\ref{sec:strat}
-    currently justifies coarse/fine by organs being real separate subsystems.
-    With one kernel that ground is gone. Decide, and write down the decision
-    with its reason: either the stratification survives on a new ground (scale
-    of abstraction? crystallized vs working, which is a \emph{different} axis
-    and was repeatedly confused with this one in V0), or it collapses to a
-    single scale. Do not leave this ambiguous --- V0 conflated the two axes
-    repeatedly and had to keep re-separating them.
-  \item \textbf{Promote the $2$-cells.} The current text treats the complex as
-    up-to-$2$-dimensional almost incidentally. In V2 the $2$-cells are what
-    make molding obstructible, hence what make growth derivable, hence the
-    defence against every published negative result about learned sheaf
-    Laplacians on graphs. State that here, forward-referencing
-    Chapter~\ref{ch:twophase}, so the reader knows from the start why
-    triangles are not optional.
-  \item \textbf{Keep the running example} $\Kc_7$, but re-describe its
-    vertices as something other than organs. Every later chapter measures this
-    object; changing it is expensive, so change only its interpretation.
-  \item \textbf{Carry forward the register of what was cut and why.}
-    Infinite-dimensional Banach stalks, Pachner moves (a knowledge graph is
-    not a manifold, so the preservation guarantee does not transfer),
-    cohomology on undefined restriction maps. Keep these as refutations, not
-    silence.
-}
+So this chapter comes first. It asks: given input of an arbitrary nature,
+what canonically determines a simplicial complex? The answer wanted must have
+three properties.
 
-\wpdone{The chapter justifies every structural feature of $\CC$ without once
-appealing to organs, and the stratification question is answered rather than
-inherited.}
-\end{workplan}
-
-\section{What the object is}
-
-\begin{intu}\Intu
-Picture a research assistant that is not one mind but a small society of
-specialists: one that searches, one that remembers, one that reasons, one
-that checks. \textsc{tatiana} is the mathematics of \emph{that society} ---
-who is bound to whom, whether their beliefs agree, by how much they
-disagree and exactly where, and how the society rewires itself as it
-works. The reasoning itself is done by an external language model. The
-mathematics governs the society, not the neurons.
-\end{intu}
-
-\begin{definition}[Cognitive state space]\label{def:M}
-A \emph{cognitive state space} is a triple $\M=(\CC,\Fs,s)$ where
-\begin{enumerate}[label=(\roman*)]
-  \item $\CC$ is a stratified finite abstract simplicial complex
-        (Section~\ref{sec:strat});
-  \item $\Fs$ is a cellular sheaf of finite-dimensional real
-        inner-product spaces on $\CC$ (Chapter~\ref{ch:sheaf});
-  \item $s\in\Czero$ is a distinguished $0$-cochain, the \emph{current
-        state}, whose coherence is measured by the sheaf Laplacian
-        (Chapter~\ref{ch:laplacian}).
+\begin{enumerate}[label=(P\arabic*)]
+  \item\label{P1} \textbf{Minimal input.} It should require as little structure
+    on the input as possible --- in particular no metric, since there is no
+    reason to believe raw input carries one.
+  \item\label{P2} \textbf{No free parameters.} A construction with knobs makes
+    every downstream invariant a function of the knobs.
+  \item\label{P3} \textbf{Stability.} A small perturbation of the input must
+    produce a small perturbation of the complex. Without this, absorbing new
+    material is not a controlled operation and no invariant computed after
+    ingest means anything.
 \end{enumerate}
-The space evolves in discrete time under structural operators drawn from
-an operator algebra $\Dop$ which is itself permitted to grow
-(Part~V).
-\end{definition}
 
-\source{\texttt{DOCS/TATIANA\_Mathematical\_Description.tex}, Def.~1.1,
-merged with \texttt{DOCS/TATIANA\_LOGBOOK.md} \S0.1. The logbook writes
-the triple as $(C,F,s)$ with $C$ ``a stratified simplicial complex
-(coarse level = cognitive organs as vertices; fine level = concepts
-inside each organ's stalk)''. Note that this phrasing conflates two
-different things --- the fine complex $\CC_v$ and the stalk $\stalk{v}$
---- which are kept strictly separate here and in
-Chapter~\ref{ch:sheaf}. See Appendix~\ref{app:discrepancy}, item D1.}
-
-\section{Simplicial complexes and $n$-ary binding}
+\section{A relation determines a complex}
 
 \begin{intu}\Intu
-A graph records \emph{pairwise} facts: $A$ relates to $B$. But a theorem
-depending on three hypotheses is \emph{one} three-way fact, not three
-separate pairs --- drop any one hypothesis and the fact is gone, which is
-not how three independent edges behave. A simplicial complex is the
-smallest honest language for facts of arbitrary arity: a filled triangle
-is a genuine three-way binding.
+The weakest possible thing you can say about a body of input is: \emph{these
+things occur together, witnessed by that}. A passage of text witnesses the
+co-occurrence of the terms in it; an observation witnesses the co-occurrence
+of the features it exhibits. That is a relation between two sets --- things on
+one side, witnesses on the other --- and nothing more.
+
+It turns out a relation is already enough. Declare a collection of things to
+be jointly bound when \emph{some single witness witnesses all of them at
+once}. This is Dowker's construction, and everything the base complex is
+required to be follows from it rather than being assumed.
 \end{intu}
 
-\begin{definition}[Abstract simplicial complex]\label{def:asc}
-Let $V$ be a finite set. An \emph{abstract simplicial complex} $\CC$ on
-$V$ is a family of nonempty subsets of $V$, called \emph{simplices},
-which is \emph{downward closed}: if $\sigma\in\CC$ and
-$\emptyset\neq\tau\subseteq\sigma$, then $\tau\in\CC$. A simplex of
-cardinality $k+1$ is a \emph{$k$-simplex}; write $\dim\sigma=k$. If
-$\tau\subseteq\sigma$ we write $\tau\triang\sigma$ and call $\tau$ a
-\emph{face} of $\sigma$. The set of $k$-simplices is denoted $\CC_k$.
+\begin{definition}[Dowker complexes of a relation]\label{def:dowker}
+Let $X,Y$ be finite sets and $R\subseteq X\times Y$ a relation, written
+$x\rel y$. Define two abstract simplicial complexes:
+\[
+  \Dow{X}(R)=\bigl\{\,\sigma\subseteq X \ :\ \sigma\neq\emptyset,\
+     \exists\,y\in Y \text{ with } x\rel y \text{ for all } x\in\sigma \,\bigr\},
+\]
+\[
+  \Dow{Y}(R)=\bigl\{\,\tau\subseteq Y \ :\ \tau\neq\emptyset,\
+     \exists\,x\in X \text{ with } x\rel y \text{ for all } y\in\tau \,\bigr\}.
+\]
+Call $\Dow{X}(R)$ the \emph{ingest complex} of $R$ and $Y$ its
+\emph{witness set}.
 \end{definition}
 
-Thus $0$-simplices are vertices, $1$-simplices edges, $2$-simplices
-filled triangles, and so on. Downward closure is not a technical
-convenience; it is the modelling assumption that every sub-collection of
-a jointly bound fact is itself recorded.
+\begin{proposition}[Downward closure is free]\label{prop:closurefree}
+\Proved\ $\Dow{X}(R)$ is an abstract simplicial complex: it is downward
+closed.
+\end{proposition}
+\begin{proof}
+Let $\sigma\in\Dow{X}(R)$ with witness $y$, and let
+$\emptyset\neq\tau\subseteq\sigma$. Every $x\in\tau$ lies in $\sigma$, hence
+$x\rel y$. So $y$ witnesses $\tau$ and $\tau\in\Dow{X}(R)$.
+\end{proof}
 
-\begin{remark}[Simplices are $n$-ary relations]\label{rem:nary}
-A $k$-simplex $\{v_0,\dots,v_k\}$ models a single $(k{+}1)$-ary binding
-among its vertices, not $\binom{k+1}{2}$ pairwise ones. This distinction
-is what later earns the use of $b_1$ as a diagnostic
-(Part~IV): a $1$-cycle counts as a genuine structural hole
-only because a \emph{filled} $2$-simplex means ``these three are jointly
-bound'' rather than merely ``each pair is bound''.
+This is worth pausing on. In the standard presentation, downward closure is a
+\emph{modelling assumption} --- one declares that every sub-collection of a
+jointly bound fact is itself recorded, and the reader is asked to accept it.
+Under Definition~\ref{def:dowker} it is a one-line consequence of what a
+witness is. The same holds for the other structural feature usually assumed:
+
+\begin{proposition}[$n$-ary binding is free]\label{prop:naryfree}
+\Proved\ In $\Dow{X}(R)$, a $k$-simplex records a single $(k{+}1)$-ary joint
+binding and is not determined by the pairwise bindings among its vertices.
+Explicitly, there exist relations $R$ for which every pair
+$\{x_i,x_j\}\subseteq\sigma$ lies in $\Dow{X}(R)$ while $\sigma$ does not.
+\end{proposition}
+\begin{proof}
+Take $X=\{x_1,x_2,x_3\}$, $Y=\{y_{12},y_{13},y_{23}\}$, and let $y_{ij}$ be
+related to exactly $x_i$ and $x_j$. Each pair has a witness, so all three
+edges are present; no single $y$ is related to all of $x_1,x_2,x_3$, so
+$\{x_1,x_2,x_3\}\notin\Dow{X}(R)$. Adding a fourth witness $y_{123}$ related
+to all three fills the triangle. The two relations have the same
+$1$-skeleton and different complexes.
+\end{proof}
+
+\begin{remark}[Why this replaces the usual argument]\label{rem:nary}
+The usual justification for simplicial complexes over graphs is that a fact
+depending on three hypotheses is one three-way fact rather than three pairwise
+ones. That argument is correct but weak: it justifies \emph{higher-order}
+structure, and a hypergraph supplies that more cheaply and without downward
+closure. What it does not justify is the \emph{simplicial} structure
+specifically. Propositions~\ref{prop:closurefree} and~\ref{prop:naryfree}
+together do: downward closure is not a price paid for the chain complex, it is
+what a witness relation already satisfies. The chain complex --- and with it
+everything in Chapters~\ref{ch:sheaf} and~\ref{ch:laplacian} --- is then
+available for free.
 \end{remark}
 
-\begin{remark}[Two relations on the same vertices]\label{rem:twostructures}
-A logical prerequisite chain is \emph{directed}: $A$ is needed for $B$.
-A simplicial complex is undirected. \textsc{tatiana} therefore carries
-two relations on the same vertex set --- a directed poset for logical
-dependency, and the undirected simplices for $n$-ary co-binding. They are
-never conflated, and no result in this book uses one where the other is
-meant.
-\end{remark}
+\section{Dowker duality}
 
-\section{The two-level stratification}\label{sec:strat}
+\begin{theorem}[Dowker, 1952]\label{thm:dowker}
+\Proved\ (Cited; not proved here.) For any relation $R\subseteq X\times Y$,
+the complexes $\Dow{X}(R)$ and $\Dow{Y}(R)$ are homotopy equivalent. In
+particular they have isomorphic homology and cohomology in every
+degree.~\cite{Dowker}
+\end{theorem}
 
-\begin{intu}\Intu
-The society has two scales. Zoom out and the vertices are whole
-\emph{organs}. Zoom into one organ and it is itself a little complex whose
-vertices are \emph{concepts}. The same geometry runs at both scales, and
-the two are glued by a coarse-graining map developed in Part~III.
-\end{intu}
-
-\begin{construction}[The stratified complex]\label{con:strat}
-$\CC$ carries two strata.
-\begin{itemize}
-  \item The \emph{coarse complex} $\Kc$ has as vertices the cognitive
-        organs
-        \[
-          V(\Kc)=\{\textsc{Planner},\ \textsc{Search},\
-          \textsc{Canonicalizer},\ \textsc{Curator},\
-          \textsc{WorkingMemory},\ \textsc{Reasoning},\ \textsc{Verify}\}.
-        \]
-        A simplex $\sigma\in\Kc$ is a \emph{bound coalition} of organs
-        acting as a unit, carrying a time-dependent coupling weight
-        $w(\sigma,t)\in[0,1]$.
-  \item For each organ $v\in V(\Kc)$, a \emph{fine complex} $\CC_v$ has
-        concepts as vertices and $n$-ary conceptual bindings as
-        simplices. This is the organ's internal knowledge.
-\end{itemize}
-\end{construction}
-
-The stratification answers an ambiguity present in the earliest drafts
---- \emph{are the vertices concepts or subsystems?} --- by answering
-\emph{both}, at two different levels.
+The content for this theory: \emph{ingest does not privilege a side}. The
+complex built on the things and the complex built on the witnesses carry the
+same topology, so the invariants of Chapter~\ref{ch:laplacian} are invariants
+of the relation, not of the arbitrary decision to call one side ``objects''
+and the other ``contexts''. A functorial and stable refinement, which is what
+\ref{P3} requires, is in Chowdhury--M\'emoli~\cite{ChowdhuryMemoli}.
 
 \begin{hon}\Hon
-\Contested\ The word ``stratified'' is used here in a weak,
-combinatorial sense: two nested scales with a map between them. It does
-\emph{not} refer to a Whitney stratification, a stratified space in the
-sense of intersection homology, or a constructible sheaf on a stratified
-base, and no theorem from those theories is invoked anywhere in this
-book. Earlier drafts borrowed vocabulary from that literature; the
-logbook (\S0.5) records that most such borrowing was cut as decorative.
-This is a naming collision, and the reader should not import
-expectations from it.
+This is the point at which formal concept analysis is often proposed, since
+it also produces structure canonically from a binary relation via a Galois
+connection. It is not used here, and the reason is structural rather than one
+of taste: the output of that construction is a \emph{lattice}. A lattice has
+no boundary operator, hence no cochain complex, hence no cohomology and no
+Laplacian --- so none of Chapters~\ref{ch:sheaf}--\ref{ch:laplacian} can be
+run on it. The Dowker complex keeps the one property that made the relational
+input attractive (canonical, parameter-free, no metric required) and adds the
+homotopy-theoretic structure the rest of the book consumes.
 \end{hon}
 
-\section{The running example}\label{sec:running}
+\section{The alternatives, and their prices}\label{sec:alternatives}
 
-Every instrument built in this book will be applied to one small
-complex, so that the same object is measured repeatedly and the
-measurements can be compared.
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.24\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.20\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.13\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.33\textwidth}@{}}
+\toprule
+\textbf{construction} & \textbf{input needed} & \textbf{parameters} &
+\textbf{stability} \\
+\midrule
+Dowker complex & a relation & none & yes~\cite{ChowdhuryMemoli} \\
+\addlinespace[2pt]
+nerve of a cover & a cover of a space & the cover &
+  good cover $\Rightarrow$ $\Nrv(\mathcal U)\simeq X$ \\
+\addlinespace[2pt]
+Vietoris--Rips / \v Cech & a metric & scale $\varepsilon$ &
+  yes~\cite{CEH,ChazalStructure} \\
+\addlinespace[2pt]
+Mapper & metric, filter, cover, clustering & four & poor \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\begin{example}[The complex $\Kc_4$]\label{ex:K4}
-Let $\Kc_4$ have vertex set
+The nerve construction is the conceptual archetype --- it is where the word
+``region'' comes from, and the nerve theorem is the statement that a good cover
+loses no topology --- but it presupposes a space to cover, which ingest does
+not have. Vietoris--Rips requires a metric on the input and a scale; it is the
+right choice when the input genuinely carries a metric, and the persistence
+machinery exists precisely to remove the arbitrariness of $\varepsilon$ by
+taking all scales at once. Mapper is named because it is the best-known
+data-to-complex pipeline and because it fails \ref{P2} and \ref{P3} badly
+enough that its output is not a measurement.
+
+\begin{hon}\Hon
+Requirement \ref{P3} is the one that is easy to skip and expensive to lose.
+The stability theorems~\cite{CEH,ChazalStructure} are what make ``absorb this
+text'' a controlled operation: they bound the change in the computed
+invariants by the size of the change in the input. Without such a bound, a
+one-word change to a document could in principle alter $b_1$ arbitrarily, and
+no downstream quantity would be reproducible. Any future ingest operator
+proposed for this theory must come with a stability statement or be rejected.
+\end{hon}
+
+\section{The ingest operator, and the running example}
+
+\begin{construction}[Ingest]\label{con:ingest}
+\Proposed\ Input arrives as a finite relation $R\subseteq X\times Y$ between
+a set $X$ of \emph{things} and a set $Y$ of \emph{witnesses}. Ingest returns
+the complex $\CC=\Dow{X}(R)$, truncated to dimension $2$
+(\S\ref{sec:dimtwo}). Assigning content to its cells is
+Chapter~\ref{ch:sheaf}; joining it to an existing complex is
+\S\ref{sec:mv}.
+\end{construction}
+
+\begin{example}[The running example $\Kc_4$, derived]\label{ex:K4}
+Let $X=\{\mathsf a,\mathsf b,\mathsf c,\mathsf d\}$ and $Y=\{y_1,y_2\}$ with
 \[
-  V=\{\mathsf{S},\ \mathsf{M},\ \mathsf{R},\ \mathsf{V}\}
+  R=\bigl\{(\mathsf a,y_1),(\mathsf b,y_1),(\mathsf c,y_1),
+           (\mathsf c,y_2),(\mathsf d,y_2)\bigr\}.
 \]
-(read: \textsc{Search}, \textsc{Memory}, \textsc{Reasoning},
-\textsc{Verify}), with $1$-simplices
+Read it concretely: two source passages, $y_1$ and $y_2$; the first exhibits
+$\mathsf a,\mathsf b,\mathsf c$ together, the second exhibits
+$\mathsf c,\mathsf d$ together. Then
 \[
-  E=\bigl\{\{\mathsf{S},\mathsf{M}\},\ \{\mathsf{M},\mathsf{R}\},\
-  \{\mathsf{S},\mathsf{R}\},\ \{\mathsf{R},\mathsf{V}\}\bigr\}
+  \Kc_4 \;=\; \Dow{X}(R) \;=\;
+  \bigl\{\,\mathsf a,\mathsf b,\mathsf c,\mathsf d,\;
+    \mathsf{ab},\mathsf{ac},\mathsf{bc},\mathsf{cd},\;
+    \mathsf{abc}\,\bigr\},
 \]
-and a single $2$-simplex $\{\mathsf{S},\mathsf{M},\mathsf{R}\}$, filled.
-Downward closure holds: all three faces of the triangle are in $E$.
+a filled triangle $\{\mathsf a,\mathsf b,\mathsf c\}$ with a pendant edge
+$\{\mathsf c,\mathsf d\}$. The triangle is filled because a single witness
+$y_1$ carries all three at once; had the three terms merely occurred in
+pairs across three different passages, the triangle would be empty
+(Proposition~\ref{prop:naryfree}). Every instrument built in this book is
+applied to this object.
 \end{example}
 
 \begin{center}
 \begin{tikzpicture}[scale=1.6,
   vtx/.style={circle,fill=black,inner sep=1.8pt},
   lbl/.style={font=\small}]
-  \coordinate (S) at (0,1);
-  \coordinate (M) at (-1,0);
-  \coordinate (R) at (1,0);
-  \coordinate (V) at (2.3,-0.6);
-  \fill[linkblue,opacity=0.18] (S) -- (M) -- (R) -- cycle;
-  \draw[thick] (S)--(M) (M)--(R) (S)--(R) (R)--(V);
-  \node[vtx] at (S) {}; \node[vtx] at (M) {};
-  \node[vtx] at (R) {}; \node[vtx] at (V) {};
-  \node[lbl,above] at (S) {$\mathsf{S}$};
-  \node[lbl,left]  at (M) {$\mathsf{M}$};
-  \node[lbl,below right] at (R) {$\mathsf{R}$};
-  \node[lbl,right] at (V) {$\mathsf{V}$};
-  \node[font=\footnotesize,linkblue] at (0,0.35) {filled};
+  \coordinate (A) at (0,1);
+  \coordinate (B) at (-1,0);
+  \coordinate (C) at (1,0);
+  \coordinate (D) at (2.3,-0.6);
+  \fill[linkblue,opacity=0.18] (A) -- (B) -- (C) -- cycle;
+  \draw[thick] (A)--(B) (B)--(C) (A)--(C) (C)--(D);
+  \node[vtx] at (A) {}; \node[vtx] at (B) {};
+  \node[vtx] at (C) {}; \node[vtx] at (D) {};
+  \node[lbl,above] at (A) {$\mathsf{a}$};
+  \node[lbl,left]  at (B) {$\mathsf{b}$};
+  \node[lbl,below right] at (C) {$\mathsf{c}$};
+  \node[lbl,right] at (D) {$\mathsf{d}$};
+  \node[font=\footnotesize,linkblue] at (0,0.35) {filled by $y_1$};
 \end{tikzpicture}
-\captionof{figure}{The running example $\Kc_4$. The triangle
-$\{\mathsf{S},\mathsf{M},\mathsf{R}\}$ is filled: it is one ternary
-binding, not three binary ones. The edge to $\mathsf{V}$ is a pendant.}
+\captionof{figure}{The running example $\Kc_4=\Dow{X}(R)$ of
+Example~\ref{ex:K4}. Nothing about it is chosen: it is what the relation
+$R$ says.}
 \label{fig:K4}
 \end{center}
 
-Its degrees are
-$\deg\mathsf{S}=2$, $\deg\mathsf{M}=2$, $\deg\mathsf{R}=3$,
-$\deg\mathsf{V}=1$, and its graph Laplacian, in the vertex order
-$(\mathsf{S},\mathsf{M},\mathsf{R},\mathsf{V})$, is
+\begin{workedbox}\Worked
+\emph{Dowker duality, checked by hand.} The witness-side complex is
+$\Dow{Y}(R)=\{y_1,y_2,\{y_1,y_2\}\}$: the pair $\{y_1,y_2\}$ is a simplex
+because $\mathsf c$ is related to both. So $\Dow{Y}(R)$ is a single edge,
+which is contractible. And $\Dow{X}(R)$ is a filled triangle with a whisker,
+also contractible. Both are contractible, hence homotopy equivalent, in
+agreement with Theorem~\ref{thm:dowker}. \hfill$\square$
+
+Note what the check would have caught: if the triangle $\mathsf{abc}$ had been
+left \emph{unfilled} while its three edges were present, $\Dow{X}(R)$ would
+have $b_1=1$ whereas $\Dow{Y}(R)$ still has $b_1=0$, contradicting the
+theorem --- which is another way of seeing that filling is forced by the
+relation and not optional.
+\end{workedbox}
+
+\begin{agenda}
+\agset{
+  \item Downward closure (Proposition~\ref{prop:closurefree}) and non-reducibility
+    of $n$-ary binding to pairwise binding (Proposition~\ref{prop:naryfree})
+    are theorems about relations, not modelling assumptions.
+  \item Ingest is side-independent, by Dowker's theorem.
+  \item The running example is derived from a relation rather than drawn.
+  \item Stability is stated as a \emph{requirement} on any ingest operator, and
+    the alternatives are ranked against it.
+}
+\agopen{
+  \item Ingest satisfies \ref{P1} and \ref{P2}, but the choice of the witness
+    set $Y$ is itself a modelling decision and is not canonical. The
+    construction has no parameters \emph{given} $R$; producing $R$ from raw
+    input is unaddressed.
+  \item The stability of $\Dow{X}$ is cited~\cite{ChowdhuryMemoli} for the
+    persistent setting. The one-scale statement actually used here --- how
+    much $\Kc$ and its invariants move when a bounded number of pairs are
+    added to or removed from $R$ --- is not stated and not proved.
+  \item Truncation to dimension~$2$ (Construction~\ref{con:ingest}) discards
+    cells the relation genuinely produces. Its effect on $b_1$ and on
+    $\Hone$ is not analysed anywhere.
+  \item Nothing here says how a witness set is \emph{grown}. Ingest builds a
+    complex from a relation; it does not say what happens to $Y$ when new
+    input arrives with new witnesses.
+}
+\agsteps{
+  \item State and prove a one-scale stability bound: for $R,R'$ with
+    $|R\,\triangle\,R'|\le k$, bound the change in $b_0$, $b_1$ and in
+    $\lambda_2(\Lap)$. This is the missing form of \ref{P3} and everything
+    downstream that claims to be a measurement depends on it.
+  \item Analyse $2$-truncation. Either bound the error it induces in the
+    invariants actually used, or drop the truncation and pay the
+    combinatorial cost knowingly.
+  \item Give at least one concrete, fully specified $R$ from a non-toy input,
+    and compute $\Kc$, $b_0$, $b_1$ on it. Until this exists, ingest is a
+    definition rather than an operator.
+  \item Decide whether $Y$ is part of the state. If witnesses persist, they
+    belong in the theory; if they are consumed at ingest, say so and record
+    that the complex retains no trace of what justified its cells.
+}
+\end{agenda}
+
+% =====================================================================
+\chapter{The Base Complex}\label{ch:complex}
+
+\section{Simplicial complexes}
+
+\begin{definition}[Abstract simplicial complex]\label{def:asc}
+Let $V$ be a finite set. An \emph{abstract simplicial complex} $\CC$ on $V$
+is a family of nonempty subsets of $V$, called \emph{simplices}, which is
+downward closed: if $\sigma\in\CC$ and $\emptyset\neq\tau\subseteq\sigma$
+then $\tau\in\CC$. A simplex of cardinality $k+1$ is a \emph{$k$-simplex};
+write $\dim\sigma=k$. If $\tau\subseteq\sigma$ we write $\tau\triang\sigma$
+and call $\tau$ a \emph{face} of $\sigma$. The set of $k$-simplices is
+$\CC_k$, and $\dim\CC=\max_\sigma\dim\sigma$.
+\end{definition}
+
+$0$-simplices are vertices --- the \emph{regions} of \S\ref{sec:hypothesis};
+$1$-simplices are edges, the places where two regions are compared;
+$2$-simplices are filled triangles. By Proposition~\ref{prop:closurefree} the
+closure condition is automatic for any complex arising from ingest.
+
+\begin{example}[The one-region space]\label{ex:atom}
+\Proved\ Let $\CC=\{\{v\}\}$, a single vertex. Then $\CC_1=\CC_2=\emptyset$,
+so with any sheaf whatsoever (Chapter~\ref{ch:sheaf}):
+\[
+  \Cone=0,\qquad \cob=0,\qquad \Lap=0,\qquad
+  \discord(x)=0 \text{ for all } x,\qquad \Hzero=\stalk{v}.
+\]
+Every content is a thought; nothing can fail; every invariant the book
+defines is zero or trivial.
+\end{example}
+
+This is the collapse promised in \S\ref{sec:hypothesis}, and it is the precise
+sense in which the theory is a theory of the relations. Content lives in the
+stalks; \emph{all} structure lives in the maps between them. If meaning
+admitted a global chart, Example~\ref{ex:atom} would be the whole theory.
+
+\section{Why dimension two, and why not one}\label{sec:dimtwo}
+
+The book works with complexes of dimension at most~$2$. Both bounds need
+justification, and they are of very different kinds.
+
+\paragraph{Not dimension one.} A graph is a $1$-dimensional simplicial
+complex, so working on a graph is a strict special case, not a different
+choice. What is lost is stated exactly in Theorem~\ref{thm:functoriality} (the
+sheaf condition becomes vacuous, so nothing can obstruct) and
+Theorem~\ref{thm:hodge} (the three-way decomposition loses a summand, so
+repairable misalignment and irreparable holes stop being distinguishable).
+These are the two load-bearing results of Part~\ref{part:foundations} and
+they are both statements that dimension~$1$ is degenerate.
+
+\paragraph{Not dimension three or more.} This bound is pragmatic and is not
+claimed to be principled. Cells of dimension~$3$ would make $\cob^2$
+non-vacuous in turn and would give $H^2$ a role. Nothing in this book needs
+them, the combinatorial cost of downward closure grows as $2^{k+1}$ per
+$k$-simplex, and no phenomenon has been identified that requires them.
+
+\begin{hon}\Hon
+\Contested\ The asymmetry above should be uncomfortable. The argument against
+dimension~$1$ is a theorem; the argument against dimension~$3$ is that nothing
+has needed it yet. If a later construction turns out to require an obstruction
+living in $H^2$, the truncation is what will be blocking it, and the
+truncation was chosen for convenience. This is recorded here rather than
+discovered later.
+\end{hon}
+
+\section{On the word ``stratified''}\label{sec:stratword}
+
+Earlier presentations of this material described $\CC$ as \emph{stratified},
+meaning that it carried two nested scales --- a coarse complex whose vertices
+were subsystems, and inside each, a fine complex whose vertices were concepts.
+That description is withdrawn, for two independent reasons.
+
+First, the word was wrong. In mathematics a stratification is a decomposition
+into locally closed smooth pieces satisfying frontier and tangency conditions
+(Whitney), or the base data for constructible sheaves and the exit-path
+category. None of those theorems were being invoked, and none of them apply to
+a finite complex with no smooth structure. Under the naming discipline of
+\S\ref{sec:naming}, rule~2, the term is retired.
+
+Second, and more seriously, the structure it named was not earned. Two nested
+scales were justified by the claim that the coarse vertices were genuinely
+separate subsystems. Under the reading of \S\ref{sec:hypothesis} vertices are
+charts, not subsystems, and that ground is gone. Rather than re-justify a
+two-scale structure on a new basis, this book takes the opposite position:
+
+\begin{quote}\itshape
+$\CC$ has one scale. Multi-scale structure, where it exists, is to be
+\emph{derived} from the sheaf --- for instance by spectral partition of $\Lap$
+--- and not postulated.
+\end{quote}
+
+\begin{remark}[Where a genuine stratification does appear]\label{rem:stratmoved}
+The word is not lost, only moved. There is a real stratification in this
+theory, but it is on the space of \emph{configurations} $(\CC,\Fs)$ rather
+than on $\CC$: the strata are indexed by the dimension vector, molding moves
+within a stratum, and growth crosses to an adjacent one.
+\S\ref{sec:stratconf} develops this. It is a better home for the word because
+there the strata do real work --- they are what makes the identity invariant
+locally constant.
+\end{remark}
+
+\section{The running example, combinatorially}\label{sec:running}
+
+For $\Kc_4$ of Example~\ref{ex:K4}, with vertex order
+$(\mathsf a,\mathsf b,\mathsf c,\mathsf d)$, the degrees are
+$2,2,3,1$ and the ordinary graph Laplacian of the $1$-skeleton is
 \begin{equation}\label{eq:LK4}
   L_{\Kc_4}=
   \begin{pmatrix}
@@ -242,472 +413,1019 @@ $(\mathsf{S},\mathsf{M},\mathsf{R},\mathsf{V})$, is
 \end{equation}
 
 \begin{proposition}[Spectrum of the running example]\label{prop:specK4}
-\Proved\ The characteristic polynomial of $L_{\Kc_4}$ is
-$\lambda(\lambda-1)(\lambda-3)(\lambda-4)$, so
-\[
-  \operatorname{spec}L_{\Kc_4}=\{0,\ 1,\ 3,\ 4\}.
-\]
+\Proved\ $\det(L_{\Kc_4}-\lambda I)=\lambda(\lambda-1)(\lambda-3)(\lambda-4)$,
+so $\operatorname{spec}L_{\Kc_4}=\{0,1,3,4\}$.
 \end{proposition}
 \begin{proof}
-Direct expansion of $\det(L_{\Kc_4}-\lambda I)$ gives
-$\lambda^4-8\lambda^3+19\lambda^2-12\lambda
- =\lambda(\lambda-1)(\lambda-3)(\lambda-4)$.
-The eigenvalue $0$ is forced: $L_{\Kc_4}\mathbf 1=0$ since every row
-sums to zero. Its multiplicity is $1$ because the $1$-skeleton is
-connected (Proposition~\ref{prop:b0kernel}).
+Direct expansion gives
+$\lambda^4-8\lambda^3+19\lambda^2-12\lambda=\lambda(\lambda-1)(\lambda-3)(\lambda-4)$.
+The eigenvalue $0$ is forced since every row sums to zero, so
+$L_{\Kc_4}\mathbf 1=0$; its multiplicity is $1$ because the $1$-skeleton is
+connected (Proposition~\ref{prop:identityfatal}).
 \end{proof}
 
-The integrality here is a happy accident of this particular graph and
-should not be expected in general. It is why $\Kc_4$ was chosen: every
-quantity in Parts I--IV can be carried through in exact arithmetic.
+The integrality is an accident of this graph and should not be expected in
+general. It is why $\Kc_4$ was chosen: every quantity in
+Part~\ref{part:foundations} can be carried through in exact arithmetic.
+
+\begin{agenda}
+\agset{
+  \item $\CC$ is a single-scale finite complex of dimension $\le 2$; the
+    two-scale ``stratified'' description is withdrawn with its reason.
+  \item The degenerate one-region case is computed, and it is what the
+    founding hypothesis denies.
+  \item The lower dimension bound is justified by two theorems; the upper one
+    is flagged as pragmatic.
+}
+\agopen{
+  \item Multi-scale structure is asserted to be derivable by spectral
+    partition. No derivation is given, no criterion says how many parts, and
+    nothing shows the derived coarse complex is again a Dowker complex of
+    anything.
+  \item The dimension-$2$ truncation is unjustified except by convenience
+    (recorded as \Contested).
+}
+\agsteps{
+  \item Define the coarse-graining operator explicitly --- a spectral or
+    modular partition of $\CC$ inducing a simplicial quotient --- and state
+    what it preserves. Until then, ``derived, not postulated'' is a promise.
+  \item Check whether the derived coarse complex admits a witness relation
+    presenting it; if it does, coarse-graining and ingest are compatible and
+    the theory has one notion of region, not two.
+  \item Identify one phenomenon requiring $H^2$, or record that none was found
+    and close the dimension question.
+}
+\end{agenda}
 
 % =====================================================================
 \chapter{The Sheaf}\label{ch:sheaf}
 
-\begin{workplan}{\Keep}
-\wpgoal{Keep the sheaf as it stands and add the one thing V2 makes central:
-that the restriction maps are the \emph{only} place knowledge about wiring
-can live, so freezing them is not a simplification but a deletion of the
-architecture.}
-
-\wpsource{This chapter's existing text;
-\texttt{MATH\_TOOLBOX.md}~I.4 (restriction maps as quantum channels; the
-potency ladder; Householder representation), I.5 (the measured collapse of a
-false conflict that identity maps provably cannot produce).}
-
-\wpsteps{
-  \item \textbf{Keep the direction argument} (\S\ref{sec:direction}) in full.
-    Which way the restriction maps point is the chapter's real content and it
-    is correct.
-  \item \textbf{Add the constant-sheaf refutation early, not late.} Identity
-    restriction maps on a connected graph make the reconciled state the plain
-    average: no knowledge lives in the wiring, and the cohomology goes
-    vacuous. This is \Refuted\ and it is the reason molding exists. It
-    currently appears as a remark; in V2 it belongs near the definition.
-  \item \textbf{State the potency ladder as the chapter's organising idea.}
-    Level~0 identity (``same thing, verbatim''); level~1 orthogonal (``same
-    content, different basis'' --- reversible, lossless); level~2 general CPTP
-    (lossy, and the added entropy \emph{is} a measure of connection quality).
-    Give the measured evidence: precision-weighted maps collapse a false
-    conflict (same content, rotated frame) while leaving a real conflict
-    untouched. Identity maps cannot do this, and that asymmetry is the
-    argument.
-  \item \textbf{Record the representation caveat honestly.} Householder
-    products are exactly orthogonal by construction and cheap, but the
-    $m$-reflection family is \emph{not} closed under the retraction
-    consolidation uses, and reflection-count parity is a genuine topological
-    obstruction --- differing parities lie in different components of $O(d)$
-    and no continuous path joins them. V2 must \emph{choose} a retraction
-    deliberately rather than defaulting. Flag as an open decision.
-}
-
-\wpdone{A reader can say why identity restriction maps would make the whole
-architecture decorative, and can state the parity obstruction without
-consulting the source documents.}
-\end{workplan}
-% =====================================================================
-
 \begin{intu}\Intu
-On top of the shape we lay \emph{data}. Each organ holds a vector
-describing what it currently believes. Each binding holds a space in
-which the beliefs of its members are meant to be compared. A sheaf is
-exactly this: local data on every piece, plus rules for moving data into
-the places where comparison happens. A ``coherent thought'' is then a
-choice of data that agrees everywhere it is compared.
+On top of the shape we lay data. Each region carries a space of things
+expressible in that region's own coordinates. Each comparison site carries a
+space in which the neighbouring regions' contents are to be compared, and each
+region has a translation into it. A cellular sheaf is exactly this. A thought
+is then a choice of content in every region that survives every translation.
 \end{intu}
 
-\section{Which way do the restriction maps point?}\label{sec:direction}
+\section{Two algebras, not one}\label{sec:twoalgebras}
 
-Before the definition, one question must be settled, because the source
-documents answer it in two incompatible ways and the answer determines
-everything downstream.
+Before any definition, a distinction that earlier presentations of this
+material collapsed and that costs real theorems if collapsed.
 
-Given a face relation $\sigma\triang\tau$ --- say a vertex $u$ on an edge
-$e$ --- a sheaf must supply a linear map between $\stalk{u}$ and
-$\stalk{e}$. Which direction?
+A stalk must do two jobs, and they are answerable to different algebra:
 
 \begin{center}
-\begin{tikzpicture}[scale=1.1,
-  box/.style={draw,rounded corners=2pt,minimum width=1.9cm,
-              minimum height=0.75cm,font=\small},
-  lbl/.style={font=\footnotesize}]
-  % left: sheaf (correct)
-  \node[box] (Fu) at (0,0)    {$\stalk{u}$};
-  \node[box] (Fv) at (2.6,0)  {$\stalk{v}$};
-  \node[box] (Fe) at (1.3,1.6){$\stalk{e}$};
-  \draw[-{Latex[length=2.4mm]},thick,examplecol] (Fu) -- (Fe);
-  \draw[-{Latex[length=2.4mm]},thick,examplecol] (Fv) -- (Fe);
-  \node[lbl,font=\footnotesize] at (1.3,-0.75) {\textbf{sheaf} (used here)};
-  % right: cosheaf (poster)
-  \node[box] (Gu) at (6,0)    {$\stalk{u}$};
-  \node[box] (Gv) at (8.6,0)  {$\stalk{v}$};
-  \node[box] (Ge) at (7.3,1.6){$\stalk{e}$};
-  \draw[-{Latex[length=2.4mm]},thick,honestycol] (Ge) -- (Gu);
-  \draw[-{Latex[length=2.4mm]},thick,honestycol] (Ge) -- (Gv);
-  \node[lbl,font=\footnotesize] at (7.3,-0.75)
-       {\textbf{cosheaf} (poster \S4)};
-\end{tikzpicture}
-\captionof{figure}{The two possible orientations. Only the left one makes
-$\ker\cob$ the space of agreeing assignments.}
-\label{fig:direction}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.26\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.30\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.36\textwidth}@{}}
+\toprule
+ & \textbf{coefficient algebra $\Ralg$} & \textbf{scalar field $\Kfield$}\\
+\midrule
+carries & content: what can be expressed in a region & the metric: how far two
+  contents are from agreeing\\
+\addlinespace[2pt]
+determines & what an obstruction \emph{means} & whether $\Lap$, relaxation and
+  the Hodge decomposition exist\\
+\addlinespace[2pt]
+candidates & $\Bool$, $\Rnn$, a lattice, a field & $\R$, $\Cx$, $\Hq$ only
+  (Proposition~\ref{prop:frobenius})\\
+\bottomrule
+\end{tabular}
 \end{center}
 
-\begin{proposition}[The direction is forced]\label{prop:direction}
-\Proved\ Suppose we want a linear operator $\cob$ from vertex data to
-edge data whose kernel is exactly the set of assignments
-$x=(x_v)_{v\in V}$ that ``agree on every edge''. Then the structure maps
-must go \emph{from faces to cofaces}, i.e.
-$\rest{u\triang e}:\stalk{u}\to\stalk{e}$.
+Choosing $\Ralg=\Kfield$ --- taking content to be a vector over the same field
+that carries the metric --- is the choice this book makes, but it is a choice
+with a price, and \S\ref{sec:tradeoff} states the price. Making it silently is
+the error to avoid.
+
+\section{The coefficient algebra: what content is}\label{sec:coefficient}
+
+The general form of the question is settled in the contextuality
+literature~\cite{AbramskyBrandenburger}, where a presheaf assigns to each
+context the distributions over its joint outcomes, valued in a commutative
+semiring $\Ralg$, and \emph{contextuality is precisely the non-existence of a
+global section}. That is the same diagram as this book's, over a different
+site, and there the semiring is an explicit parameter with consequences:
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.30\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.40\textwidth}@{}}
+\toprule
+$\Ralg$ & content is & obstruction detected\\
+\midrule
+$\Bool=(\{0,1\},\vee,\wedge)$ & possibility &
+  logical (possibilistic) obstruction\\
+\addlinespace[2pt]
+$\Rnn$ & probability & probabilistic obstruction\\
+\addlinespace[2pt]
+$\R$, $\Cx$ (signed) & signed amplitude &
+  \emph{weakened or absent}: allowing negative weights admits global sections
+  that positivity forbids\\
+\addlinespace[2pt]
+a lattice & propositions &
+  order-theoretic obstruction, via a Tarski Laplacian~\cite{GhristRiess}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{hon}\Hon
+\Contested\ The third row is the important one and it is stated here in the
+weakest form I can defend: passing from a positive semiring to a signed one
+can destroy obstructions that positivity created, because the constraint being
+violated was positivity and not linearity. The precise statement in the source
+literature --- for which models, and in what generality, a signed global
+section always exists --- must be checked against~\cite{AbramskyBrandenburger}
+and~\cite{ABKLM} before it is quoted as a theorem of this book. It is recorded
+now because the \emph{direction} of the effect is what motivates
+\S\ref{sec:tradeoff}, and that much is not in doubt.
+\end{hon}
+
+\section{The scalar field is forced}
+
+\begin{definition}[Discord axiom]\label{def:discordaxiom}
+\Proposed\ The disagreement of a state is required to be a single element of
+$\R_{\ge0}$, vanishing exactly when there is no disagreement, and minimisable.
+\end{definition}
+
+This is a modelling axiom and it is where the real commitment is made ---
+not in the classification below, which is only its consequence.
+
+\begin{proposition}[The field is forced to $\R$, $\Cx$ or $\Hq$]
+\label{prop:frobenius}
+\Proved\ Suppose stalks are finite-dimensional modules over an associative
+division algebra $\Kfield$ which is finite-dimensional over $\R$, equipped
+with an involution and a Hermitian form $\inner{\cdot}{\cdot}$ for which
+$\inner{x}{x}$ satisfies Definition~\ref{def:discordaxiom}. Then
+$\Kfield\in\{\R,\Cx,\Hq\}$.
 \end{proposition}
 \begin{proof}
-An assignment gives one vector $x_v\in\stalk{v}$ per vertex, and nothing
-on edges. For the two endpoint values $x_u,x_v$ of an edge $e=\{u,v\}$
-to be \emph{compared} at all, they must be brought into a common space.
-The only space available to $e$ is $\stalk{e}$. Hence we require maps
-$\stalk{u}\to\stalk{e}$ and $\stalk{v}\to\stalk{e}$, and agreement on
-$e$ means
-$\rest{u\triang e}(x_u)=\rest{v\triang e}(x_v)$.
-
-Suppose instead the maps ran downward,
-$\rho_{e\to u}:\stalk{e}\to\stalk{u}$. Then from vertex data alone no
-map into $\stalk{e}$ exists, so no operator $\Czero\to\Cone$ can be
-built from the structure maps, and the condition ``$x$ agrees on $e$''
-is not expressible. Downward maps instead assemble into a boundary
-operator $\partial:\Cone\to\Czero$, whose kernel consists of \emph{edge}
-data summing to zero at vertices --- a flow condition, not an agreement
-condition. That is the defining structure of a \emph{cellular cosheaf},
-and its invariants are homology $H_\bullet$, not the cohomology
-$H^\bullet$ used throughout this book.
+The hypotheses make $\Kfield$ a finite-dimensional associative division
+algebra over $\R$. By Frobenius' theorem the only such algebras up to
+isomorphism are $\R$, $\Cx$ and $\Hq$~\cite{Palais}.
 \end{proof}
 
 \begin{hon}\Hon
-\Refuted\ The poster section \texttt{POSTER/sections/05\_sheaf.tex}
-defines, for $\sigma\subseteq\tau$, a map
-$\rho_{\tau\to\sigma}:\stalk{\tau}\to\stalk{\sigma}$, and its diagram
-draws $\stalk{e}$ above the vertices with arrows pointing down. It then
-asserts, three boxes later, that $s\in\Hzero(\CC,\Fs)$ is a global
-section. By Proposition~\ref{prop:direction} these two statements are
-incompatible: with downward maps the object defined is a cosheaf and
-$\Hzero$ as ``the space of compatible assignments'' does not arise. The
-main mathematical description
-(\texttt{DOCS/TATIANA\_Mathematical\_Description.tex}, Def.~3.1) has the
-direction correct. The poster is wrong and should be corrected before it
-is shown to anyone. Logged as Appendix~\ref{app:discrepancy}, item D2.
+The proposition is one line and the hypotheses are everything. What has been
+shown is not that the field must be one of three, but that
+\emph{Definition~\ref{def:discordaxiom} costs exactly that much}: demand a
+single non-negative real measure of disagreement and the algebra is
+classified. Any future proposal to work over another field is a proposal to
+give up Definition~\ref{def:discordaxiom}, and should be stated that way.
 \end{hon}
 
-\begin{exercise}
-Take the downward convention seriously for one minute and try to build
-$\cob:\Czero\to\Cone$ from it. Where exactly does the construction
-fail --- at the definition of $\cob$, or later at the claim
-$\ker\cob=\{\text{agreeing assignments}\}$? Answering this is the
-fastest way to internalise why the direction is not a convention.
-\end{exercise}
+\begin{proposition}[The metric theory fails over finite fields]
+\label{prop:finitefield}
+\Proved\ Let $\Fq$ have odd characteristic, let $n\ge3$, and let $B$ be a
+nondegenerate symmetric bilinear form on $\Fq^{\,n}$. Take $\CC$ to be a
+single edge $e=\{u,v\}$ with $\stalk{u}=\stalk{v}=\stalk{e}=\Fq^{\,n}$ and
+identity restriction maps. Then there is a state $x\neq 0$ with
+$\discord(x)=0$ but $\cob x\neq0$.
+\end{proposition}
+\begin{proof}
+The quadratic form $Q(z)=B(z,z)$ in $n\ge3$ variables over a finite field is
+isotropic: it has a nontrivial zero~\cite{Lam}. Pick $z\neq0$ with $Q(z)=0$
+and set $x_u=0$, $x_v=z$. Then $(\cob x)_e=z\neq0$, so $\cob x\neq0$, while
+$\discord(x)=B(z,z)=0$.
+\end{proof}
+
+So over $\Fq$ the equivalence $\discord(x)=0\iff\cob x=0$ ---
+Proposition~\ref{prop:Lpsd}, on which every later result depends --- is false.
+Cohomology survives over any field; the \emph{metric} theory does not.
+
+\section{The trade-off, stated as a cost}\label{sec:tradeoff}
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.30\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.30\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.32\textwidth}@{}}
+\toprule
+ & \textbf{$\Kfield$-vector stalks} & \textbf{lattice stalks}~\cite{GhristRiess}\\
+\midrule
+Laplacian & $\Lap=\cob^{\adjt}\cob$ & Tarski Laplacian\\
+$\Hzero$ & $\ker\Lap$ & fixed points\\
+convergence & spectral, rate $\lambda_2$ & monotone, by Tarski\\
+three-way Hodge split & \textbf{yes} & no\\
+positivity obstructions & \textbf{lost} & preserved\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This book takes the left column. The reason is Theorem~\ref{thm:hodge}: the
+three-way decomposition is what distinguishes repairable misalignment from
+irreparable holes, and it is what makes the routing of
+\S\ref{sec:degenerate} possible at all. The right column keeps a class of
+obstruction that the left column destroys.
+
+\begin{hon}\Hon
+This is a real loss and it is placed here rather than in a limits chapter so
+that it cannot be forgotten. Cognitive Space Theory is a \emph{metric} theory
+of coherence, and it purchases its dynamics by giving up possibilistic
+obstruction. Should a phenomenon be found that is purely possibilistic ---
+incoherent in the $\Bool$ semiring but coherent over $\Kfield$ --- this theory
+will not see it, by construction and not by oversight.
+\end{hon}
+
+\begin{hon}\Hon
+\Proposed\ Between $\R$ and $\Cx$, this book's recommendation is $\Cx$, and
+the reasons are cheap: every result below holds verbatim with transpose
+replaced by conjugate transpose; restriction maps become unitary rather than
+orthogonal, and $U(d)$ is connected whereas $O(d)$ is not, so the
+reflection-parity obstruction to continuously adjusting maps disappears;
+phase permits asymmetric relations inside a self-adjoint operator, removing
+the need for a second directed structure alongside $\CC$; and the
+contextuality literature this theory borrows from is complex-valued. The text
+below is written for a general $\Kfield\in\{\R,\Cx\}$ and specialises to $\R$
+in worked examples only.
+\end{hon}
+
+\section{Which way do the restriction maps point?}\label{sec:direction}
+
+\begin{proposition}[The direction is forced]\label{prop:direction}
+\Proved\ Suppose we want a linear operator $\cob$ from vertex data to edge
+data whose kernel is exactly the set of assignments $x=(x_v)_{v\in V}$ that
+agree on every edge. Then the structure maps must go from faces to cofaces,
+$\rest{u\triang e}:\stalk{u}\to\stalk{e}$.
+\end{proposition}
+\begin{proof}
+An assignment gives one vector $x_v\in\stalk{v}$ per vertex and nothing on
+edges. For the endpoint values $x_u,x_v$ of $e=\{u,v\}$ to be compared they
+must be brought into a common space, and the only space available to $e$ is
+$\stalk{e}$. Hence maps $\stalk{u}\to\stalk{e}$, $\stalk{v}\to\stalk{e}$ are
+required, and agreement on $e$ reads
+$\rest{u\triang e}(x_u)=\rest{v\triang e}(x_v)$.
+
+If instead the maps ran downward, $\rho_{e\to u}:\stalk{e}\to\stalk{u}$, then
+from vertex data no map into $\stalk{e}$ exists, so no operator
+$\Czero\to\Cone$ is constructible from the structure maps and the condition
+``$x$ agrees on $e$'' is not expressible. Downward maps assemble instead into
+a boundary operator $\partial:\Cone\to\Czero$ whose kernel is edge data
+summing to zero at vertices --- a flow condition, not an agreement condition.
+That is a cellular \emph{cosheaf}, and its invariants are homology, not the
+cohomology used here.
+\end{proof}
 
 \section{The definition}
 
 \begin{definition}[Cellular sheaf]\label{def:sheaf}
-A \emph{cellular sheaf} $\Fs$ of real inner-product spaces on a
-simplicial complex $\CC$ assigns
+A \emph{cellular sheaf} $\Fs$ of finite-dimensional $\Kfield$-inner-product
+spaces on $\CC$ assigns
 \begin{enumerate}[label=(\roman*)]
-  \item to each simplex $\sigma\in\CC$ a finite-dimensional real
-        inner-product space $\stalk{\sigma}$, the \emph{stalk} over
-        $\sigma$;
+  \item to each $\sigma\in\CC$ a finite-dimensional inner-product space
+        $\stalk{\sigma}$ over $\Kfield$, the \emph{stalk};
   \item to each face relation $\sigma\triang\tau$ a linear
         \emph{restriction map}
-        \[
-          \rest{\sigma\triang\tau}:\stalk{\sigma}\longrightarrow\stalk{\tau},
-        \]
+        $\rest{\sigma\triang\tau}:\stalk{\sigma}\to\stalk{\tau}$,
 \end{enumerate}
-subject to functoriality: $\rest{\sigma\triang\sigma}=\Id$, and for every
-chain $\sigma\triang\tau\triang\upsilon$,
+subject to $\rest{\sigma\triang\sigma}=\Id$ and, for every chain
+$\sigma\triang\tau\triang\upsilon$,
 \begin{equation}\label{eq:functoriality}
   \rest{\tau\triang\upsilon}\circ\rest{\sigma\triang\tau}
   \;=\;\rest{\sigma\triang\upsilon}.
 \end{equation}
-Equivalently, $\Fs$ is a functor from the face poset of $\CC$, viewed as
-a category, to $\Vect_\R$.
+Equivalently, $\Fs$ is a functor from the face poset of $\CC$ to
+$\Vect_{\Kfield}$.
 \end{definition}
 
-\begin{remark}[Functoriality is a real constraint]\label{rem:functoriality}
-Condition~\eqref{eq:functoriality} is vacuous on a complex of dimension
-$\le 1$, since there are no chains of length two. It becomes a genuine
-constraint the moment a $2$-simplex is filled --- which $\Kc_4$ does. Any
-procedure that manufactures restriction maps edge-by-edge (for instance
-by fitting each $\rest{v\triang e}$ independently to data) will in
-general \emph{violate} \eqref{eq:functoriality} on filled triangles, and
-the resulting object is then not a sheaf. This failure mode is not
-hypothetical; it is the standard obstruction encountered when
-$L^2$-projections are used as restriction maps, and the canonical repair
-is to promote the offending interface to a cell of its own so that the
-composite is not required to commute. Part~VI returns to
-this.
+\begin{remark}[The inner product is where confidence lives]
+\label{rem:metricmeaning}
+``Inner-product space'' is not a technical convenience. The inner product on
+$\stalk{\sigma}$ is a free modelling parameter: rescaling it reweights that
+cell's contribution to the disagreement, and two sheaves with the same stalks
+and the same restriction maps but different stalk metrics have
+\emph{different Laplacians and different coherent states}. Precision or
+confidence, wherever the theory needs it, is carried here and nowhere else.
 \end{remark}
 
 \begin{definition}[Cochains]\label{def:cochains}
-For $k\ge 0$ set
-\[
-  \Ck{k}\;=\;\bigoplus_{\sigma\in\CC_k}\stalk{\sigma},
-\]
-the space of \emph{$k$-cochains}, with the direct-sum inner product
-$\inner{x}{y}=\sum_\sigma\inner{x_\sigma}{y_\sigma}$. An element of
-$\Czero$ is an assignment of one vector to each organ; the current state
-$s$ of Definition~\ref{def:M} lives here.
+For $k\ge0$ set $\Ck{k}=\bigoplus_{\sigma\in\CC_k}\stalk{\sigma}$, the
+\emph{$k$-cochains}, with the direct-sum inner product
+$\inner{x}{y}=\sum_\sigma\inner{x_\sigma}{y_\sigma}$.
 \end{definition}
 
-\section{What the stalks contain}
+\section{What the $2$-cells do: functoriality is $\cob^2=0$}
 
-\begin{construction}[Deployed stalk data]\label{con:stalks}
-\Implemented\ In the deployed system every vertex and edge stalk is
-$\Rd$ with $d=384$, and the vector $x_v\in\stalk{v}$ is a sentence
-embedding produced by a fixed local encoder. Two invariants are enforced
-at the level of types:
-\begin{enumerate}[label=(\roman*)]
-  \item dimensions never truncate or pad --- a mismatch raises rather
-        than silently reshaping;
-  \item an idle organ carries \emph{no} stalk value, a formal $\unk$,
-        never the zero vector.
+\begin{theorem}[Functoriality on a triangle is exactly $\cob^1\cob^0=0$]
+\label{thm:functoriality}
+\Proved\ Let $\tau=\{u,v,w\}\in\CC_2$ with edges $uv,uw,vw$. With the
+coboundary maps of Definition~\ref{def:coboundary} and
+\eqref{eq:coboundary2}, the following are equivalent:
+\begin{enumerate}[label=(\alph*)]
+  \item $(\cob^1\cob^0x)_\tau=0$ for every $x\in\Czero$;
+  \item the composite $\stalk{p}\to\stalk{\tau}$ is independent of the
+    intermediate edge, for each vertex $p\in\tau$ --- that is,
+    \eqref{eq:functoriality} holds on $\tau$.
 \end{enumerate}
-\end{construction}
+Consequently, if $\dim\CC\le1$ the condition is vacuous and \emph{every}
+assignment of stalks and linear maps is a sheaf.
+\end{theorem}
+\begin{proof}
+Write $\rho_{p\triang e}$ for vertex-to-edge and $\rho_{e\triang\tau}$ for
+edge-to-triangle maps. Expanding,
+\[
+  (\cob^1\cob^0x)_\tau
+   = \rho_{vw\triang\tau}(\cob x)_{vw}
+   - \rho_{uw\triang\tau}(\cob x)_{uw}
+   + \rho_{uv\triang\tau}(\cob x)_{uv},
+\]
+and substituting $(\cob x)_{pq}=\rho_{q\triang pq}x_q-\rho_{p\triang pq}x_p$
+and collecting the coefficient of each of $x_u,x_v,x_w$ gives
+\begin{align*}
+  (\cob^1\cob^0x)_\tau
+  &= \bigl[\rho_{uw\triang\tau}\rho_{u\triang uw}
+          -\rho_{uv\triang\tau}\rho_{u\triang uv}\bigr]x_u\\
+  &\quad+\bigl[\rho_{uv\triang\tau}\rho_{v\triang uv}
+          -\rho_{vw\triang\tau}\rho_{v\triang vw}\bigr]x_v\\
+  &\quad+\bigl[\rho_{vw\triang\tau}\rho_{w\triang vw}
+          -\rho_{uw\triang\tau}\rho_{w\triang uw}\bigr]x_w .
+\end{align*}
+Since $x_u,x_v,x_w$ range independently over their stalks, the expression
+vanishes identically if and only if each bracket vanishes, which is exactly
+(b). If $\dim\CC\le1$ there are no chains $\sigma\triang\tau\triang\upsilon$
+of length two, so \eqref{eq:functoriality} imposes no condition.
+\end{proof}
 
-\begin{hon}\Hon
-Invariant (ii) is the sheaf-theoretic content of ``do not fabricate
-data'', and it is worth stating why it is not pedantry. The zero vector
-is a genuine point of $\Rd$: it has a distance to every other point, it
-contributes to $\norm{X}_F^2$, and it participates in every average.
-Substituting $0$ for ``unknown'' therefore does not represent absence,
-it asserts a specific belief --- that the organ believes the origin ---
-and drags every downstream distance toward it. The distinction between
-$\unk$ and $0$ is the difference between a measurement not made and a
-measurement made and found to be zero.
-\end{hon}
+This is the central structural fact of Part~\ref{part:foundations}, and it is
+what the choice of a $2$-complex buys. Its consequences:
 
-\begin{remark}[Where the fine complex lives]\label{rem:finevsstalk}
-The logbook occasionally describes concepts as living \emph{inside an
-organ's stalk}. This is loose. The stalk $\stalk{v}$ is a
-$384$-dimensional real vector space; the fine complex $\CC_v$ is a
-simplicial complex whose vertices are concepts. They are different
-objects, and the relation between them is the coarse-graining map
-$\pi_v$ of Part~III, which sends the concept data of
-$\CC_v$ to a single vector in $\stalk{v}$. Conflating them makes $\pi_v$
-look like an identity when it is in fact a lossy precision-weighted
-fusion.
+\begin{corollary}[On a graph nothing can obstruct]\label{cor:graphvacuous}
+\Proved\ If $\dim\CC\le1$ the set of sheaves on $\CC$ with fixed stalk
+dimensions is the \emph{full} affine space
+$\prod_{v\triang e}\operatorname{Hom}(\stalk v,\stalk e)$. Any continuous
+adjustment of restriction maps is therefore unobstructed: it can be carried
+out in any direction, from any starting point, without leaving the space of
+sheaves.
+\end{corollary}
+\begin{proof}
+Immediate from Theorem~\ref{thm:functoriality}: with no constraint, every
+tuple of linear maps is a sheaf.
+\end{proof}
+
+\begin{remark}[Why this is the whole argument for growth]
+\label{rem:growthderivable}
+On a $2$-complex the sheaves form the subvariety of
+$\prod\operatorname{Hom}$ cut out by the quadratic equations of
+Theorem~\ref{thm:functoriality}(b). Adjusting restriction maps --- molding ---
+is motion \emph{within} that variety. When the data demand a configuration
+outside it, no adjustment reaches the demand, and the only remaining move is
+to change $\CC$ itself. That is the sense in which growth becomes
+\emph{derivable} rather than triggered by a hand-written rule, and by
+Corollary~\ref{cor:graphvacuous} it is unavailable on a graph. The clause
+``growth from an obstruction'' in the thesis of \S\ref{sec:isnot} rests
+entirely on this.
 \end{remark}
 
-% =====================================================================
-\chapter{Coboundary and Laplacian}\label{ch:laplacian}
+\begin{hon}\Hon
+\Proposed\ It is tempting to quantify: with all stalks of dimension $d$, the
+ambient space has $(2E+3T)d^2$ parameters and the constraints supply at most
+$3Td^2$ equations, suggesting a subvariety of codimension $3Td^2$. The
+equations are \emph{not} obviously independent, the variety is not obviously
+smooth, and no such count is asserted here. Establishing the true codimension
+--- and whether the variety is connected --- is exactly what would turn
+Remark~\ref{rem:growthderivable} from a mechanism into a theorem with a
+stated obstruction class.
+\end{hon}
 
-\begin{workplan}{\Keep}
-\wpgoal{Unchanged mathematically. Add the forward references that make it
-carry V2's weight, since almost every later chapter reduces to a statement
-about this operator.}
+\section{Flatness, holonomy, and what a filled triangle is}
+\label{sec:flatness}
 
-\wpsource{This chapter's existing text;
-\texttt{MATH\_TOOLBOX.md}~I.1 ($\Lap = \cob^{\mathsf T}\cob$ real symmetric
-PSD, which is why the spectral theorem applies for real rather than by
-analogy; $\Hzero = \ker\Lap$).}
+\begin{proposition}[Invertible sheaves are local systems]\label{prop:localsystem}
+\ProvedCond\ Suppose every restriction map is invertible. Then $\Fs$ is a
+local system on $\CC$: on each simplex the composite maps define parallel
+transport, $\Hzero$ is the space of parallel sections, and on a connected
+$\CC$ the sheaf is determined up to isomorphism by the holonomy
+representation $\pi_1(|\CC|)\to GL(\stalk{v_0},\Kfield)$ at a basepoint.
+\end{proposition}
+\begin{proof}[Proof sketch]
+Invertibility makes the functor of Definition~\ref{def:sheaf} factor through
+the fundamental groupoid of $|\CC|$; \eqref{eq:functoriality} is the statement
+that transport is independent of the path within a simplex. The identification
+of $\Hzero$ with parallel sections is then
+Proposition~\ref{prop:Lpsd}. Full details are standard and are not reproduced;
+see~\cite{Curry}.
+\end{proof}
 
-\wpsteps{
-  \item Keep the construction and proofs as they are. \Keep.
-  \item Emphasise $\Hzero(\CC;\Fs) = \ker\Lap$ --- ``a coherent thought is
-    literally a matrix kernel'' --- and forward-reference it as the object
-    Chapter~\ref{ch:twophase}'s fast flow converges into.
-  \item Note that $\Lap$ stays symmetric PSD even when restriction maps are
-    general CPTP channels, because such maps are linear on the space of
-    symmetric matrices. This costs nothing and is what lets the potency ladder
-    of Chapter~\ref{ch:sheaf} be adopted without redoing the spectral theory.
-  \item Add a forward reference to the Hodge routing law: the three-way
-    splitting of $\Cone$ used throughout V2 is a statement about this
-    coboundary and belongs here in skeleton form.
+\begin{intu}\Intu
+Read together with Theorem~\ref{thm:functoriality}: transport around the
+boundary of a \emph{filled} triangle is required to be trivial. A filled
+triangle is a place where the connection is forced to be flat. An
+\emph{unfilled} cycle carries holonomy, and that holonomy is a curvature the
+system can measure and cannot remove by re-choosing frames. So the three
+structural commitments --- higher cells, non-identity maps, obstruction-driven
+growth --- are one geometric statement: \emph{fill where flatness is asserted;
+measure where it is not; grow where the measurement will not go away.}
+\end{intu}
+
+\section{The potency ladder, and why the identity is fatal}
+
+Restriction maps admit three levels of expressiveness:
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.10\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.26\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.56\textwidth}@{}}
+\toprule
+level & maps & what it can express\\
+\midrule
+0 & identity & ``the same thing, verbatim'' --- no knowledge in the wiring\\
+1 & unitary / orthogonal & ``the same content in a different frame'' ---
+  reversible, lossless\\
+2 & general linear & ``agreeing only on a subspace'' --- lossy, and the loss
+  is itself a measurement of the connection\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Level~0 is not a simplification but a deletion, and
+Proposition~\ref{prop:identityfatal} makes that precise once the Laplacian is
+available.
+
+\begin{agenda}
+\agset{
+  \item Content algebra and metric field are separated, and the metric field
+    is classified by Proposition~\ref{prop:frobenius} given
+    Definition~\ref{def:discordaxiom}.
+  \item Finite fields are excluded by an explicit counterexample
+    (Proposition~\ref{prop:finitefield}).
+  \item The cost of the metric choice --- loss of possibilistic obstruction ---
+    is stated where the choice is made.
+  \item The direction of restriction maps is forced
+    (Proposition~\ref{prop:direction}).
+  \item Theorem~\ref{thm:functoriality}: functoriality on $2$-cells is exactly
+    $\cob^2=0$, and it is vacuous on graphs.
 }
+\agopen{
+  \item The recommendation $\Kfield=\Cx$ is argued but not adopted: the book's
+    worked examples remain real, and no result below has been re-derived in
+    the complex case even though all are expected to hold verbatim.
+  \item The signed-semiring claim in \S\ref{sec:coefficient} is
+    \Contested\ and must be verified against its sources before use.
+  \item Remark~\ref{rem:growthderivable} describes a mechanism, not a theorem.
+    No obstruction class is exhibited; nothing yet \emph{computes} that a
+    required configuration lies outside the sheaf variety.
+  \item Nothing here says how stalk dimensions are chosen, or what fixes the
+    stalk metrics of Remark~\ref{rem:metricmeaning}.
+  \item Proposition~\ref{prop:localsystem} is proved only in sketch, and only
+    under invertibility, which level~2 of the potency ladder abandons.
+}
+\agsteps{
+  \item Settle $\Kfield$. If $\Cx$, restate Chapters~\ref{ch:sheaf}
+    and~\ref{ch:laplacian} with conjugate transposes and re-run the worked
+    example; if $\R$, record why the arguments for $\Cx$ were declined.
+  \item Verify the signed-semiring statement against
+    \cite{AbramskyBrandenburger,ABKLM} and either promote it to \Proved\ with
+    a precise hypothesis or withdraw it.
+  \item Determine the codimension and connectedness of the sheaf variety on a
+    $2$-complex. This is the single highest-value open problem in
+    Part~\ref{part:foundations}: it converts growth from a mechanism into a
+    derivation.
+  \item Give a criterion for stalk dimension and stalk metric, or state that
+    both are inputs.
+  \item Write out Proposition~\ref{prop:localsystem} in full, and state what
+    survives when restriction maps are merely injective, or general.
+}
+\end{agenda}
 
-\wpdone{The chapter states the two facts every later part relies on
-($\Hzero = \ker\Lap$; symmetry survives CPTP maps) and points forward to
-where each is used.}
-\end{workplan}
 % =====================================================================
+\chapter{Coboundary, Laplacian, and the Three Channels}\label{ch:laplacian}
 
 \section{The coboundary}
 
-\begin{definition}[Coboundary in degree zero]\label{def:coboundary}
-Fix an arbitrary orientation of each edge, writing $e=(u,v)$ for the
-edge $\{u,v\}$ oriented from $u$ to $v$. The \emph{coboundary}
-$\cob:\Czero\to\Cone$ acts edgewise by
+\begin{definition}[Coboundary]\label{def:coboundary}
+Fix an arbitrary orientation of each simplex. The degree-zero coboundary
+$\cob^0:\Czero\to\Cone$ acts edgewise on $e=(u,v)$ by
 \begin{equation}\label{eq:coboundary}
-  (\cob x)_e\;=\;\rest{v\triang e}(x_v)\;-\;\rest{u\triang e}(x_u)
-  \ \in\ \stalk{e}.
+  (\cob^0 x)_e\;=\;\rest{v\triang e}(x_v)\;-\;\rest{u\triang e}(x_u)
+  \ \in\ \stalk{e},
 \end{equation}
-A $0$-cochain $x$ is a \emph{global section} if $\cob x=0$, that is, if
-every bound pair agrees after being mapped into its shared comparison
-space.
+and the degree-one coboundary $\cob^1:\Cone\to\Ctwo$ acts on
+$\tau=(u,v,w)$ by
+\begin{equation}\label{eq:coboundary2}
+  (\cob^1 y)_\tau\;=\;\rest{vw\triang\tau}(y_{vw})
+   -\rest{uw\triang\tau}(y_{uw})+\rest{uv\triang\tau}(y_{uv}).
+\end{equation}
+A $0$-cochain with $\cob^0x=0$ is a \emph{global section}. We write $\cob$
+for $\cob^0$ where no ambiguity arises.
 \end{definition}
 
 \begin{lemma}[Orientation-independence]\label{lem:orientation}
-\Proved\ Reversing the orientation of an edge $e$ replaces
-$(\cob x)_e$ by its negative. Consequently $\ker\cob$, the quantity
-$\norm{\cob x}^2$, and the operator $\cob^\top\cob$ are all independent
-of the chosen orientations.
+\Proved\ Reversing the orientation of a simplex replaces the corresponding
+component of $\cob x$ by its negative. Consequently $\ker\cob$,
+$\norm{\cob x}^2$ and $\cob^{\adjt}\cob$ are independent of the orientations
+chosen.
 \end{lemma}
 \begin{proof}
-Reversal exchanges the roles of $u$ and $v$ in \eqref{eq:coboundary},
-negating the entry. Negating a coordinate leaves its vanishing, its
-squared norm, and hence the sum of squared norms unchanged. Writing
-$\cob'=D\cob$ with $D$ diagonal with entries $\pm1$ blockwise, we get
-$\cob'^\top\cob'=\cob^\top D^\top D\cob=\cob^\top\cob$ since $D^\top D=I$.
+Reversal exchanges the roles of the endpoints in \eqref{eq:coboundary},
+negating that entry. Writing $\cob'=D\cob$ with $D$ blockwise diagonal with
+entries $\pm1$, we get $\cob'^{\adjt}\cob'=\cob^{\adjt}D^{\adjt}D\cob
+=\cob^{\adjt}\cob$ since $D^{\adjt}D=I$; vanishing and squared norms are
+likewise unaffected.
 \end{proof}
 
-\begin{remark}[Why an arbitrary choice is harmless]
-Lemma~\ref{lem:orientation} is what licenses the phrase ``fix an
-arbitrary orientation''. It is worth checking rather than assuming,
-because the analogous statement fails for the \emph{signed} per-edge
-quantity $(\cob x)_e$ itself, which is only defined up to sign. Any
-diagnostic that reports $(\cob x)_e$ rather than $\norm{(\cob x)_e}^2$
-is reporting an orientation-dependent quantity and is therefore not
-well defined.
+\begin{remark}
+This licenses ``fix an arbitrary orientation'', and it is worth checking
+rather than assuming, because the analogous statement fails for the
+\emph{signed} per-edge quantity $(\cob x)_e$, which is defined only up to
+sign. Any diagnostic reporting $(\cob x)_e$ rather than
+$\norm{(\cob x)_e}^2$ is reporting an orientation-dependent quantity and is
+not well defined.
 \end{remark}
 
-\section{The sheaf Laplacian}
+\section{The Laplacian and discord}
 
 \begin{definition}[Sheaf Laplacian and discord]\label{def:laplacian}
-The \emph{degree-zero sheaf Laplacian} is
-\begin{equation}\label{eq:laplacian}
-  \Lap\;=\;\cob^\top\cob\;:\;\Czero\to\Czero,
-\end{equation}
-and the \emph{discord} of a state $x$ is the Dirichlet energy
+The degree-zero sheaf Laplacian is
+$\Lap=\cob^{\adjt}\cob:\Czero\to\Czero$, and the \emph{discord} of a state
+$x$ is
 \begin{equation}\label{eq:omega}
-  \discord(x)\;=\;x^\top \Lap x\;=\;\norm{\cob x}^2
-  \;=\;\sum_{e=\{u,v\}}
-       \norm{\rest{v\triang e}(x_v)-\rest{u\triang e}(x_u)}^2 .
+  \discord(x)=\inner{x}{\Lap x}=\norm{\cob x}^2
+  =\sum_{e=\{u,v\}}
+   \norm{\rest{v\triang e}(x_v)-\rest{u\triang e}(x_u)}^2 .
 \end{equation}
 \end{definition}
 
 \begin{proposition}[Basic properties]\label{prop:Lpsd}
-\Proved\ $\Lap$ is symmetric positive semidefinite, and
+\Proved\ $\Lap$ is self-adjoint and positive semidefinite, and
 \[
-  \discord(x)=0
-  \iff \cob x=0
-  \iff x\in\ker \Lap .
+  \discord(x)=0\iff\cob x=0\iff x\in\ker\Lap,
 \]
-Moreover $\ker\cob=\Hzero$, the zeroth sheaf cohomology.
+with $\ker\cob=\Hzero$.
 \end{proposition}
 \begin{proof}
-Symmetry: $(\cob^\top\cob)^\top=\cob^\top\cob$. Positive
-semidefiniteness: $x^\top \Lap x=\norm{\cob x}^2\ge0$. If $\Lap x=0$
-then $\norm{\cob x}^2=x^\top \Lap x=0$, so $\cob x=0$ since
-$\norm{\cdot}$ is a norm; conversely $\cob x=0$ gives $\Lap x=0$
-immediately. Finally the cochain complex begins in degree $0$ --- there
-are no $(-1)$-cochains --- so $\Hzero=\ker\cob^0/\im\cob^{-1}=\ker\cob$.
+Self-adjointness: $(\cob^{\adjt}\cob)^{\adjt}=\cob^{\adjt}\cob$. Positive
+semidefiniteness: $\inner{x}{\Lap x}=\norm{\cob x}^2\ge0$. If $\Lap x=0$ then
+$\norm{\cob x}^2=0$, so $\cob x=0$ because $\norm{\cdot}$ is a norm --- this
+is the step that fails over a finite field
+(Proposition~\ref{prop:finitefield}); conversely $\cob x=0$ gives $\Lap x=0$.
+Finally the cochain complex begins in degree $0$, so
+$\Hzero=\ker\cob^0/\im\cob^{-1}=\ker\cob$.
 \end{proof}
 
 \begin{intu}\Intu
-$\discord$ is a single number: the total squared disagreement across all
-bindings. It vanishes exactly when the society holds one coherent
-thought. The point of the construction is that ``a coherent thought'' has
-become a precise object --- a vector in the kernel of a matrix --- rather
-than a mood.
+$\discord$ is one number: the total squared disagreement across all
+comparison sites. It vanishes exactly when there is a single coherent thought.
+The achievement of the construction is that ``a coherent thought'' has become
+a precise object --- a vector in the kernel of a self-adjoint operator ---
+rather than a mood.
 \end{intu}
 
-\begin{proposition}[Kernel and components]\label{prop:b0kernel}
-\Proved\ If every restriction map is the identity on a common stalk
-$\Rd$, then
+\section{The three channels}
+
+\begin{theorem}[Hodge decomposition]\label{thm:hodge}
+\Proved\ Let $\Fs$ be a cellular sheaf on a complex of dimension $\le2$ over
+$\Kfield\in\{\R,\Cx\}$, so that $\cob^1\cob^0=0$
+(Theorem~\ref{thm:functoriality}). Then
+\begin{equation}\label{eq:hodge}
+  \Cone \;=\; \underbrace{\im\cob^0}_{\text{gradient}}
+        \;\oplus\; \underbrace{\Harm^1}_{\text{harmonic}}
+        \;\oplus\; \underbrace{\im(\cob^1)^{\adjt}}_{\text{curl}},
+  \qquad
+  \Harm^1:=\ker\cob^1\cap\ker(\cob^0)^{\adjt},
+\end{equation}
+the sum is orthogonal, and $\Harm^1\cong\Hone$. If $\dim\CC\le1$ then
+$\cob^1=0$ and the third summand is zero.
+\end{theorem}
+\begin{proof}
+Orthogonal complements give $\Cone=\im\cob^0\oplus\ker(\cob^0)^{\adjt}$ and
+$\Cone=\ker\cob^1\oplus\im(\cob^1)^{\adjt}$. Since $\cob^1\cob^0=0$ we have
+$\im\cob^0\subseteq\ker\cob^1$, so intersecting the first decomposition with
+$\ker\cob^1$ gives
+$\ker\cob^1=\im\cob^0\oplus(\ker\cob^1\cap\ker(\cob^0)^{\adjt})
+=\im\cob^0\oplus\Harm^1$. Substituting into the second decomposition yields
+\eqref{eq:hodge}, and orthogonality is inherited from the two complements.
+Finally $\Hone=\ker\cob^1/\im\cob^0\cong\Harm^1$ by the first identity. If
+$\dim\CC\le1$ then $\Ctwo=0$, so $\cob^1=0$ and $\im(\cob^1)^{\adjt}=0$.
+\end{proof}
+
+\begin{intu}\Intu
+This is the taxonomy of \S\ref{ch:picture} made exact. A disagreement pattern
+$y\in\Cone$ decomposes uniquely and orthogonally into three parts, and each
+has a different repair:
+\begin{itemize}
+  \item \textbf{gradient}: $y=\cob x$ for some state. The disagreement is an
+    artefact of the current state and is removed by \emph{relaxing the state}.
+  \item \textbf{curl}: in $\im(\cob^1)^{\adjt}$. Circulation that the filled
+    triangles see. Removable by \emph{adjusting the restriction maps}.
+  \item \textbf{harmonic}: in $\Harm^1\cong\Hone$. Neither. It is a
+    topological invariant of the complex, and the only way to remove it is to
+    \emph{change the complex}.
+\end{itemize}
+On a graph the curl channel is empty, so misalignment and holes are
+indistinguishable and there is nothing for molding to discharge. That is the
+first row of the table in \S\ref{sec:degenerate}, now proved.
+\end{intu}
+
+\section{The degenerate corner, proved}
+
+\begin{proposition}[Linear feedforward networks are path sheaves]
+\label{prop:nnsheaf}
+\Proved\ Let $W_i\in\Kfield^{\,n_{i+1}\times n_i}$ for $i=0,\dots,L-1$. Let
+$\CC$ be the path complex on vertices $v_0,\dots,v_L$ with edges
+$e_i=\{v_i,v_{i+1}\}$ and no $2$-cells, and define a sheaf by
+$\stalk{v_i}=\Kfield^{\,n_i}$, $\stalk{e_i}=\Kfield^{\,n_{i+1}}$,
 \[
-  \Lap=L_{\Kc}\otimes I_d,
+  \rest{v_i\triang e_i}=W_i,\qquad \rest{v_{i+1}\triang e_i}=\Id .
 \]
-where $L_{\Kc}$ is the ordinary combinatorial graph Laplacian of the
-$1$-skeleton. Consequently $\operatorname{spec}\Lap$ is
-$\operatorname{spec}L_\Kc$ with each eigenvalue repeated $d$ times, and
-$\dim\ker\Lap=d\cdot b_0$, where $b_0$ is the number of connected
-components.
+Then for $x\in\Czero$,
+\[
+  \discord(x)=\sum_{i=0}^{L-1}\norm{x_{i+1}-W_ix_i}^2,
+\]
+so $x\in\Hzero$ if and only if $x_{i+1}=W_ix_i$ for all $i$ --- that is, if
+and only if $x$ is the trace of a forward pass. Moreover the map
+$\Hzero\to\Kfield^{\,n_0}$, $x\mapsto x_0$, is a linear isomorphism, so
+$\dim\Hzero=n_0$.
+\end{proposition}
+\begin{proof}
+Substituting the stated maps into \eqref{eq:coboundary} gives
+$(\cob x)_{e_i}=x_{i+1}-W_ix_i$, and \eqref{eq:omega} gives the displayed
+discord. By Proposition~\ref{prop:Lpsd}, $x\in\Hzero$ iff every term
+vanishes, which is the recursion. The evaluation map is linear; it is
+injective because the recursion determines $x_1,\dots,x_L$ from $x_0$, and
+surjective because any $x_0$ extends by the recursion. The sheaf axioms are
+vacuous by Theorem~\ref{thm:functoriality} since $\dim\CC=1$.
+\end{proof}
+
+So the set of valid activation traces of a linear network is literally
+$\Hzero$ of a path-shaped cellular sheaf, and the forward pass is the unique
+global section extending a given input.
+
+\begin{hon}\Hon
+The nonlinearity is not absorbed. A pointwise $\sigma$ makes the restriction
+maps nonlinear and leaves $\Vect_{\Kfield}$ entirely. Two routes exist ---
+sheaves valued in lattices with a Tarski Laplacian~\cite{GhristRiess}, or
+enlarging the stalks to graphs of the nonlinearity --- and neither is
+developed in this book. Proposition~\ref{prop:nnsheaf} is exact for the linear
+case and is not claimed beyond it.
+\end{hon}
+
+\begin{proposition}[Identity restriction maps empty the theory]
+\label{prop:identityfatal}\label{prop:b0kernel}%
+% prop:b0kernel is the name this result carried in the earlier draft; the
+% alias is kept so that later parts, not yet rewritten, still resolve.
+\Proved\ Suppose every stalk is $\Kd$ and every restriction map is the
+identity. Then
+\[
+  \Lap=L_{\CC}\otimes I_d,
+\]
+where $L_\CC$ is the ordinary graph Laplacian of the $1$-skeleton. Hence
+$\operatorname{spec}\Lap$ is $\operatorname{spec}L_\CC$ with each eigenvalue
+repeated $d$ times; $\dim\ker\Lap=d\cdot b_0$; and on a connected $\CC$,
+\[
+  \Hzero=\{x: x_u=x_v \ \forall u,v\},\qquad
+  e^{-t\Lap}x\ \xrightarrow[t\to\infty]{}\ \text{the constant assignment at }
+  \tfrac{1}{|V|}\textstyle\sum_v x_v .
+\]
 \end{proposition}
 \begin{proof}
 With identity restrictions \eqref{eq:omega} reads
-$\discord(x)=\sum_{\{u,v\}\in E}\norm{x_u-x_v}^2$, which is the
-Dirichlet form of $L_\Kc$ applied coordinatewise in each of the $d$
-components. Hence $\Lap=L_\Kc\otimes I_d$. The spectrum of a Kronecker
-product with the identity is the spectrum of the factor with multiplicity
-$d$. The kernel of $L_\Kc$ is spanned by the indicator vectors of the
-connected components, of which there are $b_0$; tensoring with $\Rd$
-multiplies the dimension by $d$.
+$\discord(x)=\sum_{\{u,v\}\in E}\norm{x_u-x_v}^2$, the Dirichlet form of
+$L_\CC$ applied coordinatewise in each of the $d$ components, so
+$\Lap=L_\CC\otimes I_d$. The spectrum of a Kronecker product with the identity
+is that of the factor with multiplicity $d$. The kernel of $L_\CC$ is spanned
+by indicator vectors of connected components, of which there are $b_0$;
+tensoring with $\Kd$ multiplies dimension by $d$. On a connected complex the
+kernel is spanned by $\mathbf 1$, so $\Hzero$ is the diagonal, and
+$e^{-t\Lap}\to$ the orthogonal projection onto $\ker\Lap$, which is the mean.
 \end{proof}
 
 \begin{hon}\Hon
-\Implemented\ The deployed system uses identity restriction maps, so
-Proposition~\ref{prop:b0kernel} describes the regime it actually
-operates in. This is honest and cheap, but it is the \emph{crudest}
-possible sheaf: on a connected $1$-skeleton, $\ker\Lap$ is the diagonal
-$\{x:x_u=x_v\ \forall u,v\}$, so the only coherent states are exact
-consensus and reconciliation is plain averaging. Everything interesting
-that a sheaf can express --- that two organs agree \emph{after} a
-change of basis, or agree only on a subspace --- lives in non-identity
-restriction maps. Promoting them (learned $\rest{v\triang e}$, for
-instance by closed-form Procrustes alignment) is the identified route
-from a diagnostic sheaf to a computational one. It is a direction, not a
-result.
+This is the sharpest single argument in the book, because it is a theorem and
+not a preference. With identity maps: the only coherent thought is exact
+consensus; relaxation is plain averaging; and diffusion provably drives every
+region to the global mean regardless of where it started. That last statement
+is the phenomenon known as oversmoothing, and the published repair is exactly
+to make the restriction maps non-trivial~\cite{BodnarSheaf}. Everything a
+sheaf can express that a graph cannot --- that two regions agree \emph{after}
+a change of frame, or agree only on a subspace --- lives in non-identity
+restriction maps. Freezing them at the identity is not a cheap approximation;
+it is a proof that the sheaf is decoration.
 \end{hon}
 
 \section{The running example, computed}
 
 \begin{workedbox}\Worked
-Take $\Kc_4$ from Example~\ref{ex:K4} with identity restrictions and
-stalk dimension $d=2$, and give it the state
+Take $\Kc_4$ (Example~\ref{ex:K4}) over $\Kfield=\R$ with identity
+restrictions and $d=2$, and the state
 \[
-  x_{\mathsf S}=\begin{pmatrix}1\\0\end{pmatrix},\quad
-  x_{\mathsf M}=\begin{pmatrix}1\\0\end{pmatrix},\quad
-  x_{\mathsf R}=\begin{pmatrix}0\\1\end{pmatrix},\quad
-  x_{\mathsf V}=\begin{pmatrix}0\\1\end{pmatrix}.
+  x_{\mathsf a}=\begin{pmatrix}1\\0\end{pmatrix},\quad
+  x_{\mathsf b}=\begin{pmatrix}1\\0\end{pmatrix},\quad
+  x_{\mathsf c}=\begin{pmatrix}0\\1\end{pmatrix},\quad
+  x_{\mathsf d}=\begin{pmatrix}0\\1\end{pmatrix}.
 \]
-Read it as: \textsc{Search} and \textsc{Memory} agree with each other,
-\textsc{Reasoning} and \textsc{Verify} agree with each other, and the two
-camps are orthogonal.
 
-\medskip
-\emph{Discord, edge by edge.} Using \eqref{eq:omega} with identity maps,
-$\discord_e=\norm{x_u-x_v}^2$:
+\emph{Discord, edge by edge}, using $\discord_e=\norm{x_u-x_v}^2$:
 \[
 \begin{array}{lcl}
-  \{\mathsf S,\mathsf M\}:&\ \norm{(0,0)}^2 &= 0,\\
-  \{\mathsf M,\mathsf R\}:&\ \norm{(1,-1)}^2 &= 2,\\
-  \{\mathsf S,\mathsf R\}:&\ \norm{(1,-1)}^2 &= 2,\\
-  \{\mathsf R,\mathsf V\}:&\ \norm{(0,0)}^2 &= 0,
+  \{\mathsf a,\mathsf b\}:&\ \norm{(0,0)}^2 &= 0,\\
+  \{\mathsf b,\mathsf c\}:&\ \norm{(1,-1)}^2 &= 2,\\
+  \{\mathsf a,\mathsf c\}:&\ \norm{(1,-1)}^2 &= 2,\\
+  \{\mathsf c,\mathsf d\}:&\ \norm{(0,0)}^2 &= 0,
 \end{array}
 \qquad\Longrightarrow\qquad \discord(x)=4 .
 \]
 
-\emph{Localisation.} The two guilty edges tie at $\discord_e=2$. The
-$\arg\max$ is therefore \emph{not unique}, and a diagnostic that returns
-a single ``worst edge'' here is returning an artefact of tie-breaking
-order, not a measurement. The honest return is the tied set
-$\{\{\mathsf M,\mathsf R\},\{\mathsf S,\mathsf R\}\}$ --- which, read
-back, correctly says that $\mathsf R$ is the organ at odds with the rest.
+\emph{Localisation.} The two guilty edges tie at $\discord_e=2$, so the
+$\arg\max$ is not unique: a diagnostic returning a single ``worst edge'' here
+returns an artefact of tie-breaking order, not a measurement. The honest
+return is the tied set
+$\{\{\mathsf b,\mathsf c\},\{\mathsf a,\mathsf c\}\}$, which reads back
+correctly as ``$\mathsf c$ is the region at odds with the rest''.
 
 \emph{Kernel projection.} The $1$-skeleton is connected, so by
-Proposition~\ref{prop:b0kernel} the kernel is the diagonal and $x_0$ is
-the constant assignment at the mean
-$\bar x=\tfrac14\bigl((1,0)+(1,0)+(0,1)+(0,1)\bigr)
- =\bigl(\tfrac12,\tfrac12\bigr)$.
+Proposition~\ref{prop:identityfatal} the kernel is the diagonal and the
+projection is the constant assignment at the mean
+$\bar x=\tfrac14\bigl((1,0)+(1,0)+(0,1)+(0,1)\bigr)=(\tfrac12,\tfrac12)$.
 Hence
 \[
-  \norm{x_0}^2=4\cdot\Bigl(\tfrac14+\tfrac14\Bigr)=2,
-  \qquad
-  x_\perp = x-x_0
-  =\Bigl(\pm\tfrac12,\mp\tfrac12\Bigr)_{v},
-  \qquad
+  \norm{x_0}^2=4\cdot\bigl(\tfrac14+\tfrac14\bigr)=2,\qquad
+  x_\perp=x-x_0=\bigl(\pm\tfrac12,\mp\tfrac12\bigr)_v,\qquad
   \norm{x_\perp}^2=4\cdot\tfrac12=2,
 \]
-and Pythagoras checks: $\norm{X}_F^2=2+2=4$. \hfill$\square$
+and Pythagoras checks: $\norm{x}^2=2+2=4$. \hfill$\square$
 \end{workedbox}
 
-These numbers are picked up again in Part~II, where they are fed to the
-coherence score $\rhoscore$ and its factorisation, and in
-Part~IV, where the same complex is used to compute
-$b_0$, $b_1$ and $\Hone$.
-
 \begin{exercise}
-Recompute $\discord(x)$ for the same complex after filling in a
-restriction map that is \emph{not} the identity: let
-$\rest{\mathsf R\triang e}$ be rotation by $90^\circ$ for the two edges
-at $\mathsf R$ inside the triangle, and the identity elsewhere. Does
-$\discord$ go up or down, and does the resulting assignment of maps
-satisfy functoriality \eqref{eq:functoriality} on the filled triangle
-$\{\mathsf S,\mathsf M,\mathsf R\}$? The second half of that question is
-the important one.
+Recompute $\discord(x)$ after replacing one restriction map by a
+non-identity: let $\rest{\mathsf c\triang e}$ be rotation by $90^\circ$ on the
+two edges at $\mathsf c$ inside the triangle, and the identity elsewhere. Does
+$\discord$ rise or fall --- and does the resulting assignment satisfy
+\eqref{eq:functoriality} on the filled triangle
+$\{\mathsf a,\mathsf b,\mathsf c\}$? The second half is the important half,
+and Theorem~\ref{thm:functoriality} says exactly what to check.
 \end{exercise}
+
+\begin{agenda}
+\agset{
+  \item $\Lap$ is self-adjoint PSD and $\Hzero=\ker\Lap$
+    (Proposition~\ref{prop:Lpsd}): a coherent thought is a matrix kernel.
+  \item Theorem~\ref{thm:hodge}: three orthogonal channels, with the third
+    existing only above dimension~$1$.
+  \item Proposition~\ref{prop:nnsheaf}: linear feedforward networks are
+    exactly $\Hzero$ of a path sheaf.
+  \item Proposition~\ref{prop:identityfatal}: identity maps force consensus
+    and averaging, and the published oversmoothing diagnosis is this statement.
+}
+\agopen{
+  \item The routing law --- relax on gradient, mold on curl, grow on harmonic
+    --- is stated as intuition. No dynamical system is defined, no convergence
+    is proved, and nothing shows the three repairs do not interfere.
+  \item $\dim\Hzero\ge1$ is \emph{not} automatic once restriction maps are
+    non-identity. A sheaf with $\Hzero=0$ admits no coherent thought but the
+    zero one, and no condition is given that prevents molding from arriving
+    there.
+  \item Neither the harmonic component nor the curl component is computed
+    anywhere, including on the running example, because with identity maps on
+    $\Kc_4$ both are zero. The book has therefore never exhibited a nonzero
+    element of the channel its architecture depends on.
+  \item Nothing here treats the normalised Laplacian, and the convergence rate
+    $\lambda_2$ is named without being bounded for any family of interest.
+}
+\agsteps{
+  \item Compute a nonzero harmonic class. Build the smallest sheaf on
+    $\Kc_4$ with non-identity maps for which $\Harm^1\neq0$ and print the
+    class. Until this exists, the three-channel decomposition is a theorem
+    with no worked instance, which is the weakest state a load-bearing result
+    can be in.
+  \item State the routing law as a dynamical system and prove it decreases
+    $\discord$; identify its fixed points.
+  \item Find a condition on the restriction maps guaranteeing
+    $\dim\Hzero\ge1$, and check whether molding preserves it. If it does not,
+    molding can destroy the possibility of coherent thought and must be
+    constrained.
+  \item Bound $\lambda_2(\Lap)$ for sheaves arising from ingest, so that
+    ``relaxation converges'' has a rate.
+}
+\end{agenda}
+
+% =====================================================================
+\chapter{Configuration, Time, and Gluing}\label{ch:config}
+
+The four preceding chapters carry a deliberate type error, and this chapter
+corrects it.
+
+\section{The error in ``the current state''}
+
+It is natural to define a cognitive space as a triple $(\CC,\Fs,s)$ with $s$
+a distinguished $0$-cochain called the current state. The word
+\emph{current} presupposes a time parameter that the triple does not contain,
+and adding one does not fix the problem, because the space $s$ lives in is
+itself time-dependent: $\Czero=\bigoplus_v\stalk{v}$ changes whenever $\CC$
+grows or a stalk dimension changes. A trajectory of $s$ is therefore
+\emph{not} a curve in a fixed vector space, and writing $s(t)\in\Czero$
+asserts something false.
+
+\section{Configuration space, and the stratification}\label{sec:stratconf}
+
+\begin{construction}[The configuration space]\label{con:config}
+\Proposed\ Let $\Conf$ be the space whose points are pairs $(\CC,\Fs)$ ---
+a finite complex of dimension $\le2$ together with a cellular sheaf on it.
+Over each point sits the vector space $\Czero$, and these assemble into a
+bundle $p:\mathcal{E}\to\Conf$. A \emph{history} is a path $\gamma$ in
+$\Conf$ together with a section of $\gamma^*\mathcal{E}$.
+\end{construction}
+
+\begin{definition}[The dimension vector]\label{def:Kinv}
+For a configuration $(\CC,\Fs)$ put
+$\Kinv(\CC,\Fs)=\bigl(\dim\stalk{\sigma}\bigr)_{\sigma\in\CC}$.
+\end{definition}
+
+\begin{construction}[Stratification by $\Kinv$]\label{con:strat}
+\Proposed\ Decompose $\Conf$ by the value of $\Kinv$. Within a stratum the
+complex and all stalk dimensions are fixed and only the restriction maps vary,
+so a stratum is the sheaf variety of \S\ref{sec:flatness} --- the subvariety
+of $\prod\operatorname{Hom}$ cut out by Theorem~\ref{thm:functoriality}(b).
+Then:
+\begin{itemize}
+  \item \textbf{molding} is motion within a stratum, and $\Kinv$ is constant
+    along it \emph{by the type of the motion}, not by a separate argument;
+  \item \textbf{growth} is a transition to an adjacent stratum, and it changes
+    $\Kinv$ by an amount determined by which transition was taken.
+\end{itemize}
+\end{construction}
+
+This is where the word retired in \S\ref{sec:stratword} belongs. The strata
+here do work: they are why a dimension-vector invariant is \emph{locally
+constant}, which is the standard reason invariants are discrete.
+
+\begin{hon}\Hon
+\Proposed\ Construction~\ref{con:strat} is a proposal with the right shape and
+no proofs. $\Conf$ has been given no topology; ``adjacent'' has no definition;
+the strata are not known to be smooth, connected, or even nonempty for a given
+$\Kinv$; and the sheaf variety's structure is exactly the open problem
+recorded in Chapter~\ref{ch:sheaf}. What is claimed is only that this is the
+right \emph{place} for the two-phase separation to live, and that placing it
+here would convert three separately-argued claims into one structural fact.
+\end{hon}
+
+\section{Continuous time}
+
+\begin{definition}[Sheaf heat flow]\label{def:heat}
+Within a fixed stratum, the relaxation of the state is the flow
+\begin{equation}\label{eq:heat}
+  \frac{ds}{dt}=-\Lap s,\qquad s(t)=e^{-t\Lap}s(0).
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Relaxation converges to a thought]\label{prop:heatconv}
+\Proved\ $e^{-t\Lap}s(0)\to P_{\ker\Lap}s(0)$ as $t\to\infty$, where
+$P_{\ker\Lap}$ is the orthogonal projection onto $\Hzero$, and the rate is
+governed by the smallest nonzero eigenvalue $\lambda_2$ of $\Lap$:
+$\norm{e^{-t\Lap}s-P_{\ker\Lap}s}\le e^{-\lambda_2 t}\norm{s-P_{\ker\Lap}s}$.
+\end{proposition}
+\begin{proof}
+$\Lap$ is self-adjoint PSD (Proposition~\ref{prop:Lpsd}), so it has an
+orthonormal eigenbasis with eigenvalues $0=\lambda_1\le\lambda_2\le\dots$.
+In that basis $e^{-t\Lap}$ acts by $e^{-t\lambda_i}$, which is $1$ on
+$\ker\Lap$ and tends to $0$ elsewhere, with the slowest decay $e^{-\lambda_2t}$
+on $(\ker\Lap)^\perp$.
+\end{proof}
+
+The discrete update $s_{t+1}=s_t-\eta\Lap s_t$ is the explicit Euler scheme
+for \eqref{eq:heat}; the continuous form is the primary object and the
+discrete one an approximation to it, not the other way round.
+
+\begin{hon}\Hon
+Two things are being suppressed and should not be.
+
+First, if $\Hzero=0$ then \eqref{eq:heat} converges to $0$: the only coherent
+state is silence and relaxation destroys the state. This is the open item
+O2 of Chapter~\ref{ch:laplacian} appearing as a dynamical failure rather than
+an algebraic curiosity.
+
+Second, taking the state to be a \emph{point} of $\Czero$ rather than a
+\emph{distribution} on it is a modelling choice with an alternative: a density
+evolving by the Fokker--Planck equation associated with \eqref{eq:heat} has as
+its stationary measure the Gaussian with precision $\Lap$, a Gaussian Markov
+random field. That version carries uncertainty natively. It is not developed
+here, and the choice is recorded as a choice.
+\end{hon}
+
+\section{Gluing, and a candidate for the growth address}\label{sec:mv}
+
+Chapter~\ref{ch:ingest} produces a complex from input; this section joins it
+to what is already present, and asks what the join creates.
+
+\begin{construction}[Anchor and glue]\label{con:glue}
+\Proposed\ Let $\CC$ be the present complex and $\CC'$ the ingest complex of
+new input. An \emph{anchoring} is a span $\CC\hookleftarrow A\hookrightarrow\CC'$
+of subcomplex inclusions together with an isomorphism of the two restricted
+sheaves on $A$. The glued complex is the pushout $\CC\cup_A\CC'$, carrying the
+sheaf determined by the two restrictions and the isomorphism.
+\end{construction}
+
+The anchoring is the only free choice in the pipeline of
+\S\ref{sec:reading}, and it is where interpretation lives: two anchorings of
+the same input into the same complex are two readings of the same text.
+
+\begin{proposition}[Mayer--Vietoris for cellular sheaves]\label{prop:mv}
+\Proved\ Let $\CC=A\cup B$ with $A,B$ subcomplexes and let $\Fs$ be a sheaf
+on $\CC$. Then the sequence of cochain complexes
+\[
+  0\to C^\bullet(\CC;\Fs)\to
+  C^\bullet(A;\Fs|_A)\oplus C^\bullet(B;\Fs|_B)\to
+  C^\bullet(A\cap B;\Fs|_{A\cap B})\to 0
+\]
+given by restriction and difference is exact, and hence induces a long exact
+sequence
+\[
+  \cdots\to H^0(\CC;\Fs)\to H^0(A)\oplus H^0(B)
+  \xrightarrow{\ -\ } H^0(A\cap B)
+  \xrightarrow{\ \partial\ } H^1(\CC;\Fs)\to\cdots
+\]
+\end{proposition}
+\begin{proof}
+Cochains are direct sums over cells, and the cells of $A\cup B$ are the union
+of those of $A$ and $B$, with the cells of $A\cap B$ counted in both. Exactness
+is then inclusion--exclusion cellwise: a cochain on $\CC$ is precisely a pair
+of cochains on $A$ and $B$ agreeing on $A\cap B$ (exactness in the middle and
+injectivity on the left), and every cochain on $A\cap B$ extends to $A$ by
+zero elsewhere (surjectivity on the right). The maps commute with $\cob$
+because restriction does. The long exact sequence is the standard consequence.
+\end{proof}
+
+\begin{intu}\Intu
+Read the connecting map $\partial$. An element of $H^0(A\cap B)$ is a coherent
+thought \emph{on the overlap}. If it is not the difference of coherent
+thoughts on the two sides, then $\partial$ sends it to a nonzero class in
+$H^1(\CC)$: the act of gluing has created a hole that neither piece
+had. That is what it means for reading to change you --- \emph{the new
+obstruction is a property of the join, not of either part}. A text you already
+agreed with entirely contributes nothing to the image of $\partial$; a text
+you cannot anchor at all has empty $A\cap B$ and also contributes nothing.
+\end{intu}
+
+\begin{hon}\Hon
+\Proposed\ This is offered as a \emph{candidate} for the growth address and
+not as a solution. What recommends it is that its type is right: the theory
+needs a $1$-dimensional obstruction that is measured from data rather than
+manufactured from the current state, and a class in the image of $\partial$ is
+by construction not a coboundary. What is missing is substantial. The map
+$\partial$ depends on the anchoring of Construction~\ref{con:glue}, and
+nothing says how it varies with that choice; no procedure turns a class in
+$H^1$ into a specific cell to add; and the relation between this class and the
+harmonic component of Theorem~\ref{thm:hodge} --- which is where the routing
+law expects to find the address --- is stated nowhere.
+\end{hon}
+
+\section{The definition, restated}
+
+\begin{definition}[Cognitive space]\label{def:M}
+A \emph{cognitive space} over $\Kfield$ is a pair
+$\M=(\CC,\Fs)$ consisting of a finite abstract simplicial complex $\CC$ of
+dimension at most $2$ (Definition~\ref{def:asc}) and a cellular sheaf $\Fs$ of
+finite-dimensional $\Kfield$-inner-product spaces on $\CC$
+(Definition~\ref{def:sheaf}). A \emph{state} of $\M$ is an element
+$s\in\Czero$; it is \emph{coherent} when $\cob s=0$. A \emph{history} is a
+path in the configuration space $\Conf$ (Construction~\ref{con:config})
+together with a section of the pulled-back cochain bundle along it.
+\end{definition}
+
+The state is not part of the space. That is the whole content of the
+correction: $\M$ is the structure, $s$ is a point of a vector space attached
+to it, and the two move on different footings --- $s$ by
+Proposition~\ref{prop:heatconv} within a fixed configuration, $\M$ by molding
+within a stratum and growth across strata.
+
+\begin{agenda}
+\agset{
+  \item The state is separated from the space, and the type error in
+    ``current state'' is identified and corrected.
+  \item Relaxation has a continuous form with proved convergence and rate
+    (Proposition~\ref{prop:heatconv}).
+  \item Mayer--Vietoris for cellular sheaves is proved
+    (Proposition~\ref{prop:mv}) and supplies a candidate of the correct type
+    for the growth address.
+}
+\agopen{
+  \item $\Conf$ has no topology, so Construction~\ref{con:config} is a
+    bookkeeping device rather than a space and ``path in $\Conf$'' is not yet
+    meaningful.
+  \item Construction~\ref{con:strat} is entirely unproved: no smoothness, no
+    connectivity, no definition of stratum adjacency.
+  \item The dependence of $\partial$ on the anchoring is unexamined, and no
+    procedure converts a class in $H^1$ into a cell to add.
+  \item The relation between the Mayer--Vietoris class and the harmonic
+    component of Theorem~\ref{thm:hodge} is not established, although the
+    routing law requires them to be the same object.
+  \item The Fokker--Planck alternative to a point-valued state is recorded and
+    not developed.
+}
+\agsteps{
+  \item Topologise $\Conf$. The natural candidate within a stratum is the
+    subspace topology from $\prod\operatorname{Hom}$; between strata, define
+    adjacency by elementary growth moves and check that the resulting relation
+    is a partial order.
+  \item Prove or disprove that the image of $\partial$ has nonzero harmonic
+    part. This is the load-bearing question: if the classes created by gluing
+    are harmonic, the routing law and the ingest pipeline are the same
+    mechanism, and if they are not, one of the two is wrong.
+  \item Determine how $\partial$ varies with the anchoring, and identify which
+    downstream quantities are anchoring-independent. Anything that is not
+    invariant is a property of the reader, not of the text, and must be
+    labelled as such.
+  \item Define the growth move: given a harmonic class, which cell is added.
+    Until this exists, ``growth is derivable'' remains a claim about where the
+    trigger comes from and says nothing about what the trigger does.
+}
+\end{agenda}

@@ -1,27 +1,21 @@
 % =====================================================================
 %
-%   THE MATHEMATICS OF TATIANA
-%   A Cellular-Sheaf Cognitive Architecture over a Stratified Complex
+%   COGNITIVE SPACE THEORY
+%   Foundations: cellular sheaves, obstruction, and coherence
 %
 %   Compile with:  latexmk -pdf main.tex
 %
-%   This is a merged, corrected and expanded consolidation of every
-%   mathematical document in TATIANA/DOCS, TATIANA/POSTER and the
-%   specification files on branch fix-11-13-and-curvature-decisions.
-%   It is deliberately implementation-free: where the code determines a
-%   mathematical fact, that fact is stated abstractly and the code
-%   discrepancy is logged in Appendix B.
+%   Deliberately implementation-free.
 %
 %   ---------------------------------------------------------------
-%   V2 STATUS.  The book was written for V0 (an organ complex around a
-%   language model).  V0 is retired.  Chapter 1 (parts/00_v2_reformulation)
-%   states what replaced it and why.  Every chapter now opens with a
-%   WORK PLAN box and a disposition tag <KEEP|RECAST|RETIRE|NEW IN V2>.
+%   STATUS.  Parts I and II are written to the current standard: each of
+%   their sections ends with a green AGENDA box stating what it settles,
+%   what it does not, and the ordered work that would close the gap.
 %
-%   The work plan is an instruction for rewriting that chapter, not
-%   commentary on it.  When a chapter is rewritten, its work plan is
-%   deleted and replaced by the prose it asked for.  A chapter that
-%   still has a work plan in it is a chapter that is not done.
+%   The later parts predate those foundations and still carry blue WORK
+%   PLAN boxes.  The two are different: an agenda annotates prose that
+%   exists, a work plan stands in for prose that does not.  A chapter
+%   that still has a work plan in it is a chapter that is not done.
 %   ---------------------------------------------------------------
 %
 % =====================================================================
@@ -30,7 +24,7 @@
 \input{preamble}
 \input{macros}
 
-\hypersetup{pdftitle={The Mathematics of TATIANA},pdfauthor={Charbel Dargham}}
+\hypersetup{pdftitle={Cognitive Space Theory},pdfauthor={Charbel Dargham}}
 
 \begin{document}
 
@@ -39,12 +33,12 @@
 \begin{titlepage}
 \centering
 \vspace*{3cm}
-{\Huge\bfseries The Mathematics of \textsc{Tatiana}\par}
+{\Huge\bfseries Cognitive Space Theory\par}
 \vspace{12pt}
-{\Large A Cellular--Sheaf Cognitive Architecture over a\\[2pt]
- Stratified Simplicial Complex\par}
+{\Large Foundations: cellular sheaves, obstruction,\\[2pt]
+ and the geometry of coherence\par}
 \vspace{22pt}
-{\normalsize\itshape A complete, implementation-free consolidation,\\[2pt]
+{\normalsize\itshape A theory under development,\\[2pt]
  with epistemic status attached to every claim\par}
 \vspace{3cm}
 {\large Charbel Dargham\par}
@@ -58,10 +52,10 @@
 
 \mainmatter
 
-\part{What TATIANA Is}
-\input{parts/00_v2_reformulation}
+\part{Orientation}\label{part:orientation}
+\input{parts/00_orientation}
 
-\part{The State Space}
+\part{Foundations}\label{part:foundations}
 \input{parts/01_state_space}
 
 \part{Coherence}
@@ -74,8 +68,8 @@
 \input{parts/04_cohomology}
 
 % ---------------------------------------------------------------------
-%  The V2 spine.  These two parts are new and they are the centre of the
-%  book: what stays the same, and what makes it change.  They sit here,
+%  The spine.  These two parts are the centre of the book: what stays the
+%  same, and what makes it change.  They sit here,
 %  immediately after the Hodge decomposition they depend on, and they
 %  forward-reference the cone construction for the one quantity that
 %  moves the invariant.

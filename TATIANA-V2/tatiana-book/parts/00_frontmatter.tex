@@ -4,48 +4,57 @@
 
 \section*{What this is}
 
-This book consolidates the entire mathematical content of \textsc{tatiana}
-into a single document. Its sources are the files in \texttt{DOCS/}, the
-poster sections in \texttt{POSTER/}, and the specification documents added
-on the branch \texttt{fix-11-13-and-curvature-decisions}. It is
-\emph{implementation-free}: no C\raisebox{0.2ex}{\small ++}, no Python.
-Where the implementation determines a mathematical fact --- and it
-sometimes does --- the fact is stated abstractly here and the discrepancy
-is recorded in Appendix~\ref{app:discrepancy}.
+This book develops \emph{Cognitive Space Theory}: an account of structured
+meaning in which a cognitive state is a \emph{section of a cellular sheaf}
+over a simplicial complex, and in which the ways a cognitive state can fail
+are \emph{cohomological} --- classified, localised and counted by the same
+algebra that produces them.
+
+The theory is under development. It is presented here as mathematics, not as
+a specification: no programming language appears, no system is described, and
+no result depends on a particular implementation. Where a construction is a
+design intention rather than a theorem, it says so in the margin, in colour,
+on the line where the claim is made.
 
 \section*{Why every claim carries a tag}
 
-The source documents \emph{contradict one another}. The internal audit
-(\texttt{DOCS/AUDIT\_SCRUTINY\_AND\_BOOK.md}) records fourteen findings
-against the earlier mathematical description, several of which are
-outright refutations: a proposition false in the deployed case, a theorem
-stated more generally than it is proved, a repair for $\Hone$ that is
-half circular. A smooth merge of these sources would present refuted
-material in the same confident register as proved material, and a reader
-studying it would learn falsehoods.
+A theory under development contains, at any moment, a mixture of proved
+statements, statements proved only under hypotheses one may not be able to
+meet, statements that have been computed but not proved, statements that are
+intentions, and statements that were believed and are now known to be false.
+Written in a single register these are indistinguishable, and a reader
+studying such a text learns falsehoods with the same confidence as theorems.
 
-So every substantive claim in this book carries one of six tags:
+So every substantive claim here carries one of these:
 
 \begin{center}
-\begin{tabular}{ll}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.38\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.55\textwidth}@{}}
 \toprule
 \Proved & A complete proof is given here, from stated hypotheses.\\
-\ProvedCond & Proved, but only under hypotheses the deployed system may not meet.\\
-\Implemented & The system computes this; no proof of correctness exists.\\
-\Proposed & A design intention. Not built, not proved.\\
-\Contested & The audit disputes this. The dispute is stated in place.\\
-\Refuted & Tested and failed, or shown false. Retained \emph{with} the refutation.\\
+\addlinespace[2pt]
+\ProvedCond & Proved, but only under hypotheses that may not be available.\\
+\addlinespace[2pt]
+\Measured & A number produced by a procedure that can be re-run. Not a proof.\\
+\addlinespace[2pt]
+\Implemented & Computable as stated; no proof of correctness given.\\
+\addlinespace[2pt]
+\Proposed & A design intention. Not proved.\\
+\addlinespace[2pt]
+\Contested & Disputed on stated grounds, in place.\\
+\addlinespace[2pt]
+\Refuted & Shown false, or tested and failed. Retained \emph{with} the refutation.\\
 \bottomrule
 \end{tabular}
 \end{center}
 
 Refuted material is kept rather than deleted. Knowing why a construction
-failed is most of what you need in order not to rebuild it.
+fails is most of what is needed in order not to rebuild it.
 
 \section*{The three layers}
 
-Each central object is presented three times over, so that a single
-reading can be shallow or deep:
+Each central object is presented three times over, so that a single reading
+can be shallow or deep:
 
 \begin{enumerate}
   \item a boxed \textbf{Intuition} in plain language, with no symbols;
@@ -56,58 +65,62 @@ reading can be shallow or deep:
 \end{enumerate}
 
 The worked examples are cumulative. A single running example --- a
-seven-organ complex called $\Kc_7$, introduced in
-Chapter~\ref{ch:complex} --- is reused throughout, so that the same
-object is measured by every instrument the book builds. Where an
-exercise appears, it is because the step is short and doing it yourself
-is faster than reading it.
+four-vertex complex $\Kc_4$, which is \emph{derived} in
+Chapter~\ref{ch:ingest} rather than postulated --- is reused throughout, so
+that the same object is measured by every instrument the book builds. Where
+an exercise appears, it is because the step is short and doing it yourself is
+faster than reading it.
 
-\section*{Provenance}
+\section*{Agendas, and what an incomplete section looks like}
 
-Grey boxes marked \textsf{\textbf{Source}} record which file a passage
-descends from, and what was changed in merging it. They exist so that
-any statement here can be traced back and checked against the original,
-and so that when the sources disagree you can see \emph{that} they
-disagree rather than only seeing the winner.
-
-\section*{This book is mid-rewrite, and says so on every page}
-
-The book was written for \textbf{V0}: an architecture in which typed organs
-were dispatched by external code around a language model. That architecture
-is retired. Chapter~\ref{ch:v2} states what replaced it and why.
-
-Most of the mathematics survives the pivot. The framing around it does not,
-and in several places the \emph{justification} for a construction was
-organ-shaped even where the construction itself was not. So every chapter now
-opens with two things:
+Every section of Parts~\ref{part:orientation} and~\ref{part:foundations}
+ends with an \textbf{Agenda} box in green, containing three lists:
 
 \begin{itemize}
-  \item a \textbf{disposition} --- \Keep, \Recast, \Retire\ or \NewV\ --- saying
-        what the pivot does to it;
-  \item a \textbf{work plan} box: the goal, the raw material, the ordered
-        steps, and the condition under which the chapter is finished.
+  \item \textit{Settled} --- what the section establishes, by proof or by
+        citation, and which may be used downstream without further argument;
+  \item \textit{Open} --- what it does \emph{not} establish. These are the
+        honest gaps, stated in the same place as the material that needs them;
+  \item \textit{Next steps} --- the ordered work that would close the gaps.
 \end{itemize}
 
-A work plan is an \emph{instruction for writing the chapter}, not commentary
-on it. When a chapter is written, its work plan is deleted and replaced by the
-prose it asked for. \textbf{A chapter that still contains a work plan is a
-chapter that is not done.} This is deliberate: it makes the book's own
-incompleteness impossible to overlook, including by its author.
+An agenda whose \textit{Open} list is non-empty is a section that is
+mathematically incomplete, and the incompleteness is printed rather than
+implied. Later parts of the book, which have not yet been brought up to the
+standard of Parts~\ref{part:orientation} and~\ref{part:foundations}, instead
+carry a blue \textbf{Work plan} box. The two are not the same:
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.28\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.65\textwidth}@{}}
+\toprule
+\textsf{\textbf{\color{examplecol}Agenda}} (green) &
+  Prose exists. It is correct as far as it goes, and the box says how far
+  that is.\\
+\addlinespace[3pt]
+\textsf{\textbf{\color{linkblue}Work plan}} (blue) &
+  Prose does \emph{not} exist, or predates the foundations. The box is the
+  instruction for writing it.\\
+\bottomrule
+\end{tabular}
+\end{center}
 
 \section*{Reading order}
 
-Chapter~\ref{ch:v2} first, always --- it is short and everything else is
-answerable to it.
+Part~\ref{part:orientation} is short, has no prerequisites, and states the
+one hypothesis everything else is answerable to. Read it first.
 
-Then Parts~II and~III (state space, coherence) as the conceptual spine, in
-order. Part~V (cohomology) carries Proposition~8.2, which is the constraint the
-entire architecture is built around, and should be read before anything that
-mentions growth.
+Part~\ref{part:foundations} is the mathematical spine and is meant to be read
+in order: the base complex is \emph{constructed} in
+Chapter~\ref{ch:ingest} before it is used in Chapter~\ref{ch:complex}, the
+sheaf is laid on it in Chapter~\ref{ch:sheaf}, and the operator that measures
+everything appears in Chapter~\ref{ch:laplacian}. Chapter~\ref{ch:config}
+then corrects a type error that the first four chapters deliberately carry:
+the state is written as though the space it lives in were fixed, and it is
+not.
 
-Parts~VI and~VII --- \textbf{Identity} and \textbf{The Two-Phase Law} --- are
-the centre of V2. They are new, and a reader who reads only three parts should
-read Chapter~\ref{ch:v2} and those two.
-
-The remaining parts may be read in any order once the spine is in place, with
-one exception: the limits chapter is the honest boundary and should be read
-before quoting any result from this book to anyone else.
+A reader who wants the shortest honest path to the point of the theory should
+read \S\ref{sec:hypothesis}, \S\ref{sec:degenerate} and
+Theorem~\ref{thm:functoriality}. Those three say, respectively, why a complex
+is necessary at all, what is lost by using a graph instead, and what the
+higher cells buy in exact algebraic terms.

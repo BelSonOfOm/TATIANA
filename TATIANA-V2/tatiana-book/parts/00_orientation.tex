@@ -1,0 +1,587 @@
+% =====================================================================
+%  PART I -- ORIENTATION
+%
+%  Preface, motivation, intuition, source clarification, literature graph.
+%  No symbols are required to read this part.  Nothing in it is assumed by
+%  Part II; it exists so that Part II is read for the right reasons.
+% =====================================================================
+
+\chapter{The Claim}\label{ch:claim}
+
+\section{The founding hypothesis}\label{sec:hypothesis}
+
+Cognitive Space Theory rests on one hypothesis, and the whole apparatus of
+this book is a consequence of taking it seriously.
+
+\begin{quote}\itshape
+Meaning admits no global chart.
+\end{quote}
+
+That is: there is no single coordinate system in which everything that can be
+meant is simultaneously and consistently expressible. Meaning is
+coordinatizable only \emph{locally}, in patches, and the patches do not agree
+on their overlaps.
+
+\begin{intu}\Intu
+A map of the Earth is a sheet of paper with coordinates on it. No single
+sheet covers the globe without tearing or distortion, so cartographers use an
+\emph{atlas}: many local sheets, plus rules for translating a position on one
+sheet into a position on another. The rules are the real content. The sheets
+are interchangeable; the translations are where the curvature of the Earth
+shows up.
+
+The hypothesis above says that meaning is like the globe and not like the
+sheet. If it were like the sheet --- if one big coordinate system sufficed ---
+then a cognitive state would be a vector, cognition would be linear algebra in
+a fixed basis, and this book would have nothing to say. Everything here exists
+because the translations between local frames fail to compose.
+\end{intu}
+
+The hypothesis is not decoration and it is not unfalsifiable. It has a precise
+mathematical shadow, developed in Part~\ref{part:foundations}: if meaning
+admitted a global chart, then the complex would have one vertex, the sheaf
+would have no restriction maps, the coboundary would be zero, the Laplacian
+would be zero, and every state would be coherent. The theory would collapse to
+its own trivial case. \emph{Structure exists exactly to the extent that
+local coordinatizations fail to agree.} Chapter~\ref{ch:complex},
+Example~\ref{ex:atom}, computes that collapse explicitly, so that the reader
+can see the degenerate case and know what the non-degenerate one is departing
+from.
+
+\begin{hon}\Hon
+\Proposed\ The founding hypothesis is a modelling commitment, not a theorem,
+and nothing in this book proves it. What the book does is make it
+\emph{consequential}: every construction is derived from it, so that if the
+hypothesis is wrong, the constructions are not merely unmotivated but
+provably vacuous. That is the strongest honest status a founding hypothesis
+can have.
+\end{hon}
+
+\section{What is being modelled}
+
+Three words are used throughout and each is used in a restricted, technical
+sense. They are declared here because their ordinary meanings would import
+claims the theory does not make.
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.20\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.73\textwidth}@{}}
+\toprule
+\textbf{region} &
+  A place where meaning is locally coordinatizable. Formally a vertex of the
+  complex. \emph{Not} an agent, a module, a subsystem, or a processor.\\
+\addlinespace[3pt]
+\textbf{content} &
+  What is expressible within one region, in that region's own coordinates.
+  Formally an element of a stalk. \emph{Not} a belief; a region does not
+  hold an opinion, because a region is not the kind of thing that can have
+  one.\\
+\addlinespace[3pt]
+\textbf{thought} &
+  A choice of content in every region that survives every comparison.
+  Formally a global section. There is \emph{one} of these at a time, expressed
+  in many local coordinate systems --- not one per region.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{hon}\Hon
+The third row is the one that is easiest to get wrong, and getting it wrong
+changes the mathematics rather than merely the prose. If each region holds its
+own belief, then disagreement between regions is a normal and permanent
+feature to be negotiated, and the natural theory is a theory of consensus.
+That theory exists, it is good, and it is \emph{not this one}: see
+Hansen--Ghrist's discourse sheaves~\cite{HansenGhristOpinion}, discussed in
+\S\ref{sec:neighbours}, where the vertices are genuinely separate agents.
+
+Under the reading taken here there is one thought and many coordinate systems,
+so disagreement is not a social fact but a \emph{defect of the atlas}: either
+the frames can be adjusted until they agree, or they cannot, and the
+obstruction to adjusting them is a topological invariant. That is what makes
+the dynamics of Part~\ref{part:foundations} onwards possible at all. A
+consensus theory has nothing to converge to except agreement; this theory has
+something to converge to \emph{and} a classification of the cases where
+convergence is impossible.
+\end{hon}
+
+\section{The thesis, and what each clause forbids}
+
+\begin{quote}\itshape
+A cognitive space is a cellular sheaf on a finite simplicial $2$-complex.
+Its state is a section, which relaxes. Its restriction maps are the theory's
+only carrier of learned structure, and they mold. Its complex grows and
+prunes, and growth is triggered by an obstruction rather than by a rule.
+\end{quote}
+
+Every clause forbids something, and the forbidding is a live constraint on
+what may be written later.
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.42\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.51\textwidth}@{}}
+\toprule
+\textbf{clause} & \textbf{forbids} \\
+\midrule
+sheaf on a \textbf{$2$-complex} &
+  dropping to a graph, where the sheaf condition is vacuous
+  (Theorem~\ref{thm:functoriality})\\
+\addlinespace[2pt]
+the state \textbf{relaxes} &
+  treating the state as stored data rather than as a dynamical variable\\
+\addlinespace[2pt]
+restriction maps \textbf{mold} &
+  freezing the maps at the identity, which provably empties the theory
+  (Proposition~\ref{prop:identityfatal})\\
+\addlinespace[2pt]
+\textbf{grows and prunes} &
+  monotone architectures that only accumulate\\
+\addlinespace[2pt]
+growth from an \textbf{obstruction} &
+  hand-written growth rules; the trigger must be a computed invariant\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{What Cognitive Space Theory is not}\label{sec:isnot}
+
+Stated as refusals, because each of these is a place where an adjacent and
+better-established framework would absorb the theory if the boundary were left
+implicit.
+
+\begin{enumerate}
+  \item \textbf{Not a knowledge graph.} A knowledge graph is a labelled
+    relation with no dynamics and no obstruction theory. The working test is
+    sharp: \emph{if a proposed feature would behave identically on a labelled
+    graph, it does not belong here.}
+  \item \textbf{Not a geometric semantics in a single space.} The standard
+    geometric account of concepts~\cite{Gardenfors} places them as convex
+    regions of one global quality space. Cognitive Space Theory is precisely
+    the denial of that global space (\S\ref{sec:hypothesis}). The two are not
+    variants; they disagree on whether the global chart exists.
+  \item \textbf{Not a compositional semantics.} Categorical accounts of how
+    meanings compose~\cite{CoeckeSadrzadehClark} are about \emph{building}
+    a meaning from parts. This theory is about meaning \emph{failing} to
+    assemble, and about what that failure is a measurement of. A composition
+    calculus always composes; the object of study here is the residue when
+    assembly does not go through.
+  \item \textbf{Not a model of brains.} Mechanisms are occasionally borrowed
+    from neuroscience as \emph{design constraints}. No claim is made to
+    explain neural data, and nothing here should be evaluated against it.
+  \item \textbf{Not a thermodynamic or free-energy theory.} The cost
+    functionals introduced later are this theory's own construction. Naming
+    them after an established principle would import authority that has not
+    been earned.
+  \item \textbf{Not a claim about consciousness, agency or life.} Where a
+    construction has a suggestive name, the name is a label for a morphism and
+    nothing further is asserted.
+\end{enumerate}
+
+\begin{agenda}
+\agset{
+  \item The founding hypothesis is stated in a form whose failure has a
+    computable consequence (collapse to Example~\ref{ex:atom}).
+  \item The three primitive words are fixed, and the agent reading is
+    explicitly excluded with its reason.
+  \item The thesis is stated as a list of prohibitions, each pointing at the
+    result that enforces it.
+}
+\agopen{
+  \item No independent argument is given \emph{for} the founding hypothesis.
+    At present it is motivated by the fact that its negation trivialises the
+    theory, which is a consistency argument, not evidence.
+  \item ``Region'' is defined by what it is not. A positive criterion --- given
+    a domain, what determines how many regions there are and where their
+    boundaries fall --- is supplied only operationally, by the ingest
+    construction of Chapter~\ref{ch:ingest}, and it inherits that
+    construction's arbitrariness in the choice of witness set.
+  \item The prohibition ``growth from an obstruction, not a rule'' is stated
+    but not yet honoured: the obstruction that would serve as trigger is
+    identified only as a candidate in \S\ref{sec:mv}.
+}
+\agsteps{
+  \item Find one phenomenon that a global-chart semantics cannot represent and
+    a sheaf semantics can, stated so that the difference is a computation and
+    not an interpretation. Contextuality (\S\ref{sec:coefficient}) is the
+    leading candidate and would convert O1 from a consistency argument into
+    an argument from evidence.
+  \item Give a positive criterion for region individuation, or accept
+    explicitly that regions are an input to the theory and not an output, and
+    say so here rather than leaving it to be inferred.
+  \item Close \S\ref{sec:mv} to a theorem; if it closes, restate the fifth
+    clause of the thesis as a result rather than a commitment.
+}
+\end{agenda}
+
+% =====================================================================
+\chapter{The Picture Before the Symbols}\label{ch:picture}
+
+Nothing in this chapter is used later. It exists so that the definitions of
+Part~\ref{part:foundations} are recognised when they arrive, rather than
+merely accepted.
+
+\section{Charts, atlases, and the failure to agree}
+
+\begin{intu}\Intu
+Suppose a body of knowledge is covered by overlapping regions, and inside each
+region you have a way of writing things down --- a coordinate system private
+to that region. Two regions that overlap must be able to compare what they
+say about the overlap. Comparison requires a \emph{translation}: a rule taking
+what is written in one region's coordinates into a form the overlap can read.
+
+Three things can then happen.
+\begin{itemize}
+  \item The translations agree everywhere. There is a single consistent thing
+    being described, written down in many ways. This is a \emph{thought}.
+  \item The translations disagree, but the disagreement can be removed by
+    adjusting the translations themselves --- the regions were saying the same
+    thing in badly aligned frames. This is a \emph{misalignment}, and it is
+    repairable.
+  \item The translations disagree, and no adjustment of them removes the
+    disagreement, because going around a loop of regions and coming back
+    returns you somewhere else. This is a \emph{hole}. It is not repairable by
+    translation, only by changing the regions.
+\end{itemize}
+The entire technical content of this book is: making those three cases
+precise, proving that they are exhaustive and mutually orthogonal, computing
+which one you are in, and saying what to do in each.
+\end{intu}
+
+The three cases are not an informal taxonomy. They are the three summands of
+an orthogonal direct-sum decomposition of the space of pairwise comparisons
+(Theorem~\ref{thm:hodge}), they are computable by linear algebra, and the
+third is a topological invariant that no amount of local adjustment can
+change.
+
+\section{A single region cannot be wrong}
+
+Take the smallest possible cognitive space: one region, no overlaps. There are
+no comparisons to make, so no comparison can fail, so every content whatsoever
+is a thought. The space has no structure and no capacity for error.
+
+This is worth stating early because it is the exact sense in which the theory
+is \emph{about} the relations and not about the regions. Content lives in the
+regions; \emph{everything else} lives between them. Example~\ref{ex:atom}
+carries this out in symbols and finds that every invariant the book defines is
+either zero or trivial on the one-region space.
+
+\section{The degenerate corner: what a neural network is, from here}
+\label{sec:degenerate}
+
+The framework has a corner in which it reproduces machinery that already
+exists, and locating that corner exactly is the most direct way to say what
+the rest of the framework is for.
+
+\begin{intu}\Intu
+Suppose you make three simplifications at once:
+\begin{enumerate}
+  \item allow only regions and overlaps of two --- no three-way overlaps;
+  \item make every translation the identity, so that all regions share one
+    coordinate system after all;
+  \item keep only the relaxation dynamics, and never adjust the translations
+    or the regions.
+\end{enumerate}
+What remains is a graph with vectors on its nodes, diffusing toward agreement.
+That is a graph neural network, and Proposition~\ref{prop:nnsheaf} makes the
+identification exact for the linear case.
+\end{intu}
+
+Each simplification has a provable cost, and the three costs are the reason
+the rest of the book exists:
+
+\begin{center}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.30\textwidth}%
+                  >{\raggedright\arraybackslash}p{0.63\textwidth}@{}}
+\toprule
+\textbf{simplification} & \textbf{what it provably costs} \\
+\midrule
+no three-way overlaps &
+  the sheaf condition becomes vacuous, so nothing can ever obstruct and growth
+  can never be derived (Theorem~\ref{thm:functoriality}); and the three-way
+  decomposition loses a summand, so misalignment and holes stop being
+  distinguishable (Theorem~\ref{thm:hodge})\\
+\addlinespace[3pt]
+identity translations &
+  the only thought is exact consensus, and relaxation is plain averaging;
+  diffusion drives everything to the global mean
+  (Proposition~\ref{prop:identityfatal})\\
+\addlinespace[3pt]
+no adjustment &
+  the theory's only carrier of learned structure is frozen, and the sheaf
+  becomes a decoration on a graph\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The second row is not a criticism from outside: it is the published diagnosis
+of oversmoothing in graph neural networks, and the published repair is exactly
+to make the translations non-trivial~\cite{BodnarSheaf}. The first row has an
+independent published counterpart in expressiveness: message passing that sees
+higher cells is strictly stronger than message passing that sees only
+edges~\cite{BodnarSIN}.
+
+\begin{hon}\Hon
+This is the one place where the theory can be checked against an established
+literature rather than argued for. It should therefore be the first thing a
+sceptical reader is shown, and it is deliberately placed before any
+definition. If the identification in Proposition~\ref{prop:nnsheaf} were
+wrong, the theory would be in serious trouble; it is not wrong, and it is
+proved.
+\end{hon}
+
+\section{Reading, as a sequence of operations}\label{sec:reading}
+
+\begin{intu}\Intu
+What happens when a body of knowledge absorbs a text? Not storage, and not
+appending. The stages, each of which becomes a named operation in
+Part~\ref{part:foundations} and later:
+
+\begin{enumerate}
+  \item \textbf{Ingest.} The text arrives as a relation --- these things occur
+    together in this passage, those in that one --- and a relation determines a
+    complex canonically, with no parameters (Chapter~\ref{ch:ingest}).
+  \item \textbf{Anchor.} Some of the new material is identified with material
+    already present. This is the only step in the whole pipeline containing a
+    free choice, and it is where interpretation lives: two readers who anchor
+    the same text differently have read different texts.
+  \item \textbf{Glue.} The two complexes are joined along what was anchored.
+  \item \textbf{Ferment.} The join has properties neither part had. Some
+    disagreement is discharged by relaxation, some by adjusting translations
+    --- and some cannot be, because the act of joining created a hole that was
+    not present in either piece (\S\ref{sec:mv}).
+  \item \textbf{Consolidate.} What survives is compressed and retained; what
+    does not is pruned.
+\end{enumerate}
+Step 4 is the interesting one and the reason this is called fermentation
+rather than insertion. \emph{New obstructions are a property of the join,
+not of either part.} A text you already agreed with entirely teaches you
+nothing, and a text you cannot anchor at all teaches you nothing; the content
+is in the residue.
+\end{intu}
+
+\begin{agenda}
+\agset{
+  \item The three-case taxonomy (thought / misalignment / hole) is stated
+    informally and is discharged by Theorem~\ref{thm:hodge}.
+  \item The degenerate corner is located precisely and each simplification is
+    paired with the result that prices it.
+  \item The reading pipeline is stated as five named stages, four of which are
+    given formal definitions later.
+}
+\agopen{
+  \item Stage~5, consolidation, has no formal counterpart in
+    Part~\ref{part:foundations}. It is treated in later parts whose
+    foundations predate this one.
+  \item Stage~2, anchoring, is identified as the locus of interpretation but
+    is given no criterion. Nothing here says which anchoring is \emph{better},
+    only that the choice exists and matters.
+}
+\agsteps{
+  \item Define anchoring formally as a span with an isomorphism of sheaves on
+    its apex (sketched in \S\ref{sec:mv}), and state the invariance question:
+    which downstream quantities are independent of the anchoring chosen.
+  \item Bring consolidation into Part~\ref{part:foundations} or state
+    explicitly that it is deferred, so that stage~5 is not silently missing.
+}
+\end{agenda}
+
+% =====================================================================
+\chapter{Sources, Position, and the Literature Graph}\label{ch:sources}
+
+\section{Naming discipline}\label{sec:naming}
+
+This theory borrows vocabulary from several mature fields. Borrowed words
+arrive with expectations attached, and an unearned word is a claim made
+silently. The following rules are enforced throughout.
+
+\begin{enumerate}
+  \item \textbf{A borrowed term is used only with its source meaning, or not
+    at all.} Where a weaker notion is meant, a different word is coined.
+  \item \textbf{No term is used whose associated theorems are not being
+    invoked.} This retires the word \emph{stratified} from the description of
+    the base complex; \S\ref{sec:stratword} explains what was meant, why the
+    word was wrong, and where a genuine stratification does appear.
+  \item \textbf{Suggestive names are labels, never arguments.} If a
+    construction is called reproduction, growth or memory, that name may not
+    be used as a premise in any proof.
+\end{enumerate}
+
+\begin{hon}\Hon
+Terms retired from this book under rule~2, each with its replacement:
+\emph{stratified} (of the base complex) $\to$ nothing; the two-scale structure
+it named is not assumed, and a genuine stratification appears instead on the
+configuration space, \S\ref{sec:stratconf}. \emph{Belief} (of stalk content)
+$\to$ \emph{content}, since ``belief'' presupposes a bearer. \emph{Organ},
+\emph{agent}, \emph{subsystem} (of vertices) $\to$ \emph{region}, since
+vertices are not processors. \emph{Free energy} (of cost functionals) $\to$
+the functional's own name.
+\end{hon}
+
+\section{The five lineages}
+
+Cognitive Space Theory sits at the meeting of five bodies of work. For each,
+what is taken and what is deliberately not taken.
+
+\paragraph{1. Cellular sheaves and their spectral theory.}
+Cellular sheaves are due to Shepard~\cite{Shepard} and were developed as a
+general applied framework by Curry~\cite{Curry}. The metric theory this book
+depends on --- the sheaf Laplacian $\Lap=\cob^{\adjt}\cob$, its spectrum, its
+Cheeger-type inequalities --- is Hansen and Ghrist~\cite{HansenGhrist}.
+\emph{Taken:} the entire apparatus of Chapters~\ref{ch:sheaf}
+and~\ref{ch:laplacian}, essentially unmodified. \emph{Not taken:} their
+setting is a fixed complex with fixed stalks. Everything about growth and
+molding is outside it and must be built.
+
+\paragraph{2. Data-to-complex constructions.}
+Dowker's theorem on the homology of relations~\cite{Dowker}, its functorial
+and stable refinement~\cite{ChowdhuryMemoli}, the nerve construction, and the
+persistence machinery with its stability
+theorems~\cite{CEH,ChazalStructure,Carlsson}. \emph{Taken:} the ingest
+operator of Chapter~\ref{ch:ingest}, and the demand that ingest be
+\emph{stable}. \emph{Not taken:} persistence itself. This book measures a
+complex at one scale, not a filtration across scales; Mapper~\cite{SinghMemoliCarlsson}
+is named and rejected, for the reason in \S\ref{sec:alternatives}.
+
+\paragraph{3. Sheaf-theoretic contextuality.}
+Abramsky and Brandenburger~\cite{AbramskyBrandenburger} show that
+non-locality and contextuality are exactly the non-existence of a global
+section of a presheaf of distributions over a cover of measurement contexts;
+the cohomological refinement is~\cite{ABKLM}. \emph{Taken:} the identification
+of incoherence with a global-section obstruction, and --- decisively --- the
+observation that the \emph{coefficient algebra} is a free parameter with
+consequences (\S\ref{sec:coefficient}). \emph{Not taken:} any quantum-mechanical
+claim. The site is different and no physical interpretation is asserted.
+
+\paragraph{4. Higher-order networks and sheaves on graphs in learning.}
+Signal processing beyond pairwise interactions~\cite{Battiston,SchaubTSP};
+sheaf neural networks~\cite{HansenGebhart}; neural sheaf
+diffusion~\cite{BodnarSheaf}; the expressiveness separation for higher-cell
+message passing~\cite{BodnarSIN}. \emph{Taken:} the diagnosis of oversmoothing
+as a statement about $\ker\Lap$, which is the sharpest available argument that
+non-identity restriction maps are necessary rather than ornamental.
+\emph{Not taken:} the learning setting. These are supervised models trained on
+labelled data; nothing here is.
+
+\paragraph{5. Synchronization, fusion, and inference of structure.}
+The connection Laplacian and vector diffusion maps~\cite{SingerWu}; $O(d)$
+synchronization~\cite{BSS}; sheaves for heterogeneous sensor
+integration~\cite{RobinsonTSP,RobinsonSensor}; learning sheaf Laplacians from
+observed signals~\cite{HansenGhristLearning}. \emph{Taken:} this is the
+literature home of \emph{molding} --- adjusting restriction maps toward
+consistency is the synchronization problem, and Robinson's consistency radius
+is this book's discord in an applied setting. \emph{Not taken:} their
+objectives are estimation against a ground truth. There is no ground truth
+here.
+
+\section{The literature graph}
+
+\begin{center}
+\begin{tikzpicture}[
+  scale=1.0,
+  node distance=6mm,
+  clus/.style={draw,rounded corners=3pt,align=center,font=\footnotesize,
+               inner sep=4pt,minimum height=9mm,fill=white},
+  core/.style={draw,thick,rounded corners=3pt,align=center,font=\small\bfseries,
+               inner sep=5pt,fill=linkblue!10,draw=linkblue},
+  take/.style={-{Latex[length=2.2mm]},thick,examplecol},
+  drop/.style={-{Latex[length=2.2mm]},dashed,honestycol},
+  el/.style={font=\scriptsize,examplecol,inner sep=1pt},
+  dl/.style={font=\scriptsize,honestycol,inner sep=1pt}]
+
+  \node[core] (cst) at (0,0) {Cognitive\\Space Theory};
+
+  \node[clus] (dow) at (-4.6,2.6)
+     {\textbf{data $\to$ complex}\\ Dowker; Chowdhury--M\'emoli;\\
+      nerve; stability \cite{CEH,ChazalStructure}};
+  \node[clus] (sh)  at (0,3.3)
+     {\textbf{cellular sheaves}\\ Shepard; Curry;\\ Hansen--Ghrist};
+  \node[clus] (ctx) at (4.7,2.6)
+     {\textbf{contextuality}\\ Abramsky--Brandenburger;\\ ABKLM};
+  \node[clus] (syn) at (5.0,-1.4)
+     {\textbf{synchronization}\\ \textbf{\& fusion}\\ Singer--Wu; BSS;\\ Robinson};
+  \node[clus] (gnn) at (0,-3.0)
+     {\textbf{higher-order \& sheaf}\\ \textbf{networks}\\ Bodnar et al.;\\
+      Hansen--Gebhart};
+  \node[clus] (sem) at (-5.0,-1.4)
+     {\textbf{geometric \&}\\ \textbf{compositional semantics}\\
+      G\"ardenfors; DisCoCat};
+  \node[clus] (lat) at (-2.6,-5.0)
+     {\textbf{order-theoretic}\\ \textbf{sheaves}\\ Ghrist--Riess};
+  \node[clus] (opn) at (3.2,-5.0)
+     {\textbf{discourse sheaves}\\ Hansen--Ghrist};
+
+  \draw[take] (dow) -- node[el,above,sloped] {ingest, stability} (cst);
+  \draw[take] (sh)  -- node[el,right] {$\Lap$, $\Hzero$, spectrum} (cst);
+  \draw[take] (ctx) -- node[el,above,sloped] {coefficient algebra} (cst);
+  \draw[take] (syn) -- node[el,below,sloped] {molding} (cst);
+  \draw[take] (gnn) -- node[el,right] {oversmoothing $=\ker\Lap$} (cst);
+  \draw[drop] (sem) -- node[dl,above,sloped] {global chart} (cst);
+  \draw[drop] (lat) -- node[dl,below,sloped] {no Hodge split} (cst);
+  \draw[drop] (opn) -- node[dl,below,sloped] {agent semantics} (cst);
+
+\end{tikzpicture}
+\captionof{figure}{Provenance. Solid green: taken, with what is taken on the
+edge. Dashed red: a nearest neighbour whose central commitment is
+\emph{rejected}, with the point of divergence on the edge. The dashed edges
+carry more information than the solid ones, because a theory is located by
+what it refuses.}
+\label{fig:litgraph}
+\end{center}
+
+\section{Nearest neighbours, and exactly where they diverge}
+\label{sec:neighbours}
+
+Three bodies of work are close enough that the difference must be stated
+precisely rather than gestured at.
+
+\paragraph{Discourse sheaves~\cite{HansenGhristOpinion}.} The closest
+published relative: the same Laplacian, the same disagreement functional, on
+the same kind of object. The divergence is semantic and it is total. There, a
+vertex is an agent with private opinions and the restriction maps express how
+an agent's opinion appears in a shared discourse; disagreement is between
+people. Here, a vertex is a chart and disagreement is curvature. The
+mathematics is shared; the question asked of it is not.
+
+\paragraph{Neural sheaf diffusion~\cite{BodnarSheaf}.} Shares the diagnosis of
+identity restriction maps and the remedy of learning non-trivial ones. Two
+divergences: their base is a graph, so the sheaf condition never binds
+(Theorem~\ref{thm:functoriality}); and their restriction maps are learned by
+supervised gradient descent against labels, whereas molding here has no
+external target and must be driven by an intrinsic functional.
+
+\paragraph{Sheaf contextuality~\cite{AbramskyBrandenburger}.} Shares the
+central identification --- incoherence is the failure of a global section ---
+on a different site. The divergence is the coefficient algebra: their stalks
+carry distributions over a semiring, in which positivity generates the
+obstruction; this book's stalks are vector spaces over a field, chosen so that
+a metric and a three-way Hodge decomposition exist. \S\ref{sec:tradeoff}
+states what that choice costs, since it is a real cost and not a free
+upgrade.
+
+\begin{agenda}
+\agset{
+  \item Every construction used in Part~\ref{part:foundations} has a named
+    lineage, with the take/leave boundary drawn explicitly.
+  \item The three nearest neighbours are separated from this theory by a
+    stated divergence rather than by tone.
+  \item A naming discipline is in force, with the retired terms listed.
+}
+\agopen{
+  \item No lineage is claimed for the dynamics. Molding has a home in the
+    synchronization literature, but the two-phase separation of relaxation
+    from consolidation does not have one here, and it is not yet established
+    whether one exists.
+  \item The claim in \S\ref{sec:neighbours} that molding ``must be driven by
+    an intrinsic functional'' names no functional. Until one is given and
+    shown to have the required stationary points, this is a requirement rather
+    than a design.
+}
+\agsteps{
+  \item Search the synchronization literature for an unsupervised objective
+    whose stationary points are flat connections, and either adopt it with
+    attribution or record that none was found.
+  \item Extend Figure~\ref{fig:litgraph} with a sixth cluster for the dynamics
+    once O1 is resolved --- or record the absence of one as a finding, since a
+    construction with no lineage is either novel or naive and it matters
+    which.
+}
+\end{agenda}

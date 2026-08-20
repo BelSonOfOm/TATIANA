@@ -10,6 +10,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,fit,backgrounds}
 \usepackage{booktabs}
+\usepackage{array}      % >{...} column specifiers, used for the tag tables
 \usepackage{longtable}
 \usepackage{caption}
 \usepackage{fancyhdr}
@@ -66,17 +67,15 @@
 
 % Measured: a number was printed by a program that can be re-run.  Distinct
 % from PROVED (an argument) and from IMPLEMENTED (code exists, no result
-% quoted).  Introduced in V2 because Phase 0 produced the book's first
-% claim of this kind.
+% quoted).
 \newcommand{\Measured}{\statusbadge{examplecol}{MEASURED}}
 
 % ---------------------------------------------------------------------
-%  V2 disposition tags
+%  Disposition tags
 %
-%  Every chapter carries one.  The book was written for V0 -- an organ
-%  complex dispatched by external code around a language model.  V2
-%  retires that architecture.  Most of the mathematics survives; the
-%  framing around it does not.  The disposition says which.
+%  Used by chapters that are still being brought up to the standard of
+%  Parts I and II.  A chapter carrying one is a chapter whose framing is
+%  older than the foundations it now rests on.
 % ---------------------------------------------------------------------
 \newcommand{\dispbadge}[2]{%
   \textcolor{#1}{\small\textsf{\textbf{<#2>}}}}
@@ -84,7 +83,7 @@
 \newcommand{\Keep}{\dispbadge{examplecol}{KEEP}}
 \newcommand{\Recast}{\dispbadge{warncol}{RECAST}}
 \newcommand{\Retire}{\dispbadge{honestycol}{RETIRE}}
-\newcommand{\NewV}{\dispbadge{linkblue}{NEW IN V2}}
+\newcommand{\NewV}{\dispbadge{linkblue}{NEW}}
 
 % ---------------------------------------------------------------------
 %  Layered-exposition boxes
@@ -111,9 +110,21 @@
   \begin{sourcebox}\small\textsf{\textbf{Source.}} #1\end{sourcebox}}
 
 % ---------------------------------------------------------------------
+%  File and path names
+%
+%  \texttt{DOCS/SOME_LONG_NAME.md} does not hyphenate and contains no
+%  legal breakpoint, so long paths ran off the right margin -- they were
+%  the largest single source of overfull lines in the book.  \file{}
+%  breaks at / and _ instead.  Underscores inside \file{} are LITERAL:
+%  write \file{DOCS/MATH_TOOLBOX.md}, not \file{DOCS/MATH\_TOOLBOX.md}.
+%  (\DeclareUrlCommand comes from url, already loaded by hyperref.)
+% ---------------------------------------------------------------------
+\DeclareUrlCommand\file{\urlstyle{tt}}
+
+% ---------------------------------------------------------------------
 %  Work plans
 %
-%  The V2 rewrite is done section by section, and each section states its
+%  The rewrite is done section by section, and each section states its
 %  own plan before it is written.  A work plan is not commentary on the
 %  finished text -- it is the instruction for producing it, and it stays
 %  in the document until the section it governs is complete, at which
@@ -140,6 +151,40 @@
 \newcommand{\wpblocked}[1]{\noindent\textit{Blocked by.}\ #1\par\vspace{2pt}}
 \newcommand{\wpsteps}[1]{\noindent\textit{Steps.}\begin{enumerate}[leftmargin=1.4em,itemsep=1pt]#1\end{enumerate}}
 \newcommand{\wpdone}[1]{\vspace{2pt}\noindent\textit{Done when.}\ #1\par}
+
+% ---------------------------------------------------------------------
+%  Section agendas
+%
+%  A work plan is an instruction for writing a section that does not yet
+%  exist.  An agenda is different: it is a standing statement of where a
+%  *written* section actually stands -- what it has settled, what it has
+%  not, and the ordered steps that would close the gap.  Every section of
+%  Parts I and II carries one, and it stays there until its open list is
+%  empty.  The two must not be confused: a work plan being present means
+%  no prose exists; an agenda being present means prose exists and is
+%  incomplete in stated ways.
+%
+%  Usage:
+%    \begin{agenda}
+%      \agset{\item ...}      % established, here or by citation
+%      \agopen{\item ...}     % not established; the honest gaps
+%      \agsteps{\item ...}    % ordered work that would close them
+%    \end{agenda}
+% ---------------------------------------------------------------------
+\newmdenv[linewidth=1pt,linecolor=examplecol!55,backgroundcolor=examplecol!5,
+  innerleftmargin=10pt,innerrightmargin=10pt,innertopmargin=8pt,
+  innerbottommargin=8pt,skipabove=10pt,skipbelow=10pt,roundcorner=3pt]{agbox}
+
+\newenvironment{agenda}
+  {\begin{agbox}\small\noindent\textsf{\textbf{\color{examplecol}Agenda.}}\par\vspace{2pt}}
+  {\end{agbox}}
+
+\newcommand{\agset}[1]{\noindent\textit{Settled.}%
+  \begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt,label=\textup{S\arabic*.}]#1\end{enumerate}\vspace{3pt}}
+\newcommand{\agopen}[1]{\noindent\textit{Open.}%
+  \begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt,label=\textup{O\arabic*.}]#1\end{enumerate}\vspace{3pt}}
+\newcommand{\agsteps}[1]{\noindent\textit{Next steps, in order.}%
+  \begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt,label=\textup{\arabic*.}]#1\end{enumerate}}
 
 % ---------------------------------------------------------------------
 %  Headers
