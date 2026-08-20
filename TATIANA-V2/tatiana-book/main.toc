@@ -1,0 +1,141 @@
+\contentsline {chapter}{How to read this book}{ii}{chapter*.1}%
+\contentsline {part}{I\hspace {1em}Orientation}{1}{part.1}%
+\contentsline {chapter}{\numberline {1}The Claim}{2}{chapter.1}%
+\contentsline {section}{\numberline {1.1}The founding hypothesis}{2}{section.1.1}%
+\contentsline {section}{\numberline {1.2}What is being modelled}{3}{section.1.2}%
+\contentsline {section}{\numberline {1.3}The thesis, and what each clause forbids}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}What Cognitive Space Theory is not}{4}{section.1.4}%
+\contentsline {chapter}{\numberline {2}The Picture Before the Symbols}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Charts, atlases, and the failure to agree}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}A single region cannot be wrong}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}The degenerate corner: what a neural network is, from here}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Reading, as a sequence of operations}{8}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Sources, Position, and the Literature Graph}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Naming discipline}{9}{section.3.1}%
+\contentsline {section}{\numberline {3.2}The five lineages}{9}{section.3.2}%
+\contentsline {paragraph}{1. Cellular sheaves and their spectral theory.}{9}{paragraph*.3}%
+\contentsline {paragraph}{2. Data-to-complex constructions.}{10}{paragraph*.4}%
+\contentsline {paragraph}{3. Sheaf-theoretic contextuality.}{10}{paragraph*.5}%
+\contentsline {paragraph}{4. Higher-order networks and sheaves on graphs in learning.}{10}{paragraph*.6}%
+\contentsline {paragraph}{5. Synchronization, fusion, and inference of structure.}{10}{paragraph*.7}%
+\contentsline {section}{\numberline {3.3}The literature graph}{11}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Nearest neighbours, and exactly where they diverge}{11}{section.3.4}%
+\contentsline {paragraph}{Discourse sheaves~\cite {HansenGhristOpinion}.}{11}{paragraph*.8}%
+\contentsline {paragraph}{Neural sheaf diffusion~\cite {BodnarSheaf}.}{11}{paragraph*.9}%
+\contentsline {paragraph}{Sheaf contextuality~\cite {AbramskyBrandenburger}.}{12}{paragraph*.10}%
+\contentsline {part}{II\hspace {1em}Foundations}{13}{part.2}%
+\contentsline {chapter}{\numberline {4}Where the Complex Comes From}{14}{chapter.4}%
+\contentsline {section}{\numberline {4.1}The problem: $\mathcal {C}$ may not be assumed}{14}{section.4.1}%
+\contentsline {section}{\numberline {4.2}A relation determines a complex}{14}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Dowker duality}{15}{section.4.3}%
+\contentsline {section}{\numberline {4.4}The alternatives, and their prices}{16}{section.4.4}%
+\contentsline {section}{\numberline {4.5}The ingest operator, and the running example}{16}{section.4.5}%
+\contentsline {chapter}{\numberline {5}The Base Complex}{19}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Simplicial complexes}{19}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Why dimension two, and why not one}{19}{section.5.2}%
+\contentsline {paragraph}{Not dimension one.}{19}{paragraph*.11}%
+\contentsline {paragraph}{Not dimension three or more.}{20}{paragraph*.12}%
+\contentsline {section}{\numberline {5.3}On the word ``stratified''}{20}{section.5.3}%
+\contentsline {section}{\numberline {5.4}The running example, combinatorially}{20}{section.5.4}%
+\contentsline {chapter}{\numberline {6}The Sheaf}{22}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Two algebras, not one}{22}{section.6.1}%
+\contentsline {section}{\numberline {6.2}The coefficient algebra: what content is}{22}{section.6.2}%
+\contentsline {section}{\numberline {6.3}The scalar field is forced}{23}{section.6.3}%
+\contentsline {section}{\numberline {6.4}The trade-off, stated as a cost}{24}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Which way do the restriction maps point?}{24}{section.6.5}%
+\contentsline {section}{\numberline {6.6}The definition}{25}{section.6.6}%
+\contentsline {section}{\numberline {6.7}What the $2$-cells do: functoriality is $\delta ^2=0$}{25}{section.6.7}%
+\contentsline {section}{\numberline {6.8}Flatness, holonomy, and what a filled triangle is}{26}{section.6.8}%
+\contentsline {section}{\numberline {6.9}The potency ladder, and why the identity is fatal}{27}{section.6.9}%
+\contentsline {chapter}{\numberline {7}Coboundary, Laplacian, and the Three Channels}{29}{chapter.7}%
+\contentsline {section}{\numberline {7.1}The coboundary}{29}{section.7.1}%
+\contentsline {section}{\numberline {7.2}The Laplacian and discord}{29}{section.7.2}%
+\contentsline {section}{\numberline {7.3}The three channels}{30}{section.7.3}%
+\contentsline {section}{\numberline {7.4}The degenerate corner, proved}{31}{section.7.4}%
+\contentsline {section}{\numberline {7.5}The running example, computed}{32}{section.7.5}%
+\contentsline {chapter}{\numberline {8}Configuration, Time, and Gluing}{34}{chapter.8}%
+\contentsline {section}{\numberline {8.1}The error in ``the current state''}{34}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Configuration space, and the stratification}{34}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Continuous time}{35}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Gluing, and a candidate for the growth address}{35}{section.8.4}%
+\contentsline {section}{\numberline {8.5}The definition, restated}{36}{section.8.5}%
+\contentsline {part}{III\hspace {1em}Coherence}{38}{part.3}%
+\contentsline {chapter}{\numberline {9}The Coherence Score}{39}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Why a normaliser is needed at all}{40}{section.9.1}%
+\contentsline {section}{\numberline {9.2}The score}{40}{section.9.2}%
+\contentsline {section}{\numberline {9.3}The score answers two questions at once}{41}{section.9.3}%
+\contentsline {section}{\numberline {9.4}The running example, continued}{42}{section.9.4}%
+\contentsline {section}{\numberline {9.5}The dead dynamic range}{43}{section.9.5}%
+\contentsline {section}{\numberline {9.6}The precision-weighted generalisation}{43}{section.9.6}%
+\contentsline {part}{IV\hspace {1em}Semantic Geometry}{45}{part.4}%
+\contentsline {chapter}{\numberline {10}Semantic Geometry}{46}{chapter.10}%
+\contentsline {section}{\numberline {10.1}A concept is a Gaussian}{47}{section.10.1}%
+\contentsline {section}{\numberline {10.2}The coarse-graining $\pi _v$}{47}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Distance between uncertain concepts}{48}{section.10.3}%
+\contentsline {section}{\numberline {10.4}The two terms are not commensurable}{49}{section.10.4}%
+\contentsline {section}{\numberline {10.5}Fusion and its entropy}{50}{section.10.5}%
+\contentsline {part}{V\hspace {1em}Cohomology and the Growth Address}{52}{part.5}%
+\contentsline {chapter}{\numberline {11}Cohomology and the Diagnostic Hierarchy}{53}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Two pathologies that must not be confused}{54}{section.11.1}%
+\contentsline {section}{\numberline {11.2}The hierarchy is vacuous as currently fed}{54}{section.11.2}%
+\contentsline {section}{\numberline {11.3}The Hodge decomposition}{55}{section.11.3}%
+\contentsline {section}{\numberline {11.4}The uncertainty stack}{56}{section.11.4}%
+\contentsline {part}{VI\hspace {1em}Identity}{57}{part.6}%
+\contentsline {chapter}{\numberline {12}Identity: What Survives Mutation}{58}{chapter.12}%
+\contentsline {part}{VII\hspace {1em}The Two-Phase Law}{60}{part.7}%
+\contentsline {chapter}{\numberline {13}The Two-Phase Law}{61}{chapter.13}%
+\contentsline {part}{VIII\hspace {1em}Dynamics}{63}{part.8}%
+\contentsline {chapter}{\numberline {14}Growth Operators and the Algebra $\mathfrak {D}$}{64}{chapter.14}%
+\contentsline {section}{\numberline {14.1}The structural operators}{65}{section.14.1}%
+\contentsline {chapter}{\numberline {15}The Fine Dynamics}{67}{chapter.15}%
+\contentsline {chapter}{\numberline {16}Scheduling: Antichains, and Why ``Operad'' Is Not Earned}{68}{chapter.16}%
+\contentsline {chapter}{\numberline {17}The Lift--Project Adjunction}{70}{chapter.17}%
+\contentsline {part}{IX\hspace {1em}The Later Constructions}{72}{part.9}%
+\contentsline {chapter}{\numberline {18}The MDL Growth Law}{73}{chapter.18}%
+\contentsline {section}{\numberline {18.1}Two-part description length}{74}{section.18.1}%
+\contentsline {section}{\numberline {18.2}The model term}{74}{section.18.2}%
+\contentsline {section}{\numberline {18.3}The data term and the law}{74}{section.18.3}%
+\contentsline {chapter}{\numberline {19}The Coned Concept}{76}{chapter.19}%
+\contentsline {section}{\numberline {19.1}The topological cone}{77}{section.19.1}%
+\contentsline {section}{\numberline {19.2}The stalks, chosen minimally}{77}{section.19.2}%
+\contentsline {section}{\numberline {19.3}The cone condition is forced, not imposed}{77}{section.19.3}%
+\contentsline {section}{\numberline {19.4}The construction}{78}{section.19.4}%
+\contentsline {section}{\numberline {19.5}The refusal branch is unreachable}{79}{section.19.5}%
+\contentsline {section}{\numberline {19.6}The limit is a ceiling, not a floor}{79}{section.19.6}%
+\contentsline {chapter}{\numberline {20}Retrieval: Rank, Do Not Threshold}{81}{chapter.20}%
+\contentsline {part}{X\hspace {1em}Verification and Control}{83}{part.10}%
+\contentsline {chapter}{\numberline {21}Verification: the External Oracle}{84}{chapter.21}%
+\contentsline {chapter}{\numberline {22}The Controller}{86}{chapter.22}%
+\contentsline {part}{XI\hspace {1em}Reproduction}{88}{part.11}%
+\contentsline {chapter}{\numberline {23}Reproduction}{89}{chapter.23}%
+\contentsline {part}{XII\hspace {1em}The Encoder and the Verification Lift}{91}{part.12}%
+\contentsline {chapter}{\numberline {24}The Encoder and the Verification Lift}{92}{chapter.24}%
+\contentsline {part}{XIII\hspace {1em}Limits: What Is and Is Not Claimed}{94}{part.13}%
+\contentsline {chapter}{\numberline {25}Limits: What Is and Is Not Claimed}{95}{chapter.25}%
+\contentsline {section}{\numberline {25.1}The bet and the refusal}{96}{section.25.1}%
+\contentsline {section}{\numberline {25.2}The scope is three papers, not one}{96}{section.25.2}%
+\contentsline {section}{\numberline {25.3}What must not be claimed}{97}{section.25.3}%
+\contentsline {section}{\numberline {25.4}The findings, restated as boundaries}{97}{section.25.4}%
+\contentsline {part}{XIV\hspace {1em}Open Problems}{99}{part.14}%
+\contentsline {chapter}{\numberline {26}Open Problems within MOS}{100}{chapter.26}%
+\contentsline {part}{XV\hspace {1em}Potentials for Quantum Implementation}{103}{part.15}%
+\contentsline {chapter}{\numberline {27}Potentials for Quantum Implementation}{104}{chapter.27}%
+\contentsline {section}{\numberline {27.1}Why this object at all}{105}{section.27.1}%
+\contentsline {section}{\numberline {27.2}The Dirac operator and its block-encoding}{105}{section.27.2}%
+\contentsline {section}{\numberline {27.3}The obstruction: input and output}{105}{section.27.3}%
+\contentsline {section}{\numberline {27.4}What would make this real}{106}{section.27.4}%
+\contentsline {part}{Appendices}{108}{part*.13}%
+\contentsline {chapter}{\numberline {A}Notation}{108}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Discrepancy Register}{109}{appendix.B}%
+\contentsline {paragraph}{D1 --- The two-scale complex, and ``concepts inside the stalk''.}{109}{paragraph*.14}%
+\contentsline {paragraph}{D2 --- Restriction maps point the wrong way in the poster.}{109}{paragraph*.15}%
+\contentsline {paragraph}{D3 --- Two different systems named MOS.}{109}{paragraph*.16}%
+\contentsline {paragraph}{D4 --- \texttt {main} is stale.}{109}{paragraph*.17}%
+\contentsline {paragraph}{D5 --- \texttt {hodge.py} is scalar, not sheaf-valued.}{109}{paragraph*.18}%
+\contentsline {paragraph}{D6 --- The Hebbian-weight gap appears to be closed.}{109}{paragraph*.19}%
+\contentsline {chapter}{\numberline {C}Refuted-Claims Ledger}{111}{appendix.C}%
+\contentsline {paragraph}{R1 --- Encoder anisotropy explains the dead dynamic range of $\rho $.}{111}{paragraph*.20}%
+\contentsline {paragraph}{R2 --- The cohomological hierarchy is informative as built.}{111}{paragraph*.21}%
+\contentsline {paragraph}{R3 --- Proposition 12.4 of the earlier description.}{111}{paragraph*.22}%
+\contentsline {paragraph}{R4 --- Theorem 7.5 as stated.}{111}{paragraph*.23}%
+\contentsline {paragraph}{R5 --- $K_0$ classes as memory invariants.}{111}{paragraph*.24}%
